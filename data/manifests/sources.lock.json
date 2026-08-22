@@ -1,0 +1,14 @@
+{
+  "proposal": {
+    "path": "sources/huce_evolving_kg_modular_proposal(8).pdf",
+    "sha256": "d9e6d74b84fabdff880698eb6a5774bed8445897539b3713ba1e0594a446ea6f"
+  },
+  "execution_plan": {
+    "path": "sources/Research_Execution_Plan_v1.0.md",
+    "sha256": "c61d08fc6a5a63658e2b99c1245867b9221a3f84c04fa9d872bad8fbbb638b94"
+  },
+  "patch": {
+    "path": "sources/Research_Execution_Plan_v1.1_Patch.md",
+    "sha256": "3f1bc9fd9d3dca2bb47eadc59c0ec6266a12794612761ce6b7ffb204fccb31a5"
+  }
+}

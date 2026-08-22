@@ -1,0 +1,47 @@
+# Engineering schema contract for analysis-relevant experiment manifests.
+# This is intentionally simple and tool-agnostic; validation can be implemented without
+# changing the scientific protocol.
+schema_version: "experiment_manifest_v1"
+required:
+  - experiment_id
+  - protocol_version
+  - git
+  - inputs
+  - environment
+  - hardware
+  - artifacts
+  - access
+
+fields:
+  experiment_id:
+    type: string
+    nonempty: true
+  protocol_version:
+    type: string
+    nonempty: true
+  git:
+    required: [commit, dirty_state]
+    optional: [patch_sha256]
+  inputs:
+    required:
+      - data_hash
+      - snapshot_hash
+      - query_hash
+      - entity_map_hash
+      - relation_map_hash
+      - config_hash
+  seed:
+    type: [integer, 'null']
+  environment:
+    required: [python, os]
+    optional: [pytorch, pykeen, neo4j, cuda, driver]
+  hardware:
+    required: [cpu, ram]
+    optional: [gpu, peak_vram, elapsed_seconds]
+  artifacts:
+    required: [hashes]
+  access:
+    required: [state, timestamp, actor_or_runner]
+    allowed_state: [dev, locked]
+  rerun:
+    optional: [failure_reason, amendment_id]

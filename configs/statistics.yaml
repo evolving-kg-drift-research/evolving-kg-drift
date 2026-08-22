@@ -1,0 +1,14 @@
+primary_model: RR_level_two_way_FE
+primary_inference: transition_cluster_WCB_TO_BE_FROZEN_W7
+falsification: same_snapshot_pseudo_drift
+
+wcb:
+  seed: TO_BE_FROZEN_W7
+  draws: TO_BE_FROZEN_W7
+
+sensitivity:
+  - LOTO
+  - delta_RR_stable_subset
+  - mean_max_query_drift
+  - signed_raw_excess
+  - one_pre_specified_covariance

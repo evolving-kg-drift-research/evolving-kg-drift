@@ -1,0 +1,94 @@
+# Single scientific protocol contract.
+# Pilot-dependent values intentionally remain placeholders until their registered freeze deadlines.
+
+protocol_version: "v1-draft"
+
+sources:
+  proposal_sha256: "d9e6d74b84fabdff880698eb6a5774bed8445897539b3713ba1e0594a446ea6f"
+  execution_plan_sha256: "c61d08fc6a5a63658e2b99c1245867b9221a3f84c04fa9d872bad8fbbb638b94"
+  patch_sha256: "3f1bc9fd9d3dca2bb47eadc59c0ec6266a12794612761ce6b7ffb204fccb31a5"
+
+temporal:
+  as_of_axis: evidence_observed_at
+  world_validity_fields: [valid_from, valid_to]
+  real_ingestion_field: ingested_at_real
+  primary_replay_time: null
+  revision_policy: append_only_new_version
+
+snapshots:
+  allowed_range: [8, 12]
+  target: 10
+  selection_algorithm: OUTCOME_BLIND_EVENT_BALANCED_V1
+  qa_feasibility_panel:
+    candidate_ids_hash: TO_BE_FROZEN_END_W3
+    use: feasibility_only
+    cannot_optimize_tiebreak: true
+    frozen_ids: TO_BE_FROZEN_W4
+
+kge:
+  model: TransE
+  norm: 2
+  dimension: TO_BE_FROZEN_W2
+  seeds: [13, 37, 101]
+
+alignment:
+  anchor_policy: persistent_canonical_pretransition_stratified
+  forbidden_features:
+    - fact_change_labels
+    - replacement_labels
+    - retraction_labels
+    - observed_drift
+    - RR
+    - MRR
+    - QA_outcomes
+    - H1_coefficient
+  fit_count: TO_BE_FROZEN_W3
+  holdout_count: TO_BE_FROZEN_W3
+  split: deterministic_hash_disjoint
+
+drift:
+  raw_metric: one_minus_cosine_after_alignment
+  null_definition: same_snapshot_cross_seed_conditional
+  bucket_merge_policy: TO_BE_FROZEN_W4
+  mad_epsilon: TO_BE_FROZEN_W4
+  standardization: positive_part_median_MAD
+  report_signed_raw_excess: true
+  query_aggregator_primary: median_unique_support_entities
+  missing_support_primary: complete_support_only
+
+h1:
+  population: recurring_nonOOV_complete_support
+  outcome: Updated_KGE_RR_level
+  fixed_effects: [query, transition]
+  controls: TO_BE_FROZEN_W5
+
+h2:
+  primary_population: Seen_at_T1
+  primary_candidate_universe: current_admissible_intersection_T1_mapped
+  secondary_population: full_open_world
+  secondary_candidate_universe: current_snapshot_admissible
+  frozen_unseen_candidate_score: negative_infinity
+  frozen_OOV_gold_RR: 0
+  diagnostic_population: New_or_OOV
+
+h3a:
+  primary_population: fixed_B_eligible_population
+  no_path_handling: exact_B_ranking_fallback
+  secondary_subset: path_eligible_diagnostic
+  path_features: TO_BE_FROZEN_W5
+
+statistics:
+  primary_model: RR_level_two_way_FE
+  primary_inference: transition_cluster_WCB_TO_BE_FROZEN_W7
+  falsification: same_snapshot_pseudo_drift
+  sensitivity:
+    - LOTO
+    - delta_RR_stable_subset
+    - mean_max_query_drift
+    - signed_raw_excess
+    - one_pre_specified_covariance
+
+optional:
+  path: SUPPORT_GATE_W5
+  icl: SUPPORT_DEFAULT
+  qlora: STRETCH_ONLY_GO_NO_GO_W4

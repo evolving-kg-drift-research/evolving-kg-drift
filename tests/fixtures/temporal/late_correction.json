@@ -1,0 +1,40 @@
+{
+  "case": "late_correction",
+  "cutoffs": ["2026-02-10T00:00:00Z", "2026-03-10T00:00:00Z"],
+  "facts": [
+    {
+      "fact_version_id": "fv-correction-old",
+      "logical_fact_id": "lf-correction",
+      "subject_id": "entity-a",
+      "relation_id": "relation-x",
+      "object_id": "entity-old",
+      "valid_from": "2026-02-01T00:00:00Z",
+      "valid_to": null,
+      "evidence_observed_at": "2026-02-05T00:00:00Z",
+      "ingested_at_real": "2026-08-01T00:00:00Z",
+      "supersedes_version_id": null,
+      "revision_type": "assert",
+      "source_id": "source-correction",
+      "source_url": "https://example.invalid/correction-old"
+    },
+    {
+      "fact_version_id": "fv-correction-new",
+      "logical_fact_id": "lf-correction",
+      "subject_id": "entity-a",
+      "relation_id": "relation-x",
+      "object_id": "entity-corrected",
+      "valid_from": "2026-02-01T00:00:00Z",
+      "valid_to": null,
+      "evidence_observed_at": "2026-03-01T00:00:00Z",
+      "ingested_at_real": "2026-08-01T00:00:00Z",
+      "supersedes_version_id": "fv-correction-old",
+      "revision_type": "correct",
+      "source_id": "source-correction",
+      "source_url": "https://example.invalid/correction-new"
+    }
+  ],
+  "expected_active_fact_ids": {
+    "2026-02-10T00:00:00Z": ["fv-correction-old"],
+    "2026-03-10T00:00:00Z": ["fv-correction-new"]
+  }
+}

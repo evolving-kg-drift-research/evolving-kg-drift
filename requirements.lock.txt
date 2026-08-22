@@ -1,0 +1,9 @@
+# Bootstrap lock. Regenerate deliberately with:
+# pip-compile requirements.in -o requirements.lock.txt
+iniconfig==2.1.0
+packaging==25.0
+pluggy==1.6.0
+pygments==2.19.2
+pytest==8.4.1
+pyyaml==6.0.2
+ruff==0.12.9

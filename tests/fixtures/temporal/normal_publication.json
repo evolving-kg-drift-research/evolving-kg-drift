@@ -1,0 +1,25 @@
+{
+  "case": "normal_publication",
+  "cutoffs": ["2026-01-09T00:00:00Z", "2026-01-11T00:00:00Z"],
+  "facts": [
+    {
+      "fact_version_id": "fv-normal-1",
+      "logical_fact_id": "lf-normal",
+      "subject_id": "entity-a",
+      "relation_id": "relation-x",
+      "object_id": "entity-b",
+      "valid_from": "2026-01-01T00:00:00Z",
+      "valid_to": null,
+      "evidence_observed_at": "2026-01-10T00:00:00Z",
+      "ingested_at_real": "2026-08-01T00:00:00Z",
+      "supersedes_version_id": null,
+      "revision_type": "assert",
+      "source_id": "source-normal",
+      "source_url": "https://example.invalid/normal"
+    }
+  ],
+  "expected_active_fact_ids": {
+    "2026-01-09T00:00:00Z": [],
+    "2026-01-11T00:00:00Z": ["fv-normal-1"]
+  }
+}

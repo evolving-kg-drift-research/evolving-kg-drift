@@ -1,0 +1,17 @@
+model: TransE
+norm: 2
+dimension: TO_BE_FROZEN_W2
+seeds: [13, 37, 101]
+
+dimension_search_space: [32, 64]
+
+selection_constraints:
+  may_use:
+    - validation_quality
+    - stability
+    - alignment_feasibility
+  forbidden:
+    - H1_sign
+    - locked_MRR
+    - SED_magnitude
+    - path_performance

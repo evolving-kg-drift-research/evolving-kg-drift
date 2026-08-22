@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environment
+.venv/
+
+# IDE / OS
+.vscode/*.local.json
+.DS_Store
+Thumbs.db
+
+# Local/raw data
+data/raw/*
+!data/raw/.gitkeep
+
+data/event_store/*
+!data/event_store/.gitkeep
+
+data/snapshots/*
+!data/snapshots/.gitkeep
+
+# Locked test payload is not committed by default.
+data/locked_test/*
+!data/locked_test/.gitkeep
+!data/locked_test/README.md
+
+# Generated outputs
+outputs/*
+!outputs/.gitkeep
+
+# Experiment definitions are committed; generated run payloads are not.
+experiments/**/runs/
+experiments/**/cache/
+experiments/**/artifacts/
+
+# Heavy/generated binary artifacts: no Git LFS by default.
+*.pt
+*.pth
+*.ckpt
+*.npz
+*.parquet
+
+# Temporary
+*.tmp
+*.log

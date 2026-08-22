@@ -1,0 +1,28 @@
+# Copy to data/manifests/w7_freeze.yaml only when preparing the W7/G6 freeze.
+protocol_version: "TO_BE_FROZEN_W7"
+protocol_sha256: "TO_BE_FROZEN_W7"
+git_commit: "TO_BE_FROZEN_W7"
+dirty_state: false
+
+source_hashes:
+  proposal_sha256: "TO_BE_FROZEN_W7"
+  execution_plan_sha256: "TO_BE_FROZEN_W7"
+  patch_sha256: "TO_BE_FROZEN_W7"
+
+data_hash: "TO_BE_FROZEN_W7"
+snapshot_manifest_hash: "TO_BE_FROZEN_W7"
+query_hash: "TO_BE_FROZEN_W7"
+candidate_universe_hashes:
+  primary: "TO_BE_FROZEN_W7"
+  secondary: "TO_BE_FROZEN_W7"
+pseudo_hash: "TO_BE_FROZEN_W7"
+
+wcb:
+  seed: "TO_BE_FROZEN_W7"
+  draws: "TO_BE_FROZEN_W7"
+
+locked_access_state: "TO_BE_FROZEN_W7"
+dry_run:
+  completed: false
+  run_id: "TO_BE_FROZEN_W7"
+  manifest_sha256: "TO_BE_FROZEN_W7"

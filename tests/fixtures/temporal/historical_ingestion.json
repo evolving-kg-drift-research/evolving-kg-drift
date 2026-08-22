@@ -1,0 +1,24 @@
+{
+  "case": "historical_ingestion",
+  "cutoffs": ["2024-06-02T00:00:00Z"],
+  "facts": [
+    {
+      "fact_version_id": "fv-history-1",
+      "logical_fact_id": "lf-history",
+      "subject_id": "entity-a",
+      "relation_id": "relation-x",
+      "object_id": "entity-b",
+      "valid_from": "2024-06-01T00:00:00Z",
+      "valid_to": null,
+      "evidence_observed_at": "2024-06-01T12:00:00Z",
+      "ingested_at_real": "2026-08-01T00:00:00Z",
+      "supersedes_version_id": null,
+      "revision_type": "assert",
+      "source_id": "source-history",
+      "source_url": "https://example.invalid/history"
+    }
+  ],
+  "expected_active_fact_ids": {
+    "2024-06-02T00:00:00Z": ["fv-history-1"]
+  }
+}

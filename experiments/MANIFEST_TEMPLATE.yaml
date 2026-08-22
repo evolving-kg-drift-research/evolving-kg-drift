@@ -1,0 +1,47 @@
+# Copy per retained run. Do not overwrite a previous run manifest.
+experiment_id: "TO_BE_SET"
+protocol_version: "v1-draft"
+
+git:
+  commit: "TO_BE_SET"
+  dirty_state: false
+  patch_sha256: null
+
+inputs:
+  data_hash: "TO_BE_SET"
+  snapshot_hash: "TO_BE_SET"
+  query_hash: "TO_BE_SET"
+  entity_map_hash: "TO_BE_SET"
+  relation_map_hash: "TO_BE_SET"
+  config_hash: "TO_BE_SET"
+
+seed: null
+
+environment:
+  python: "TO_BE_SET"
+  pytorch: null
+  pykeen: null
+  neo4j: null
+  os: "TO_BE_SET"
+  cuda: null
+  driver: null
+
+hardware:
+  gpu: null
+  cpu: "TO_BE_SET"
+  ram: "TO_BE_SET"
+  peak_vram: null
+  elapsed_seconds: null
+
+artifacts:
+  # path: sha256
+  hashes: {}
+
+access:
+  state: "dev"  # dev | locked
+  timestamp: "TO_BE_SET"
+  actor_or_runner: "TO_BE_SET"
+
+rerun:
+  failure_reason: null
+  amendment_id: null

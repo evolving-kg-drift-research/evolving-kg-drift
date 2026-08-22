@@ -1,0 +1,20 @@
+canonical_snapshot_format: parquet
+canonical_snapshot_is_source_of_truth: true
+deterministic_sort: true
+sha256_required: true
+
+neo4j:
+  role: materialization_and_path_query
+  parity_required: true
+  canonical_file_wins: true
+
+fact_versioning:
+  append_only: true
+  scientific_as_of_field: evidence_observed_at
+  world_validity_fields: [valid_from, valid_to]
+  ingestion_field: ingested_at_real
+  corrections_backfill_history: false
+
+stage_a:
+  target_articles_range: [600, 900]
+  target_relation_types_range: [8, 10]

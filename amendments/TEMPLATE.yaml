@@ -1,0 +1,30 @@
+# Copy this template for a post-freeze correction.
+# Performance preference is NOT a valid reason for changing frozen state.
+
+amendment_id: "AMEND-YYYY-NNN"
+date: "YYYY-MM-DD"
+author: "GITHUB_HANDLE"
+
+# Allowed:
+# engineering_failure | implementation_bug | documented_data_error | upstream_integrity_failure
+reason_type: "engineering_failure"
+failure_reason: "Describe the proven failure/error."
+
+# Exact repo paths or directory prefixes ending in "/".
+affected_paths:
+  - "configs/protocol_v1.yaml"
+
+evidence:
+  failing_test: "tests/test_example.py::test_reproduces_failure"
+  reproduction_steps: "Describe deterministic reproduction."
+  old_artifact_hashes: []
+
+change:
+  description: "Describe the minimal correction."
+  new_tests:
+    - "tests/test_example.py::test_regression"
+  new_version: "protocol-v1.1 / outputs run-v2"
+
+audit:
+  old_run_retained: true
+  previous_run_reference: ""

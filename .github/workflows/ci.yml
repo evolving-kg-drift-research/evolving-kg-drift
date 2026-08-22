@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.lock.txt
+
+      - name: Ruff
+        run: ruff check .
+
+      - name: Tests
+        run: pytest -q
+
+      - name: Verify Week-1 contract state
+        run: python scripts/verify_w1.py --ci
+
+      - name: Verify G1 gate state
+        run: python scripts/verify_g1.py --ci
+
+      - name: Verify W7/G6 gate state
+        run: python scripts/verify_w7.py --ci
+
+      - name: Check post-W7 freeze policy
+        env:
+          FREEZE_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          FREEZE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python scripts/check_freeze.py

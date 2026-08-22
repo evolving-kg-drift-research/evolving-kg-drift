@@ -1,0 +1,33 @@
+# Replace placeholders with actual GitHub handles.
+# CODEOWNERS routes review; it does not encode the scientific amendment requirement.
+
+/src/ingestion/       @M1_OWNER
+/src/extraction/      @M1_OWNER
+/src/temporal/        @M1_OWNER
+/configs/data.yaml    @M1_OWNER
+
+/src/kge/             @M2_OWNER
+/src/drift/           @M2_OWNER
+/configs/kge.yaml     @M2_OWNER
+
+/src/paths/           @M3_OWNER
+/src/auditor/         @M3_OWNER
+
+/src/evaluation/      @M4_OWNER
+/src/statistics/      @M4_OWNER
+/configs/statistics.yaml @M4_OWNER
+
+/configs/protocol_v1.yaml @M1_OWNER @M2_OWNER @M3_OWNER @M4_OWNER
+/data/manifests/          @M1_OWNER @M4_OWNER
+/amendments/              @M4_OWNER
+
+# Engineering contracts / gate scripts
+/configs/schemas/          @M4_OWNER
+/experiments/              @M4_OWNER
+/scripts/verify_g1.py      @M1_OWNER @M4_OWNER
+/scripts/verify_w7.py      @M4_OWNER
+/scripts/freeze_protocol.py @M4_OWNER
+/data/manifests/W7_FREEZE_TEMPLATE.yaml @M4_OWNER
+/docs/                     @M1_OWNER @M2_OWNER @M3_OWNER @M4_OWNER
+/CONTRIBUTING.md           @M1_OWNER @M2_OWNER @M3_OWNER @M4_OWNER
+
