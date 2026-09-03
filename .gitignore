@@ -49,3 +49,7 @@ experiments/**/artifacts/
 # Temporary
 *.tmp
 *.log
+
+# Local study & prompt contexts
+contexts/
+
