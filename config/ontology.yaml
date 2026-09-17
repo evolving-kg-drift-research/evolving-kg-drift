@@ -1,0 +1,92 @@
+domain: ai_digital_technology
+ontology_version: "1.1"
+
+entity_types:
+  - Organization
+  - AI_Model
+  - Product
+  - Software
+  - Platform
+  - Person
+
+relations:
+
+  is_CEO_of:
+    subject:
+      - Person
+    object:
+      - Organization
+
+  acquired_by:
+    subject:
+      - Organization
+      - Product
+    object:
+      - Organization
+
+  released_by:
+    subject:
+      - AI_Model
+      - Product
+      - Software
+    object:
+      - Organization
+
+  version_of:
+    subject:
+      - AI_Model
+      - Product
+      - Software
+    object:
+      - AI_Model
+      - Product
+      - Software
+
+  succeeded_by:
+    subject:
+      - AI_Model
+      - Product
+      - Software
+    object:
+      - AI_Model
+      - Product
+      - Software
+
+  partners_with:
+    symmetric: true
+    subject:
+      - Organization
+    object:
+      - Organization
+
+  invested_in:
+    subject:
+      - Organization
+      - Person
+    object:
+      - Organization
+
+  integrated_into:
+    subject:
+      - AI_Model
+      - Product
+      - Software
+    object:
+      - Product
+      - Software
+      - Platform
+
+  based_on:
+    subject:
+      - AI_Model
+      - Product
+      - Software
+    object:
+      - AI_Model
+      - Software
+
+  works_at:
+    subject:
+      - Person
+    object:
+      - Organization

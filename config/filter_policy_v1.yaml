@@ -1,0 +1,77 @@
+filter_version: "1.0.0"
+
+description: >
+  Chính sách lọc corpus cho miền AI & Technology.
+  Quyết định include/exclude độc lập với anchor,
+  drift và kết quả downstream.
+
+allowed_sources_only: true
+
+time_window:
+  start: "2025-03-01"
+  end: "2026-08-31"
+
+include_if:
+  source_allowed: true
+  within_time_window: true
+  domain_relevant: true
+  ontology_relation_possible: true
+
+domain_keywords:
+  - artificial intelligence
+  - AI
+  - machine learning
+  - deep learning
+  - generative AI
+  - large language model
+  - LLM
+  - chatbot
+  - AI model
+  - AI research
+  - AI company
+  - AI product
+  - trí tuệ nhân tạo
+  - học máy
+  - mô hình ngôn ngữ
+  - mô hình AI
+
+exclude_if:
+  outside_time_window: true
+  source_not_allowed: true
+  outside_domain: true
+
+forbidden_features:
+  - anchor_suitability
+  - anchor_frequency
+  - cross_snapshot_entity_frequency
+  - entity_stability
+  - drift_magnitude
+  - SED_plus
+  - reciprocal_rank
+  - downstream_outcome
+  - H1_result
+  - H2_result
+
+decision_fields:
+  - document_id
+  - filter_decision
+  - reason_code
+  - filter_version
+
+reason_codes:
+  include:
+    - IN_DOMAIN
+    - SOURCE_ALLOWED
+    - TIME_ALLOWED
+    - ONTOLOGY_RELATION_POSSIBLE
+
+  exclude:
+    - OUTSIDE_DOMAIN
+    - SOURCE_NOT_ALLOWED
+    - OUTSIDE_TIME_WINDOW
+    - NO_RELEVANT_RELATION
+
+audit:
+  enabled: true
+  save_reason_code: true
+  random_sample_review: true

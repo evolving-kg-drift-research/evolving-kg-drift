@@ -1,0 +1,167 @@
+# config/schema.yaml
+# Schema dữ liệu dùng xuyên suốt Data/KG pipeline.
+# Nếu thay đổi semantics/field quan trọng sau khi freeze:
+# bump version và reprocess upstream theo protocol.
+
+schema_version: "1.0.0"
+
+# =========================================================
+# 1. SOURCE REGISTRY
+# =========================================================
+source_registry:
+  fields:
+    - source_id
+    - name
+    - domain
+    - source_type
+    - rss
+    - enabled
+    - trust_notes
+    - archive_availability
+    - robots_legal_notes
+
+# =========================================================
+# 2. RAW SOURCE VERSION
+# =========================================================
+raw_source_versions:
+  fields:
+    - raw_source_id
+    - source_id
+    - url
+    - content_hash_sha256
+    - retrieved_at_real
+    - published_at_declared
+    - updated_at_declared
+    - archive_or_revision_datetime
+    - source_version_relation
+    - raw_blob_path
+
+# =========================================================
+# 3. DOCUMENT CLUSTER / SOURCE LINEAGE
+# =========================================================
+document_clusters:
+  fields:
+    - document_cluster_id
+    - raw_source_id
+    - duplicate_cluster_id
+    - canonical_document_id
+    - source_lineage_group_id
+    - is_syndicated_copy
+    - dedup_method
+    - dedup_score
+    - algorithm_version
+
+# =========================================================
+# 4. CORPUS FILTER
+# =========================================================
+corpus_filtered:
+  fields:
+    - document_cluster_id
+    - filter_decision
+    - reason_code
+    - filter_version
+
+# =========================================================
+# 5. ENTITY MENTION + VERSIONED ENTITY MAPPING
+# =========================================================
+entity_mentions:
+  fields:
+    - mention_id
+    - raw_source_id
+    - span_start
+    - span_end
+    - raw_form
+    - normalized_mention
+
+entity_mapping_versions:
+  fields:
+    - entity_mapping_id
+    - mention_id
+    - canonical_entity_id
+    - mapping_available_at
+    - entity_map_version
+    - supersedes_mapping_id
+    - mapping_basis
+    - mapping_confidence
+
+# =========================================================
+# 6. CLAIM
+# =========================================================
+claims:
+  fields:
+    - claim_id
+    - raw_source_id
+    - subject_id
+    - relation_id
+    - object_id
+    - object_value
+    - scope
+
+    - evidence_span_start
+    - evidence_span_end
+    - evidence_text_hash
+
+    - valid_from
+    - valid_to
+    - evidence_observed_at
+    - evidence_time_basis
+    - evidence_time_confidence
+    - valid_from_inferred
+
+    - extractor_version
+    - ontology_version
+    - extraction_confidence
+
+# =========================================================
+# 7. ADJUDICATION
+# =========================================================
+adjudication_decisions:
+  fields:
+    - decision_id
+    - LogicalFactID
+    - candidate_claim_ids
+    - supporting_claim_ids
+    - decision
+    - acceptance_basis
+    - accepted_into_kg_at
+    - adjudicated_at_real
+    - adjudication_rule_version
+    - reviewer_provenance
+
+# =========================================================
+# 8. FACT VERSION STORE
+# =========================================================
+fact_versions:
+  fields:
+    - FactVersionID
+    - LogicalFactID
+
+    - subject_id
+    - relation_id
+    - object_id
+    - object_value
+    - scope
+
+    - valid_from
+    - valid_to
+    - evidence_observed_at
+    - accepted_into_kg_at
+
+    - retrieved_at_real
+    - adjudicated_at_real
+
+    - supersedes_version_id
+    - revision_type
+
+    - source_id
+    - url
+    - raw_source_id
+    - supporting_claim_ids
+
+    - extractor_version
+    - entity_map_version
+    - ontology_version
+    - adjudication_rule_version
+
+    - confidence
+    - adjudication_status
