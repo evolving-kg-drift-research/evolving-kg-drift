@@ -1,55 +1,51 @@
-# Python
+# Virtual Environment
+.venv/
+venv/
+ENV/
+
+# Python cache and build metadata
 __pycache__/
 *.py[cod]
+*$py.class
 *.egg-info/
+.pytest_cache/
+
+# Backups (isolated from active pipeline discovery & git tracking)
+backups/
+
+# OS / Editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local Claude worktrees and tooling
+.claude/
+
+# Generated backups, test output, and coverage
+*.bak
 .pytest_cache/
 .ruff_cache/
 .coverage
 htmlcov/
 
-# Virtual environment
-.venv/
+# Pipeline outputs and local execution artifacts
+/runs/
+/logs/
+/reports/
+/outputs/
 
-# IDE / OS
-.vscode/*.local.json
-.DS_Store
-Thumbs.db
+# External data packages and generated data artifacts
+/data/raw/
+/data/discovery/
+/data/stage_4_3_runs/
+/data/stage_4_4_runs/
+/data/stage_4_4/
+/data/**/*.parquet
+/data/**/*.jsonl
+/data/**/*.tar
+/data/**/*.zst
+/data/**/*.csv
 
-# Local/raw data
-data/raw/*
-!data/raw/.gitkeep
-
-data/event_store/*
-!data/event_store/.gitkeep
-
-data/snapshots/*
-!data/snapshots/.gitkeep
-
-# Locked test payload is not committed by default.
-data/locked_test/*
-!data/locked_test/.gitkeep
-!data/locked_test/README.md
-
-# Generated outputs
-outputs/*
-!outputs/.gitkeep
-
-# Experiment definitions are committed; generated run payloads are not.
-experiments/**/runs/
-experiments/**/cache/
-experiments/**/artifacts/
-
-# Heavy/generated binary artifacts: no Git LFS by default.
-*.pt
-*.pth
-*.ckpt
-*.npz
-*.parquet
-
-# Temporary
-*.tmp
-*.log
-
-# Local study & prompt contexts
-contexts/
-
+# Small metadata under data/manifests/ remains opt-in and must be staged explicitly.
+# Do not add generated data artifacts by default.

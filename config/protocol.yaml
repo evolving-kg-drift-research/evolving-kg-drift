@@ -1,0 +1,65 @@
+protocol_version: 0.1.0
+data_contract_version: 0.1.0
+locked_at: '2026-09-15'
+domain_scope:
+  domain_name: AI và Công nghệ
+  description: Miền hẹp tập trung vào tin tức, sự kiện, sản phẩm và nghiên cứu liên
+    quan đến trí tuệ nhân tạo (AI) và công nghệ nói chung.
+  note: Chọn domain 'AI và công nghệ' là quyết định triển khai của nhóm, không phải
+    tên miền bắt buộc từ đề cương D1.
+hard_invariants:
+- id: INV-01
+  name: no_future_evidence
+  impl: src/invariants.py::no_future_evidence
+  description: Không dùng evidence có evidence_observed_at > cutoff của snapshot.
+- id: INV-02
+  name: no_future_entity_mapping
+  impl: src/invariants.py::no_future_entity_mapping
+  description: Không dùng entity mapping có available_at > known_at.
+- id: INV-03
+  name: append_only_provenance
+  impl: src/invariants.py::is_append_only
+  description: Raw data & provenance chỉ được thêm mới, không sửa/xóa/ghi đè.
+- id: INV-04
+  name: deterministic_rebuild
+  impl: src/invariants.py::is_deterministic
+  description: Cùng input+config+mapping version phải tái tạo cùng output (cùng hash).
+- id: INV-05
+  name: parquet_neo4j_set_equality
+  impl: src/invariants.py::is_set_equal
+  description: Tập entity/relation trong Parquet và Neo4j của cùng snapshot phải bằng
+    nhau.
+- id: INV-06
+  name: no_outcome_tuning
+  impl: src/invariants.py::no_outcome_tuning
+  description: Không dùng đặc trưng downstream (sed_plus, rr_score...) để lọc/chọn
+    dữ liệu.
+time_field_roles:
+  valid_from:
+    axis: valid_at
+    meaning: Thời điểm fact bắt đầu hiệu lực trong thực tế.
+  valid_to:
+    axis: valid_at
+    meaning: Thời điểm fact hết hiệu lực (nếu có).
+  evidence_observed_at:
+    axis: known_at
+    meaning: Thời điểm evidence trở nên công khai.
+  accepted_into_kg_at:
+    axis: known_at
+    meaning: Thời điểm sớm nhất evidence đủ để chấp nhận fact.
+  retrieved_at_real:
+    axis: project_time
+    meaning: Thời điểm dự án crawl thực tế (chỉ provenance).
+  adjudicated_at_real:
+    axis: project_time
+    meaning: Thời điểm review thực tế (chỉ provenance).
+mutable_after_pilot_without_reprocess:
+- comment/label không ảnh hưởng ngữ nghĩa
+- mô tả nội bộ của relation
+must_reprocess_full_corpus_if_changed:
+- ontology.yaml (relation semantics/cardinality)
+- logical_fact_id_rule
+- extractor_version (dùng trong 05_extract_candidates.py)
+- entity_map_version (dùng trong 09_resolve_entities.py)
+- adjudication_rule_version (dùng trong 08_adjudicate.py)
+- snapshot_builder_version (dùng trong 11_build_snapshots.py)
