@@ -4,13 +4,16 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
 import pyarrow.parquet as pq
 
-from .contracts import TABLE_SCHEMAS, validate_retrieval_rows
+from .baseline import inspect_config_approval, inspect_source_lock
+from .contracts import TABLE_SCHEMAS, FOREIGN_KEYS, validate_retrieval_rows
 from .hashing import sha256_json, utc_now_iso
-from .run import get_run_dir, load_run_manifest
-from .storage import read_json, read_yaml, write_json_immutable
+from .readiness import raw_input_blockers
+from .run import config_fingerprints, get_run_dir, load_run_manifest
+from .storage import read_json, read_yaml, verify_parquet_artifact, write_json_immutable
 
 REQUIRED_TABLES = (
     "raw_inventory",
@@ -36,6 +39,22 @@ def _read_table(run_dir: Path, table_name: str) -> list[dict[str, Any]]:
     return pq.read_table(run_dir / "tables" / f"{table_name}.parquet").to_pylist()
 
 
+def _persist_evaluation(run_dir: Path, result: dict[str, Any]) -> None:
+    stamp = result["evaluated_at_real"].replace(":", "-")
+    path = run_dir / "gates" / "A" / f"{stamp}_{uuid4().hex}.json"
+    write_json_immutable(path, result)
+
+
+def latest_gate_a_report(run_dir: Path) -> dict[str, Any] | None:
+    paths = list((run_dir / "gates" / "A").glob("*.json"))
+    if paths:
+        reports = [read_json(p) for p in paths]
+        reports.sort(key=lambda r: r.get("evaluated_at_real", ""))
+        return reports[-1]
+    legacy = run_dir / "gates" / "gate_A.json"
+    return read_json(legacy) if legacy.is_file() else None
+
+
 def evaluate_gate_a(repo_root: Path, run_id: str) -> dict[str, Any]:
     """Evaluate readiness using persisted evidence; returns non-PASS rather than masking blockers."""
 
@@ -47,7 +66,7 @@ def evaluate_gate_a(repo_root: Path, run_id: str) -> dict[str, Any]:
         checks.append(_check("A-001", "NOT_RUN", "Inventory input_lock.json is absent", "inputs/input_lock.json"))
         semantic = {"gate": "A", "run_id": run_id, "status": "NOT_RUN", "checks": checks}
         result = {**semantic, "evaluated_at_real": utc_now_iso(), "semantic_sha256": sha256_json(semantic)}
-        write_json_immutable(run_dir / "gates" / "gate_A.json", result)
+        _persist_evaluation(run_dir, result)
         return result
 
     input_lock = read_json(input_lock_path)
@@ -68,6 +87,7 @@ def evaluate_gate_a(repo_root: Path, run_id: str) -> dict[str, Any]:
         path = run_dir / "tables" / f"{table_name}.parquet"
         manifest_path = path.with_suffix(path.suffix + ".manifest.json")
         try:
+            verify_parquet_artifact(path, table_name)
             table = pq.read_table(path)
             if table.schema.names != TABLE_SCHEMAS[table_name].names:
                 raise ValueError("schema field names do not match contract")
@@ -117,13 +137,13 @@ def evaluate_gate_a(repo_root: Path, run_id: str) -> dict[str, Any]:
     checks.append(
         _check(
             "A-005",
-            "PASS" if strict_raw_paths and not unresolved_raw_paths else "BLOCKED",
+            "BLOCKED" if raw_input_blockers(raw_rows, table_rows.get("missing_coverage_ledger", [])) else "PASS",
             f"strict_raw_paths={strict_raw_paths}; unresolved_raw_paths={unresolved_raw_paths}",
             "tables/raw_inventory.parquet",
         )
     )
 
-    source_lock = input_lock.get("source_lock", {})
+    source_lock = inspect_source_lock(repo_root)
     checks.append(
         _check(
             "A-006",
@@ -134,10 +154,12 @@ def evaluate_gate_a(repo_root: Path, run_id: str) -> dict[str, Any]:
     )
     bundle_path = run_dir / "inputs" / "proposed_config_bundle.yaml"
     bundle = read_yaml(bundle_path) if bundle_path.is_file() else {}
+    current_approval = inspect_config_approval(repo_root, config_fingerprints(repo_root))
+    approval_matches = current_approval["status"] == "FROZEN" and all(bundle.get(key) == value for key, value in current_approval.items())
     checks.append(
         _check(
             "A-007",
-            "PASS" if bundle.get("status") == "FROZEN" else "BLOCKED",
+            "PASS" if approval_matches else "BLOCKED",
             f"config bundle status={bundle.get('status', 'MISSING')}",
             "inputs/proposed_config_bundle.yaml",
         )
@@ -173,6 +195,29 @@ def evaluate_gate_a(repo_root: Path, run_id: str) -> dict[str, Any]:
         )
     )
 
+    fk_errors = []
+    for child_table, fks in FOREIGN_KEYS.items():
+        if child_table not in table_rows:
+            continue
+        for child_col, (parent_table, parent_col) in fks.items():
+            if parent_table not in table_rows:
+                fk_errors.append(f"Missing parent table {parent_table} required by {child_table}.{child_col}")
+                continue
+            parent_keys = {row.get(parent_col) for row in table_rows[parent_table] if row.get(parent_col) is not None}
+            for index, row in enumerate(table_rows[child_table]):
+                val = row.get(child_col)
+                if val is not None and val not in parent_keys:
+                    fk_errors.append(f"{child_table}[{index}].{child_col}='{val}' not found in {parent_table}.{parent_col}")
+
+    checks.append(
+        _check(
+            "A-011",
+            "PASS" if not fk_errors else "FAIL",
+            "all foreign keys resolve" if not fk_errors else f"{len(fk_errors)} FK violations; first: {fk_errors[0]}",
+            "tables/",
+        )
+    )
+
     statuses = {check["status"] for check in checks}
     status = "FAIL" if "FAIL" in statuses else "BLOCKED" if "BLOCKED" in statuses else "NOT_RUN" if "NOT_RUN" in statuses else "PASS"
     semantic = {
@@ -188,5 +233,5 @@ def evaluate_gate_a(repo_root: Path, run_id: str) -> dict[str, Any]:
         ],
     }
     result = {**semantic, "evaluated_at_real": utc_now_iso(), "semantic_sha256": sha256_json(semantic)}
-    write_json_immutable(run_dir / "gates" / "gate_A.json", result)
+    _persist_evaluation(run_dir, result)
     return result

@@ -11,6 +11,8 @@ from typing import Any
 
 from bs4 import BeautifulSoup
 
+from datetime import datetime
+from .baseline import inspect_source_lock
 from .contracts import make_row
 from .hashing import (
     canonical_json,
@@ -21,10 +23,10 @@ from .hashing import (
     stable_id,
     utc_now_iso,
 )
+from .readiness import raw_input_blockers
 from .reconcile import reconcile_stage_4_3
 from .run import (
     get_run_dir,
-    inspect_source_lock,
     load_run_manifest,
     package_fingerprint,
 )
@@ -242,13 +244,22 @@ def _recovery_row(
             "record_sha256": evidence_record_sha256,
         },
     )
-    strict = bool(source_id and final_url and retrieved_at_real)
-    if strict:
-        provenance_status = "VERIFIED_ACQUISITION_EVIDENCE"
+    strict = False
+    provenance_status = "HASH_MATCHED_EVIDENCE_METADATA_PARTIAL"
+
+    if source_id and final_url and retrieved_at_real:
+        try:
+            timestamp = datetime.fromisoformat(retrieved_at_real)
+            if timestamp.tzinfo is None or timestamp.utcoffset() is None:
+                provenance_status = "INVALID_ACQUISITION_TIME_MISSING_TZ"
+            else:
+                strict = True
+                provenance_status = "VERIFIED_ACQUISITION_EVIDENCE"
+        except ValueError:
+            provenance_status = "INVALID_ACQUISITION_TIME_FORMAT"
     elif source_id and (requested_url or final_url):
         provenance_status = "PARTIAL_ACQUISITION_EVIDENCE_TIME_UNKNOWN"
-    else:
-        provenance_status = "HASH_MATCHED_EVIDENCE_METADATA_PARTIAL"
+
     return make_row(
         "retrievals",
         retrieval_id=retrieval_id,
@@ -539,7 +550,7 @@ def run_inventory(repo_root: Path, run_id: str, *, verify_inputs: bool) -> dict[
                     "body_variants",
                     body_variant_id=body_variant_id,
                     body_text_sha256=body_sha256,
-                    body_blob_relative_path=repo_relative(body_blob_path, repo_root),
+                    body_blob_relative_path=body_blob_path.relative_to(run_dir).as_posix(),
                     parser_version=PARSER_VERSION,
                     parser_fingerprint_sha256=_package_parser_fingerprint(),
                     decoder=extraction["decoder"],
@@ -696,7 +707,7 @@ def run_inventory(repo_root: Path, run_id: str, *, verify_inputs: bool) -> dict[
     unreadable_raw_count = sum(row["read_status"] != "OK" for row in raw_inventory_rows)
     strict_raw_count = sum(bool(row["strict_input_eligible"]) for row in raw_inventory_rows)
     unresolved_raw_count = sum(row["source_provenance_status"] == "UNRESOLVED_NO_ACQUISITION_EVIDENCE" for row in raw_inventory_rows)
-    blockers: list[dict[str, Any]] = []
+    blockers: list[dict[str, Any]] = raw_input_blockers(raw_inventory_rows, missing_rows)
     if stage_4_3.get("status") != "PASS":
         blockers.append({"id": "STAGE_4_3_RECONCILIATION", "detail": f"Stage 4.3 reconciliation status is {stage_4_3.get('status')}"})
     if source_lock["status"] != "PASS":

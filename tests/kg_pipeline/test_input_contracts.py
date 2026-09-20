@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 
 from kg_pipeline.contracts import ContractError, make_row, validate_retrieval_rows
-from kg_pipeline.run import inspect_source_lock
+from kg_pipeline.baseline import inspect_source_lock
 
 
 def test_strict_retrieval_requires_real_retrieval_time_and_final_url():
@@ -37,10 +37,18 @@ def test_file_mtime_and_article_metadata_are_rejected_as_acquisition_times():
 
 def test_missing_locked_source_artifact_is_blocked_and_lock_is_not_rewritten(tmp_path, source_lock_writer):
     source_lock_writer(tmp_path)
+    lock_path = tmp_path / "data/manifests/sources.lock.json"
+    original_bytes = lock_path.read_bytes()
+    (tmp_path / "configs").mkdir(exist_ok=True)
+    (tmp_path / "configs/protocol_v1.yaml").write_text(
+        'sources:\n  proposal_sha256: "' + "0" * 64 + '"\n', encoding="utf-8"
+    )
     result = inspect_source_lock(tmp_path)
+    assert lock_path.read_bytes() == original_bytes
 
     assert result["status"] == "BLOCKED"
-    assert result["items"] == [
+    assert {item["role"] for item in result["items"]} == {"proposal", "execution_plan", "patch"}
+    assert [item for item in result["items"] if item["role"] == "proposal"] == [
         {
             "role": "proposal",
             "path": "sources/missing-proposal.pdf",

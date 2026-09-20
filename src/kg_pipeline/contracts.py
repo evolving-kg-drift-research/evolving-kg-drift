@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
+from datetime import datetime
 from typing import Any
 
 import pyarrow as pa
@@ -10,7 +11,7 @@ import pyarrow as pa
 CONTRACT_VERSION = "ticket_a_v1"
 
 S = pa.string()
-I = pa.int64()
+INT64 = pa.int64()
 B = pa.bool_()
 
 
@@ -27,14 +28,14 @@ TABLE_SCHEMAS: dict[str, pa.Schema] = {
         ("raw_blob_sha256", S),
         ("filename_sha256", S),
         ("filename_hash_status", S),
-        ("bytes", I),
+        ("bytes", INT64),
         ("content_type_detected", S),
         ("content_type_basis", S),
         ("read_status", S),
         ("read_error", S),
         ("hash_computed_now", B),
         ("historical_hash_evidence_status", S),
-        ("historical_hash_evidence_count", I),
+        ("historical_hash_evidence_count", INT64),
         ("source_provenance_status", S),
         ("strict_input_eligible", B),
         ("unknown_reason", S),
@@ -43,13 +44,13 @@ TABLE_SCHEMAS: dict[str, pa.Schema] = {
         ("hash_audit_id", S),
         ("raw_candidate_id", S),
         ("relative_path", S),
-        ("bytes", I),
+        ("bytes", INT64),
         ("computed_sha256", S),
         ("hash_computed_now", B),
         ("filename_sha256", S),
         ("filename_hash_status", S),
         ("historical_hash_evidence_status", S),
-        ("historical_hash_evidence_count", I),
+        ("historical_hash_evidence_count", INT64),
         ("read_status", S),
         ("read_error", S),
     ),
@@ -102,7 +103,7 @@ TABLE_SCHEMAS: dict[str, pa.Schema] = {
         ("parser_fingerprint_sha256", S),
         ("decoder", S),
         ("selector", S),
-        ("text_char_count", I),
+        ("text_char_count", INT64),
         ("extraction_status", S),
         ("quality_flags_json", S),
     ),
@@ -122,7 +123,7 @@ TABLE_SCHEMAS: dict[str, pa.Schema] = {
         ("cluster_id", S),
         ("cluster_type", S),
         ("body_variant_id", S),
-        ("member_count", I),
+        ("member_count", INT64),
         ("member_ids_json", S),
         ("dedup_method", S),
         ("policy_status", S),
@@ -157,16 +158,58 @@ TABLE_SCHEMAS: dict[str, pa.Schema] = {
     "coverage_ledger": _schema(
         ("coverage_row_id", S),
         ("upstream_scope", S),
-        ("upstream_observation_count", I),
-        ("upstream_unique_url_count", I),
-        ("raw_blob_count", I),
-        ("recovered_retrieval_count", I),
-        ("strict_retrieval_count", I),
+        ("upstream_observation_count", INT64),
+        ("upstream_unique_url_count", INT64),
+        ("raw_blob_count", INT64),
+        ("recovered_retrieval_count", INT64),
+        ("strict_retrieval_count", INT64),
         ("comparison_status", S),
         ("reason", S),
     ),
 }
 
+PRIMARY_KEYS: dict[str, list[str]] = {
+    "raw_inventory": ["inventory_row_id"],
+    "raw_hash_audit": ["hash_audit_id"],
+    "retrievals": ["retrieval_id"],
+    "source_versions": ["source_version_id"],
+    "provenance_recovery_ledger": ["ledger_id"],
+    "body_variants": ["body_variant_id"],
+    "document_memberships": ["membership_id"],
+    "document_clusters": ["cluster_id"],
+    "lineage_edges": ["lineage_edge_id"],
+    "near_duplicate_candidates": ["candidate_id"],
+    "missing_coverage_ledger": ["issue_id"],
+    "coverage_ledger": ["coverage_row_id"],
+}
+
+FOREIGN_KEYS: dict[str, dict[str, tuple[str, str]]] = {
+    "raw_hash_audit": {"raw_candidate_id": ("raw_inventory", "raw_candidate_id")},
+    "retrievals": {"raw_blob_sha256": ("raw_inventory", "raw_blob_sha256")},
+    "source_versions": {
+        "raw_blob_sha256": ("raw_inventory", "raw_blob_sha256"),
+        "retrieval_id": ("retrievals", "retrieval_id")
+    },
+    "body_variants": {},
+    "document_memberships": {
+        "raw_blob_sha256": ("raw_inventory", "raw_blob_sha256"),
+        "raw_candidate_id": ("raw_inventory", "raw_candidate_id"),
+        "body_variant_id": ("body_variants", "body_variant_id"),
+        "exact_cluster_id": ("document_clusters", "cluster_id"),
+    },
+    "document_clusters": {"body_variant_id": ("body_variants", "body_variant_id")},
+    "lineage_edges": {
+        "from_source_version_id": ("source_versions", "source_version_id"),
+        "to_source_version_id": ("source_versions", "source_version_id"),
+    },
+    "near_duplicate_candidates": {
+        "left_body_variant_id": ("body_variants", "body_variant_id"),
+        "right_body_variant_id": ("body_variants", "body_variant_id"),
+    },
+    "missing_coverage_ledger": {},
+    "coverage_ledger": {},
+    "provenance_recovery_ledger": {"raw_blob_sha256": ("raw_inventory", "raw_blob_sha256")},
+}
 
 class ContractError(ValueError):
     pass
@@ -188,9 +231,15 @@ def make_row(table_name: str, **values: Any) -> dict[str, Any]:
 def validate_rows(table_name: str, rows: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
     """Validate fields shared by storage and tests before Parquet serialization."""
 
+    import re
+
     normalized = []
     schema = TABLE_SCHEMAS[table_name]
     fields = set(schema.names)
+    pks = PRIMARY_KEYS.get(table_name, [])
+
+    seen_pks = set()
+
     for index, original in enumerate(rows):
         unexpected = set(original) - fields
         if unexpected:
@@ -198,6 +247,28 @@ def validate_rows(table_name: str, rows: Iterable[dict[str, Any]]) -> list[dict[
         row = {name: original.get(name) for name in schema.names}
         if row["schema_version"] != CONTRACT_VERSION:
             raise ContractError(f"{table_name}[{index}] schema_version must be {CONTRACT_VERSION}")
+
+        # Check non-null for PKs
+        pk_vals = []
+        for pk in pks:
+            val = row.get(pk)
+            if not val:
+                raise ContractError(f"{table_name}[{index}] missing required primary key: {pk}")
+            pk_vals.append(val)
+
+        if pks:
+            pk_tuple = tuple(pk_vals)
+            if pk_tuple in seen_pks:
+                raise ContractError(f"{table_name}[{index}] duplicate primary key: {pk_tuple}")
+            seen_pks.add(pk_tuple)
+
+        # Check hash formats
+        for field in fields:
+            if field.endswith("_sha256") and row.get(field) is not None:
+                val = row[field]
+                if not isinstance(val, str) or not re.fullmatch(r"[0-9a-f]{64}", val):
+                    raise ContractError(f"{table_name}[{index}] invalid hash format for {field}: {val}")
+
         normalized.append(row)
 
     if table_name == "retrievals":
@@ -216,6 +287,16 @@ def validate_retrieval_rows(rows: Iterable[dict[str, Any]]) -> None:
                 "A strict retrieval requires raw hash, source, final URL, and retrieved_at_real; "
                 f"missing {missing}"
             )
+        if row.get("strict_source_input_eligible"):
+            value = row["retrieved_at_real"]
+            try:
+                if not isinstance(value, str):
+                    raise ValueError("timestamp must be a string")
+                timestamp = datetime.fromisoformat(value)
+                if timestamp.tzinfo is None or timestamp.utcoffset() is None:
+                    raise ValueError("explicit timezone is required")
+            except (TypeError, ValueError) as exc:
+                raise ContractError("Strict retrieved_at_real must be a valid timezone-aware ISO timestamp") from exc
         if row.get("recorded_event_time_field") in {"file_mtime", "published_at_declared", "inventory_at_real"}:
             raise ContractError("Ticket A must not use file or article metadata as acquisition evidence time")
 

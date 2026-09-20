@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import json
 import re
 from pathlib import Path
 from typing import Any
 
+from .baseline import inspect_config_approval, inspect_source_lock
 from .hashing import repo_relative, sha256_file, sha256_json, utc_now_iso
 from .storage import ArtifactConflict, read_yaml, write_yaml_immutable
 
@@ -16,6 +16,13 @@ CONFIG_CANDIDATES = (
     "config/protocol.yaml",
     "config/ontology.yaml",
     "config/schema.yaml",
+    "config/sources.yaml",
+    "config/corpus_scope.yaml",
+    "config/filter_policy_v1.yaml",
+    "config/stage_4_3.yaml",
+    "config/snapshot_cutoffs.yaml",
+    "requirements.lock.txt",
+    "pyproject.toml",
     "configs/protocol_v1.yaml",
     "configs/data.yaml",
     "data/manifests/sources.lock.json",
@@ -61,70 +68,17 @@ def config_fingerprints(repo_root: Path) -> list[dict[str, Any]]:
     return records
 
 
-def inspect_source_lock(repo_root: Path) -> dict[str, Any]:
-    lock_path = repo_root / "data" / "manifests" / "sources.lock.json"
-    if not lock_path.is_file():
-        return {
-            "status": "BLOCKED",
-            "reason": "source lock file is missing",
-            "lock_path": "data/manifests/sources.lock.json",
-            "items": [],
-        }
-    try:
-        lock = json.loads(lock_path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
-        return {
-            "status": "BLOCKED",
-            "reason": f"source lock is unreadable: {exc}",
-            "lock_path": "data/manifests/sources.lock.json",
-            "items": [],
-        }
-
-    items: list[dict[str, Any]] = []
-    for role, specification in sorted(lock.items()):
-        if not isinstance(specification, dict) or not specification.get("path") or not specification.get("sha256"):
-            items.append({"role": role, "status": "INVALID_LOCK_ENTRY", "path": None, "expected_sha256": None})
-            continue
-        path = repo_root / specification["path"]
-        if not path.is_file():
-            status = "MISSING"
-            actual = None
-        else:
-            actual = sha256_file(path)
-            status = "MATCH" if actual == specification["sha256"] else "HASH_MISMATCH"
-            with path.open("rb") as handle:
-                if handle.read(256).startswith(b"Placeholder content for "):
-                    status = "INVALID_PLACEHOLDER_SOURCE"
-        items.append(
-            {
-                "role": role,
-                "path": specification["path"],
-                "expected_sha256": specification["sha256"],
-                "actual_sha256": actual,
-                "status": status,
-            }
-        )
-    status = "PASS" if items and all(item["status"] == "MATCH" for item in items) else "BLOCKED"
-    return {
-        "status": status,
-        "reason": None if status == "PASS" else "One or more required source artifacts are absent, invalid, or hash-mismatched",
-        "lock_path": "data/manifests/sources.lock.json",
-        "lock_sha256": sha256_file(lock_path),
-        "items": items,
-    }
-
-
 def _bundle_payload(repo_root: Path) -> dict[str, Any]:
     candidate_files = config_fingerprints(repo_root)
     semantic = {
-        "bundle_version": "ticket_a_frozen_baseline_v2",
-        "status": "FROZEN",
+        "bundle_version": "ticket_a_proposed_baseline_v3",
+        **inspect_config_approval(repo_root, candidate_files),
         "candidate_files": candidate_files,
         "resolved_semantic_decisions": [
             "ADR 0005: Time fields retrieved_at_real and ingested_at_real remain completely separated.",
             "ADR 0005: Ontology is frozen at 10 strictly defined active relations.",
             "ADR 0005: Exact-body CAS deduplication policy is approved and frozen for Stage A.",
-            "ADR 0006: Source locks updated to reflect authentic document hashes."
+            "ADR 0007: Preserve original protocol source hashes; missing originals remain blocking."
         ],
     }
     return {**semantic, "created_at_real": utc_now_iso(), "semantic_sha256": sha256_json(semantic)}
@@ -155,6 +109,7 @@ def init_run(repo_root: Path, run_id: str, *, mode: str) -> dict[str, Any]:
         "upstream_stage_4_3_run": "data/stage_4_3_runs/stage4_3_final_20260906T144016Z",
         "code_fingerprint_sha256": package_fingerprint(repo_root),
         "config_candidates": config_fingerprints(repo_root),
+        "config_approval": inspect_config_approval(repo_root, config_fingerprints(repo_root)),
         "source_lock_status_at_init": source_lock["status"],
         "input_lock_path": "inputs/input_lock.json",
         "safety_scope": safety_scope,
@@ -166,7 +121,7 @@ def init_run(repo_root: Path, run_id: str, *, mode: str) -> dict[str, Any]:
     }
     manifest_path = run_dir / "run_manifest.yaml"
     if manifest_path.is_file():
-        existing_manifest = read_yaml(manifest_path)
+        existing_manifest = load_run_manifest(repo_root, run_id)
         if existing_manifest.get("run_id") != run_id or existing_manifest.get("mode") != mode:
             raise ArtifactConflict(f"Existing run manifest has incompatible identity: {manifest_path}")
         manifest_result = {
@@ -188,4 +143,18 @@ def load_run_manifest(repo_root: Path, run_id: str) -> dict[str, Any]:
     path = get_run_dir(repo_root, run_id) / "run_manifest.yaml"
     if not path.is_file():
         raise FileNotFoundError(f"Run has not been initialized: {path}")
-    return read_yaml(path)
+    manifest = read_yaml(path)
+    if not isinstance(manifest, dict):
+        raise ArtifactConflict("Run manifest must be a mapping")
+    semantic = {key: value for key, value in manifest.items() if key not in {"created_at_real", "semantic_sha256"}}
+    if manifest.get("semantic_sha256") != sha256_json(semantic):
+        raise ArtifactConflict("Run manifest semantic hash mismatch")
+    if manifest.get("run_id") != run_id:
+        raise ArtifactConflict("Run manifest identity mismatch")
+    if manifest.get("code_fingerprint_sha256") != package_fingerprint(repo_root):
+        raise ArtifactConflict("Executing code differs from the initialized run; create a new run")
+    if manifest.get("config_candidates") != config_fingerprints(repo_root):
+        raise ArtifactConflict("Configuration differs from the initialized run; create a new run")
+    if manifest.get("config_approval") != inspect_config_approval(repo_root, config_fingerprints(repo_root)):
+        raise ArtifactConflict("Configuration approval differs from the initialized run; create a new run")
+    return manifest

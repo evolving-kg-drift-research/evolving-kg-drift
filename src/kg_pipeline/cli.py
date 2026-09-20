@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from .gates import evaluate_gate_a
+from .gates import evaluate_gate_a, latest_gate_a_report
 from .hashing import find_repo_root
 from .inventory import run_inventory
 from .run import get_run_dir, init_run, load_run_manifest
@@ -41,13 +41,14 @@ def _status(repo_root: Path, run_id: str) -> dict[str, Any]:
     manifest = load_run_manifest(repo_root, run_id)
     run_dir = get_run_dir(repo_root, run_id)
     input_lock_path = run_dir / "inputs" / "input_lock.json"
-    gate_path = run_dir / "gates" / "gate_A.json"
+    gate_report = latest_gate_a_report(run_dir)
     readiness_path = run_dir / "reports" / "input_readiness_report.json"
     return {
         "run_id": run_id,
         "run_manifest_semantic_sha256": manifest.get("semantic_sha256"),
         "input_lock_status": read_json(input_lock_path).get("status") if input_lock_path.is_file() else "NOT_RUN",
-        "gate_A_status": read_json(gate_path).get("status") if gate_path.is_file() else "NOT_RUN",
+        "gate_A_status": gate_report.get("status") if gate_report else "NOT_RUN",
+        "gate_A_status_basis": "LAST_RECORDED_EVALUATION_NOT_LIVE_VERIFICATION",
         "ticket_A_implementation_status": read_json(readiness_path).get("implementation_status") if readiness_path.is_file() else "NOT_RUN",
         "run_dir": str(run_dir),
     }

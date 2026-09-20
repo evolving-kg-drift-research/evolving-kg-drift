@@ -49,3 +49,8 @@ htmlcov/
 
 # Small metadata under data/manifests/ remains opt-in and must be staged explicitly.
 # Do not add generated data artifacts by default.
+
+# Locked held-out test data must never be tracked or discovered by the pipeline
+/data/locked_test/*
+!/data/locked_test/README.md
+!/data/locked_test/.gitkeep

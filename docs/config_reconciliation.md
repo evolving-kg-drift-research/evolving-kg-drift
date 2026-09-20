@@ -1,5 +1,13 @@
 # Đối chiếu cấu hình - Ticket A
 
+## Bổ sung checkpoint 0 — 2026-09-20
+
+ADR 0007 giữ baseline nguồn gốc theo quyết định trực tiếp của người dùng và supersede quyền placeholder/đổi hash trong ADR 0006. Không thay source lock hoặc protocol hashes. Thiếu original đúng bytes vẫn BLOCKED.
+
+Phần bảng và mô tả bên dưới là đối chiếu lịch sử, không phải kiểm chứng lại hash/reader của HEAD hiện tại. Một số script legacy được nhắc tới không có trong nhánh này. Hiện `run.py::_bundle_payload` đã hard-code `FROZEN` theo ADR 0005, trái với mô tả `PROPOSED_UNFROZEN` lịch sử bên dưới; đó không phải bằng chứng scientific freeze. Runtime validation sẽ được sửa ở checkpoint tiếp theo. Baseline kỹ thuật Ticket A không thay pilot/ontology/pipeline freeze theo master spec. Xem `data_pipeline_compliance.md` và `checkpoint_0_report.md`.
+
+## Đối chiếu lịch sử (giữ nguyên)
+
 Trạng thái: **PROPOSED_UNFROZEN**. Tài liệu này chỉ map các file cấu hình thực tế trong repository; nó không merge cấu hình và không chọn scientific baseline.
 
 | File | SHA-256 | Version / vai trò quan sát được | Reader hiện tại quan sát được | Time field / hành vi chính | Trạng thái |
