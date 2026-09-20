@@ -13,6 +13,8 @@ from .hashing import find_repo_root
 from .inventory import run_inventory
 from .run import get_run_dir, init_run, load_run_manifest
 from .storage import read_json
+from .extract import run_extraction
+from .adjudicate import run_adjudication
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -30,6 +32,10 @@ def _parser() -> argparse.ArgumentParser:
     verify.add_argument("--gate", required=True, choices=("A",))
     status = commands.add_parser("status", help="Show persisted run/input/gate status")
     status.add_argument("--run", required=True)
+    extract = commands.add_parser("extract", help="Run offline or local LLM extraction over extracted body variants")
+    extract.add_argument("--run", required=True)
+    adjudicate = commands.add_parser("adjudicate", help="Adjudicate extracted claims into FactVersions")
+    adjudicate.add_argument("--run", required=True)
     return parser
 
 
@@ -70,6 +76,12 @@ def main(argv: list[str] | None = None) -> int:
             exit_code = 0 if payload["status"] == "PASS" else 2
         elif args.command == "status":
             payload = _status(repo_root, args.run)
+            exit_code = 0
+        elif args.command == "extract":
+            payload = run_extraction(repo_root, args.run)
+            exit_code = 0
+        elif args.command == "adjudicate":
+            payload = run_adjudication(repo_root, args.run)
             exit_code = 0
         else:  # argparse makes this unreachable, but keeps the entrypoint total.
             raise ValueError(f"Unsupported command: {args.command}")

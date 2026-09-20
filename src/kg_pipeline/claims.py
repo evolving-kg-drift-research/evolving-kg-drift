@@ -27,15 +27,28 @@ def extract_claims(
         response = adapter(prompt)
         set_cached_response(cache_dir, cache_key, response)
 
+    if not isinstance(response, dict):
+        response = {}
+
     # Response should have a "claims" list
     raw_claims = response.get("claims", [])
+    if not isinstance(raw_claims, list):
+        raw_claims = []
+
     valid_claims = []
     dlq = []
-    
+
     text_hash = sha256_text(text)
-    
+
     for i, rc in enumerate(raw_claims):
         try:
+            if not isinstance(rc, dict):
+                raise ContractError("Claim is not a dictionary.")
+
+            relation_name = rc.get("relation_name", "")
+            if relation_name not in ontology:
+                raise ContractError(f"Relation '{relation_name}' is not in the ontology.")
+
             start_idx = rc.get("evidence_span_start")
             end_idx = rc.get("evidence_span_end")
 
@@ -49,12 +62,19 @@ def extract_claims(
             if not extracted_text:
                 raise ContractError("Extracted evidence span is empty or whitespace.")
 
+            subject_mention = rc.get("subject_mention", "")
+            object_mention = rc.get("object_mention", "")
+
+            # Sub-string match validation (naive but better than nothing)
+            if subject_mention.lower() not in extracted_text.lower() and object_mention.lower() not in extracted_text.lower():
+                 raise ContractError("Neither subject nor object mention found in the extracted evidence span.")
+
             claim = Claim(
                 claim_id=f"{cache_key}_{i}",
                 source_id=source_id,
-                subject_mention=rc.get("subject_mention", ""),
-                relation_name=rc.get("relation_name", ""),
-                object_mention=rc.get("object_mention", ""),
+                subject_mention=subject_mention,
+                relation_name=relation_name,
+                object_mention=object_mention,
                 evidence_span_start=start_idx,
                 evidence_span_end=end_idx,
                 evidence_text_hash=text_hash,
@@ -71,6 +91,7 @@ def extract_claims(
                 "error": str(e),
                 "source_id": source_id
             })
-            
+
     return valid_claims, dlq
+
 

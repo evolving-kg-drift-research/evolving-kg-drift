@@ -33,6 +33,20 @@ def get_mock_response():
                 "object_mention": "Error",
                 "evidence_span_start": 0,
                 "evidence_span_end": 1000 # Way out of bounds
+            },
+            {
+                "subject_mention": "Invalid Relation",
+                "relation_name": "UNKNOWN_REL",
+                "object_mention": "Person C",
+                "evidence_span_start": 10,
+                "evidence_span_end": 45
+            },
+            {
+                "subject_mention": "Unrelated",
+                "relation_name": "CEO",
+                "object_mention": "Content",
+                "evidence_span_start": 0,
+                "evidence_span_end": 9 # text[0:9] = "Here is a" (does not contain "Unrelated" or "Content")
             }
         ]
     }
@@ -51,13 +65,15 @@ def test_extract_claims_offline_cache(tmp_path):
         adapter=adapter
     )
 
-    # Expect 1 valid claim, 2 in dead letter queue (one missing span, one OOB)
+    # Expect 1 valid claim, 5 in dead letter queue (missing span, OOB, whitespace, invalid relation, unrelated evidence)
     assert len(valid_claims) == 1
     assert valid_claims[0].subject_mention == "Company A"
-    assert len(dlq) == 3
+    assert len(dlq) == 5
     assert "empty or whitespace" in dlq[0]["error"]
     assert "Evidence span offsets are mandatory" in dlq[1]["error"]
     assert "out of bounds" in dlq[2]["error"]
+    assert "not in the ontology" in dlq[3]["error"]
+    assert "Neither subject nor object mention found" in dlq[4]["error"]
 
     # 2. Call again with a failing mock callable -> should hit cache and not call it!
     failing_adapter = OfflineMockAdapter({"claims": []})
@@ -73,7 +89,7 @@ def test_extract_claims_offline_cache(tmp_path):
     )
 
     assert len(valid_claims2) == 1
-    assert len(dlq2) == 3
+    assert len(dlq2) == 5
 
 def test_offline_mode_raises_if_not_cached(tmp_path):
     cache_dir = tmp_path / "llm_cache"
@@ -83,3 +99,4 @@ def test_offline_mode_raises_if_not_cached(tmp_path):
                 raise RuntimeError(f"Offline mode: No cached response for unseen")
 
         extract_claims("Unseen text", "s1", cache_dir, ontology=["CEO"], adapter=FailingAdapter({}))
+
