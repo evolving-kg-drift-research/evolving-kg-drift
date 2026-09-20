@@ -5,30 +5,27 @@ from temporal.schema import Claim, ContractError
 from .llm_cache import get_cache_key, get_cached_response, set_cached_response
 from .hashing import sha256_text
 
-# In a real scenario, this would call an LLM API.
-# For offline mode, it just raises an exception if not cached, or we can provide a mock callable.
+from .llm_adapter import generate_extraction_prompt, LLMAdapter
+
 def extract_claims(
-    text: str, 
-    source_id: str, 
-    cache_dir: Path, 
-    model: str = "offline-mock", 
-    llm_callable=None
+    text: str,
+    source_id: str,
+    cache_dir: Path,
+    ontology: list[str],
+    adapter: LLMAdapter
 ) -> tuple[list[Claim], list[dict[str, Any]]]:
     """
-    Extract claims from text. 
+    Extract claims from text.
     Returns a tuple of (valid_claims, dead_letter_queue_entries).
     """
-    prompt = f"Extract claims from the following text:\n\n{text}"
-    config = {"temperature": 0.0}
-    cache_key = get_cache_key(prompt, model, config)
-    
+    prompt = generate_extraction_prompt(text, ontology)
+    config = {"temperature": adapter.temperature}
+    cache_key = get_cache_key(prompt, adapter.model, config)
+
     response = get_cached_response(cache_dir, cache_key)
     if response is None:
-        if llm_callable:
-            response = llm_callable(prompt, model, config)
-            set_cached_response(cache_dir, cache_key, response)
-        else:
-            raise RuntimeError(f"Offline mode: No cached response for {cache_key}")
+        response = adapter(prompt)
+        set_cached_response(cache_dir, cache_key, response)
 
     # Response should have a "claims" list
     raw_claims = response.get("claims", [])
@@ -39,23 +36,34 @@ def extract_claims(
     
     for i, rc in enumerate(raw_claims):
         try:
+            start_idx = rc.get("evidence_span_start")
+            end_idx = rc.get("evidence_span_end")
+
+            if start_idx is None or end_idx is None:
+                raise ContractError("Evidence span offsets are mandatory.")
+
+            if start_idx < 0 or end_idx > len(text):
+                raise ContractError("Span offsets are out of bounds.")
+
+            extracted_text = text[start_idx:end_idx].strip()
+            if not extracted_text:
+                raise ContractError("Extracted evidence span is empty or whitespace.")
+
             claim = Claim(
                 claim_id=f"{cache_key}_{i}",
                 source_id=source_id,
                 subject_mention=rc.get("subject_mention", ""),
                 relation_name=rc.get("relation_name", ""),
                 object_mention=rc.get("object_mention", ""),
-                evidence_span_start=rc.get("evidence_span_start"),
-                evidence_span_end=rc.get("evidence_span_end"),
-                evidence_text_hash=text_hash
+                evidence_span_start=start_idx,
+                evidence_span_end=end_idx,
+                evidence_text_hash=text_hash,
+                valid_from_extracted=rc.get("valid_from_extracted"),
+                valid_to_extracted=rc.get("valid_to_extracted"),
+                is_negative=rc.get("is_negative", False),
+                is_speculative=rc.get("is_speculative", False)
             )
-            
-            # Additional validation: span bounds must be within text
-            if claim.evidence_span_end > len(text):
-                raise ContractError("Span end is out of bounds.")
-            if claim.evidence_span_start < 0:
-                raise ContractError("Span start is negative.")
-                
+
             valid_claims.append(claim)
         except ContractError as e:
             dlq.append({

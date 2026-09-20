@@ -20,7 +20,11 @@ class Claim:
     evidence_span_start: int
     evidence_span_end: int
     evidence_text_hash: str
-    
+    valid_from_extracted: Optional[str] = None
+    valid_to_extracted: Optional[str] = None
+    is_negative: bool = False
+    is_speculative: bool = False
+
     def __post_init__(self):
         if self.evidence_span_start is None or self.evidence_span_end is None:
             raise ContractError("Evidence span offsets are mandatory to prevent hallucinations.")
