@@ -25,6 +25,8 @@ CONFIG_CANDIDATES = (
     "pyproject.toml",
     "configs/protocol_v1.yaml",
     "configs/data.yaml",
+    "configs/kge.yaml",
+    "configs/statistics.yaml",
     "data/manifests/sources.lock.json",
 )
 
@@ -45,12 +47,18 @@ def get_run_dir(repo_root: Path, run_id: str) -> Path:
 
 
 def package_fingerprint(repo_root: Path) -> str:
-    package_root = repo_root / "src" / "kg_pipeline"
-    file_hashes = {
-        repo_relative(path, repo_root): sha256_file(path)
-        for path in sorted(package_root.rglob("*.py"))
-        if path.is_file()
-    }
+    src_dirs = [
+        repo_root / "src" / "kg_pipeline",
+        repo_root / "src" / "temporal",
+        repo_root / "src" / "kge",
+        repo_root / "src" / "drift",
+    ]
+    file_hashes: dict[str, str] = {}
+    for src_dir in src_dirs:
+        if src_dir.is_dir():
+            for path in sorted(src_dir.rglob("*.py")):
+                if path.is_file():
+                    file_hashes[repo_relative(path, repo_root)] = sha256_file(path)
     return sha256_json(file_hashes)
 
 
@@ -70,10 +78,71 @@ def config_fingerprints(repo_root: Path) -> list[dict[str, Any]]:
 
 def _bundle_payload(repo_root: Path) -> dict[str, Any]:
     candidate_files = config_fingerprints(repo_root)
+
+    resolved_config: dict[str, Any] = {}
+    for p_cand in ("configs/protocol_v1.yaml", "config/protocol.yaml"):
+        p_path = repo_root / p_cand
+        if p_path.is_file():
+            try:
+                resolved_config["protocol"] = read_yaml(p_path)
+            except Exception:
+                resolved_config["protocol"] = {}
+            break
+
+    ont_path = repo_root / "config" / "ontology.yaml"
+    if ont_path.is_file():
+        try:
+            resolved_config["ontology"] = read_yaml(ont_path)
+        except Exception:
+            resolved_config["ontology"] = {}
+
+    src_path = repo_root / "config" / "sources.yaml"
+    if src_path.is_file():
+        try:
+            resolved_config["sources"] = read_yaml(src_path)
+        except Exception:
+            resolved_config["sources"] = {}
+
+    fp_path = repo_root / "config" / "filter_policy_v1.yaml"
+    if fp_path.is_file():
+        try:
+            resolved_config["filter_policy"] = read_yaml(fp_path)
+        except Exception:
+            resolved_config["filter_policy"] = {}
+
+    sc_path = repo_root / "config" / "snapshot_cutoffs.yaml"
+    if sc_path.is_file():
+        try:
+            resolved_config["snapshot_cutoffs"] = read_yaml(sc_path)
+        except Exception:
+            resolved_config["snapshot_cutoffs"] = {}
+
+    kge_path = repo_root / "configs" / "kge.yaml"
+    if kge_path.is_file():
+        try:
+            resolved_config["kge"] = read_yaml(kge_path)
+        except Exception:
+            resolved_config["kge"] = {}
+
+    stat_path = repo_root / "configs" / "statistics.yaml"
+    if stat_path.is_file():
+        try:
+            resolved_config["drift"] = read_yaml(stat_path)
+        except Exception:
+            resolved_config["drift"] = {}
+
+    resolved_config["llm_adapter"] = {
+        "type": "mock",
+        "model": "offline_mock",
+        "temperature": 0.0,
+    }
+
     semantic = {
         "bundle_version": "ticket_a_proposed_baseline_v3",
         **inspect_config_approval(repo_root, candidate_files),
         "candidate_files": candidate_files,
+        "resolved_config": resolved_config,
+        "ontology_rules": resolved_config.get("ontology", {}).get("relations", {}),
         "resolved_semantic_decisions": [
             "ADR 0005: Time fields retrieved_at_real and ingested_at_real remain completely separated.",
             "ADR 0005: Ontology is frozen at 10 strictly defined active relations.",
@@ -84,24 +153,48 @@ def _bundle_payload(repo_root: Path) -> dict[str, Any]:
     return {**semantic, "created_at_real": utc_now_iso(), "semantic_sha256": sha256_json(semantic)}
 
 
-def init_run(repo_root: Path, run_id: str, *, mode: str) -> dict[str, Any]:
-    if mode != "inventory":
-        raise ValueError(f"Ticket A supports only --mode inventory (got {mode})")
+def init_run(
+    repo_root: Path,
+    run_id: str,
+    *,
+    mode: str,
+    parent_run_id: str | None = None,
+) -> dict[str, Any]:
+    valid_modes = ("inventory", "extraction", "adjudication", "snapshot", "kge", "drift")
+    if mode not in valid_modes:
+        raise ValueError(f"Ticket A supports only valid run modes {valid_modes} (got {mode})")
     run_dir = get_run_dir(repo_root, run_id)
     for relative in ("inputs", "tables", "body_blobs", "reports", "gates", "logs"):
         (run_dir / relative).mkdir(parents=True, exist_ok=True)
 
     source_lock = inspect_source_lock(repo_root)
 
-    safety_scope = {
-        "legacy_decision_inputs": "EXCLUDED",
-        "raw_input_mutation": "FORBIDDEN",
-        "llm_calls": "FORBIDDEN_IN_TICKET_A",
-        "network_collection": "FORBIDDEN_IN_TICKET_A",
-        "neo4j_writes": "FORBIDDEN_IN_TICKET_A",
-    }
+    if mode == "inventory":
+        safety_scope = {
+            "legacy_decision_inputs": "EXCLUDED",
+            "raw_input_mutation": "FORBIDDEN",
+            "llm_calls": "FORBIDDEN_IN_TICKET_A",
+            "network_collection": "FORBIDDEN_IN_TICKET_A",
+            "neo4j_writes": "FORBIDDEN_IN_TICKET_A",
+        }
+    elif mode == "extraction":
+        safety_scope = {
+            "legacy_decision_inputs": "EXCLUDED",
+            "raw_input_mutation": "FORBIDDEN",
+            "llm_calls": "LOCAL_OR_MOCK_ONLY",
+            "network_collection": "FORBIDDEN",
+            "neo4j_writes": "FORBIDDEN",
+        }
+    else:
+        safety_scope = {
+            "legacy_decision_inputs": "EXCLUDED",
+            "raw_input_mutation": "FORBIDDEN",
+            "llm_calls": "FORBIDDEN",
+            "network_collection": "FORBIDDEN",
+            "neo4j_writes": "FORBIDDEN",
+        }
 
-    semantic = {
+    semantic: dict[str, Any] = {
         "run_id": run_id,
         "mode": mode,
         "pipeline_contract_version": "ticket_a_v1",
@@ -114,6 +207,9 @@ def init_run(repo_root: Path, run_id: str, *, mode: str) -> dict[str, Any]:
         "input_lock_path": "inputs/input_lock.json",
         "safety_scope": safety_scope,
     }
+    if parent_run_id:
+        semantic["parent_run_id"] = parent_run_id
+
     manifest = {
         **semantic,
         "created_at_real": utc_now_iso(),

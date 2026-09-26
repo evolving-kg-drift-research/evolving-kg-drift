@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from typing import Any, Iterable
 
 from temporal.schema import Claim, FactVersion
+from temporal.snapshot import compute_logical_fact_id
 from .hashing import sha256_text
 
 WHITELIST_SOURCES = {"trusted_registry_1", "official_feed"}
@@ -43,7 +44,9 @@ def adjudicate_claims(
     ingested_at: datetime,
     entity_catalog: dict[str, str], # Maps raw mentions to canonical IDs
     extractor_version: str = "v1",
-    entity_map_version: str = "v1"
+    entity_map_version: str = "v1",
+    body_to_sources: dict[str, list[dict[str, Any]]] | None = None,
+    ontology_rules: dict[str, Any] | None = None,
 ) -> tuple[list[FactVersion], list[dict[str, Any]]]:
     """
     Adjudicate extracted claims into FactVersions.
@@ -69,21 +72,14 @@ def adjudicate_claims(
         if not observed_at:
             review_queue.append({
                 "claim_id": claim.claim_id,
-                "reason": "MISSING_OBSERVATION_TIME",
+                "reason": "EVIDENCE_TIME_UNAVAILABLE",
                 "claim": claim
             })
             continue
 
-        # Use extracted dates if available
-        valid_from = parse_extracted_date(claim.valid_from_extracted, observed_at)
+        # Use extracted dates if available - strictly decoupled from observation time (A07)
+        valid_from = parse_extracted_date(claim.valid_from_extracted, None) if claim.valid_from_extracted else None
         valid_to = parse_extracted_date(claim.valid_to_extracted, None) if claim.valid_to_extracted else None
-
-        # Upper-bound verification
-        if valid_from > observed_at:
-            valid_from = observed_at
-
-        if valid_to and valid_to > observed_at:
-            valid_to = observed_at
 
         # Ignore speculative or negative claims for auto-accept
         if claim.is_speculative or claim.is_negative:
@@ -94,12 +90,36 @@ def adjudicate_claims(
             })
             continue
 
-        # Deterministic IDs
-        logical_fact_id = sha256_text(f"{subject_id}|{claim.relation_name}|{object_id}")[:16]
+        # Deterministic IDs respecting relation-specific functional dependency (A10)
+        logical_fact_id = compute_logical_fact_id(subject_id, claim.relation_name, object_id, ontology_rules)
         fact_version_id = f"{logical_fact_id}_{claim.claim_id}"
 
-        # Mapping confidence based on source trust and extraction details
-        confidence = 0.9 if claim.source_id in WHITELIST_SOURCES else 0.5
+        # Resolve publisher sources and trust via body_to_sources if available
+        bv_id = getattr(claim, "body_variant_id", claim.source_id)
+        sources = body_to_sources.get(bv_id, []) if body_to_sources else []
+        if sources:
+            trusted_src = next((s for s in sources if s.get("publisher_source_id") in WHITELIST_SOURCES), None)
+            is_trusted = trusted_src is not None
+            primary_src = trusted_src or sources[0]
+            resolved_source_id = primary_src.get("publisher_source_id") or bv_id
+            resolved_source_url = primary_src.get("source_url") or f"internal://{bv_id}"
+
+            # Resolve actual acquisition timestamp (A08)
+            fact_ingested_at = ingested_at
+            if primary_src.get("retrieved_at_real"):
+                try:
+                    dt_ing = datetime.fromisoformat(primary_src["retrieved_at_real"])
+                    fact_ingested_at = dt_ing if dt_ing.tzinfo else dt_ing.replace(tzinfo=timezone.utc)
+                except (ValueError, TypeError):
+                    pass
+        else:
+            is_trusted = claim.source_id in WHITELIST_SOURCES
+            resolved_source_id = claim.source_id
+            resolved_source_url = f"internal://{claim.source_id}"
+            fact_ingested_at = ingested_at
+
+        confidence = 0.9 if is_trusted else 0.5
+        adjudication_status = "AUTO_ACCEPTED" if is_trusted else "PENDING_REVIEW"
 
         fact = FactVersion(
             fact_version_id=fact_version_id,
@@ -110,18 +130,18 @@ def adjudicate_claims(
             valid_from=valid_from,
             valid_to=valid_to,
             evidence_observed_at=observed_at,
-            ingested_at_real=ingested_at,
+            ingested_at_real=fact_ingested_at,
             supersedes_version_id=None,
             revision_type="creation",
-            source_id=claim.source_id,
-            source_url=f"internal://{claim.source_id}", # Placeholder
+            source_id=resolved_source_id,
+            source_url=resolved_source_url,
             evidence_span_start=claim.evidence_span_start,
             evidence_span_end=claim.evidence_span_end,
             evidence_text_hash=claim.evidence_text_hash,
             extractor_version=extractor_version,
             entity_map_version=entity_map_version,
             confidence=confidence,
-            adjudication_status="AUTO_ACCEPTED" if claim.source_id in WHITELIST_SOURCES else "PENDING_REVIEW"
+            adjudication_status=adjudication_status
         )
 
         if fact.adjudication_status == "AUTO_ACCEPTED":

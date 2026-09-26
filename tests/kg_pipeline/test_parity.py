@@ -17,7 +17,14 @@ def test_verify_neo4j_parity():
 
     # 1. Exact match
     neo4j_edges = [
-        {"subject_id": "A", "relation_id": "REL", "object_id": "B", "valid_from": dt(2021,1,1).isoformat()}
+        {
+            "subject_id": "A",
+            "relation_id": "REL",
+            "object_id": "B",
+            "valid_from": dt(2021, 1, 1).isoformat(),
+            "valid_to": None,
+            "fact_version_id": "f1",
+        }
     ]
     report = verify_neo4j_parity([fact1], neo4j_edges)
     assert report["status"] == "PASS"
@@ -29,7 +36,14 @@ def test_verify_neo4j_parity():
 
     # 3. Extra in Neo4j
     neo4j_edges.append(
-        {"subject_id": "A", "relation_id": "REL", "object_id": "C", "valid_from": dt(2021,1,1).isoformat()}
+        {
+            "subject_id": "A",
+            "relation_id": "REL",
+            "object_id": "C",
+            "valid_from": dt(2021, 1, 1).isoformat(),
+            "valid_to": None,
+            "fact_version_id": "f2",
+        }
     )
     with pytest.raises(ParityError, match="Extra in Neo4j: 1"):
         verify_neo4j_parity([fact1], neo4j_edges)

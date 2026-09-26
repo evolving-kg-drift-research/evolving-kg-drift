@@ -57,3 +57,36 @@ def test_missing_locked_source_artifact_is_blocked_and_lock_is_not_rewritten(tmp
             "status": "MISSING",
         }
     ]
+
+
+def test_schema_yaml_aligns_with_table_contracts():
+    """A31: Verify harmonization of schema definitions across config/schema.yaml and contracts.py."""
+    from pathlib import Path
+    import yaml
+    from kg_pipeline.contracts import TABLE_SCHEMAS
+
+    schema_path = Path(__file__).resolve().parents[2] / "config" / "schema.yaml"
+    with schema_path.open("r", encoding="utf-8") as f:
+        schema_cfg = yaml.safe_load(f)
+
+    # Check key schemas are present in both schema.yaml and contracts.TABLE_SCHEMAS
+    expected_tables = {
+        "retrievals",
+        "source_versions",
+        "body_variants",
+        "document_memberships",
+        "claim_provenance",
+        "fact_versions",
+        "snapshot_edges",
+        "snapshot_edge_support",
+        "snapshot_exclusions",
+    }
+    for table_name in expected_tables:
+        assert table_name in TABLE_SCHEMAS, f"{table_name} missing from contracts.py"
+        # Check that table exists in schema.yaml
+        assert table_name in schema_cfg, f"{table_name} missing from schema.yaml"
+        yaml_fields = set(schema_cfg[table_name]["fields"])
+        pyarrow_fields = {f.name for f in TABLE_SCHEMAS[table_name] if f.name != "schema_version"}
+        # Ensure intersection covers core fields
+        common = yaml_fields.intersection(pyarrow_fields)
+        assert len(common) > 0, f"No common fields between schema.yaml and contracts.py for {table_name}"

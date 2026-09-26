@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import subprocess
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -51,3 +52,30 @@ def find_repo_root(start: Path | None = None) -> Path:
         if (candidate / "AGENTS.md").is_file() or (candidate / ".git").exists():
             return candidate
     raise RuntimeError(f"Could not find repository root from {current}")
+
+
+def get_git_info(repo_root: Path | None = None) -> tuple[str, bool]:
+    """Return (git_commit_sha, is_dirty). Falls back to ('unknown', False) on failure."""
+    try:
+        root = repo_root or find_repo_root()
+        res = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=str(root),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=True,
+        )
+        commit = res.stdout.strip()
+        status_res = subprocess.run(
+            ["git", "status", "--porcelain"],
+            cwd=str(root),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=True,
+        )
+        is_dirty = bool(status_res.stdout.strip())
+        return commit, is_dirty
+    except Exception:
+        return "unknown", False

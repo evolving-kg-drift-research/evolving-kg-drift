@@ -13,6 +13,7 @@ CONTRACT_VERSION = "ticket_a_v1"
 S = pa.string()
 INT64 = pa.int64()
 B = pa.bool_()
+F64 = pa.float64()
 
 
 def _schema(*fields: tuple[str, pa.DataType]) -> pa.Schema:
@@ -166,6 +167,78 @@ TABLE_SCHEMAS: dict[str, pa.Schema] = {
         ("comparison_status", S),
         ("reason", S),
     ),
+    "extracted_claims": _schema(
+        ("claim_id", S),
+        ("body_variant_id", S),
+        ("source_id", S),
+        ("subject_mention", S),
+        ("relation_name", S),
+        ("object_mention", S),
+        ("evidence_span_start", INT64),
+        ("evidence_span_end", INT64),
+        ("evidence_text_hash", S),
+        ("valid_from_extracted", S),
+        ("valid_to_extracted", S),
+        ("is_negative", B),
+        ("is_speculative", B),
+    ),
+    "claim_provenance": _schema(
+        ("provenance_id", S),
+        ("claim_id", S),
+        ("membership_id", S),
+        ("source_version_id", S),
+        ("retrieval_id", S),
+        ("raw_blob_sha256", S),
+        ("publisher_source_id", S),
+        ("source_url", S),
+    ),
+    "fact_versions": _schema(
+        ("fact_version_id", S),
+        ("logical_fact_id", S),
+        ("subject_id", S),
+        ("relation_id", S),
+        ("object_id", S),
+        ("valid_from", S),
+        ("valid_to", S),
+        ("evidence_observed_at", S),
+        ("ingested_at_real", S),
+        ("supersedes_version_id", S),
+        ("revision_type", S),
+        ("source_id", S),
+        ("source_url", S),
+        ("evidence_span_start", INT64),
+        ("evidence_span_end", INT64),
+        ("evidence_text_hash", S),
+        ("extractor_version", S),
+        ("entity_map_version", S),
+        ("confidence", F64),
+        ("adjudication_status", S),
+    ),
+    "snapshot_edges": _schema(
+        ("edge_id", S),
+        ("subject_id", S),
+        ("relation_id", S),
+        ("object_id", S),
+        ("snapshot_id", S),
+    ),
+    "snapshot_edge_support": _schema(
+        ("support_id", S),
+        ("edge_id", S),
+        ("fact_version_id", S),
+        ("claim_id", S),
+        ("source_version_id", S),
+        ("raw_blob_sha256", S),
+    ),
+    "snapshot_exclusions": _schema(
+        ("exclusion_id", S),
+        ("record_id", S),
+        ("fact_version_id", S),
+        ("reason_code", S),
+        ("severity", S),
+        ("stage", S),
+        ("field", S),
+        ("detail", S),
+    ),
 }
 
 PRIMARY_KEYS: dict[str, list[str]] = {
@@ -181,6 +254,12 @@ PRIMARY_KEYS: dict[str, list[str]] = {
     "near_duplicate_candidates": ["candidate_id"],
     "missing_coverage_ledger": ["issue_id"],
     "coverage_ledger": ["coverage_row_id"],
+    "extracted_claims": ["claim_id"],
+    "claim_provenance": ["provenance_id"],
+    "fact_versions": ["fact_version_id"],
+    "snapshot_edges": ["edge_id"],
+    "snapshot_edge_support": ["support_id"],
+    "snapshot_exclusions": ["exclusion_id"],
 }
 
 FOREIGN_KEYS: dict[str, dict[str, tuple[str, str]]] = {
@@ -209,6 +288,18 @@ FOREIGN_KEYS: dict[str, dict[str, tuple[str, str]]] = {
     "missing_coverage_ledger": {},
     "coverage_ledger": {},
     "provenance_recovery_ledger": {"raw_blob_sha256": ("raw_inventory", "raw_blob_sha256")},
+    "extracted_claims": {"body_variant_id": ("body_variants", "body_variant_id")},
+    "claim_provenance": {
+        "claim_id": ("extracted_claims", "claim_id"),
+        "membership_id": ("document_memberships", "membership_id"),
+    },
+    "fact_versions": {},
+    "snapshot_edges": {},
+    "snapshot_edge_support": {
+        "edge_id": ("snapshot_edges", "edge_id"),
+        "fact_version_id": ("fact_versions", "fact_version_id"),
+    },
+    "snapshot_exclusions": {},
 }
 
 class ContractError(ValueError):

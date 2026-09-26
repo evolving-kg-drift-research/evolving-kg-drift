@@ -23,7 +23,7 @@ def _parser() -> argparse.ArgumentParser:
     commands = parser.add_subparsers(dest="command", required=True)
     init = commands.add_parser("init-run", help="Create a new immutable run namespace")
     init.add_argument("--run", required=True)
-    init.add_argument("--mode", required=True, choices=("inventory",))
+    init.add_argument("--mode", required=True, choices=("inventory", "extraction", "adjudication", "snapshot", "kge", "drift"))
     inventory = commands.add_parser("inventory", help="Read raw input and write Ticket A artifacts")
     inventory.add_argument("--run", required=True)
     inventory.add_argument("--verify-inputs", action="store_true", help="Reconcile the upstream Stage 4.3 evidence before inventory")
@@ -34,8 +34,10 @@ def _parser() -> argparse.ArgumentParser:
     status.add_argument("--run", required=True)
     extract = commands.add_parser("extract", help="Run offline or local LLM extraction over extracted body variants")
     extract.add_argument("--run", required=True)
+    extract.add_argument("--allow-unverified-gate", action="store_true", help="Allow running extraction without verified Gate A PASS")
     adjudicate = commands.add_parser("adjudicate", help="Adjudicate extracted claims into FactVersions")
     adjudicate.add_argument("--run", required=True)
+    adjudicate.add_argument("--allow-unverified-gate", action="store_true", help="Allow running adjudication without verified Gate A PASS")
     return parser
 
 
@@ -78,10 +80,10 @@ def main(argv: list[str] | None = None) -> int:
             payload = _status(repo_root, args.run)
             exit_code = 0
         elif args.command == "extract":
-            payload = run_extraction(repo_root, args.run)
+            payload = run_extraction(repo_root, args.run, enforce_gate_a=not args.allow_unverified_gate)
             exit_code = 0
         elif args.command == "adjudicate":
-            payload = run_adjudication(repo_root, args.run)
+            payload = run_adjudication(repo_root, args.run, enforce_gate_a=not args.allow_unverified_gate)
             exit_code = 0
         else:  # argparse makes this unreachable, but keeps the entrypoint total.
             raise ValueError(f"Unsupported command: {args.command}")

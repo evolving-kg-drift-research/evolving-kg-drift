@@ -1,0 +1,56 @@
+# Snapshot cutoffs configuration
+# Separates operational corpus boundaries from test fixture boundaries (A29).
+
+protocol_version: "v1-draft"
+
+# Operational boundaries for the 2025-2026 production news corpus
+operational_snapshots:
+  selection_algorithm: OUTCOME_BLIND_EVENT_BALANCED_V1
+  target_snapshots: 10
+  allowed_range: [8, 12]
+  corpus_time_window:
+    start: "2025-01-01T00:00:00Z"
+    end: "2026-06-30T23:59:59Z"
+  provisional_cutoffs:
+    - id: "SNAP_2025_01"
+      cutoff: "2025-01-31T23:59:59Z"
+      description: "January 2025 boundary"
+    - id: "SNAP_2025_02"
+      cutoff: "2025-02-28T23:59:59Z"
+      description: "February 2025 boundary"
+    - id: "SNAP_2025_03"
+      cutoff: "2025-03-31T23:59:59Z"
+      description: "March 2025 boundary"
+    - id: "SNAP_2025_04"
+      cutoff: "2025-04-30T23:59:59Z"
+      description: "April 2025 boundary"
+    - id: "SNAP_2025_05"
+      cutoff: "2025-05-31T23:59:59Z"
+      description: "May 2025 boundary"
+    - id: "SNAP_2025_06"
+      cutoff: "2025-06-30T23:59:59Z"
+      description: "June 2025 boundary"
+    - id: "SNAP_2025_07"
+      cutoff: "2025-07-31T23:59:59Z"
+      description: "July 2025 boundary"
+    - id: "SNAP_2025_08"
+      cutoff: "2025-08-31T23:59:59Z"
+      description: "August 2025 boundary"
+    - id: "SNAP_2025_09"
+      cutoff: "2025-09-30T23:59:59Z"
+      description: "September 2025 boundary"
+    - id: "SNAP_2025_10"
+      cutoff: "2025-10-31T23:59:59Z"
+      description: "October 2025 boundary"
+
+# Isolated test fixture boundaries for deterministic unit & integration tests
+fixture_snapshots:
+  S1:
+    cutoff: "2021-01-01T00:00:00Z"
+    description: "Synthetic test snapshot S1"
+  S2:
+    cutoff: "2022-01-01T00:00:00Z"
+    description: "Synthetic test snapshot S2"
+  S3:
+    cutoff: "2023-01-01T00:00:00Z"
+    description: "Synthetic test snapshot S3"

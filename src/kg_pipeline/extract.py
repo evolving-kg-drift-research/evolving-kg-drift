@@ -8,15 +8,26 @@ from typing import Any
 
 import pyarrow.parquet as pq
 
-from .claims import extract_claims
+from .claims import extract_claims, resolve_claim_provenance
+from .contracts import CONTRACT_VERSION
 from .llm_adapter import OfflineMockAdapter, LocalOpenAIAdapter
 from .run import get_run_dir
 from .storage import write_parquet_immutable, read_yaml
+from temporal.schema import ClaimCandidate
 
 logger = logging.getLogger(__name__)
 
-def run_extraction(repo_root: Path, run_id: str) -> dict[str, Any]:
+def run_extraction(repo_root: Path, run_id: str, *, enforce_gate_a: bool = False) -> dict[str, Any]:
     run_dir = get_run_dir(repo_root, run_id)
+
+    if enforce_gate_a:
+        from .gates import latest_gate_a_report
+        gate_report = latest_gate_a_report(run_dir)
+        if not gate_report:
+            raise PermissionError(f"Extraction blocked: Gate A has not been evaluated for run {run_id}")
+        if gate_report.get("status") != "PASS":
+            raise PermissionError(f"Extraction blocked: Gate A status is {gate_report.get('status')}, expected PASS")
+
     body_variants_path = run_dir / "tables" / "body_variants.parquet"
     if not body_variants_path.is_file():
         raise FileNotFoundError(f"Missing {body_variants_path}")
@@ -24,10 +35,11 @@ def run_extraction(repo_root: Path, run_id: str) -> dict[str, Any]:
     # Load configuration
     config_path = run_dir / "inputs" / "proposed_config_bundle.yaml"
     config = read_yaml(config_path) if config_path.is_file() else {}
-    ontology = config.get("ontology", ["CEO", "ACQUIRED", "LOCATED_IN"])
+    res_cfg = config.get("resolved_config", {})
+    ontology = res_cfg.get("ontology") or config.get("ontology", ["CEO", "ACQUIRED", "LOCATED_IN"])
 
     # Determine adapter mode
-    adapter_config = config.get("llm_adapter", {})
+    adapter_config = res_cfg.get("llm_adapter") or config.get("llm_adapter", {})
     if adapter_config.get("type") == "local":
         adapter = LocalOpenAIAdapter(
             base_url=adapter_config.get("base_url", "http://localhost:8000/v1"),
@@ -45,6 +57,7 @@ def run_extraction(repo_root: Path, run_id: str) -> dict[str, Any]:
     body_blobs = table.column("body_blob_relative_path").to_pylist()
 
     extracted_claims = []
+    all_candidates: list[ClaimCandidate] = []
 
     for b_id, b_path in zip(body_variant_ids, body_blobs):
         full_path = run_dir / b_path
@@ -55,16 +68,19 @@ def run_extraction(repo_root: Path, run_id: str) -> dict[str, Any]:
 
         valid_claims, _ = extract_claims(
             text=text,
-            source_id=b_id,
+            body_variant_id=b_id,
             cache_dir=cache_dir,
             ontology=ontology,
             adapter=adapter
         )
 
+        all_candidates.extend(valid_claims)
         for claim in valid_claims:
             extracted_claims.append({
+                "schema_version": CONTRACT_VERSION,
                 "claim_id": claim.claim_id,
-                "source_id": claim.source_id,
+                "body_variant_id": claim.body_variant_id,
+                "source_id": claim.body_variant_id,
                 "subject_mention": claim.subject_mention,
                 "relation_name": claim.relation_name,
                 "object_mention": claim.object_mention,
@@ -83,8 +99,43 @@ def run_extraction(repo_root: Path, run_id: str) -> dict[str, Any]:
         extracted_claims
     )
 
+    # Resolve multi-hop claim provenance if document memberships & retrievals exist
+    memberships_path = run_dir / "tables" / "document_memberships.parquet"
+    retrievals_path = run_dir / "tables" / "retrievals.parquet"
+    provenance_count = 0
+
+    if memberships_path.is_file() and retrievals_path.is_file():
+        m_table = pq.read_table(memberships_path)
+        r_table = pq.read_table(retrievals_path)
+        provenances = resolve_claim_provenance(
+            claims=all_candidates,
+            memberships=m_table.to_pylist(),
+            retrievals=r_table.to_pylist()
+        )
+        claim_provenance_rows = []
+        for idx, prov in enumerate(provenances):
+            claim_provenance_rows.append({
+                "schema_version": CONTRACT_VERSION,
+                "provenance_id": f"prov_{prov.claim_id}_{idx}",
+                "claim_id": prov.claim_id,
+                "membership_id": prov.membership_id,
+                "source_version_id": prov.source_version_id,
+                "retrieval_id": prov.retrieval_id,
+                "raw_blob_sha256": prov.raw_blob_sha256,
+                "publisher_source_id": prov.publisher_source_id,
+                "source_url": prov.source_url,
+            })
+
+        write_parquet_immutable(
+            run_dir / "tables" / "claim_provenance.parquet",
+            "claim_provenance",
+            claim_provenance_rows
+        )
+        provenance_count = len(claim_provenance_rows)
+
     return {
         "status": "COMPLETED",
         "run_id": run_id,
-        "extracted_claims_count": len(extracted_claims)
+        "extracted_claims_count": len(extracted_claims),
+        "claim_provenance_count": provenance_count,
     }

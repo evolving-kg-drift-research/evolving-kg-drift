@@ -1,3 +1,7 @@
+# RUNTIME DOMAIN PROTOCOL IMPLEMENTATION
+# Note (A30): configs/protocol_v1.yaml is the sole authoritative scientific protocol.
+# This file provides runtime implementation parameters and domain mapping for the AI news corpus.
+
 protocol_version: 0.1.0
 data_contract_version: 0.1.0
 locked_at: '2026-09-15'

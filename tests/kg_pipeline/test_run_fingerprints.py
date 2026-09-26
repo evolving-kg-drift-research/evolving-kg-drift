@@ -6,7 +6,7 @@ from kg_pipeline.run import init_run, load_run_manifest
 from kg_pipeline.storage import ArtifactConflict
 
 
-@pytest.mark.parametrize("relative", ["config/sources.yaml", "config/filter_policy_v1.yaml", "requirements.lock.txt", "src/kg_pipeline/example.py"])
+@pytest.mark.parametrize("relative", ["config/sources.yaml", "config/filter_policy_v1.yaml", "requirements.lock.txt", "src/kg_pipeline/example.py", "src/kge/example.py", "src/drift/example.py"])
 def test_changed_dependency_prevents_resume(tmp_path, relative):
     init_run(tmp_path, "fingerprint_fixture", mode="inventory")
     path = tmp_path / relative

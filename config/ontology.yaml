@@ -12,12 +12,21 @@ entity_types:
 relations:
 
   is_CEO_of:
+    temporal_semantics: state
+    logical_key:
+      - relation
+      - object
     subject:
       - Person
     object:
       - Organization
 
   acquired_by:
+    temporal_semantics: event
+    logical_key:
+      - subject
+      - relation
+      - object
     subject:
       - Organization
       - Product
@@ -25,6 +34,11 @@ relations:
       - Organization
 
   released_by:
+    temporal_semantics: event
+    logical_key:
+      - subject
+      - relation
+      - object
     subject:
       - AI_Model
       - Product

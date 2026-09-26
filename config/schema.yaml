@@ -165,3 +165,54 @@ fact_versions:
 
     - confidence
     - adjudication_status
+
+# =========================================================
+# 9. CLAIM PROVENANCE
+# =========================================================
+claim_provenance:
+  fields:
+    - provenance_id
+    - claim_id
+    - membership_id
+    - source_version_id
+    - retrieval_id
+    - raw_blob_sha256
+    - publisher_source_id
+    - source_url
+
+# =========================================================
+# 10. SNAPSHOT EDGES (UNIQUE TRIPLES)
+# =========================================================
+snapshot_edges:
+  fields:
+    - edge_id
+    - subject_id
+    - relation_id
+    - object_id
+    - snapshot_id
+
+# =========================================================
+# 11. SNAPSHOT EDGE SUPPORT (PROVENANCE MULTIPLICITY)
+# =========================================================
+snapshot_edge_support:
+  fields:
+    - support_id
+    - edge_id
+    - fact_version_id
+    - claim_id
+    - source_version_id
+    - raw_blob_sha256
+
+# =========================================================
+# 12. SNAPSHOT EXCLUSIONS (FAIL-CLOSED QUARANTINE)
+# =========================================================
+snapshot_exclusions:
+  fields:
+    - exclusion_id
+    - record_id
+    - fact_version_id
+    - reason_code
+    - severity
+    - stage
+    - field
+    - detail

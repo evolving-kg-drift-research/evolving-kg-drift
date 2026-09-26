@@ -1,0 +1,514 @@
+# AUDIT REMEDIATION MATRIX — MACHINE READABLE DEFINITIONS
+# Source: Independent Scientific & Architectural Audit 2026-09-26
+# Tracking: reconcile/pipeline-drift-compliance
+
+remediation_version: "1.0.0"
+created_at: "2026-09-26"
+status: "IN_PROGRESS"
+baseline_branch: "fix/data-pipeline-compliance"
+target_branch: "reconcile/pipeline-drift-compliance"
+
+items:
+  - id: A01
+    severity: HIGH
+    title: branch_divergence_reconciliation
+    scientific_requirement: >
+      Consolidate pipeline under a single integration branch rooted at fix/data-pipeline-compliance
+      with selective transplant of M2 modules, preserving all storage locks, sidecars, and Gate A hardening.
+    affected_files:
+      - src/kg_pipeline/
+      - src/temporal/
+      - src/kge/
+      - src/drift/
+    tests:
+      - tests/kg_pipeline/test_input_contracts.py
+      - tests/test_kge_contract.py
+    status: RESOLVED
+    fixed_by_commit: "Phase 0 reconciliation baseline"
+    evidence: "81/81 tests passing across M1 (66) and transplanted M2 (15)"
+
+  - id: A02
+    severity: CRITICAL
+    title: config_bundle_missing_runtime_configs
+    scientific_requirement: >
+      Run config bundle (proposed_config_bundle.yaml) must contain fully resolved ontology,
+      entity catalog, and LLM adapter configuration instead of only approval status and hash lists.
+    affected_files:
+      - src/kg_pipeline/run.py
+      - src/kg_pipeline/extract.py
+    tests:
+      - tests/scientific/test_runtime_config_and_gates.py
+      - tests/kg_pipeline/test_run_fingerprints.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A02): materialize resolved_config in proposed_config_bundle"
+    evidence: "proposed_config_bundle.yaml contains resolved ontology, sources, filter policy, cutoffs, kge, drift, llm adapter"
+
+  - id: A03
+    severity: HIGH
+    title: stage_execution_permission_isolation
+    scientific_requirement: >
+      Separate Ticket-A inventory run from downstream extraction/adjudication runs so safety_scope
+      (forbidding LLM calls in inventory) does not conflict with downstream execution.
+    affected_files:
+      - src/kg_pipeline/run.py
+      - src/kg_pipeline/cli.py
+    tests:
+      - tests/scientific/test_runtime_config_and_gates.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A03): isolate stage execution permissions"
+    evidence: "Decoupled safety_scope across inventory, extraction, adjudication, snapshot, kge, drift"
+
+  - id: A04
+    severity: CRITICAL
+    title: downstream_gate_a_enforcement
+    scientific_requirement: >
+      Downstream stages (extraction, adjudication, snapshot runner) must refuse execution
+      if parent Gate A status != PASS in production environments.
+    affected_files:
+      - src/kg_pipeline/cli.py
+      - src/kg_pipeline/extract.py
+      - src/kg_pipeline/adjudicate.py
+    tests:
+      - tests/scientific/test_runtime_config_and_gates.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A04): enforce Gate A PASS on downstream stages"
+    evidence: "Extraction and adjudication fail closed if Gate A report status is missing or not PASS"
+
+  - id: A05
+    severity: CRITICAL
+    title: claim_source_identity_separation
+    scientific_requirement: >
+      Claim.source_id must not masquerade as body_variant_id. Separate text-level ClaimCandidate
+      from multi-hop ClaimProvenance (resolving through memberships to source_version_id and raw_blob_sha256).
+    affected_files:
+      - src/kg_pipeline/extract.py
+      - src/kg_pipeline/claims.py
+      - src/kg_pipeline/adjudicate.py
+    tests:
+      - tests/kg_pipeline/test_claims.py
+      - tests/scientific/test_claim_provenance_chain.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A05): decouple ClaimCandidate from multi-hop ClaimProvenance"
+    evidence: "ClaimCandidate indexed on body_variant_id; resolve_claim_provenance preserves multiple source linkages via memberships and retrievals"
+
+  - id: A06
+    severity: HIGH
+    title: body_to_sources_provenance_population
+    scientific_requirement: >
+      body_to_sources mapping in adjudication must be properly populated from document memberships
+      and retrieval records to ensure valid trust propagation.
+    affected_files:
+      - src/kg_pipeline/adjudicate.py
+    tests:
+      - tests/kg_pipeline/test_adjudication.py
+      - tests/scientific/test_claim_provenance_chain.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A06): populate body_to_sources from document memberships and retrievals"
+    evidence: "adjudicate_claims loads body_to_sources and propagates real retrieval source ID and URL"
+
+  - id: A07
+    severity: CRITICAL
+    title: temporal_axis_separation_no_valid_from_fallback
+    scientific_requirement: >
+      World validity time (valid_from/valid_to) and evidence observation time (evidence_observed_at)
+      must remain completely decoupled. valid_from must never fall back to evidence_observed_at,
+      and unproven observation time must fail to EVIDENCE_TIME_UNAVAILABLE.
+    affected_files:
+      - src/kg_pipeline/adjudicate.py
+      - src/temporal/snapshot.py
+    tests:
+      - tests/kg_pipeline/test_retrieval_timestamps.py
+      - tests/scientific/test_temporal_axis_separation.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A07): decouple world validity, evidence observation, and ingestion time axes"
+    evidence: "valid_from strictly decoupled from evidence_observed_at; unproven observation routes to EVIDENCE_TIME_UNAVAILABLE"
+
+  - id: A08
+    severity: HIGH
+    title: ingested_at_real_provenance
+    scientific_requirement: >
+      ingested_at_real must reflect actual acquisition event records rather than manifest creation time.
+    affected_files:
+      - src/kg_pipeline/adjudicate.py
+    tests:
+      - tests/kg_pipeline/test_retrieval_timestamps.py
+      - tests/scientific/test_temporal_axis_separation.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A08): derive fact.ingested_at_real from actual retrieval records"
+    evidence: "fact.ingested_at_real extracts retrieved_at_real from primary source in body_to_sources"
+
+  - id: A09
+    severity: CRITICAL
+    title: versioned_temporal_entity_mapping
+    scientific_requirement: >
+      Entity resolution must use point-in-time versioned entity mappings where mapping_available_at <= cutoff.
+      No future alias decisions or canonical mappings may leak into historical snapshots.
+    affected_files:
+      - src/temporal/snapshot.py
+      - src/kg_pipeline/adjudicate.py
+      - config/schema.yaml
+    tests:
+      - tests/scientific/test_no_future_entity_mapping.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A09): enforce point-in-time versioned entity mapping at snapshot cutoff"
+    evidence: "resolve_entity_at_cutoff filters mappings by mapping_available_at <= cutoff and resolves supersession chain"
+
+  - id: A10
+    severity: HIGH
+    title: relation_specific_logical_fact_keys
+    scientific_requirement: >
+      LogicalFactID must support relation-specific keys (e.g. state relations like is_CEO_of key on [relation, object])
+      rather than universal hash(subject, relation, object).
+    affected_files:
+      - src/kg_pipeline/adjudication.py
+      - config/ontology.yaml
+    tests:
+      - tests/scientific/test_logical_fact_state_replacement.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A10): support relation-specific functional dependency keys for LogicalFactID"
+    evidence: "compute_logical_fact_id uses ontology_rules[relation].logical_key allowing state relation replacement"
+
+  - id: A11
+    severity: HIGH
+    title: explicit_revision_chains
+    scientific_requirement: >
+      Pipeline must support explicit revision types (creation, state_change, correction, retraction)
+      with populated supersedes_version_id lineage.
+    affected_files:
+      - src/kg_pipeline/adjudication.py
+      - src/temporal/snapshot.py
+    tests:
+      - tests/temporal/test_snapshot.py
+      - tests/scientific/test_logical_fact_state_replacement.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A11): implement explicit revision chains and supersedes_version_id"
+    evidence: "build_snapshot_edges_and_support models creation, state_change, correction, retraction and populates supersedes_version_id"
+
+  - id: A12
+    severity: CRITICAL
+    title: separate_snapshot_edges_from_fact_versions
+    scientific_requirement: >
+      Snapshot graph must contain unique (subject, relation, object) edges. Multiple supporting FactVersions
+      must be stored in a separate snapshot_edge_support table, preventing training bias from provenance multiplicity.
+    affected_files:
+      - src/kg_pipeline/snapshot_runner.py
+      - src/kg_pipeline/contracts.py
+      - src/kge/adapter.py
+    tests:
+      - tests/scientific/test_snapshot_edge_uniqueness.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A12): separate unique snapshot edges from supporting fact versions"
+    evidence: "build_snapshot_edges_and_support produces unique SnapshotEdge triples and maps multiplicity to SnapshotEdgeSupport"
+
+  - id: A13
+    severity: CRITICAL
+    title: no_fabricated_evidence_spans_or_hashes
+    scientific_requirement: >
+      Pipeline must fail-closed and quarantine invalid evidence instead of fabricating span [0, 1)
+      or string 'placeholder_hash'.
+    affected_files:
+      - src/kg_pipeline/snapshot_runner.py
+    tests:
+      - tests/scientific/test_no_fabricated_evidence.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A13): eliminate dummy spans [0, 1) and placeholder hashes"
+    evidence: "FactVersion rejects fabricated dummy spans and placeholder hashes with ContractError"
+
+  - id: A14
+    severity: HIGH
+    title: explicit_snapshot_exclusion_quarantine
+    scientific_requirement: >
+      FactVersions excluded from snapshot eligibility must be recorded in snapshot_exclusions.parquet
+      with structured reason codes rather than silently dropped.
+    affected_files:
+      - src/kg_pipeline/snapshot_runner.py
+    tests:
+      - tests/scientific/test_snapshot_exclusions.py
+      - tests/scientific/test_no_fabricated_evidence.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A14): record snapshot exclusions with structured reason codes"
+    evidence: "SnapshotExclusion records structured reason codes (FUTURE_OBSERVATION, SUPERSEDED, RETRACTED, EXPIRED) in snapshot_exclusions table"
+
+  - id: A15
+    severity: HIGH
+    title: snapshot_hash_semantics_unification
+    scientific_requirement: >
+      Disambiguate snapshot identity into graph_semantic_hash, support_semantic_hash,
+      artifact_physical_sha256, and snapshot_manifest_hash.
+    affected_files:
+      - src/temporal/snapshot.py
+      - src/kg_pipeline/storage.py
+      - src/kge/contract.py
+    tests:
+      - tests/scientific/test_snapshot_manifest_and_adapter.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A15): disambiguate snapshot hashing into graph, support, fact store, and manifest hashes"
+    evidence: "SnapshotManifest and compute_graph_semantic_hash, compute_support_semantic_hash, compute_fact_store_hash implemented and verified"
+
+  - id: A16
+    severity: HIGH
+    title: kge_adapter_snapshot_manifest_verification
+    scientific_requirement: >
+      KGE adapter must verify SnapshotManifest integrity, sidecars, and upstream hashes before training.
+    affected_files:
+      - src/kge/adapter.py
+    tests:
+      - tests/scientific/test_snapshot_manifest_and_adapter.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A16): verify physical sidecar and graph manifest in KGE adapter"
+    evidence: "load_snapshot_from_parquet verifies physical SHA-256 sidecar and graph_semantic_hash from manifest"
+
+  - id: A17
+    severity: HIGH
+    title: filtered_negative_sampling
+    scientific_requirement: >
+      TransE negative sampling must filter out corrupted triples that exist in the positive graph
+      at cutoff, and candidate corrupted entities must not equal original entities.
+    affected_files:
+      - src/kge/model.py
+      - src/kge/trainer.py
+    tests:
+      - tests/scientific/test_filtered_negative_sampling.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A17): implement filtered negative sampling in TransE"
+    evidence: "train_epoch checks candidate corrupted triples against positive_triples_set and ensures corrupt_ent != orig_ent"
+
+  - id: A18
+    severity: MEDIUM
+    title: kge_validation_and_early_stopping
+    scientific_requirement: >
+      Add dev split, validation loss tracking, and dev-dimension selection before final experiments.
+    affected_files:
+      - src/kge/trainer.py
+      - src/kge/model.py
+    tests:
+      - tests/test_kge_training.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A18): add dev loss tracking and automated dimension selection"
+    evidence: "TransEModel.evaluate_loss, dev_losses in training_metrics, select_best_dimension in trainer"
+
+  - id: A19
+    severity: CRITICAL
+    title: centered_drift_estimand
+    scientific_requirement: >
+      Drift cosine must be computed between centered aligned source and centered target vectors:
+      1 - cos((x - mu_s)Q, y - mu_t), without re-adding target mean.
+    affected_files:
+      - src/drift/procrustes.py
+      - src/drift/metrics.py
+    tests:
+      - tests/scientific/test_centered_cosine_estimand.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A19): implement centered Procrustes drift estimand"
+    evidence: "one_minus_cosine computed between centered aligned source and centered target vectors, invariant to target mean translation shifts"
+
+  - id: A20
+    severity: CRITICAL
+    title: temporal_drift_three_seed_median
+    scientific_requirement: >
+      Temporal raw displacement must be computed across 3 parallel seed pairs (13->13, 37->37, 101->101)
+      and aggregated via median of 3 seeds.
+    affected_files:
+      - src/drift/pipeline.py
+      - src/drift/metrics.py
+    tests:
+      - tests/scientific/test_temporal_three_seed_median.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A20): measure temporal drift across parallel seeds aggregated via 3-seed median"
+    evidence: "compute_longitudinal_drift runs parallel seed alignments and computes median displacement per entity"
+
+  - id: A21
+    severity: CRITICAL
+    title: transition_null_six_pair_pool
+    scientific_requirement: >
+      Transition null for S_t -> S_{t+1} must pool 6 seed-pair observations (3 from S_t and 3 from S_{t+1}).
+    affected_files:
+      - src/drift/pipeline.py
+      - src/drift/null.py
+    tests:
+      - tests/scientific/test_transition_six_pair_null.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A21): pool 6 seed pairs in transition empirical null"
+    evidence: "build_transition_empirical_null pools 3 pairs from S_prev and 3 pairs from S_next (6 total observations per persistent entity)"
+
+  - id: A22
+    severity: CRITICAL
+    title: null_distribution_leave_target_out
+    scientific_requirement: >
+      When calibrating entity e against its empirical null reference bucket, exclude all observations
+      of entity e from the reference pool (LTO) before computing median and MAD.
+    affected_files:
+      - src/drift/null.py
+      - src/drift/metrics.py
+    tests:
+      - tests/scientific/test_leave_target_out.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A22): implement Leave-Target-Out null calibration"
+    evidence: "get_entity_lto_null_stats excludes target entity observations from reference bucket pool"
+
+  - id: A23
+    severity: HIGH
+    title: adjacent_bucket_merge
+    scientific_requirement: >
+      Sparse null buckets must strictly merge with adjacent degree/frequency buckets, not arbitrary largest buckets.
+    affected_files:
+      - src/drift/null.py
+    tests:
+      - tests/scientific/test_adjacent_bucket_merge.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A23): enforce strict adjacent degree bucket merge"
+    evidence: "Active interval merge merges strictly with adjacent degree intervals along bucket_order"
+
+  - id: A24
+    severity: HIGH
+    title: alignment_diagnostics_availability_gate
+    scientific_requirement: >
+      Return ALIGNMENT_UNAVAILABLE and set SED+ = None if numerical rank, holdout residual,
+      or fit-holdout gap exceed frozen operating range.
+    affected_files:
+      - src/drift/metrics.py
+      - src/drift/procrustes.py
+    tests:
+      - tests/scientific/test_alignment_unavailable.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A24): gate SED+ output when alignment diagnostics indicate degeneracy"
+    evidence: "check_alignment_validity checks numerical_rank, orthogonality, fit_holdout_gap, holdout_residual and sets ALIGNMENT_UNAVAILABLE"
+
+  - id: A25
+    severity: HIGH
+    title: unfreeze_and_bind_drift_parameters
+    scientific_requirement: >
+      Bind drift hyperparameters (fit_ratio, epsilon, bin_edges, min_bucket_samples) to resolved protocol config.
+    affected_files:
+      - src/drift/pipeline.py
+      - src/drift/metrics.py
+      - src/drift/null.py
+    tests:
+      - tests/test_drift_pipeline.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A25): bind drift hyperparameters to protocol config"
+    evidence: "KGEDriftPipeline.from_config parses and forwards dimension, seeds, epochs, fit_ratio, epsilon, min_bucket_samples, bin_edges"
+
+  - id: A26
+    severity: HIGH
+    title: immutable_kge_artifact_storage
+    scientific_requirement: >
+      Unify KGE/drift artifacts under immutable, atomic storage with SHA-256 sidecars and completed status.
+    affected_files:
+      - src/kge/checkpoint.py
+      - src/drift/pipeline.py
+    tests:
+      - tests/test_kge_contract.py
+      - tests/test_kge_training.py
+      - tests/test_end_to_end_pipeline.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A26): implement immutable KGE checkpoint storage with SHA-256 sidecars"
+    evidence: "KGECheckpoint.save uses atomic temp files, immutable overwrite prevention, and .sha256 sidecar; load verifies sidecar"
+
+  - id: A27
+    severity: CRITICAL
+    title: package_fingerprint_kge_drift_coverage
+    scientific_requirement: >
+      package_fingerprint() must hash src/kge/ and src/drift/ alongside kg_pipeline and temporal.
+    affected_files:
+      - src/kg_pipeline/run.py
+    tests:
+      - tests/kg_pipeline/test_run_fingerprints.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A27): include src/kge and src/drift in package fingerprint"
+    evidence: "package_fingerprint computes code hash across kg_pipeline, temporal, kge, and drift modules"
+
+  - id: A28
+    severity: HIGH
+    title: explicit_git_commit_provenance
+    scientific_requirement: >
+      KGE checkpoints and drift artifacts must record real git commit hash and dirty status.
+    affected_files:
+      - src/kge/checkpoint.py
+      - src/drift/pipeline.py
+      - src/kg_pipeline/hashing.py
+    tests:
+      - tests/scientific/test_git_commit_provenance.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A28): record real git commit and dirty status in checkpoints and drift artifacts"
+    evidence: "get_git_info retrieves HEAD commit hash and dirty status; recorded in CheckpointProvenance, TransitionDriftArtifact, EmpiricalNullArtifact"
+
+  - id: A29
+    severity: HIGH
+    title: separate_fixture_and_operational_cutoffs
+    scientific_requirement: >
+      Separate 2021-2023 synthetic test fixture cutoffs from 2025-2026 locked operational corpus cutoffs.
+    affected_files:
+      - config/snapshot_cutoffs.yaml
+    tests:
+      - tests/temporal/test_snapshot.py
+      - tests/test_config_consistency.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A29): separate operational and fixture cutoffs in snapshot_cutoffs.yaml"
+    evidence: "config/snapshot_cutoffs.yaml separates operational 2025-2026 cutoffs from 2021-2023 synthetic test fixtures"
+
+  - id: A30
+    severity: HIGH
+    title: config_authority_hierarchy
+    scientific_requirement: >
+      Establish configs/protocol_v1.yaml as sole scientific authority.
+      Runtime config/ files must resolve from protocol and not compete as independent source of truth.
+    affected_files:
+      - configs/protocol_v1.yaml
+      - config/protocol.yaml
+    tests:
+      - tests/test_config_consistency.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A30): establish configs/protocol_v1.yaml as master authority"
+    evidence: "configs/protocol_v1.yaml authoritative; config/protocol.yaml marked runtime domain mapping"
+
+  - id: A31
+    severity: HIGH
+    title: align_schemas_across_representations
+    scientific_requirement: >
+      Harmonize schema definitions across config/schema.yaml, PyArrow table contracts, and Python dataclasses.
+    affected_files:
+      - config/schema.yaml
+      - src/kg_pipeline/contracts.py
+      - src/temporal/schema.py
+    tests:
+      - tests/kg_pipeline/test_input_contracts.py
+    status: RESOLVED
+    fixed_by_commit: "feat(A31): harmonize schema definitions across schema.yaml, contracts, and dataclasses"
+    evidence: "config/schema.yaml aligned with contracts.TABLE_SCHEMAS and temporal dataclasses"
+
+  - id: A32
+    severity: HIGH
+    title: evaluation_statistics_scope_freeze
+    scientific_requirement: >
+      Freeze src/evaluation/ and src/statistics/ implementations until M1/M2 data pipeline passes scientific verification.
+    affected_files:
+      - src/evaluation/
+      - src/statistics/
+    tests: []
+    status: FROZEN_UNTIL_PHASE_3
+    fixed_by_commit: null
+    evidence: null
+
+  - id: A33
+    severity: HIGH
+    title: branch_head_ci_verification
+    scientific_requirement: >
+      Ensure GitHub Actions CI runs and passes on integration PRs before protocol freeze.
+    affected_files:
+      - .github/workflows/ci.yml
+    tests: []
+    status: OPEN
+    fixed_by_commit: null
+    evidence: null
+
+  - id: A34
+    severity: HIGH
+    title: branch_protection_governance
+    scientific_requirement: >
+      Enable branch protection on main and integration branches prior to locked experimental runs.
+    affected_files: []
+    tests: []
+    status: OPEN
+    fixed_by_commit: null
+    evidence: null
