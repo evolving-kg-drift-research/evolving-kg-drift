@@ -1,5 +1,6 @@
 import math
 import pytest
+from datetime import datetime, timezone
 
 from src.drift.anchors import deterministic_hash_split
 from src.drift.metrics import compute_longitudinal_drift
@@ -8,30 +9,51 @@ from src.drift.procrustes import align_embeddings_procrustes
 from src.kge.fixtures import create_synthetic_snapshots
 from src.kge.model import TransEConfig
 from src.kge.trainer import train_multi_seed, train_single_seed
+from temporal.schema import FactVersion
+from temporal.snapshot import build_snapshot
 
 
-# G1 / temporal integrity
-@pytest.mark.skip(reason="Implement with temporal snapshot builder by G1")
+# G1 / temporal integrity (All 4 active - Gate G1 compliant)
 def test_no_future_evidence():
-    pass
+    cutoff = datetime(2020, 1, 1, tzinfo=timezone.utc)
+    fact = FactVersion(
+        fact_version_id="fv1",
+        logical_fact_id="lf1",
+        subject_id="A",
+        relation_id="REL",
+        object_id="B",
+        valid_from=cutoff,
+        valid_to=None,
+        evidence_observed_at=datetime(2021, 1, 1, tzinfo=timezone.utc),  # Future
+        ingested_at_real=cutoff,
+        supersedes_version_id=None,
+        revision_type="creation",
+        source_id="s1",
+        source_url="",
+        evidence_span_start=0,
+        evidence_span_end=1,
+        evidence_text_hash="h",
+    )
+    snap, _ = build_snapshot([fact], cutoff=cutoff)
+    assert len(snap) == 0
 
 
-@pytest.mark.skip(reason="Implement with versioned entity mapping by G1")
 def test_no_future_entity_mapping():
-    pass
+    from tests.temporal.test_snapshot import test_late_alias_does_not_rewrite_history
+    test_late_alias_does_not_rewrite_history()
 
 
-@pytest.mark.skip(reason="Implement with deterministic snapshot fixtures by G1")
 def test_snapshot_reproducible():
-    pass
+    from tests.temporal.test_snapshot import test_snapshot_canonical_determinism
+    test_snapshot_canonical_determinism()
 
 
-@pytest.mark.skip(reason="Implement with Neo4j materialization by G1")
 def test_canonical_parquet_neo4j_parity():
-    pass
+    from tests.kg_pipeline.test_parity import test_verify_neo4j_parity
+    test_verify_neo4j_parity()
 
 
-# KGE / alignment / null
+# KGE / alignment / null (All 6 active - TransE & Drift compliant)
 def test_embeddings_finite():
     fixtures = create_synthetic_snapshots()
     cfg = TransEConfig(dimension=32, norm=2, epochs=3, seed=13)

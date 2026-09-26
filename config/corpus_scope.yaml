@@ -1,0 +1,44 @@
+scope_version: "1.0.0"
+
+domain:
+  name: "AI & Technology"
+  description: >
+    Các bài viết và bằng chứng công khai liên quan trực tiếp
+    đến trí tuệ nhân tạo, học máy, mô hình AI, sản phẩm AI,
+    nghiên cứu AI, doanh nghiệp AI và các sự kiện công nghệ
+    có liên quan trực tiếp đến AI.
+
+included_topics:
+  - artificial_intelligence
+  - machine_learning
+  - large_language_models
+  - generative_ai
+  - ai_models
+  - ai_products
+  - ai_research
+  - ai_companies
+  - ai_infrastructure
+  - ai_regulation
+
+excluded_topics:
+  - sports
+  - entertainment
+  - lifestyle
+  - unrelated_politics
+  - unrelated_consumer_technology
+
+historical_window:
+  start: "2025-03-01"
+  end: "2026-08-31"
+  rationale: >
+    Initial 18-month operational window for temporal KG construction.
+    May only be expanded later based on feasibility results.
+languages:
+  - vi
+  - en
+
+scope_notes: >
+  Chỉ giữ nội dung thuộc miền AI & công nghệ.
+  Không sử dụng anchor suitability, entity stability,
+  drift magnitude, SED+, RR hoặc downstream outcome
+  để quyết định giữ hoặc loại bài.

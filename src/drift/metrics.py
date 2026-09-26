@@ -20,8 +20,12 @@ import math
 from dataclasses import asdict, dataclass
 from typing import Any, Optional, Sequence
 
-from ..kge.checkpoint import KGECheckpoint
-from ..kge.math_utils import one_minus_cosine
+try:
+    from ..kge.checkpoint import KGECheckpoint
+    from ..kge.math_utils import one_minus_cosine
+except (ImportError, ValueError):
+    from kge.checkpoint import KGECheckpoint
+    from kge.math_utils import one_minus_cosine
 from .anchors import AnchorSplit, deterministic_hash_split, select_persistent_anchors
 from .null import EmpiricalNullArtifact
 from .procrustes import ProcrustesAlignmentResult, align_embeddings_procrustes

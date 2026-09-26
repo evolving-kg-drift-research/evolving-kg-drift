@@ -16,15 +16,26 @@ import math
 from dataclasses import asdict, dataclass
 from typing import Any, Sequence
 
-from ..kge.math_utils import (
-    dot_product,
-    l2_distance,
-    l2_norm,
-    matrix_mult,
-    matrix_transpose,
-    one_minus_cosine,
-    svd_ortho_procrustes,
-)
+try:
+    from ..kge.math_utils import (
+        dot_product,
+        l2_distance,
+        l2_norm,
+        matrix_mult,
+        matrix_transpose,
+        one_minus_cosine,
+        svd_ortho_procrustes,
+    )
+except (ImportError, ValueError):
+    from kge.math_utils import (
+        dot_product,
+        l2_distance,
+        l2_norm,
+        matrix_mult,
+        matrix_transpose,
+        one_minus_cosine,
+        svd_ortho_procrustes,
+    )
 from .anchors import AnchorSplit
 
 

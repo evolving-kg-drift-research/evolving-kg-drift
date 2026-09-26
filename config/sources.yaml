@@ -1,0 +1,32 @@
+source_registry_version: "1.0.0"
+
+sources:
+  vnexpress_sohoa:
+    source_id: "vnexpress_sohoa"
+    name: "VnExpress Số Hóa"
+    domain: "vnexpress.net"
+    source_type: "news"
+    rss: "https://vnexpress.net/rss/so-hoa.rss"
+    enabled: true
+
+    trust_notes: >
+      Nguồn báo công nghệ. Chỉ sử dụng nội dung phù hợp
+      phạm vi AI & Technology theo filter policy.
+
+    archive_availability: "unknown"
+    robots_legal_notes: "check_before_crawl"
+
+  tuoitre_congnghe:
+    source_id: "tuoitre_congnghe"
+    name: "Tuổi Trẻ - Công Nghệ"
+    domain: "tuoitre.vn"
+    source_type: "news"
+    rss: "https://tuoitre.vn/rss/nhip-song-so.rss"
+    enabled: true
+
+    trust_notes: >
+      Nguồn báo về công nghệ và đời sống số.
+      Chỉ sử dụng nội dung phù hợp phạm vi nghiên cứu.
+
+    archive_availability: "unknown"
+    robots_legal_notes: "check_before_crawl"

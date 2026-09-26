@@ -19,9 +19,14 @@ import warnings
 from dataclasses import dataclass
 from typing import Any, Sequence
 
-from ..kge.checkpoint import KGECheckpoint
-from ..kge.contract import EntityMetadata, SnapshotDataset
-from ..kge.math_utils import one_minus_cosine
+try:
+    from ..kge.checkpoint import KGECheckpoint
+    from ..kge.contract import EntityMetadata, SnapshotDataset
+    from ..kge.math_utils import one_minus_cosine
+except (ImportError, ValueError):
+    from kge.checkpoint import KGECheckpoint
+    from kge.contract import EntityMetadata, SnapshotDataset
+    from kge.math_utils import one_minus_cosine
 from .anchors import deterministic_hash_split
 from .procrustes import align_embeddings_procrustes
 

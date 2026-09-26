@@ -1,0 +1,12 @@
+snapshot_policy_version: "1.0.0"
+
+cutoffs:
+  - snapshot_id: "S1"
+    cutoff_iso: "2021-01-01T00:00:00Z"
+    description: "Baseline snapshot at 2021-01-01"
+  - snapshot_id: "S2"
+    cutoff_iso: "2022-01-01T00:00:00Z"
+    description: "First evolution snapshot at 2022-01-01"
+  - snapshot_id: "S3"
+    cutoff_iso: "2023-01-01T00:00:00Z"
+    description: "Second evolution snapshot at 2023-01-01"
