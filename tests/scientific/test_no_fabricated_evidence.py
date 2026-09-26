@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 import pytest
 
 from temporal.schema import FactVersion, ContractError
-from temporal.snapshot import build_snapshot_edges_and_support, SnapshotExclusion
+from temporal.snapshot import build_snapshot_edges_and_support
 
 
 def dt(year: int, month: int, day: int) -> datetime:
@@ -21,8 +21,6 @@ def test_invalid_evidence_span_is_quarantined_not_fabricated():
 
     Record exclusion in snapshot_exclusions with structured reason.
     """
-    cutoff = dt(2025, 1, 1)
-
     # Valid fact
     valid_fact = FactVersion(
         fact_version_id="f_valid_01",
@@ -43,6 +41,8 @@ def test_invalid_evidence_span_is_quarantined_not_fabricated():
         evidence_text_hash="valid_hash_abc",
         adjudication_status="AUTO_ACCEPTED"
     )
+    assert valid_fact.evidence_span_start == 10
+    assert valid_fact.evidence_span_end == 35
 
     # Fact with fabricated [0, 1) span and placeholder hash should be rejected or quarantined!
     with pytest.raises(ContractError, match="fabricated|placeholder"):

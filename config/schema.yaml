@@ -36,6 +36,51 @@ raw_source_versions:
     - source_version_relation
     - raw_blob_path
 
+retrievals:
+  fields:
+    - retrieval_id
+    - raw_blob_sha256
+    - source_id
+    - requested_url
+    - final_url
+    - retrieved_at_real
+    - archive_datetime
+    - recorded_event_at
+    - recorded_event_time_field
+    - provenance_status
+    - strict_source_input_eligible
+    - evidence_path
+    - evidence_locator
+    - evidence_file_sha256
+    - evidence_record_sha256
+
+source_versions:
+  fields:
+    - source_version_id
+    - raw_blob_sha256
+    - retrieval_id
+    - source_id
+    - canonical_or_final_url
+    - retrieved_at_real
+    - archive_datetime
+    - source_version_status
+    - strict_source_input_eligible
+    - evidence_path
+    - evidence_locator
+
+body_variants:
+  fields:
+    - body_variant_id
+    - body_text_sha256
+    - body_blob_relative_path
+    - parser_version
+    - parser_fingerprint_sha256
+    - decoder
+    - selector
+    - text_char_count
+    - extraction_status
+    - quality_flags_json
+
 # =========================================================
 # 3. DOCUMENT CLUSTER / SOURCE LINEAGE
 # =========================================================
@@ -113,7 +158,23 @@ claims:
     - extraction_confidence
 
 # =========================================================
-# 7. ADJUDICATION
+# 7. DOCUMENT MEMBERSHIP
+# =========================================================
+document_memberships:
+  fields:
+    - membership_id
+    - raw_blob_sha256
+    - raw_candidate_id
+    - body_variant_id
+    - exact_cluster_id
+    - retrieval_ids_json
+    - source_provenance_status
+    - strict_input_eligible
+    - membership_status
+    - reason
+
+# =========================================================
+# 8. ADJUDICATION
 # =========================================================
 adjudication_decisions:
   fields:
@@ -197,6 +258,7 @@ snapshot_edges:
 snapshot_edge_support:
   fields:
     - support_id
+    - provenance_id
     - edge_id
     - fact_version_id
     - claim_id

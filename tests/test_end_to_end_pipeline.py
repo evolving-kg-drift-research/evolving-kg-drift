@@ -93,7 +93,7 @@ def test_pipeline_output_dir_creates_checkpoints_and_sidecars(tmp_path):
         epochs=2,
     )
 
-    results = pipeline.run_on_snapshots(mini_snapshots, output_dir=tmp_path)
+    pipeline.run_on_snapshots(mini_snapshots, output_dir=tmp_path)
     ckpt_dir = tmp_path / "checkpoints"
     assert ckpt_dir.is_dir()
 

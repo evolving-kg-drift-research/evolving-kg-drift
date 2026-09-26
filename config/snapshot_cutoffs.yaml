@@ -9,15 +9,9 @@ operational_snapshots:
   target_snapshots: 10
   allowed_range: [8, 12]
   corpus_time_window:
-    start: "2025-01-01T00:00:00Z"
-    end: "2026-06-30T23:59:59Z"
+    start: "2025-03-01T00:00:00Z"
+    end: "2026-08-31T23:59:59Z"
   provisional_cutoffs:
-    - id: "SNAP_2025_01"
-      cutoff: "2025-01-31T23:59:59Z"
-      description: "January 2025 boundary"
-    - id: "SNAP_2025_02"
-      cutoff: "2025-02-28T23:59:59Z"
-      description: "February 2025 boundary"
     - id: "SNAP_2025_03"
       cutoff: "2025-03-31T23:59:59Z"
       description: "March 2025 boundary"
@@ -42,6 +36,12 @@ operational_snapshots:
     - id: "SNAP_2025_10"
       cutoff: "2025-10-31T23:59:59Z"
       description: "October 2025 boundary"
+    - id: "SNAP_2025_11"
+      cutoff: "2025-11-30T23:59:59Z"
+      description: "November 2025 boundary"
+    - id: "SNAP_2025_12"
+      cutoff: "2025-12-31T23:59:59Z"
+      description: "December 2025 boundary"
 
 # Isolated test fixture boundaries for deterministic unit & integration tests
 fixture_snapshots:

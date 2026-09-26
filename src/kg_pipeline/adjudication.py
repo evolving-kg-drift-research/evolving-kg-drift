@@ -1,10 +1,8 @@
-import re
 from datetime import datetime, timezone
 from typing import Any, Iterable
 
 from temporal.schema import Claim, FactVersion
 from temporal.snapshot import compute_logical_fact_id
-from .hashing import sha256_text
 
 WHITELIST_SOURCES = {"trusted_registry_1", "official_feed"}
 
@@ -141,7 +139,8 @@ def adjudicate_claims(
             extractor_version=extractor_version,
             entity_map_version=entity_map_version,
             confidence=confidence,
-            adjudication_status=adjudication_status
+            adjudication_status=adjudication_status,
+            supporting_claim_ids=(claim.claim_id,),
         )
 
         if fact.adjudication_status == "AUTO_ACCEPTED":

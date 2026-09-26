@@ -1,4 +1,3 @@
-import json
 import hashlib
 from datetime import datetime, timezone
 from pathlib import Path
@@ -11,8 +10,6 @@ from temporal.schema import FactVersion
 from temporal.snapshot import (
     SnapshotEdge,
     SnapshotEdgeSupport,
-    SnapshotExclusion,
-    SnapshotManifest,
     build_snapshot_edges_and_support,
     compute_graph_semantic_hash,
     compute_support_semantic_hash,
@@ -44,9 +41,18 @@ def test_snapshot_hash_semantics_unification(tmp_path: Path):
         evidence_span_start=10,
         evidence_span_end=20,
         evidence_text_hash="hash1",
+        supporting_claim_ids=("claim1",),
     )
 
-    edges, support, exclusions = build_snapshot_edges_and_support([fv1], cutoff=dt(2023, 1, 1))
+    edges, support, exclusions = build_snapshot_edges_and_support(
+        [fv1],
+        cutoff=dt(2023, 1, 1),
+        provenance_map={"fv1": [{
+            "provenance_id": "prov1", "claim_id": "claim1",
+            "membership_id": "membership1", "source_version_id": "source1",
+            "retrieval_id": "retrieval1", "raw_blob_sha256": "d" * 64,
+        }]},
+    )
 
     manifest = create_snapshot_manifest(
         snapshot_id="S_2023",
@@ -77,7 +83,7 @@ def test_kge_adapter_verifies_snapshot_manifest_and_detects_tamper(tmp_path: Pat
     snapshot_dir.mkdir(parents=True, exist_ok=True)
 
     edge = SnapshotEdge("edge_1", "Alice", "works_at", "Acme", "S1")
-    supp = SnapshotEdgeSupport("supp_1", "edge_1", "fv1", "c1", "s1", "blob_hash")
+    supp = SnapshotEdgeSupport("supp_1", "prov1", "edge_1", "fv1", "c1", "s1", "d" * 64)
 
     manifest = create_snapshot_manifest(
         snapshot_id="S1",

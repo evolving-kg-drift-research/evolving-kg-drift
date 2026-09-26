@@ -2,7 +2,6 @@
 
 import math
 
-from src.drift.anchors import deterministic_hash_split
 from src.drift.metrics import compute_longitudinal_drift
 from src.drift.null import (
     ConditionalBucketStats,
@@ -12,7 +11,6 @@ from src.drift.null import (
     compute_median,
     compute_robust_scale,
 )
-from src.kge.checkpoint import CheckpointProvenance, KGECheckpoint
 from src.kge.fixtures import create_synthetic_snapshots
 from src.kge.model import TransEConfig
 from src.kge.trainer import train_multi_seed, train_single_seed
@@ -36,7 +34,7 @@ def test_signed_excess_retains_negative_values():
     fixtures = create_synthetic_snapshots()
     s1 = fixtures["S1"]
 
-    cfg = TransEConfig(dimension=16, norm=2, epochs=3, seed=13)
+    cfg = TransEConfig(dimension=4, norm=2, epochs=3, seed=13)
     ckpt = train_single_seed(s1, cfg)
 
     # Synthetic null artifact with large median
@@ -73,8 +71,9 @@ def test_signed_excess_retains_negative_values():
         assert m.raw_displacement < 1e-6
         # signed_excess = raw - null_median = ~0 - 0.5 = ~ -0.5 (NEGATIVE!)
         assert m.signed_excess < -0.4, f"Entity {e} signed excess was not negative: {m.signed_excess}"
-        # SED+ = max(0, signed_excess) / scale = 0.0
-        assert m.sed_plus == 0.0
+        # LTO leaves a zero-MAD reference pool, so standardized drift is unavailable.
+        assert m.sed_plus is None
+        assert "DEGENERATE_NULL" in m.null_status
 
 
 def test_degenerate_null_safely_marks_sed_unavailable():
@@ -82,7 +81,7 @@ def test_degenerate_null_safely_marks_sed_unavailable():
     fixtures = create_synthetic_snapshots()
     s1 = fixtures["S1"]
 
-    cfg = TransEConfig(dimension=16, norm=2, epochs=3, seed=13)
+    cfg = TransEConfig(dimension=4, norm=2, epochs=3, seed=13)
     ckpt = train_single_seed(s1, cfg)
 
     # Synthetic degenerate null artifact with zero MAD

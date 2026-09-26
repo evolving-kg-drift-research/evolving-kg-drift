@@ -1,7 +1,5 @@
-import pytest
 
 from src.drift.null import (
-    build_same_snapshot_empirical_null,
     build_transition_empirical_null,
 )
 from src.kge.checkpoint import CheckpointProvenance, KGECheckpoint
@@ -34,6 +32,7 @@ def test_transition_null_pools_six_seed_pairs():
                 "E3": [0.1, 0.2, float(seed) * 0.3, 0.4],
             },
             relation_embeddings={"r1": [0.1, 0.1, 0.1, 0.1], "r2": [0.2, 0.2, 0.2, 0.2]},
+            training_metrics={},
         )
 
     ckpts_prev = {13: make_ckpt("S1", 13), 37: make_ckpt("S1", 37), 101: make_ckpt("S1", 101)}

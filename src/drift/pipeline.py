@@ -18,21 +18,17 @@ Orchestrates:
 from __future__ import annotations
 
 import itertools
-from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Optional, Sequence
 
 try:
     from ..kge.checkpoint import KGECheckpoint
     from ..kge.contract import SnapshotDataset
-    from ..kge.fixtures import create_synthetic_snapshots
     from ..kge.trainer import train_multi_seed
 except (ImportError, ValueError):
     from kge.checkpoint import KGECheckpoint
     from kge.contract import SnapshotDataset
-    from kge.fixtures import create_synthetic_snapshots
     from kge.trainer import train_multi_seed
-from .anchors import AnchorSplit, deterministic_hash_split, select_persistent_anchors
 from .metrics import TransitionDriftArtifact, compute_longitudinal_drift
 from .null import (
     EmpiricalNullArtifact,

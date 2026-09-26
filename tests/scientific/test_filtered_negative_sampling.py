@@ -1,5 +1,4 @@
 import random
-import pytest
 
 from src.kge.contract import SnapshotDataset
 from src.kge.model import TransEConfig, TransEModel

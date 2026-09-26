@@ -1,5 +1,3 @@
-import math
-import pytest
 
 from src.drift.anchors import deterministic_hash_split
 from src.drift.procrustes import (
@@ -61,12 +59,3 @@ def test_centered_cosine_invariance_to_target_translation():
         assert abs(disp_1 - disp_2) < 1e-10
         assert disp_1 < 1e-10
         assert disp_2 < 1e-10
-
-        # Contrast with uncentered translated cosine:
-        # 1 - cos(x' + mu_t, y) is heavily distorted by adding 1000.0 to all coords!
-        uncentered_1 = res_1.align_entity_vector(source_embeddings[e])
-        uncentered_2 = res_2.align_entity_vector(source_embeddings[e])
-        raw_disp_unc_1 = one_minus_cosine(uncentered_1, target_embeddings_1[e])
-        raw_disp_unc_2 = one_minus_cosine(uncentered_2, target_embeddings_2[e])
-        # If target points are shifted by 1000, uncentered cosine distance shrinks toward 0 due to dominant mean
-        # but centered cosine accurately compares relative orientations in the centered manifold.

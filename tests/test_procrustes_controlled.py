@@ -10,7 +10,7 @@ Verifies:
 import math
 import random
 
-from src.drift.anchors import AnchorSplit, deterministic_hash_split, select_persistent_anchors
+from src.drift.anchors import deterministic_hash_split
 from src.drift.procrustes import align_embeddings_procrustes, compute_orthogonality_error
 from src.kge.math_utils import one_minus_cosine
 

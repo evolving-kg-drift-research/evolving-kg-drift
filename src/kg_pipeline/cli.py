@@ -15,6 +15,7 @@ from .run import get_run_dir, init_run, load_run_manifest
 from .storage import read_json
 from .extract import run_extraction
 from .adjudicate import run_adjudication
+from .snapshot_runner import run_snapshot
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -24,6 +25,7 @@ def _parser() -> argparse.ArgumentParser:
     init = commands.add_parser("init-run", help="Create a new immutable run namespace")
     init.add_argument("--run", required=True)
     init.add_argument("--mode", required=True, choices=("inventory", "extraction", "adjudication", "snapshot", "kge", "drift"))
+    init.add_argument("--parent-run", default=None, help="Optional parent run ID for lineage and artifact resolution")
     inventory = commands.add_parser("inventory", help="Read raw input and write Ticket A artifacts")
     inventory.add_argument("--run", required=True)
     inventory.add_argument("--verify-inputs", action="store_true", help="Reconcile the upstream Stage 4.3 evidence before inventory")
@@ -38,6 +40,10 @@ def _parser() -> argparse.ArgumentParser:
     adjudicate = commands.add_parser("adjudicate", help="Adjudicate extracted claims into FactVersions")
     adjudicate.add_argument("--run", required=True)
     adjudicate.add_argument("--allow-unverified-gate", action="store_true", help="Allow running adjudication without verified Gate A PASS")
+    snapshot = commands.add_parser("snapshot", help="Build point-in-time SnapshotEdge and support tables from FactVersions")
+    snapshot.add_argument("--run", required=True)
+    snapshot.add_argument("--cutoff", default=None, help="Optional ISO8601 cutoff timestamp")
+    snapshot.add_argument("--snapshot-id", default=None, help="Optional snapshot ID identifier")
     return parser
 
 
@@ -68,7 +74,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         repo_root = _root(args.repo_root)
         if args.command == "init-run":
-            payload = init_run(repo_root, args.run, mode=args.mode)
+            payload = init_run(repo_root, args.run, mode=args.mode, parent_run_id=args.parent_run)
             exit_code = 0
         elif args.command == "inventory":
             payload = run_inventory(repo_root, args.run, verify_inputs=args.verify_inputs)
@@ -84,6 +90,9 @@ def main(argv: list[str] | None = None) -> int:
             exit_code = 0
         elif args.command == "adjudicate":
             payload = run_adjudication(repo_root, args.run, enforce_gate_a=not args.allow_unverified_gate)
+            exit_code = 0
+        elif args.command == "snapshot":
+            payload = run_snapshot(repo_root, args.run, cutoff_iso=args.cutoff, snapshot_id=args.snapshot_id)
             exit_code = 0
         else:  # argparse makes this unreachable, but keeps the entrypoint total.
             raise ValueError(f"Unsupported command: {args.command}")

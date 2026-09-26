@@ -96,7 +96,7 @@ def test_offline_mode_raises_if_not_cached(tmp_path):
     with pytest.raises(RuntimeError, match="Offline mode: No cached response"):
         class FailingAdapter(OfflineMockAdapter):
             def __call__(self, prompt):
-                raise RuntimeError(f"Offline mode: No cached response for unseen")
+                raise RuntimeError("Offline mode: No cached response for unseen")
 
         extract_claims("Unseen text", "s1", cache_dir, ontology=["CEO"], adapter=FailingAdapter({}))
 

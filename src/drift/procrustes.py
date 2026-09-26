@@ -13,27 +13,15 @@ from __future__ import annotations
 import hashlib
 import json
 import math
-from dataclasses import asdict, dataclass
-from typing import Any, Sequence
+from dataclasses import dataclass
+from typing import Sequence
 
 try:
-    from ..kge.math_utils import (
-        dot_product,
-        l2_distance,
-        l2_norm,
-        matrix_mult,
-        matrix_transpose,
-        one_minus_cosine,
-        svd_ortho_procrustes,
-    )
+    from ..kge.math_utils import l2_distance, matrix_mult, svd_ortho_procrustes
 except (ImportError, ValueError):
     from kge.math_utils import (
-        dot_product,
         l2_distance,
-        l2_norm,
         matrix_mult,
-        matrix_transpose,
-        one_minus_cosine,
         svd_ortho_procrustes,
     )
 from .anchors import AnchorSplit

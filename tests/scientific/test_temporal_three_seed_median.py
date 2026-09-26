@@ -1,16 +1,11 @@
-import pytest
 
 from src.drift.metrics import compute_longitudinal_drift
-from src.drift.null import ConditionalBucketStats, EmpiricalNullArtifact
+from src.drift.null import ConditionalBucketStats, EmpiricalNullArtifact, compute_median
 from src.kge.checkpoint import CheckpointProvenance, KGECheckpoint
-from src.kge.contract import SnapshotDataset
 
 
 def test_temporal_drift_aggregates_across_three_parallel_seeds():
     """A20: Temporal drift must be measured across 3 parallel seed pairs and aggregated via median."""
-    ds1 = SnapshotDataset.create("S1", [("E1", "r1", "E2"), ("E2", "r1", "E3")])
-    ds2 = SnapshotDataset.create("S2", [("E1", "r1", "E2"), ("E2", "r1", "E3")])
-
     def make_ckpt(snap_id: str, seed: int, coord_factor: float):
         prov = CheckpointProvenance(
             snapshot_id=snap_id,
@@ -32,6 +27,7 @@ def test_temporal_drift_aggregates_across_three_parallel_seeds():
                 "E3": [0.0, 0.0, 1.0, 0.0],
             },
             relation_embeddings={"r1": [0.1, 0.1, 0.1, 0.1]},
+            training_metrics={},
         )
 
     # In S1, all seeds have E1 at [1, 0, 0, 0]
@@ -76,6 +72,14 @@ def test_temporal_drift_aggregates_across_three_parallel_seeds():
         transition_id="S1->S2",
     )
 
+    expected_seed_displacements = [
+        compute_longitudinal_drift(
+            ckpts_s1[seed], ckpts_s2[seed], null_art,
+            transition_id="S1->S2",
+        ).get_measurement("E1").raw_displacement
+        for seed in (13, 37, 101)
+    ]
     m = drift_art.get_measurement("E1")
     assert isinstance(m.raw_displacement, float)
+    assert m.raw_displacement == compute_median(expected_seed_displacements)
     assert m.raw_displacement >= 0.0

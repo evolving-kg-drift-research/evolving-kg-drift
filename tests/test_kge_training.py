@@ -5,7 +5,7 @@ from pathlib import Path
 
 from src.kge.checkpoint import KGECheckpoint
 from src.kge.fixtures import create_synthetic_snapshots
-from src.kge.model import TransEConfig, TransEModel
+from src.kge.model import TransEConfig
 from src.kge.trainer import train_multi_seed, train_single_seed
 
 
@@ -109,7 +109,7 @@ def test_dev_split_and_dimension_selection():
     assert "dev_losses" in ckpt.training_metrics
     dev_losses = ckpt.training_metrics["dev_losses"]
     assert len(dev_losses) == 4
-    assert all(isinstance(l, float) for l in dev_losses)
+    assert all(isinstance(loss, float) for loss in dev_losses)
     assert ckpt.training_metrics["final_dev_loss"] is not None
 
     # 2. Candidate dimension selection

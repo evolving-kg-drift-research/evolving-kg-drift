@@ -131,6 +131,17 @@ def _bundle_payload(repo_root: Path) -> dict[str, Any]:
         except Exception:
             resolved_config["drift"] = {}
 
+    catalog_path = repo_root / "config" / "entity_catalog.yaml"
+    entity_catalog: dict[str, str] = {}
+    if catalog_path.is_file():
+        try:
+            loaded_cat = read_yaml(catalog_path)
+            if isinstance(loaded_cat, dict):
+                entity_catalog = loaded_cat
+        except Exception:
+            entity_catalog = {}
+    resolved_config["entity_catalog"] = entity_catalog
+
     resolved_config["llm_adapter"] = {
         "type": "mock",
         "model": "offline_mock",
@@ -142,6 +153,7 @@ def _bundle_payload(repo_root: Path) -> dict[str, Any]:
         **inspect_config_approval(repo_root, candidate_files),
         "candidate_files": candidate_files,
         "resolved_config": resolved_config,
+        "entity_catalog": entity_catalog,
         "ontology_rules": resolved_config.get("ontology", {}).get("relations", {}),
         "resolved_semantic_decisions": [
             "ADR 0005: Time fields retrieved_at_real and ingested_at_real remain completely separated.",
@@ -254,3 +266,27 @@ def load_run_manifest(repo_root: Path, run_id: str) -> dict[str, Any]:
     if manifest.get("config_approval") != inspect_config_approval(repo_root, config_fingerprints(repo_root)):
         raise ArtifactConflict("Configuration approval differs from the initialized run; create a new run")
     return manifest
+
+
+def resolve_run_table_path(repo_root: Path, run_id: str, table_name: str) -> Path:
+    """Find a table parquet path in run_id, falling back up the parent_run_id chain."""
+    curr_id: str | None = run_id
+    visited: set[str] = set()
+
+    while curr_id and curr_id not in visited:
+        visited.add(curr_id)
+        run_dir = get_run_dir(repo_root, curr_id)
+        candidate = run_dir / "tables" / f"{table_name}.parquet"
+        if candidate.is_file():
+            return candidate
+        manifest_path = run_dir / "run_manifest.yaml"
+        if manifest_path.is_file():
+            try:
+                manifest = read_yaml(manifest_path)
+                curr_id = manifest.get("parent_run_id") if isinstance(manifest, dict) else None
+            except Exception:
+                curr_id = None
+        else:
+            curr_id = None
+
+    return get_run_dir(repo_root, run_id) / "tables" / f"{table_name}.parquet"

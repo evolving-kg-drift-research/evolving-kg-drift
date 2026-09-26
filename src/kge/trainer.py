@@ -171,7 +171,7 @@ def train_multi_seed(
 
 def select_best_dimension(
     dataset: SnapshotDataset,
-    candidate_dimensions: Sequence[int] = (16, 32, 64),
+    candidate_dimensions: Sequence[int] = (32, 64),
     seed: int = 13,
     epochs: int = 25,
     dev_split_ratio: float = 0.15,
@@ -211,43 +211,3 @@ def select_best_dimension(
 
     best_dim = min(dim_losses, key=lambda d: dim_losses[d])
     return best_dim, dim_losses, checkpoints[best_dim]
-    epochs: int = 40,
-    learning_rate: float = 0.02,
-    margin: float = 1.0,
-    output_dir: Path | str | None = None,
-    git_commit: str = "",
-    git_dirty: bool | None = None,
-) -> dict[int, KGECheckpoint]:
-    """Trains TransE across multiple seeds and verifies mapping parity.
-
-    CRITICAL INVARIANT:
-      mapping(seed13) == mapping(seed37) == mapping(seed101)
-    """
-    checkpoints: dict[int, KGECheckpoint] = {}
-    base_mapping_hash = dataset.compute_mapping_hash()
-
-    for s in seeds:
-        cfg = TransEConfig(
-            dimension=dimension,
-            norm=2,
-            margin=margin,
-            learning_rate=learning_rate,
-            epochs=epochs,
-            seed=s,
-        )
-        ckpt = train_single_seed(dataset, cfg, git_commit=git_commit, git_dirty=git_dirty)
-
-        # Invariant check: mapping hash must be identical across all seeds
-        if ckpt.provenance.entity_mapping_hash != base_mapping_hash:
-            raise RuntimeError(
-                f"Mapping parity violation! Seed {s} produced mapping hash "
-                f"{ckpt.provenance.entity_mapping_hash} != {base_mapping_hash}"
-            )
-
-        if output_dir:
-            out_path = Path(output_dir) / dataset.snapshot_id / f"seed_{s}.json"
-            ckpt.save(out_path)
-
-        checkpoints[s] = ckpt
-
-    return checkpoints

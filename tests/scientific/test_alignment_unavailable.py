@@ -1,4 +1,3 @@
-import pytest
 
 from src.drift.metrics import compute_longitudinal_drift
 from src.drift.null import ConditionalBucketStats, EmpiricalNullArtifact
@@ -40,11 +39,13 @@ def test_alignment_diagnostics_gate_blocks_sed_plus():
         provenance=prov_1,
         entity_embeddings={e: [float(i + 1)] + [0.0] * (dimension - 1) for i, e in enumerate(entities)},
         relation_embeddings={"r": [0.1] * dimension},
+        training_metrics={},
     )
     ckpt_2 = KGECheckpoint(
         provenance=prov_2,
         entity_embeddings={e: [float(i + 2)] + [0.0] * (dimension - 1) for i, e in enumerate(entities)},
         relation_embeddings={"r": [0.1] * dimension},
+        training_metrics={},
     )
 
     null_art = EmpiricalNullArtifact(

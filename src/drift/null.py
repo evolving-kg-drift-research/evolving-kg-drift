@@ -14,10 +14,9 @@ from __future__ import annotations
 
 import hashlib
 import json
-import math
 import warnings
 from dataclasses import dataclass
-from typing import Any, Sequence
+from typing import Sequence
 
 try:
     from ..kge.checkpoint import KGECheckpoint
@@ -154,10 +153,10 @@ class EmpiricalNullArtifact:
         scale = 1.4826 * mad
         is_deg = (mad < 1e-12) or (count < min_bucket_samples)
         reason = ""
-        if mad < 1e-12:
-            reason = "ZERO_MAD"
-        elif count < min_bucket_samples:
+        if count < min_bucket_samples:
             reason = "INSUFFICIENT_LTO_SAMPLES"
+        elif mad < 1e-12:
+            reason = "ZERO_MAD"
 
         return ConditionalBucketStats(
             bucket_id=bucket_id,

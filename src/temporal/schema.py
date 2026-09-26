@@ -114,6 +114,7 @@ class FactVersion:
 
     confidence: Optional[float] = None
     adjudication_status: Optional[str] = None
+    supporting_claim_ids: tuple[str, ...] = ()
     temporal_status: str = "VALID"
     evidence_time_basis: str = ""
     evidence_time_confidence: Optional[float] = None

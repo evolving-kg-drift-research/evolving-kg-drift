@@ -1,11 +1,9 @@
-import pytest
 
 from src.drift.null import (
-    ConditionalBucketStats,
     build_same_snapshot_empirical_null,
 )
 from src.kge.checkpoint import CheckpointProvenance, KGECheckpoint
-from src.kge.contract import EntityMetadata, SnapshotDataset, Triple
+from src.kge.contract import SnapshotDataset
 
 
 def test_sparse_bucket_merges_only_with_adjacent_bucket():
@@ -53,6 +51,7 @@ def test_sparse_bucket_merges_only_with_adjacent_bucket():
                 e: [0.1, 0.2, 0.3, 0.4] for e in dataset.entities
             },
             relation_embeddings={"r1": [0.1, 0.1, 0.1, 0.1]},
+            training_metrics={},
         )
 
     checkpoints = {13: make_ckpt(13), 37: make_ckpt(37)}

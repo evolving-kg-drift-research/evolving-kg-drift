@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-import pytest
 
 from temporal.schema import FactVersion
 from temporal.snapshot import build_snapshot_edges_and_support, compute_logical_fact_id
@@ -63,7 +62,8 @@ def test_relation_specific_logical_key_and_state_replacement():
         evidence_span_start=0,
         evidence_span_end=20,
         evidence_text_hash="hash_steve",
-        adjudication_status="AUTO_ACCEPTED"
+        adjudication_status="AUTO_ACCEPTED",
+        supporting_claim_ids=("claim_steve",)
     )
 
     fv_tim = FactVersion(
@@ -83,14 +83,20 @@ def test_relation_specific_logical_key_and_state_replacement():
         evidence_span_start=0,
         evidence_span_end=20,
         evidence_text_hash="hash_tim",
-        adjudication_status="AUTO_ACCEPTED"
+        adjudication_status="AUTO_ACCEPTED",
+        supporting_claim_ids=("claim_tim",)
     )
 
     # Cutoff 2005: Steve Jobs is the active CEO
     edges_2005, _, _ = build_snapshot_edges_and_support(
         [fv_steve, fv_tim],
         cutoff=dt(2005, 1, 1),
-        snapshot_id="S_2005"
+        snapshot_id="S_2005",
+        provenance_map={"fv_ceo_steve": [{
+            "provenance_id": "prov_steve", "claim_id": "claim_steve",
+            "membership_id": "mem_steve", "source_version_id": "sv_steve",
+            "retrieval_id": "ret_steve", "raw_blob_sha256": "1" * 64,
+        }]},
     )
     assert len(edges_2005) == 1
     assert edges_2005[0].subject_id == "Steve Jobs"
@@ -99,7 +105,19 @@ def test_relation_specific_logical_key_and_state_replacement():
     edges_2015, _, _ = build_snapshot_edges_and_support(
         [fv_steve, fv_tim],
         cutoff=dt(2015, 1, 1),
-        snapshot_id="S_2015"
+        snapshot_id="S_2015",
+        provenance_map={
+            "fv_ceo_steve": [{
+                "provenance_id": "prov_steve", "claim_id": "claim_steve",
+                "membership_id": "mem_steve", "source_version_id": "sv_steve",
+                "retrieval_id": "ret_steve", "raw_blob_sha256": "1" * 64,
+            }],
+            "fv_ceo_tim": [{
+                "provenance_id": "prov_tim", "claim_id": "claim_tim",
+                "membership_id": "mem_tim", "source_version_id": "sv_tim",
+                "retrieval_id": "ret_tim", "raw_blob_sha256": "2" * 64,
+            }],
+        },
     )
     assert len(edges_2015) == 1
     assert edges_2015[0].subject_id == "Tim Cook"
@@ -125,7 +143,8 @@ def test_retraction_removes_fact_from_subsequent_snapshots():
         evidence_span_start=0,
         evidence_span_end=10,
         evidence_text_hash="hash_rumor",
-        adjudication_status="AUTO_ACCEPTED"
+        adjudication_status="AUTO_ACCEPTED",
+        supporting_claim_ids=("claim_rumor",)
     )
 
     fv_retract = FactVersion(
@@ -145,14 +164,20 @@ def test_retraction_removes_fact_from_subsequent_snapshots():
         evidence_span_start=0,
         evidence_span_end=10,
         evidence_text_hash="hash_correction",
-        adjudication_status="AUTO_ACCEPTED"
+        adjudication_status="AUTO_ACCEPTED",
+        supporting_claim_ids=("claim_correction",)
     )
 
     # Cutoff Jan 5 (before retraction): fact is visible
     edges_pre, _, _ = build_snapshot_edges_and_support(
         [fv_rumor, fv_retract],
         cutoff=dt(2024, 1, 5),
-        snapshot_id="S_pre"
+        snapshot_id="S_pre",
+        provenance_map={"fv_rumor_01": [{
+            "provenance_id": "prov_rumor", "claim_id": "claim_rumor",
+            "membership_id": "mem_rumor", "source_version_id": "sv_rumor",
+            "retrieval_id": "ret_rumor", "raw_blob_sha256": "3" * 64,
+        }]},
     )
     assert len(edges_pre) == 1
 
@@ -160,6 +185,18 @@ def test_retraction_removes_fact_from_subsequent_snapshots():
     edges_post, _, _ = build_snapshot_edges_and_support(
         [fv_rumor, fv_retract],
         cutoff=dt(2024, 1, 15),
-        snapshot_id="S_post"
+        snapshot_id="S_post",
+        provenance_map={
+            "fv_rumor_01": [{
+                "provenance_id": "prov_rumor", "claim_id": "claim_rumor",
+                "membership_id": "mem_rumor", "source_version_id": "sv_rumor",
+                "retrieval_id": "ret_rumor", "raw_blob_sha256": "3" * 64,
+            }],
+            "fv_retract_01": [{
+                "provenance_id": "prov_correction", "claim_id": "claim_correction",
+                "membership_id": "mem_correction", "source_version_id": "sv_correction",
+                "retrieval_id": "ret_correction", "raw_blob_sha256": "4" * 64,
+            }],
+        },
     )
     assert len(edges_post) == 0

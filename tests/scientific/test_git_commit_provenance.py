@@ -1,4 +1,3 @@
-import pytest
 from src.kge.contract import SnapshotDataset
 from src.kge.model import TransEConfig
 from src.kge.trainer import train_single_seed

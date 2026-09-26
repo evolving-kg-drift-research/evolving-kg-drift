@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import asdict, dataclass
-from typing import Any, Sequence
+from dataclasses import dataclass
+from typing import Sequence
 
 
 @dataclass(frozen=True)

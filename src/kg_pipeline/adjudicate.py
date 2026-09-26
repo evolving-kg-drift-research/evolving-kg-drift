@@ -12,7 +12,7 @@ import pyarrow.parquet as pq
 
 from .adjudication import adjudicate_claims
 from .contracts import CONTRACT_VERSION
-from .run import get_run_dir
+from .run import get_run_dir, resolve_run_table_path
 from .storage import write_parquet_immutable, read_yaml
 from temporal.schema import Claim
 
@@ -29,7 +29,7 @@ def run_adjudication(repo_root: Path, run_id: str, *, enforce_gate_a: bool = Fal
         if gate_report.get("status") != "PASS":
             raise PermissionError(f"Adjudication blocked: Gate A status is {gate_report.get('status')}, expected PASS")
 
-    extracted_claims_path = run_dir / "tables" / "extracted_claims.parquet"
+    extracted_claims_path = resolve_run_table_path(repo_root, run_id, "extracted_claims")
     if not extracted_claims_path.is_file():
         raise FileNotFoundError(f"Missing {extracted_claims_path}")
 
@@ -37,7 +37,16 @@ def run_adjudication(repo_root: Path, run_id: str, *, enforce_gate_a: bool = Fal
     config_path = run_dir / "inputs" / "proposed_config_bundle.yaml"
     config = read_yaml(config_path) if config_path.is_file() else {}
     res_cfg = config.get("resolved_config", {})
-    entity_catalog = config.get("entity_catalog", {})
+    entity_catalog = config.get("entity_catalog") or res_cfg.get("entity_catalog", {})
+    if not entity_catalog:
+        cat_path = repo_root / "config" / "entity_catalog.yaml"
+        if cat_path.is_file():
+            try:
+                loaded_cat = read_yaml(cat_path)
+                if isinstance(loaded_cat, dict):
+                    entity_catalog = loaded_cat
+            except Exception:
+                entity_catalog = {}
     ontology_rules = config.get("ontology_rules") or res_cfg.get("ontology", {}).get("relations", {})
     if not ontology_rules:
         ont_path = repo_root / "config" / "ontology.yaml"
@@ -46,8 +55,8 @@ def run_adjudication(repo_root: Path, run_id: str, *, enforce_gate_a: bool = Fal
             ontology_rules = ont_data.get("relations", {})
 
     # Load body_to_sources from document_memberships and retrievals if available (A06)
-    memberships_path = run_dir / "tables" / "document_memberships.parquet"
-    retrievals_path = run_dir / "tables" / "retrievals.parquet"
+    memberships_path = resolve_run_table_path(repo_root, run_id, "document_memberships")
+    retrievals_path = resolve_run_table_path(repo_root, run_id, "retrievals")
     body_to_sources: dict[str, list[dict[str, Any]]] = {}
     latest_retrieval_dt: datetime | None = None
 
@@ -158,7 +167,8 @@ def run_adjudication(repo_root: Path, run_id: str, *, enforce_gate_a: bool = Fal
             "extractor_version": fact.extractor_version,
             "entity_map_version": fact.entity_map_version,
             "confidence": fact.confidence,
-            "adjudication_status": fact.adjudication_status
+            "adjudication_status": fact.adjudication_status,
+            "supporting_claim_ids": list(fact.supporting_claim_ids),
         }
         for fact in accepted
     ]

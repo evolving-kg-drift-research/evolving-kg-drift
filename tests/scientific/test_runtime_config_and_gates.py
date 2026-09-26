@@ -1,12 +1,10 @@
-import json
 from pathlib import Path
 from datetime import datetime, timezone
 import pytest
 
-from kg_pipeline.run import init_run, load_run_manifest, get_run_dir, CONFIG_CANDIDATES
-from kg_pipeline.storage import read_yaml, write_json_immutable, ArtifactConflict
+from kg_pipeline.run import init_run, load_run_manifest, get_run_dir
+from kg_pipeline.storage import read_yaml, write_json_immutable
 from kg_pipeline.extract import run_extraction
-from kg_pipeline.adjudicate import run_adjudication
 
 
 def test_config_bundle_materializes_resolved_configs(tmp_path: Path):
@@ -18,7 +16,7 @@ def test_config_bundle_materializes_resolved_configs(tmp_path: Path):
     (tmp_path / "config" / "ontology.yaml").write_text("domain: test_domain\nrelations:\n  is_CEO_of:\n    temporal_semantics: state\n", encoding="utf-8")
     (tmp_path / "configs" / "kge.yaml").write_text("model: TransE\ndimension: 64\n", encoding="utf-8")
 
-    init_res = init_run(tmp_path, "test_bundle_run", mode="inventory")
+    init_run(tmp_path, "test_bundle_run", mode="inventory")
     bundle_path = tmp_path / "runs" / "test_bundle_run" / "inputs" / "proposed_config_bundle.yaml"
     assert bundle_path.is_file()
 
@@ -35,13 +33,13 @@ def test_config_bundle_materializes_resolved_configs(tmp_path: Path):
 def test_stage_execution_permission_isolation(tmp_path: Path):
     """A03: Separate inventory run permissions from extraction run permissions."""
     # Inventory mode
-    init_inv = init_run(tmp_path, "inv_run", mode="inventory")
+    init_run(tmp_path, "inv_run", mode="inventory")
     manifest_inv = load_run_manifest(tmp_path, "inv_run")
     assert manifest_inv["mode"] == "inventory"
     assert manifest_inv["safety_scope"]["llm_calls"] == "FORBIDDEN_IN_TICKET_A"
 
     # Extraction mode
-    init_ext = init_run(tmp_path, "ext_run", mode="extraction")
+    init_run(tmp_path, "ext_run", mode="extraction")
     manifest_ext = load_run_manifest(tmp_path, "ext_run")
     assert manifest_ext["mode"] == "extraction"
     assert manifest_ext["safety_scope"]["llm_calls"] == "LOCAL_OR_MOCK_ONLY"

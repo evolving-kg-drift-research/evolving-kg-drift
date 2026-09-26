@@ -3,11 +3,11 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Iterable
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import Any
 
-from .schema import FactVersion, EntityMappingVersion, ContractError
+from .schema import FactVersion, EntityMappingVersion
 
 
 @dataclass(frozen=True)
@@ -22,6 +22,7 @@ class SnapshotEdge:
 @dataclass(frozen=True)
 class SnapshotEdgeSupport:
     support_id: str
+    provenance_id: str
     edge_id: str
     fact_version_id: str
     claim_id: str
@@ -67,10 +68,10 @@ def compute_graph_semantic_hash(edges: Iterable[SnapshotEdge]) -> str:
 
 
 def compute_support_semantic_hash(support_records: Iterable[SnapshotEdgeSupport]) -> str:
-    sorted_supp = sorted(support_records, key=lambda s: (s.edge_id, s.fact_version_id, s.claim_id, s.source_version_id, s.raw_blob_sha256))
+    sorted_supp = sorted(support_records, key=lambda s: (s.provenance_id, s.edge_id, s.fact_version_id, s.claim_id, s.source_version_id, s.raw_blob_sha256))
     hasher = hashlib.sha256()
     for s in sorted_supp:
-        hasher.update(f"{s.edge_id}\t{s.fact_version_id}\t{s.claim_id}\t{s.source_version_id}\t{s.raw_blob_sha256}\n".encode("utf-8"))
+        hasher.update(f"{s.provenance_id}\t{s.edge_id}\t{s.fact_version_id}\t{s.claim_id}\t{s.source_version_id}\t{s.raw_blob_sha256}\n".encode("utf-8"))
     return hasher.hexdigest()
 
 
@@ -192,6 +193,7 @@ def build_snapshot_edges_and_support(
     snapshot_id: str = "snapshot",
     entity_mappings: list[EntityMappingVersion] | None = None,
     ontology_rules: dict[str, Any] | None = None,
+    provenance_map: dict[str, list[dict[str, str]]] | None = None,
 ) -> tuple[list[SnapshotEdge], list[SnapshotEdgeSupport], list[SnapshotExclusion]]:
     """Build separated SnapshotEdge (unique triples) and SnapshotEdgeSupport (provenance lineage),
 
@@ -248,7 +250,8 @@ def build_snapshot_edges_and_support(
                 extractor_version=f.extractor_version,
                 entity_map_version=f.entity_map_version,
                 confidence=f.confidence,
-                adjudication_status=f.adjudication_status
+                adjudication_status=f.adjudication_status,
+                supporting_claim_ids=f.supporting_claim_ids,
             )
         resolved_facts.append(f)
 
@@ -366,16 +369,63 @@ def build_snapshot_edges_and_support(
 
         for fv in supporting_facts:
             support_id = f"supp_{edge_id}_{fv.fact_version_id}"
-            support_records.append(
-                SnapshotEdgeSupport(
-                    support_id=support_id,
-                    edge_id=edge_id,
-                    fact_version_id=fv.fact_version_id,
-                    claim_id=fv.fact_version_id,
-                    source_version_id=fv.source_id,
-                    raw_blob_sha256=fv.evidence_text_hash
+
+            if provenance_map is None or fv.fact_version_id not in provenance_map:
+                raise ValueError(
+                    f"Missing claim provenance for active fact version {fv.fact_version_id}"
                 )
-            )
+            provenance_rows = provenance_map[fv.fact_version_id]
+            if not isinstance(provenance_rows, list) or not provenance_rows:
+                raise ValueError(
+                    f"Invalid claim provenance rows for active fact version {fv.fact_version_id}"
+                )
+            provenance_claim_ids = {row.get("claim_id") for row in provenance_rows}
+            if provenance_claim_ids != set(fv.supporting_claim_ids):
+                raise ValueError(
+                    f"Claim provenance does not exactly match supporting claims for fact "
+                    f"version {fv.fact_version_id}"
+                )
+            for index, prov in enumerate(provenance_rows):
+                required = (
+                    "claim_id",
+                    "membership_id",
+                    "source_version_id",
+                    "provenance_id",
+                    "retrieval_id",
+                    "raw_blob_sha256",
+                )
+                missing = [field for field in required if not prov.get(field)]
+                if missing:
+                    raise ValueError(
+                        f"Incomplete claim provenance for fact version {fv.fact_version_id}: {missing}"
+                    )
+                provenance_claim_id = prov["claim_id"]
+                if provenance_claim_id not in fv.supporting_claim_ids:
+                    raise ValueError(
+                        f"Provenance claim {provenance_claim_id} is not a supporter of fact "
+                        f"version {fv.fact_version_id}"
+                    )
+                provenance_hash = prov["raw_blob_sha256"]
+                if len(provenance_hash) != 64 or any(
+                    ch not in "0123456789abcdef" for ch in provenance_hash
+                ):
+                    raise ValueError(
+                        f"Invalid raw_blob_sha256 for fact version {fv.fact_version_id}"
+                    )
+                support_records.append(
+                    SnapshotEdgeSupport(
+                        support_id=(
+                            f"{support_id}_"
+                            f"{hashlib.sha256(prov['provenance_id'].encode('utf-8')).hexdigest()[:16]}"
+                        ),
+                        provenance_id=prov["provenance_id"],
+                        edge_id=edge_id,
+                        fact_version_id=fv.fact_version_id,
+                        claim_id=provenance_claim_id,
+                        source_version_id=prov["source_version_id"],
+                        raw_blob_sha256=provenance_hash,
+                    )
+                )
 
     # 5. Deterministic sorting
     edges.sort(key=lambda e: (e.subject_id, e.relation_id, e.object_id, e.edge_id))

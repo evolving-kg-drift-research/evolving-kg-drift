@@ -16,9 +16,8 @@ from __future__ import annotations
 
 import hashlib
 import json
-import math
 from dataclasses import asdict, dataclass
-from typing import Any, Optional, Sequence
+from typing import Any, Optional
 
 try:
     from ..kge.checkpoint import KGECheckpoint
@@ -26,7 +25,7 @@ try:
 except (ImportError, ValueError):
     from kge.checkpoint import KGECheckpoint
     from kge.math_utils import one_minus_cosine
-from .anchors import AnchorSplit, deterministic_hash_split, select_persistent_anchors
+from .anchors import AnchorSplit, deterministic_hash_split
 from .null import EmpiricalNullArtifact, compute_median
 from .procrustes import ProcrustesAlignmentResult, align_embeddings_procrustes
 
@@ -104,6 +103,7 @@ def compute_longitudinal_drift(
     git_commit: str = "",
     git_dirty: bool = False,
     min_bucket_samples: int = 5,
+    strict_scientific: bool = False,
 ) -> TransitionDriftArtifact:
     """Computes cross-time Procrustes alignment, raw displacement, signed excess, and SED+.
 
@@ -119,6 +119,7 @@ def compute_longitudinal_drift(
         epsilon: Numerical guard for MAD denominator (locked prior to evaluation).
         transition_id: Label for this transition (e.g. 'S1->S2').
         min_bucket_samples: Minimum sample threshold for LTO null calibration.
+        strict_scientific: When True, enforces exact 3-seed protocol {13, 37, 101}.
     """
     if isinstance(checkpoint_prev, KGECheckpoint):
         ckpts_prev = {checkpoint_prev.provenance.seed: checkpoint_prev}
@@ -133,6 +134,14 @@ def compute_longitudinal_drift(
     common_seeds = sorted(set(ckpts_prev.keys()).intersection(set(ckpts_next.keys())))
     if not common_seeds:
         raise ValueError("No common seeds found between checkpoint_prev and checkpoint_next.")
+
+    if strict_scientific:
+        expected_seeds = {13, 37, 101}
+        if set(common_seeds) != expected_seeds:
+            raise ValueError(
+                f"Protocol violation (A20): Scientific mode requires exactly seeds {expected_seeds}, "
+                f"found {set(common_seeds)}"
+            )
 
     snap_prev = next(iter(ckpts_prev.values())).provenance.snapshot_id
     snap_next = next(iter(ckpts_next.values())).provenance.snapshot_id
@@ -284,5 +293,4 @@ def compute_longitudinal_drift(
         measurements=measurements,
         git_commit=git_commit,
         git_dirty=git_dirty,
-    )
     )

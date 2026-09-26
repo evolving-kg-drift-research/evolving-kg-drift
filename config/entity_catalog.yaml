@@ -1,0 +1,32 @@
+# Canonical entity catalog mapping surface mentions to canonical entity IDs
+# domain: ai_digital_technology
+OpenAI: org_openai
+Microsoft: org_microsoft
+Google: org_google
+Anthropic: org_anthropic
+Apple: org_apple
+Amazon: org_amazon
+Meta: org_meta
+NVIDIA: org_nvidia
+DeepMind: org_deepmind
+
+Sam Altman: person_sam_altman
+Satya Nadella: person_satya_nadella
+Sundar Pichai: person_sundar_pichai
+Dario Amodei: person_dario_amodei
+Tim Cook: person_tim_cook
+Jensen Huang: person_jensen_huang
+Mark Zuckerberg: person_mark_zuckerberg
+Demis Hassabis: person_demis_hassabis
+
+ChatGPT: product_chatgpt
+GPT-4: model_gpt4
+Claude: model_claude
+Gemini: model_gemini
+Llama: model_llama
+
+John Doe: person_john_doe
+Acme Corp: org_acme_corp
+Beta LLC: org_beta_llc
+Jane Smith: person_jane_smith
+TechCorp: org_techcorp

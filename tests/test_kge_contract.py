@@ -1,7 +1,7 @@
 """Tests for KGE Input Contract and mapping invariants."""
 
 import pytest
-from src.kge.contract import EntityMetadata, SnapshotDataset, Triple
+from src.kge.contract import SnapshotDataset
 
 
 def test_snapshot_dataset_creation_and_canonical_sorting():

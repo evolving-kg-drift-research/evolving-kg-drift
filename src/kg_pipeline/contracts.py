@@ -194,6 +194,7 @@ TABLE_SCHEMAS: dict[str, pa.Schema] = {
     ),
     "fact_versions": _schema(
         ("fact_version_id", S),
+        ("supporting_claim_ids", pa.list_(S)),
         ("logical_fact_id", S),
         ("subject_id", S),
         ("relation_id", S),
@@ -223,6 +224,7 @@ TABLE_SCHEMAS: dict[str, pa.Schema] = {
     ),
     "snapshot_edge_support": _schema(
         ("support_id", S),
+        ("provenance_id", S),
         ("edge_id", S),
         ("fact_version_id", S),
         ("claim_id", S),
@@ -292,12 +294,16 @@ FOREIGN_KEYS: dict[str, dict[str, tuple[str, str]]] = {
     "claim_provenance": {
         "claim_id": ("extracted_claims", "claim_id"),
         "membership_id": ("document_memberships", "membership_id"),
+        "source_version_id": ("source_versions", "source_version_id"),
+        "retrieval_id": ("retrievals", "retrieval_id"),
     },
     "fact_versions": {},
     "snapshot_edges": {},
     "snapshot_edge_support": {
+        "provenance_id": ("claim_provenance", "provenance_id"),
         "edge_id": ("snapshot_edges", "edge_id"),
         "fact_version_id": ("fact_versions", "fact_version_id"),
+        "source_version_id": ("source_versions", "source_version_id"),
     },
     "snapshot_exclusions": {},
 }

@@ -7,10 +7,11 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
-import pytest
 
-from temporal.schema import ClaimCandidate, ClaimProvenance, ContractError
+import pytest
+from pathlib import Path
+
+from temporal.schema import ClaimCandidate, ContractError
 from kg_pipeline.claims import extract_claims, resolve_claim_provenance
 from kg_pipeline.llm_adapter import OfflineMockAdapter
 
@@ -67,14 +68,14 @@ def test_claim_provenance_resolves_multiple_sources(tmp_path: Path):
         {
             "membership_id": "mem_01",
             "body_variant_id": "bv_shared_123",
-            "raw_blob_sha256": "raw_blob_111",
+            "raw_blob_sha256": "a" * 64,
             "retrieval_ids_json": json.dumps(["ret_01"]),
             "strict_input_eligible": True
         },
         {
             "membership_id": "mem_02",
             "body_variant_id": "bv_shared_123",
-            "raw_blob_sha256": "raw_blob_222",
+            "raw_blob_sha256": "b" * 64,
             "retrieval_ids_json": json.dumps(["ret_02"]),
             "strict_input_eligible": True
         }
@@ -83,22 +84,35 @@ def test_claim_provenance_resolves_multiple_sources(tmp_path: Path):
     retrievals_rows = [
         {
             "retrieval_id": "ret_01",
+            "raw_blob_sha256": "a" * 64,
             "source_id": "publisher_tuoitre",
-            "final_url": "https://tuoitre.vn/article1.htm",
-            "raw_blob_sha256": "raw_blob_111"
+            "final_url": "https://tuoitre.vn/article1.htm"
         },
         {
             "retrieval_id": "ret_02",
+            "raw_blob_sha256": "b" * 64,
             "source_id": "publisher_thanhnien",
-            "final_url": "https://thanhnien.vn/article2.htm",
-            "raw_blob_sha256": "raw_blob_222"
+            "final_url": "https://thanhnien.vn/article2.htm"
         }
     ]
 
+    source_versions_rows = [
+        {
+            "source_version_id": "sv_01",
+            "retrieval_id": "ret_01",
+            "raw_blob_sha256": "a" * 64,
+        },
+        {
+            "source_version_id": "sv_02",
+            "retrieval_id": "ret_02",
+            "raw_blob_sha256": "b" * 64,
+        },
+    ]
     provenance_records = resolve_claim_provenance(
         claims=[candidate],
         memberships=memberships_rows,
-        retrievals=retrievals_rows
+        retrievals=retrievals_rows,
+        source_versions=source_versions_rows,
     )
 
     # Must preserve both source provenance links
@@ -122,13 +136,12 @@ def test_missing_membership_fails_provenance_resolution():
         evidence_text_hash="hash"
     )
 
-    provenance_records = resolve_claim_provenance(
-        claims=[candidate],
-        memberships=[],
-        retrievals=[]
-    )
-    # Orphan claim has no verified provenance
-    assert len(provenance_records) == 0
+    with pytest.raises(ContractError, match="no document-membership provenance"):
+        resolve_claim_provenance(
+            claims=[candidate],
+            memberships=[],
+            retrievals=[],
+        )
 
 
 def test_body_to_sources_trust_propagation_in_adjudication():

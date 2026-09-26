@@ -12,7 +12,7 @@ specifically crafted with:
 
 from __future__ import annotations
 
-from .contract import EntityMetadata, SnapshotDataset, Triple
+from .contract import SnapshotDataset, Triple
 
 
 def create_synthetic_snapshots() -> dict[str, SnapshotDataset]:

@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-import pytest
 
 from temporal.schema import FactVersion, EntityMappingVersion
 from temporal.snapshot import build_snapshot_edges_and_support
@@ -57,7 +56,8 @@ def test_no_future_entity_mapping_leakage():
         evidence_span_start=0,
         evidence_span_end=15,
         evidence_text_hash="hash_openai",
-        adjudication_status="AUTO_ACCEPTED"
+        adjudication_status="AUTO_ACCEPTED",
+        supporting_claim_ids=("claim_openai",)
     )
 
     # Snapshot 2025: Cutoff is before M2 becomes available. Must strictly resolve to M1!
@@ -66,7 +66,12 @@ def test_no_future_entity_mapping_leakage():
         fact_versions=[fact],
         cutoff=cutoff_2025,
         entity_mappings=all_mappings,
-        snapshot_id="S_2025"
+        snapshot_id="S_2025",
+        provenance_map={"fv_openai_01": [{
+            "provenance_id": "prov_openai", "claim_id": "claim_openai",
+            "membership_id": "mem_openai", "source_version_id": "sv_openai",
+            "retrieval_id": "ret_openai", "raw_blob_sha256": "5" * 64,
+        }]},
     )
     assert len(edges_2025) == 1
     assert edges_2025[0].subject_id == "org_openai_legacy", (
@@ -79,7 +84,12 @@ def test_no_future_entity_mapping_leakage():
         fact_versions=[fact],
         cutoff=cutoff_2026,
         entity_mappings=all_mappings,
-        snapshot_id="S_2026"
+        snapshot_id="S_2026",
+        provenance_map={"fv_openai_01": [{
+            "provenance_id": "prov_openai", "claim_id": "claim_openai",
+            "membership_id": "mem_openai", "source_version_id": "sv_openai",
+            "retrieval_id": "ret_openai", "raw_blob_sha256": "5" * 64,
+        }]},
     )
     assert len(edges_2026) == 1
     assert edges_2026[0].subject_id == "org_openai_canonical"

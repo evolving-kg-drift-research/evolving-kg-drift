@@ -7,10 +7,9 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-import pytest
 
 from temporal.schema import FactVersion
-from temporal.snapshot import build_snapshot_edges_and_support, SnapshotEdge, SnapshotEdgeSupport
+from temporal.snapshot import build_snapshot_edges_and_support
 
 
 def dt(year: int, month: int, day: int) -> datetime:
@@ -42,7 +41,8 @@ def test_multiple_supporting_facts_produce_single_snapshot_edge():
         evidence_span_start=10,
         evidence_span_end=35,
         evidence_text_hash="hash_tt",
-        adjudication_status="AUTO_ACCEPTED"
+        adjudication_status="AUTO_ACCEPTED",
+        supporting_claim_ids=("claim_tt",)
     )
 
     fact2 = FactVersion(
@@ -62,7 +62,8 @@ def test_multiple_supporting_facts_produce_single_snapshot_edge():
         evidence_span_start=5,
         evidence_span_end=30,
         evidence_text_hash="hash_tn",
-        adjudication_status="AUTO_ACCEPTED"
+        adjudication_status="AUTO_ACCEPTED",
+        supporting_claim_ids=("claim_tn",)
     )
 
     fact3 = FactVersion(
@@ -82,13 +83,31 @@ def test_multiple_supporting_facts_produce_single_snapshot_edge():
         evidence_span_start=20,
         evidence_span_end=45,
         evidence_text_hash="hash_reuters",
-        adjudication_status="AUTO_ACCEPTED"
+        adjudication_status="AUTO_ACCEPTED",
+        supporting_claim_ids=("claim_reuters",)
     )
 
     edges, support, exclusions = build_snapshot_edges_and_support(
         fact_versions=[fact1, fact2, fact3],
         cutoff=cutoff,
-        snapshot_id="S_2025_01"
+        snapshot_id="S_2025_01",
+        provenance_map={
+            "fv_source_tuoitre_01": [{
+                "provenance_id": "prov_tt", "claim_id": "claim_tt",
+                "membership_id": "mem_tt", "source_version_id": "sv_tt",
+                "retrieval_id": "ret_tt", "raw_blob_sha256": "a" * 64,
+            }],
+            "fv_source_thanhnien_01": [{
+                "provenance_id": "prov_tn", "claim_id": "claim_tn",
+                "membership_id": "mem_tn", "source_version_id": "sv_tn",
+                "retrieval_id": "ret_tn", "raw_blob_sha256": "b" * 64,
+            }],
+            "fv_source_reuters_01": [{
+                "provenance_id": "prov_reuters", "claim_id": "claim_reuters",
+                "membership_id": "mem_reuters", "source_version_id": "sv_reuters",
+                "retrieval_id": "ret_reuters", "raw_blob_sha256": "c" * 64,
+            }],
+        },
     )
 
     # Invariant: Snapshot edges for KGE must have exactly 1 unique triple

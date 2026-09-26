@@ -17,8 +17,7 @@ import random
 from dataclasses import dataclass
 from typing import Sequence
 
-from .contract import SnapshotDataset, Triple
-from .math_utils import l2_distance, l2_norm, normalize_vector
+from .math_utils import l2_norm, normalize_vector
 
 
 @dataclass
