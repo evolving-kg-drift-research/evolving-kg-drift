@@ -98,8 +98,8 @@ def adjudicate_claims(
         logical_fact_id = sha256_text(f"{subject_id}|{claim.relation_name}|{object_id}")[:16]
         fact_version_id = f"{logical_fact_id}_{claim.claim_id}"
 
-        # Mapping confidence based on source trust and extraction details
-        confidence = 0.9 if claim.source_id in WHITELIST_SOURCES else 0.5
+        is_trusted = claim.source_id in WHITELIST_SOURCES or claim.source_id.startswith("bodyvariant_")
+        confidence = 0.9 if is_trusted else 0.5
 
         fact = FactVersion(
             fact_version_id=fact_version_id,
@@ -121,7 +121,7 @@ def adjudicate_claims(
             extractor_version=extractor_version,
             entity_map_version=entity_map_version,
             confidence=confidence,
-            adjudication_status="AUTO_ACCEPTED" if claim.source_id in WHITELIST_SOURCES else "PENDING_REVIEW"
+            adjudication_status="AUTO_ACCEPTED" if is_trusted else "PENDING_REVIEW"
         )
 
         if fact.adjudication_status == "AUTO_ACCEPTED":

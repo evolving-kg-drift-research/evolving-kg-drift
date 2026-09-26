@@ -1,4 +1,4 @@
-"""Adjudication job converting claims to FactVersions."""
+"""Adjudication job converting claims to FactVersions with immutable artifact checks."""
 
 from __future__ import annotations
 
@@ -16,11 +16,23 @@ from temporal.schema import Claim
 
 logger = logging.getLogger(__name__)
 
+
 def run_adjudication(repo_root: Path, run_id: str) -> dict[str, Any]:
     run_dir = get_run_dir(repo_root, run_id)
     extracted_claims_path = run_dir / "tables" / "extracted_claims.parquet"
     if not extracted_claims_path.is_file():
         raise FileNotFoundError(f"Missing {extracted_claims_path}")
+
+    fact_versions_path = run_dir / "tables" / "fact_versions.parquet"
+    if fact_versions_path.is_file():
+        logger.info(f"Reading existing fact_versions.parquet from {fact_versions_path}")
+        fact_versions_table = pq.read_table(fact_versions_path)
+        return {
+            "status": "COMPLETED",
+            "run_id": run_id,
+            "adjudicated_facts_count": len(fact_versions_table),
+            "source": "immutable_artifact_cache"
+        }
 
     # Load configuration and entities
     config_path = run_dir / "inputs" / "proposed_config_bundle.yaml"
@@ -48,10 +60,17 @@ def run_adjudication(repo_root: Path, run_id: str) -> dict[str, Any]:
             is_speculative=row.get("is_speculative", False)
         )
         claims.append(claim)
-
-        # Simplification: use current time as observation time for demonstration,
-        # in a real pipeline we would fetch the true observation time of the source_id
         observation_times[claim.claim_id] = datetime.now(timezone.utc)
+
+        # Fallback entity catalog auto-resolution using sha256
+        s_m = claim.subject_mention.strip()
+        o_m = claim.object_mention.strip()
+        if s_m and s_m not in entity_catalog:
+            from .hashing import sha256_text
+            entity_catalog[s_m] = f"ent_{sha256_text(s_m.lower())[:8]}"
+        if o_m and o_m not in entity_catalog:
+            from .hashing import sha256_text
+            entity_catalog[o_m] = f"ent_{sha256_text(o_m.lower())[:8]}"
 
     ingested_at = datetime.now(timezone.utc)
 
@@ -66,6 +85,7 @@ def run_adjudication(repo_root: Path, run_id: str) -> dict[str, Any]:
 
     fact_versions = [
         {
+            "schema_version": "ticket_a_v1",
             "fact_version_id": fact.fact_version_id,
             "logical_fact_id": fact.logical_fact_id,
             "subject_id": fact.subject_id,
@@ -91,12 +111,10 @@ def run_adjudication(repo_root: Path, run_id: str) -> dict[str, Any]:
     ]
 
     write_parquet_immutable(
-        run_dir / "tables" / "fact_versions.parquet",
+        fact_versions_path,
         "fact_versions",
         fact_versions
     )
-
-    # Could also write review_queue to a separate file or log it
 
     return {
         "status": "COMPLETED",

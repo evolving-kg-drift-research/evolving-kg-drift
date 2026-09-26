@@ -1,0 +1,8 @@
+pandas
+pyarrow
+pyyaml
+pytest
+feedparser
+requests
+beautifulsoup4
+selenium

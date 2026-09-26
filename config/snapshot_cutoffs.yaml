@@ -1,0 +1,9 @@
+snapshot_policy_version: "1.0.0"
+selection_algorithm: "OUTCOME_BLIND_EVENT_BALANCED_V1"
+target_snapshots: 10
+allowed_range:
+  min: 8
+  max: 12
+historical_window:
+  start_date: "2025-03-01"
+  end_date: "2026-08-31"

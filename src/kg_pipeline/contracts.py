@@ -13,6 +13,7 @@ CONTRACT_VERSION = "ticket_a_v1"
 S = pa.string()
 INT64 = pa.int64()
 B = pa.bool_()
+FLOAT64 = pa.float64()
 
 
 def _schema(*fields: tuple[str, pa.DataType]) -> pa.Schema:
@@ -166,6 +167,14 @@ TABLE_SCHEMAS: dict[str, pa.Schema] = {
         ("comparison_status", S),
         ("reason", S),
     ),
+    "filter_decisions": _schema(
+        ("decision_id", S),
+        ("body_variant_id", S),
+        ("decision", S),
+        ("reason_code", S),
+        ("evidence_snippet", S),
+        ("filter_version", S),
+    ),
 }
 
 PRIMARY_KEYS: dict[str, list[str]] = {
@@ -181,6 +190,7 @@ PRIMARY_KEYS: dict[str, list[str]] = {
     "near_duplicate_candidates": ["candidate_id"],
     "missing_coverage_ledger": ["issue_id"],
     "coverage_ledger": ["coverage_row_id"],
+    "filter_decisions": ["decision_id"],
 }
 
 FOREIGN_KEYS: dict[str, dict[str, tuple[str, str]]] = {
@@ -209,6 +219,7 @@ FOREIGN_KEYS: dict[str, dict[str, tuple[str, str]]] = {
     "missing_coverage_ledger": {},
     "coverage_ledger": {},
     "provenance_recovery_ledger": {"raw_blob_sha256": ("raw_inventory", "raw_blob_sha256")},
+    "filter_decisions": {"body_variant_id": ("body_variants", "body_variant_id")},
 }
 
 class ContractError(ValueError):
@@ -306,3 +317,45 @@ def table_from_rows(table_name: str, rows: Iterable[dict[str, Any]]) -> pa.Table
         raise ContractError(f"Unknown Ticket A table: {table_name}")
     normalized = validate_rows(table_name, list(rows))
     return pa.Table.from_pylist(normalized, schema=TABLE_SCHEMAS[table_name])
+TABLE_SCHEMAS["extracted_claims"] = _schema(
+    ("claim_id", S),
+    ("source_id", S),
+    ("subject_mention", S),
+    ("relation_name", S),
+    ("object_mention", S),
+    ("evidence_span_start", INT64),
+    ("evidence_span_end", INT64),
+    ("evidence_text_hash", S),
+    ("valid_from_extracted", S),
+    ("valid_to_extracted", S),
+    ("is_negative", B),
+    ("is_speculative", B),
+)
+PRIMARY_KEYS["extracted_claims"] = ["claim_id"]
+FOREIGN_KEYS["extracted_claims"] = {"source_id": ("body_variants", "body_variant_id")}
+
+TABLE_SCHEMAS["fact_versions"] = _schema(
+    ("fact_version_id", S),
+    ("logical_fact_id", S),
+    ("subject_id", S),
+    ("relation_id", S),
+    ("object_id", S),
+    ("valid_from", S),
+    ("valid_to", S),
+    ("evidence_observed_at", S),
+    ("ingested_at_real", S),
+    ("supersedes_version_id", S),
+    ("revision_type", S),
+    ("source_id", S),
+    ("source_url", S),
+    ("evidence_span_start", INT64),
+    ("evidence_span_end", INT64),
+    ("evidence_text_hash", S),
+    ("extractor_version", S),
+    ("entity_map_version", S),
+    ("confidence", FLOAT64),
+    ("adjudication_status", S),
+)
+PRIMARY_KEYS["fact_versions"] = ["fact_version_id"]
+FOREIGN_KEYS["fact_versions"] = {"source_id": ("body_variants", "body_variant_id")}
+

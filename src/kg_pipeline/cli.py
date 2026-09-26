@@ -15,7 +15,8 @@ from .run import get_run_dir, init_run, load_run_manifest
 from .storage import read_json
 from .extract import run_extraction
 from .adjudicate import run_adjudication
-
+from .pilot import run_pilot
+from .quality import run_quality_gate
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="kg_pipeline", description="Evidence-first Data/KG rebuild controls")
@@ -34,8 +35,18 @@ def _parser() -> argparse.ArgumentParser:
     status.add_argument("--run", required=True)
     extract = commands.add_parser("extract", help="Run offline or local LLM extraction over extracted body variants")
     extract.add_argument("--run", required=True)
+    extract.add_argument("--limit", type=int, default=30, help="Number of documents to extract")
+    extract.add_argument("--llm-mode", choices=("hosted", "mock", "local"), default="hosted", help="LLM mode (default: hosted)")
+    extract.add_argument("--model", default="gemini-3.1-flash-lite", help="LLM model name (default: gemini-3.1-flash-lite)")
+    pilot = commands.add_parser("pilot", help="Run End-to-End Pilot (Filtering and Extraction) on a random sample")
+    pilot.add_argument("--run", required=True)
+    pilot.add_argument("--limit", type=int, default=30, help="Number of documents to sample")
+    pilot.add_argument("--llm-mode", choices=("hosted", "mock", "local"), default="hosted", help="LLM mode (default: hosted)")
+    pilot.add_argument("--model", default="gemini-3.1-flash-lite", help="LLM model name (default: gemini-3.1-flash-lite)")
     adjudicate = commands.add_parser("adjudicate", help="Adjudicate extracted claims into FactVersions")
     adjudicate.add_argument("--run", required=True)
+    quality = commands.add_parser("quality-gate", help="Evaluate Stage 4.13 Pilot Quality Gate")
+    quality.add_argument("--run", required=True)
     return parser
 
 
@@ -78,11 +89,21 @@ def main(argv: list[str] | None = None) -> int:
             payload = _status(repo_root, args.run)
             exit_code = 0
         elif args.command == "extract":
-            payload = run_extraction(repo_root, args.run)
+            payload = run_extraction(
+                repo_root, args.run, limit=args.limit, llm_mode=args.llm_mode, model_name=args.model
+            )
+            exit_code = 0
+        elif args.command == "pilot":
+            payload = run_pilot(
+                repo_root, args.run, limit=args.limit, llm_mode=args.llm_mode, model_name=args.model
+            )
             exit_code = 0
         elif args.command == "adjudicate":
             payload = run_adjudication(repo_root, args.run)
             exit_code = 0
+        elif args.command == "quality-gate":
+            payload = run_quality_gate(repo_root, args.run)
+            exit_code = 0 if payload["status"] == "PASS" else 2
         else:  # argparse makes this unreachable, but keeps the entrypoint total.
             raise ValueError(f"Unsupported command: {args.command}")
     except Exception as exc:  # noqa: BLE001 - CLI must return a nonzero code for any persisted-artifact failure.
@@ -91,3 +112,7 @@ def main(argv: list[str] | None = None) -> int:
     # ASCII escaping keeps CLI reports usable in Windows consoles configured with a legacy code page.
     print(json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True))
     return exit_code
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
