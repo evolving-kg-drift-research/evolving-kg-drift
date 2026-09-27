@@ -7,7 +7,7 @@ import json
 import os
 import tempfile
 import time
-from collections.abc import Iterable, Iterator
+from collections.abc import Generator, Iterable
 from pathlib import Path
 from typing import Any
 
@@ -23,7 +23,7 @@ class ArtifactConflict(RuntimeError):
 
 
 @contextlib.contextmanager
-def exclusive_artifact_lock(path: Path) -> Iterator[None]:
+def exclusive_artifact_lock(path: Path) -> Generator[None, None, None]:
     """Acquire an exclusive lock for checking and writing an artifact. Works on Windows/Linux."""
     lock_path = path.with_suffix(path.suffix + ".lock")
     path.parent.mkdir(parents=True, exist_ok=True)

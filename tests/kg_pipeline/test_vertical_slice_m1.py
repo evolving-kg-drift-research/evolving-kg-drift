@@ -22,7 +22,7 @@ import pyarrow.parquet as pq
 
 from kg_pipeline.contracts import CONTRACT_VERSION, make_row
 from kg_pipeline.gates import evaluate_gate_g2
-from kg_pipeline.hashing import sha256_text, utc_now_iso
+from kg_pipeline.hashing import sha256_text, stable_id, utc_now_iso
 from kg_pipeline.snapshot_runner import run_snapshot
 from kg_pipeline.storage import write_parquet_immutable, write_yaml_immutable
 from kge.adapter import load_snapshots_from_run
@@ -158,7 +158,13 @@ def test_vertical_slice_m1_raw_to_snapshots(tmp_path: Path):
 
     prov_1 = make_row(
         "claim_provenance",
-        provenance_id=f"prov_{claim_1['claim_id']}",
+        provenance_id=stable_id("claimprovenance", {
+            "claim_id": claim_1["claim_id"],
+            "membership_id": mem_id,
+            "source_version_id": sv_id,
+            "retrieval_id": ret_id,
+            "raw_blob_sha256": raw_blob_sha,
+        }),
         claim_id=claim_1["claim_id"],
         membership_id=mem_id,
         source_version_id=sv_id,
