@@ -2,19 +2,18 @@
 
 from __future__ import annotations
 
-import json
 import logging
 from pathlib import Path
 from typing import Any
-from datetime import datetime, timezone
 
 import pyarrow.parquet as pq
 
-from .adjudication import adjudicate_claims
+from .claims import resolve_claim_provenance
 from .contracts import CONTRACT_VERSION
+from .hashing import stable_id
 from .run import get_run_dir, resolve_run_table_path
-from .storage import write_parquet_immutable, read_yaml
-from temporal.schema import Claim
+from .storage import read_yaml, write_parquet_immutable
+from temporal.schema import Claim, ContractError
 
 logger = logging.getLogger(__name__)
 
@@ -54,56 +53,14 @@ def run_adjudication(repo_root: Path, run_id: str, *, enforce_gate_a: bool = Fal
             ont_data = read_yaml(ont_path)
             ontology_rules = ont_data.get("relations", {})
 
-    # Load body_to_sources from document_memberships and retrievals if available (A06)
-    memberships_path = resolve_run_table_path(repo_root, run_id, "document_memberships")
-    retrievals_path = resolve_run_table_path(repo_root, run_id, "retrievals")
-    body_to_sources: dict[str, list[dict[str, Any]]] = {}
-    latest_retrieval_dt: datetime | None = None
-
-    if memberships_path.is_file() and retrievals_path.is_file():
-        m_table = pq.read_table(memberships_path)
-        r_table = pq.read_table(retrievals_path)
-        retrievals_by_id = {r["retrieval_id"]: r for r in r_table.to_pylist() if r.get("retrieval_id")}
-
-        for mem in m_table.to_pylist():
-            bv_id = mem.get("body_variant_id")
-            if not bv_id:
-                continue
-            r_ids_raw = mem.get("retrieval_ids_json", "[]")
-            try:
-                r_ids = json.loads(r_ids_raw) if isinstance(r_ids_raw, str) else (r_ids_raw or [])
-            except (json.JSONDecodeError, TypeError):
-                r_ids = []
-
-            for r_id in r_ids:
-                ret = retrievals_by_id.get(r_id, {})
-                ret_dt_str = ret.get("retrieved_at_real")
-                if ret_dt_str:
-                    try:
-                        parsed_dt = datetime.fromisoformat(ret_dt_str)
-                        if parsed_dt.tzinfo is None:
-                            parsed_dt = parsed_dt.replace(tzinfo=timezone.utc)
-                        if latest_retrieval_dt is None or parsed_dt > latest_retrieval_dt:
-                            latest_retrieval_dt = parsed_dt
-                    except (ValueError, TypeError):
-                        pass
-
-                body_to_sources.setdefault(bv_id, []).append({
-                    "publisher_source_id": ret.get("source_id", "unknown"),
-                    "source_url": ret.get("final_url") or ret.get("requested_url", ""),
-                    "retrieval_id": r_id,
-                    "retrieved_at_real": ret.get("retrieved_at_real"),
-                    "raw_blob_sha256": mem.get("raw_blob_sha256", ""),
-                })
-
     table = pq.read_table(extracted_claims_path)
-
+    claim_rows = table.to_pylist()
     claims = []
-    observation_times: dict[str, datetime] = {}
-
-    for row in table.to_pylist():
-        bv_id = row.get("body_variant_id") or row.get("source_id", "")
-        claim = Claim(
+    for row in claim_rows:
+        bv_id = row.get("body_variant_id")
+        if not bv_id:
+            raise ContractError(f"Extracted claim {row.get('claim_id')} has no body_variant_id.")
+        claims.append(Claim(
             claim_id=row["claim_id"],
             body_variant_id=bv_id,
             source_id=bv_id,
@@ -116,74 +73,74 @@ def run_adjudication(repo_root: Path, run_id: str, *, enforce_gate_a: bool = Fal
             valid_from_extracted=row.get("valid_from_extracted"),
             valid_to_extracted=row.get("valid_to_extracted"),
             is_negative=row.get("is_negative", False),
-            is_speculative=row.get("is_speculative", False)
-        )
-        claims.append(claim)
+            is_speculative=row.get("is_speculative", False),
+        ))
 
-        # Look up true observation time from body_to_sources (A07, A08)
-        sources = body_to_sources.get(bv_id, [])
-        for s in sources:
-            ret_str = s.get("retrieved_at_real")
-            if ret_str:
-                try:
-                    dt_val = datetime.fromisoformat(ret_str)
-                    observation_times[claim.claim_id] = dt_val if dt_val.tzinfo else dt_val.replace(tzinfo=timezone.utc)
-                    break
-                except (ValueError, TypeError):
-                    continue
+    provenance_path = resolve_run_table_path(repo_root, run_id, "claim_provenance")
+    memberships_path = resolve_run_table_path(repo_root, run_id, "document_memberships")
+    retrievals_path = resolve_run_table_path(repo_root, run_id, "retrievals")
+    source_versions_path = resolve_run_table_path(repo_root, run_id, "source_versions")
+    for table_name, path in (
+        ("claim_provenance", provenance_path),
+        ("document_memberships", memberships_path),
+        ("retrievals", retrievals_path),
+        ("source_versions", source_versions_path),
+    ):
+        if not path.is_file():
+            raise FileNotFoundError(f"Missing required {table_name} provenance table: {path}")
 
-    ingested_at = latest_retrieval_dt or datetime.now(timezone.utc)
-
-    accepted, review = adjudicate_claims(
+    provenance_rows = pq.read_table(provenance_path).to_pylist()
+    membership_rows = pq.read_table(memberships_path).to_pylist()
+    retrieval_rows = pq.read_table(retrievals_path).to_pylist()
+    source_version_rows = pq.read_table(source_versions_path).to_pylist()
+    expected_provenance = resolve_claim_provenance(
         claims=claims,
-        observation_times=observation_times,
-        ingested_at=ingested_at,
-        entity_catalog=entity_catalog,
-        extractor_version="v1_local",
-        entity_map_version="v1_mock",
-        body_to_sources=body_to_sources,
-        ontology_rules=ontology_rules,
+        memberships=membership_rows,
+        retrievals=retrieval_rows,
+        source_versions=source_version_rows,
     )
-
-    fact_versions = [
-        {
+    expected_rows = []
+    for prov in expected_provenance:
+        expected_rows.append({
             "schema_version": CONTRACT_VERSION,
-            "fact_version_id": fact.fact_version_id,
-            "logical_fact_id": fact.logical_fact_id,
-            "subject_id": fact.subject_id,
-            "relation_id": fact.relation_id,
-            "object_id": fact.object_id,
-            "valid_from": fact.valid_from.isoformat() if fact.valid_from else None,
-            "valid_to": fact.valid_to.isoformat() if fact.valid_to else None,
-            "evidence_observed_at": fact.evidence_observed_at.isoformat(),
-            "ingested_at_real": fact.ingested_at_real.isoformat(),
-            "supersedes_version_id": fact.supersedes_version_id,
-            "revision_type": fact.revision_type,
-            "source_id": fact.source_id,
-            "source_url": fact.source_url,
-            "evidence_span_start": fact.evidence_span_start,
-            "evidence_span_end": fact.evidence_span_end,
-            "evidence_text_hash": fact.evidence_text_hash,
-            "extractor_version": fact.extractor_version,
-            "entity_map_version": fact.entity_map_version,
-            "confidence": fact.confidence,
-            "adjudication_status": fact.adjudication_status,
-            "supporting_claim_ids": list(fact.supporting_claim_ids),
-        }
-        for fact in accepted
-    ]
+            "claim_id": prov.claim_id,
+            "membership_id": prov.membership_id,
+            "source_version_id": prov.source_version_id,
+            "retrieval_id": prov.retrieval_id,
+            "raw_blob_sha256": prov.raw_blob_sha256,
+            "publisher_source_id": prov.publisher_source_id,
+            "source_url": prov.source_url,
+            "provenance_id": stable_id("claimprovenance", {
+                "claim_id": prov.claim_id,
+                "membership_id": prov.membership_id,
+                "source_version_id": prov.source_version_id,
+                "retrieval_id": prov.retrieval_id,
+                "raw_blob_sha256": prov.raw_blob_sha256,
+            }),
+        })
+    actual_by_id = {row.get("provenance_id"): row for row in provenance_rows}
+    if len(actual_by_id) != len(provenance_rows):
+        raise ContractError("Duplicate provenance_id in claim_provenance table.")
+    expected_by_id = {row["provenance_id"]: row for row in expected_rows}
+    if actual_by_id != expected_by_id:
+        raise ContractError("claim_provenance does not match extracted claim IDs and upstream provenance links.")
+
+    # No approved input currently supplies evidence_observed_at or an independent
+    # ingestion event. Retrieval timestamps are project provenance, not known-time.
+    if claims:
+        raise ContractError(
+            "Adjudication is blocked: approved evidence_observed_at and ingested_at_real inputs "
+            "are unavailable; retrieved_at_real cannot substitute for either field."
+        )
 
     write_parquet_immutable(
         run_dir / "tables" / "fact_versions.parquet",
         "fact_versions",
-        fact_versions
+        [],
     )
-
-    # Could also write review_queue to a separate file or log it
-
     return {
         "status": "COMPLETED",
         "run_id": run_id,
-        "adjudicated_facts_count": len(fact_versions),
-        "review_queue_count": len(review)
+        "adjudicated_facts_count": 0,
+        "review_queue_count": 0,
     }

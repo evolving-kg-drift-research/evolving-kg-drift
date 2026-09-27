@@ -102,58 +102,59 @@ def run_extraction(repo_root: Path, run_id: str, *, enforce_gate_a: bool = False
                 "is_speculative": claim.is_speculative
             })
 
-    write_parquet_immutable(
-        run_dir / "tables" / "extracted_claims.parquet",
-        "extracted_claims",
-        extracted_claims
-    )
-
-    # Resolve multi-hop claim provenance if document memberships & retrievals exist
+    # Resolve the complete evidence chain before committing either extraction artifact.
     memberships_path = resolve_run_table_path(repo_root, run_id, "document_memberships")
     retrievals_path = resolve_run_table_path(repo_root, run_id, "retrievals")
     source_versions_path = resolve_run_table_path(repo_root, run_id, "source_versions")
-    provenance_count = 0
+    for table_name, path in (
+        ("document_memberships", memberships_path),
+        ("retrievals", retrievals_path),
+        ("source_versions", source_versions_path),
+    ):
+        if not path.is_file():
+            raise FileNotFoundError(f"Missing required {table_name} provenance table: {path}")
 
-    if memberships_path.is_file() and retrievals_path.is_file():
-        m_table = pq.read_table(memberships_path)
-        r_table = pq.read_table(retrievals_path)
-        s_list = pq.read_table(source_versions_path).to_pylist() if source_versions_path.is_file() else None
-        provenances = resolve_claim_provenance(
-            claims=all_candidates,
-            memberships=m_table.to_pylist(),
-            retrievals=r_table.to_pylist(),
-            source_versions=s_list,
-        )
-        claim_provenance_rows = []
-        for prov in provenances:
-            provenance_id = stable_id(
-                "claimprovenance",
-                {
-                    "claim_id": prov.claim_id,
-                    "membership_id": prov.membership_id,
-                    "source_version_id": prov.source_version_id,
-                    "retrieval_id": prov.retrieval_id,
-                    "raw_blob_sha256": prov.raw_blob_sha256,
-                },
-            )
-            claim_provenance_rows.append({
-                "schema_version": CONTRACT_VERSION,
-                "provenance_id": provenance_id,
+    provenances = resolve_claim_provenance(
+        claims=all_candidates,
+        memberships=pq.read_table(memberships_path).to_pylist(),
+        retrievals=pq.read_table(retrievals_path).to_pylist(),
+        source_versions=pq.read_table(source_versions_path).to_pylist(),
+    )
+    claim_provenance_rows = []
+    for prov in provenances:
+        provenance_id = stable_id(
+            "claimprovenance",
+            {
                 "claim_id": prov.claim_id,
                 "membership_id": prov.membership_id,
                 "source_version_id": prov.source_version_id,
                 "retrieval_id": prov.retrieval_id,
                 "raw_blob_sha256": prov.raw_blob_sha256,
-                "publisher_source_id": prov.publisher_source_id,
-                "source_url": prov.source_url,
-            })
-
-        write_parquet_immutable(
-            run_dir / "tables" / "claim_provenance.parquet",
-            "claim_provenance",
-            claim_provenance_rows
+            },
         )
-        provenance_count = len(claim_provenance_rows)
+        claim_provenance_rows.append({
+            "schema_version": CONTRACT_VERSION,
+            "provenance_id": provenance_id,
+            "claim_id": prov.claim_id,
+            "membership_id": prov.membership_id,
+            "source_version_id": prov.source_version_id,
+            "retrieval_id": prov.retrieval_id,
+            "raw_blob_sha256": prov.raw_blob_sha256,
+            "publisher_source_id": prov.publisher_source_id,
+            "source_url": prov.source_url,
+        })
+
+    write_parquet_immutable(
+        run_dir / "tables" / "extracted_claims.parquet",
+        "extracted_claims",
+        extracted_claims
+    )
+    write_parquet_immutable(
+        run_dir / "tables" / "claim_provenance.parquet",
+        "claim_provenance",
+        claim_provenance_rows
+    )
+    provenance_count = len(claim_provenance_rows)
 
     return {
         "status": "COMPLETED",

@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from kg_pipeline import snapshot_runner
+from kg_pipeline.hashing import stable_id
 
 
 class FakeTable:
@@ -42,23 +43,80 @@ def valid_fact_row():
 def setup_snapshot_io(monkeypatch, tmp_path: Path, rows):
     run_dir = tmp_path / "runs" / "run1"
     run_dir.mkdir(parents=True)
+    paths = {}
     fact_path = run_dir / "tables" / "fact_versions.parquet"
     fact_path.parent.mkdir()
     fact_path.touch()
     provenance_path = run_dir / "tables" / "claim_provenance.parquet"
     provenance_path.touch()
-    provenance_rows = [{
-        "provenance_id": "prov_1",
+    digest = "a" * 64
+    expected_provenance_id = stable_id("claimprovenance", {
         "claim_id": "claim_1",
         "membership_id": "membership_1",
         "source_version_id": "sv_1",
         "retrieval_id": "retrieval_1",
-        "raw_blob_sha256": "a" * 64,
+        "raw_blob_sha256": digest,
+    })
+    provenance_rows = [{
+        "provenance_id": expected_provenance_id,
+        "claim_id": "claim_1",
+        "membership_id": "membership_1",
+        "source_version_id": "sv_1",
+        "retrieval_id": "retrieval_1",
+        "raw_blob_sha256": digest,
+        "publisher_source_id": "publisher_1",
+        "source_url": "https://publisher.test/item",
     }]
+    claim_rows = [{
+        "claim_id": "claim_1",
+        "body_variant_id": "bv_1",
+        "subject_mention": "Alpha",
+        "relation_name": "REL",
+        "object_mention": "Beta",
+        "evidence_span_start": 10,
+        "evidence_span_end": 20,
+        "evidence_text_hash": "sha256:evidence",
+    }]
+    membership_rows = [{
+        "membership_id": "membership_1",
+        "raw_blob_sha256": digest,
+        "body_variant_id": "bv_1",
+        "retrieval_ids_json": '["retrieval_1"]',
+    }]
+    retrieval_rows = [{
+        "retrieval_id": "retrieval_1",
+        "raw_blob_sha256": digest,
+        "source_id": "publisher_1",
+        "requested_url": "https://publisher.test/item",
+        "final_url": "https://publisher.test/item",
+    }]
+    source_version_rows = [{
+        "source_version_id": "sv_1",
+        "retrieval_id": "retrieval_1",
+        "raw_blob_sha256": digest,
+    }]
+    table_rows = {
+        "fact_versions": rows,
+        "claim_provenance": provenance_rows,
+        "extracted_claims": claim_rows,
+        "document_memberships": membership_rows,
+        "retrievals": retrieval_rows,
+        "source_versions": source_version_rows,
+    }
+    for name in table_rows:
+        path = run_dir / "tables" / f"{name}.parquet"
+        path.touch()
+        paths[name] = path
+    path_to_name = {path: name for name, path in paths.items()}
+    monkeypatch.setattr(
+        snapshot_runner,
+        "resolve_run_table_path",
+        lambda repo_root, run_id, name: paths.get(name, run_dir / "tables" / f"{name}.parquet"),
+    )
     monkeypatch.setattr(
         snapshot_runner.pq,
         "read_table",
-        lambda path: FakeTable(provenance_rows if path == provenance_path else rows),
+        lambda path: FakeTable(table_rows[path_to_name[path]]),
     )
     writes = []
     monkeypatch.setattr(snapshot_runner, "write_parquet_immutable", lambda *args: writes.append(args))

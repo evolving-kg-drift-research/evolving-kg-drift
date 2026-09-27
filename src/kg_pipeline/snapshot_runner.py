@@ -10,11 +10,12 @@ from typing import Any
 
 import pyarrow.parquet as pq
 
+from .claims import resolve_claim_provenance
 from .contracts import CONTRACT_VERSION
-from .hashing import utc_now_iso
+from .hashing import stable_id, utc_now_iso
 from .run import get_run_dir, resolve_run_table_path
 from .storage import read_yaml, write_parquet_immutable, write_yaml_immutable
-from temporal.schema import FactVersion
+from temporal.schema import ClaimCandidate, FactVersion
 from temporal.snapshot import build_snapshot_edges_and_support
 
 logger = logging.getLogger(__name__)
@@ -147,8 +148,86 @@ def run_snapshot(
     claim_provenance_path = resolve_run_table_path(repo_root, run_id, "claim_provenance")
     if not claim_provenance_path.is_file():
         raise FileNotFoundError(f"Missing {claim_provenance_path} for run {run_id}")
+    provenance_rows = pq.read_table(claim_provenance_path).to_pylist()
+    upstream_tables = {
+        name: resolve_run_table_path(repo_root, run_id, name)
+        for name in ("extracted_claims", "document_memberships", "retrievals", "source_versions")
+    }
+    for table_name, path in upstream_tables.items():
+        if not path.is_file():
+            raise FileNotFoundError(f"Missing required {table_name} provenance table: {path}")
+
+    claim_rows = pq.read_table(upstream_tables["extracted_claims"]).to_pylist()
+    memberships = pq.read_table(upstream_tables["document_memberships"]).to_pylist()
+    retrievals = pq.read_table(upstream_tables["retrievals"]).to_pylist()
+    source_versions = pq.read_table(upstream_tables["source_versions"]).to_pylist()
+    claim_by_id = {row.get("claim_id"): row for row in claim_rows}
+    if None in claim_by_id or len(claim_by_id) != len(claim_rows):
+        raise ValueError("Duplicate or missing claim_id in extracted_claims table")
+    missing_claim_ids = set(fact_id_by_claim) - set(claim_by_id)
+    if missing_claim_ids:
+        raise ValueError(
+            f"Fact-version supporting claim IDs are missing from extracted_claims: {sorted(missing_claim_ids)}"
+        )
+    supported_claim_ids = set(fact_id_by_claim)
+    expected_provenance = resolve_claim_provenance(
+        claims=[
+            ClaimCandidate(
+                claim_id=row["claim_id"],
+                body_variant_id=row.get("body_variant_id") or "",
+                subject_mention=row.get("subject_mention", "snapshot"),
+                relation_name=row.get("relation_name", "snapshot"),
+                object_mention=row.get("object_mention", "snapshot"),
+                evidence_span_start=row.get("evidence_span_start", 0),
+                evidence_span_end=row.get("evidence_span_end", 1),
+                evidence_text_hash=row.get("evidence_text_hash", "snapshot"),
+            )
+            for row in claim_rows
+            if row["claim_id"] in supported_claim_ids
+        ],
+        memberships=memberships,
+        retrievals=retrievals,
+        source_versions=source_versions,
+    )
+    expected_by_id: dict[str, dict[str, str]] = {}
+    for prov in expected_provenance:
+        row = {
+            "claim_id": prov.claim_id,
+            "membership_id": prov.membership_id,
+            "source_version_id": prov.source_version_id,
+            "retrieval_id": prov.retrieval_id,
+            "raw_blob_sha256": prov.raw_blob_sha256,
+            "publisher_source_id": prov.publisher_source_id,
+            "source_url": prov.source_url,
+        }
+        row["provenance_id"] = stable_id("claimprovenance", {
+            "claim_id": prov.claim_id,
+            "membership_id": prov.membership_id,
+            "source_version_id": prov.source_version_id,
+            "retrieval_id": prov.retrieval_id,
+            "raw_blob_sha256": prov.raw_blob_sha256,
+        })
+        if row["provenance_id"] in expected_by_id:
+            raise ValueError(f"Duplicate canonical claim provenance identity {row['provenance_id']}")
+        expected_by_id[row["provenance_id"]] = row
+
+    actual_by_id: dict[str, dict[str, str]] = {}
+    for p in provenance_rows:
+        provenance_id = p.get("provenance_id")
+        if not provenance_id or provenance_id in actual_by_id:
+            raise ValueError("Duplicate or missing provenance_id in claim_provenance table")
+        actual_by_id[provenance_id] = {
+            field: p.get(field)
+            for field in (
+                "claim_id", "membership_id", "source_version_id", "retrieval_id",
+                "raw_blob_sha256", "publisher_source_id", "source_url", "provenance_id",
+            )
+        }
+    if actual_by_id != expected_by_id:
+        raise ValueError("claim_provenance does not match canonical membership/retrieval/source-version chain")
+
     provenance_map: dict[str, list[dict[str, str]]] = {}
-    for p in pq.read_table(claim_provenance_path).to_pylist():
+    for p in provenance_rows:
         cid = p.get("claim_id")
         source_version_id = p.get("source_version_id")
         membership_id = p.get("membership_id")
