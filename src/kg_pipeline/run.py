@@ -7,8 +7,9 @@ from pathlib import Path
 from typing import Any
 
 from .baseline import inspect_config_approval, inspect_source_lock
+from .contracts import CONTRACT_VERSION
 from .hashing import repo_relative, sha256_file, sha256_json, utc_now_iso
-from .storage import ArtifactConflict, read_yaml, write_yaml_immutable
+from .storage import ArtifactConflict, read_yaml, verify_parquet_artifact, write_yaml_immutable
 
 RUN_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{2,80}$")
 
@@ -269,7 +270,7 @@ def load_run_manifest(repo_root: Path, run_id: str) -> dict[str, Any]:
 
 
 def resolve_run_table_path(repo_root: Path, run_id: str, table_name: str) -> Path:
-    """Find a table parquet path in run_id, falling back up the parent_run_id chain."""
+    """Find a verified table parquet path in run_id, falling back up the verified parent_run_id chain."""
     curr_id: str | None = run_id
     visited: set[str] = set()
 
@@ -277,12 +278,22 @@ def resolve_run_table_path(repo_root: Path, run_id: str, table_name: str) -> Pat
         visited.add(curr_id)
         run_dir = get_run_dir(repo_root, curr_id)
         candidate = run_dir / "tables" / f"{table_name}.parquet"
+        manifest_sidecar = candidate.with_suffix(candidate.suffix + ".manifest.json")
+
         if candidate.is_file():
+            # If sidecar exists, verify cryptographic Parquet integrity
+            if manifest_sidecar.is_file():
+                verify_parquet_artifact(candidate, table_name)
+            # If in parent run, verify parent run manifest is intact
+            if curr_id != run_id:
+                load_run_manifest(repo_root, curr_id)
             return candidate
+
+        # Walk up lineage chain verifying parent run integrity
         manifest_path = run_dir / "run_manifest.yaml"
         if manifest_path.is_file():
             try:
-                manifest = read_yaml(manifest_path)
+                manifest = load_run_manifest(repo_root, curr_id)
                 curr_id = manifest.get("parent_run_id") if isinstance(manifest, dict) else None
             except Exception:
                 curr_id = None
@@ -290,3 +301,59 @@ def resolve_run_table_path(repo_root: Path, run_id: str, table_name: str) -> Pat
             curr_id = None
 
     return get_run_dir(repo_root, run_id) / "tables" / f"{table_name}.parquet"
+
+
+def create_stage_manifest(
+    repo_root: Path,
+    run_id: str,
+    stage_name: str,
+    *,
+    input_artifacts: list[dict[str, Any]] | None = None,
+    output_artifacts: list[dict[str, Any]] | None = None,
+    conservation_metrics: dict[str, Any] | None = None,
+    status: str = "COMPLETED",
+    parent_run_id: str | None = None,
+) -> dict[str, Any]:
+    """Create and persist an immutable stage manifest with code/config/git lineage."""
+    import subprocess
+
+    run_dir = get_run_dir(repo_root, run_id)
+    reports_dir = run_dir / "reports"
+    reports_dir.mkdir(parents=True, exist_ok=True)
+
+    git_commit = "unknown"
+    try:
+        proc = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        git_commit = proc.stdout.strip()
+    except Exception:
+        pass
+
+    semantic: dict[str, Any] = {
+        "stage_name": stage_name,
+        "run_id": run_id,
+        "status": status,
+        "contract_version": CONTRACT_VERSION,
+        "code_fingerprint_sha256": package_fingerprint(repo_root),
+        "git_commit": git_commit,
+        "input_artifacts": input_artifacts or [],
+        "output_artifacts": output_artifacts or [],
+        "conservation_metrics": conservation_metrics or {},
+    }
+    if parent_run_id:
+        semantic["parent_run_id"] = parent_run_id
+
+    manifest = {
+        **semantic,
+        "created_at_real": utc_now_iso(),
+        "stage_manifest_hash": sha256_json(semantic),
+    }
+
+    manifest_path = reports_dir / f"{stage_name}_manifest.yaml"
+    write_yaml_immutable(manifest_path, manifest)
+    return manifest

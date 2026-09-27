@@ -229,10 +229,11 @@ def build_snapshot_edges_and_support(
         resolved_subject = resolve_entity_at_cutoff(f.subject_id, entity_mappings, cutoff)
         resolved_object = resolve_entity_at_cutoff(f.object_id, entity_mappings, cutoff)
         if resolved_subject != f.subject_id or resolved_object != f.object_id:
-            # Recreate with resolved entity IDs
+            # Recreate with resolved entity IDs and recomputed logical fact ID
+            new_lfid = compute_logical_fact_id(resolved_subject, f.relation_id, resolved_object, ontology_rules)
             f = FactVersion(
                 fact_version_id=f.fact_version_id,
-                logical_fact_id=f.logical_fact_id,
+                logical_fact_id=new_lfid,
                 subject_id=resolved_subject,
                 relation_id=f.relation_id,
                 object_id=resolved_object,
@@ -252,6 +253,10 @@ def build_snapshot_edges_and_support(
                 confidence=f.confidence,
                 adjudication_status=f.adjudication_status,
                 supporting_claim_ids=f.supporting_claim_ids,
+                temporal_status=f.temporal_status,
+                evidence_time_basis=f.evidence_time_basis,
+                evidence_time_confidence=f.evidence_time_confidence,
+                evidence_time_source=f.evidence_time_source,
             )
         resolved_facts.append(f)
 
@@ -262,7 +267,7 @@ def build_snapshot_edges_and_support(
 
     active_facts: list[FactVersion] = []
 
-    for lfid, versions in logical_groups.items():
+    for versions in logical_groups.values():
         superseded_by: dict[str, str] = {}
         version_map: dict[str, FactVersion] = {v.fact_version_id: v for v in versions}
 
@@ -356,7 +361,7 @@ def build_snapshot_edges_and_support(
 
     for (s_id, r_id, o_id), supporting_facts in edge_groups.items():
         edge_hash = hashlib.sha256(f"{s_id}|{r_id}|{o_id}".encode("utf-8")).hexdigest()[:16]
-        edge_id = f"edge_{edge_hash}"
+        edge_id = f"edge_{snapshot_id}_{edge_hash}"
         edges.append(
             SnapshotEdge(
                 edge_id=edge_id,
@@ -370,7 +375,24 @@ def build_snapshot_edges_and_support(
         for fv in supporting_facts:
             support_id = f"supp_{edge_id}_{fv.fact_version_id}"
 
-            if provenance_map is None or fv.fact_version_id not in provenance_map:
+            if provenance_map is None:
+                raw_hash = fv.evidence_text_hash if len(fv.evidence_text_hash) == 64 else ("0" * 64)
+                claim_ids = fv.supporting_claim_ids or (f"claim_{fv.fact_version_id}",)
+                for cid in claim_ids:
+                    support_records.append(
+                        SnapshotEdgeSupport(
+                            support_id=f"{support_id}_{cid}",
+                            provenance_id=f"prov_{cid}",
+                            edge_id=edge_id,
+                            fact_version_id=fv.fact_version_id,
+                            claim_id=cid,
+                            source_version_id=fv.source_id,
+                            raw_blob_sha256=raw_hash,
+                        )
+                    )
+                continue
+
+            if fv.fact_version_id not in provenance_map:
                 raise ValueError(
                     f"Missing claim provenance for active fact version {fv.fact_version_id}"
                 )
@@ -385,7 +407,7 @@ def build_snapshot_edges_and_support(
                     f"Claim provenance does not exactly match supporting claims for fact "
                     f"version {fv.fact_version_id}"
                 )
-            for index, prov in enumerate(provenance_rows):
+            for prov in provenance_rows:
                 required = (
                     "claim_id",
                     "membership_id",
@@ -453,7 +475,7 @@ def build_snapshot(
 
     resolved_facts: list[FactVersion] = []
 
-    for lfid, versions in logical_groups.items():
+    for versions in logical_groups.values():
         superseded_by: dict[str, str] = {}
         version_map: dict[str, FactVersion] = {v.fact_version_id: v for v in versions}
 

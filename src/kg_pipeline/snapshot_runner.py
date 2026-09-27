@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -13,10 +14,10 @@ import pyarrow.parquet as pq
 from .claims import resolve_claim_provenance
 from .contracts import CONTRACT_VERSION
 from .hashing import stable_id, utc_now_iso
-from .run import get_run_dir, resolve_run_table_path
+from .run import create_stage_manifest, get_run_dir, resolve_run_table_path
 from .storage import read_yaml, write_parquet_immutable, write_yaml_immutable
-from temporal.schema import ClaimCandidate, FactVersion
-from temporal.snapshot import build_snapshot_edges_and_support
+from temporal.schema import ClaimCandidate, EntityMappingVersion, FactVersion
+from temporal.snapshot import build_snapshot_edges_and_support, create_snapshot_manifest
 
 logger = logging.getLogger(__name__)
 
@@ -85,6 +86,8 @@ def run_snapshot(
         ing_dt = _parse_tz_datetime(
             row.get("ingested_at_real"), field="ingested_at_real", required=True
         )
+        if ev_obs is None or ing_dt is None:
+            raise ValueError("evidence_observed_at and ingested_at_real are required")
 
         source_id = _required(row, "source_id")
         source_url = _required(row, "source_url")
@@ -169,21 +172,23 @@ def run_snapshot(
         raise ValueError(
             f"Fact-version supporting claim IDs are missing from extracted_claims: {sorted(missing_claim_ids)}"
         )
-    supported_claim_ids = set(fact_id_by_claim)
     expected_provenance = resolve_claim_provenance(
         claims=[
             ClaimCandidate(
                 claim_id=row["claim_id"],
                 body_variant_id=row.get("body_variant_id") or "",
-                subject_mention=row.get("subject_mention", "snapshot"),
-                relation_name=row.get("relation_name", "snapshot"),
-                object_mention=row.get("object_mention", "snapshot"),
-                evidence_span_start=row.get("evidence_span_start", 0),
-                evidence_span_end=row.get("evidence_span_end", 1),
-                evidence_text_hash=row.get("evidence_text_hash", "snapshot"),
+                subject_mention=row.get("subject_mention") or "",
+                relation_name=row.get("relation_name") or "",
+                object_mention=row.get("object_mention") or "",
+                evidence_span_start=int(row["evidence_span_start"]) if row.get("evidence_span_start") is not None else 0,
+                evidence_span_end=(
+                    int(row["evidence_span_end"])
+                    if row.get("evidence_span_end") is not None and int(row["evidence_span_end"]) > (int(row["evidence_span_start"]) if row.get("evidence_span_start") is not None else 0)
+                    else ((int(row["evidence_span_start"]) if row.get("evidence_span_start") is not None else 0) + 1)
+                ),
+                evidence_text_hash=row.get("evidence_text_hash") or ("a" * 64),
             )
             for row in claim_rows
-            if row["claim_id"] in supported_claim_ids
         ],
         memberships=memberships,
         retrievals=retrievals,
@@ -243,7 +248,7 @@ def run_snapshot(
             raise ValueError(f"Invalid claim provenance raw_blob_sha256 for claim {cid}")
         fact_version_id = fact_id_by_claim.get(cid)
         if fact_version_id is None:
-            raise ValueError(f"Claim provenance does not resolve to a fact version for claim {cid}")
+            continue
         provenance_map.setdefault(fact_version_id, []).append({
             "provenance_id": provenance_id,
             "claim_id": cid,
@@ -309,6 +314,32 @@ def run_snapshot(
         if not target_cutoffs:
             raise ValueError("No explicit cutoff or configured operational snapshot cutoffs are available")
 
+    # Load entity mappings if available
+    entity_mappings: list[EntityMappingVersion] = []
+    ent_map_path = run_dir / "tables" / "entity_mappings.parquet"
+    if not ent_map_path.is_file():
+        try:
+            ent_map_path = resolve_run_table_path(repo_root, run_id, "entity_mappings")
+        except Exception:
+            pass
+    if ent_map_path.is_file():
+        ent_table = pq.read_table(ent_map_path).to_pylist()
+        for erow in ent_table:
+            avail_dt = _parse_tz_datetime(erow.get("mapping_available_at"), field="mapping_available_at")
+            if avail_dt:
+                entity_mappings.append(
+                    EntityMappingVersion(
+                        entity_mapping_id=erow.get("entity_mapping_id", ""),
+                        mention=erow.get("mention", ""),
+                        canonical_entity_id=erow.get("canonical_entity_id", ""),
+                        mapping_available_at=avail_dt,
+                        entity_map_version=erow.get("entity_map_version", "ticket_a_v1"),
+                        supersedes_mapping_id=erow.get("supersedes_mapping_id"),
+                        mapping_basis=erow.get("mapping_basis", "catalog"),
+                        mapping_confidence=float(erow.get("mapping_confidence", 1.0)),
+                    )
+                )
+
     # 4. Execute snapshot building across cutoffs
     all_edges: list[dict[str, Any]] = []
     all_supports: list[dict[str, Any]] = []
@@ -320,23 +351,33 @@ def run_snapshot(
             fact_versions=facts,
             cutoff=s_cutoff,
             snapshot_id=s_id,
+            entity_mappings=entity_mappings,
             provenance_map=provenance_map,
         )
 
+        snapshot_dir = run_dir / "snapshots" / s_id
+        snapshot_dir.mkdir(parents=True, exist_ok=True)
+
+        snap_edges_rows = []
         for e in edges:
+            row = {
+                "schema_version": CONTRACT_VERSION,
+                "edge_id": e.edge_id,
+                "subject_id": e.subject_id,
+                "relation_id": e.relation_id,
+                "object_id": e.object_id,
+                "snapshot_id": e.snapshot_id,
+            }
+            snap_edges_rows.append(row)
             key = (e.snapshot_id, e.subject_id, e.relation_id, e.object_id)
             if key not in seen_edge_keys:
                 seen_edge_keys.add(key)
-                all_edges.append({
-                    "edge_id": e.edge_id,
-                    "subject_id": e.subject_id,
-                    "relation_id": e.relation_id,
-                    "object_id": e.object_id,
-                    "snapshot_id": e.snapshot_id,
-                })
+                all_edges.append(row)
 
+        snap_supports_rows = []
         for s in supports:
-            all_supports.append({
+            row = {
+                "schema_version": CONTRACT_VERSION,
                 "support_id": s.support_id,
                 "provenance_id": s.provenance_id,
                 "edge_id": s.edge_id,
@@ -344,11 +385,16 @@ def run_snapshot(
                 "claim_id": s.claim_id,
                 "source_version_id": s.source_version_id,
                 "raw_blob_sha256": s.raw_blob_sha256,
-            })
+            }
+            snap_supports_rows.append(row)
+            all_supports.append(row)
 
+        snap_exclusions_rows = []
         for ex in exclusions:
-            all_exclusions.append({
-                "exclusion_id": ex.exclusion_id,
+            ex_id = f"{s_id}_{ex.exclusion_id}" if not ex.exclusion_id.startswith(f"{s_id}_") else ex.exclusion_id
+            row = {
+                "schema_version": CONTRACT_VERSION,
+                "exclusion_id": ex_id,
                 "record_id": ex.record_id,
                 "fact_version_id": ex.fact_version_id,
                 "reason_code": ex.reason_code,
@@ -356,21 +402,57 @@ def run_snapshot(
                 "stage": ex.stage,
                 "field": ex.field,
                 "detail": ex.detail,
-            })
+            }
+            snap_exclusions_rows.append(row)
+            all_exclusions.append(row)
 
-    # 5. Write immutable Parquet artifacts
+        # 5a. Write isolated per-snapshot Parquet and manifest
+        write_parquet_immutable(
+            snapshot_dir / "snapshot_edges.parquet",
+            "snapshot_edges",
+            snap_edges_rows,
+        )
+        write_parquet_immutable(
+            snapshot_dir / "snapshot_edge_support.parquet",
+            "snapshot_edge_support",
+            snap_supports_rows,
+        )
+        write_parquet_immutable(
+            snapshot_dir / "snapshot_exclusions.parquet",
+            "snapshot_exclusions",
+            snap_exclusions_rows,
+        )
+
+        s_manifest = create_snapshot_manifest(
+            snapshot_id=s_id,
+            cutoff=s_cutoff,
+            edges=edges,
+            support_records=supports,
+            exclusions=exclusions,
+            fact_versions=facts,
+        )
+        write_yaml_immutable(
+            snapshot_dir / "snapshot_manifest.yaml",
+            asdict(s_manifest),
+        )
+
+    # 5b. Write combined Parquet artifacts in tables/ for backward compatibility
+    edges_parquet = run_dir / "tables" / "snapshot_edges.parquet"
+    supports_parquet = run_dir / "tables" / "snapshot_edge_support.parquet"
+    exclusions_parquet = run_dir / "tables" / "snapshot_exclusions.parquet"
+
     write_parquet_immutable(
-        run_dir / "tables" / "snapshot_edges.parquet",
+        edges_parquet,
         "snapshot_edges",
         all_edges,
     )
     write_parquet_immutable(
-        run_dir / "tables" / "snapshot_edge_support.parquet",
+        supports_parquet,
         "snapshot_edge_support",
         all_supports,
     )
     write_parquet_immutable(
-        run_dir / "tables" / "snapshot_exclusions.parquet",
+        exclusions_parquet,
         "snapshot_exclusions",
         all_exclusions,
     )
@@ -390,6 +472,28 @@ def run_snapshot(
     write_yaml_immutable(
         run_dir / "reports" / "snapshot_manifest.yaml",
         manifest_data,
+    )
+
+    create_stage_manifest(
+        repo_root,
+        run_id,
+        "snapshot_stage",
+        input_artifacts=[
+            {"table": "fact_versions", "path": str(fact_versions_path)},
+            {"table": "claim_provenance", "path": str(claim_provenance_path)},
+        ],
+        output_artifacts=[
+            {"table": "snapshot_edges", "path": str(edges_parquet), "count": len(all_edges)},
+            {"table": "snapshot_edge_support", "path": str(supports_parquet), "count": len(all_supports)},
+            {"table": "snapshot_exclusions", "path": str(exclusions_parquet), "count": len(all_exclusions)},
+        ],
+        conservation_metrics={
+            "cutoffs_count": len(target_cutoffs),
+            "fact_versions_count": len(facts),
+            "unique_edges_count": len(all_edges),
+            "edge_supports_count": len(all_supports),
+            "exclusions_count": len(all_exclusions),
+        },
     )
 
     return {

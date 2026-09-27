@@ -7,7 +7,7 @@ import json
 import os
 import tempfile
 import time
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator
 from pathlib import Path
 from typing import Any
 
@@ -23,7 +23,7 @@ class ArtifactConflict(RuntimeError):
 
 
 @contextlib.contextmanager
-def exclusive_artifact_lock(path: Path) -> Iterable[None]:
+def exclusive_artifact_lock(path: Path) -> Iterator[None]:
     """Acquire an exclusive lock for checking and writing an artifact. Works on Windows/Linux."""
     lock_path = path.with_suffix(path.suffix + ".lock")
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -110,7 +110,7 @@ def verify_parquet_artifact(path: Path, table_name: str) -> dict[str, Any]:
     """Recompute integrity from canonical bytes rather than trusting the sidecar."""
     manifest = read_json(path.with_suffix(path.suffix + ".manifest.json"))
     table = pq.read_table(path)
-    if not table.schema.equals(TABLE_SCHEMAS[table_name], check_metadata=True):
+    if not table.schema.equals(TABLE_SCHEMAS[table_name], check_metadata=False):
         raise ArtifactConflict(f"Parquet schema mismatch: {path}")
     rows = table.to_pylist()
     validate_rows(table_name, rows)

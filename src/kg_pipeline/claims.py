@@ -14,7 +14,7 @@ def extract_claims(
     text: str,
     body_variant_id: str = "",
     cache_dir: Path | None = None,
-    ontology: list[str] | None = None,
+    ontology: list[str] | dict[str, Any] | None = None,
     adapter: LLMAdapter | None = None,
     source_id: str = "",
 ) -> tuple[list[ClaimCandidate], list[dict[str, Any]]]:
@@ -34,7 +34,18 @@ def extract_claims(
         from .llm_adapter import OfflineMockAdapter
         adapter = OfflineMockAdapter({"claims": []})
 
-    prompt = generate_extraction_prompt(text, ontology)
+    if isinstance(ontology, dict):
+        relations_val = ontology.get("relations")
+        if isinstance(relations_val, dict):
+            prompt_ontology = list(relations_val.keys())
+        elif isinstance(relations_val, (list, set, tuple)):
+            prompt_ontology = list(relations_val)
+        else:
+            prompt_ontology = list(ontology.keys())
+    else:
+        prompt_ontology = list(ontology)
+
+    prompt = generate_extraction_prompt(text, prompt_ontology)
     config = {"temperature": adapter.temperature}
     cache_key = get_cache_key(prompt, adapter.model, config)
 
@@ -53,19 +64,7 @@ def extract_claims(
 
     valid_claims = []
     dlq = []
-
-    text_hash = sha256_text(text)
-
-    valid_relations: set[str]
-    if isinstance(ontology, dict):
-        if "relations" in ontology and isinstance(ontology["relations"], dict):
-            valid_relations = set(ontology["relations"].keys())
-        else:
-            valid_relations = set(ontology.keys())
-    elif isinstance(ontology, (list, set, tuple)):
-        valid_relations = set(ontology)
-    else:
-        valid_relations = set()
+    valid_relations = set(prompt_ontology)
 
     for i, rc in enumerate(raw_claims):
         try:
@@ -96,6 +95,12 @@ def extract_claims(
             if subject_mention.lower() not in extracted_text.lower() and object_mention.lower() not in extracted_text.lower():
                  raise ContractError("Neither subject nor object mention found in the extracted evidence span.")
 
+            provided_hash = rc.get("evidence_text_hash")
+            if provided_hash in ("placeholder_hash", "placeholder"):
+                raise ContractError("Fabricated placeholder evidence text hash.")
+
+            span_hash = sha256_text(text[start_idx:end_idx])
+
             claim = ClaimCandidate(
                 claim_id=f"{cache_key}_{i}",
                 body_variant_id=bv_id,
@@ -104,7 +109,7 @@ def extract_claims(
                 object_mention=object_mention,
                 evidence_span_start=start_idx,
                 evidence_span_end=end_idx,
-                evidence_text_hash=text_hash,
+                evidence_text_hash=span_hash,
                 valid_from_extracted=rc.get("valid_from_extracted"),
                 valid_to_extracted=rc.get("valid_to_extracted"),
                 is_negative=rc.get("is_negative", False),

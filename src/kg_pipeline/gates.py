@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -10,9 +13,9 @@ import pyarrow.parquet as pq
 
 from .baseline import inspect_config_approval, inspect_source_lock
 from .contracts import TABLE_SCHEMAS, FOREIGN_KEYS, validate_retrieval_rows
-from .hashing import sha256_json, utc_now_iso
+from .hashing import sha256_json, sha256_text, utc_now_iso
 from .readiness import raw_input_blockers
-from .run import config_fingerprints, get_run_dir, load_run_manifest
+from .run import config_fingerprints, get_run_dir, load_run_manifest, resolve_run_table_path
 from .storage import read_json, read_yaml, verify_parquet_artifact, write_json_immutable
 
 REQUIRED_TABLES = (
@@ -234,4 +237,322 @@ def evaluate_gate_a(repo_root: Path, run_id: str) -> dict[str, Any]:
     }
     result = {**semantic, "evaluated_at_real": utc_now_iso(), "semantic_sha256": sha256_json(semantic)}
     _persist_evaluation(run_dir, result)
+    return result
+
+
+def latest_gate_g2_report(run_dir: Path) -> dict[str, Any] | None:
+    paths = list((run_dir / "gates" / "G2").glob("*.json"))
+    if paths:
+        reports = [read_json(p) for p in paths]
+        reports.sort(key=lambda r: r.get("evaluated_at_real", ""))
+        return reports[-1]
+    legacy = run_dir / "gates" / "gate_G2.json"
+    return read_json(legacy) if legacy.is_file() else None
+
+
+def evaluate_gate_g2(repo_root: Path, run_id: str) -> dict[str, Any]:
+    """Evaluate M1 data/KG gate G2: fails or blocks if evaluated_count == 0,
+
+    validates evidence span cryptographic integrity, temporal separation,
+    point-in-time entity resolution, strict conservation accounting, and snapshot manifest parity.
+    """
+    run_dir = get_run_dir(repo_root, run_id)
+    checks: list[dict[str, str]] = []
+
+    # Read M1 pipeline tables if present
+    claims_path = run_dir / "tables" / "extracted_claims.parquet"
+    facts_path = run_dir / "tables" / "fact_versions.parquet"
+    decisions_path = run_dir / "tables" / "adjudication_decisions.parquet"
+    edges_path = run_dir / "tables" / "snapshot_edges.parquet"
+    snapshots_dir = run_dir / "snapshots"
+
+    claims_rows: list[dict[str, Any]] = []
+    if claims_path.is_file():
+        try:
+            claims_rows = pq.read_table(claims_path).to_pylist()
+        except Exception:
+            claims_rows = []
+
+    facts_rows: list[dict[str, Any]] = []
+    if facts_path.is_file():
+        try:
+            facts_rows = pq.read_table(facts_path).to_pylist()
+        except Exception:
+            facts_rows = []
+
+    decisions_rows: list[dict[str, Any]] = []
+    if decisions_path.is_file():
+        try:
+            decisions_rows = pq.read_table(decisions_path).to_pylist()
+        except Exception:
+            decisions_rows = []
+
+    edges_rows: list[dict[str, Any]] = []
+    if edges_path.is_file():
+        try:
+            edges_rows = pq.read_table(edges_path).to_pylist()
+        except Exception:
+            edges_rows = []
+
+    # G2-001: Evaluated count check (must fail/block if evaluated_count == 0)
+    evaluated_count = len(claims_rows) + len(facts_rows) + len(edges_rows)
+    if evaluated_count == 0:
+        checks.append(
+            _check(
+                "G2-001",
+                "FAIL",
+                f"evaluated_count == 0 (claims={len(claims_rows)}, facts={len(facts_rows)}, edges={len(edges_rows)}); G2 requires evaluated_count > 0",
+                "tables/",
+            )
+        )
+    else:
+        checks.append(
+            _check(
+                "G2-001",
+                "PASS",
+                f"evaluated_count={evaluated_count} (claims={len(claims_rows)}, facts={len(facts_rows)}, edges={len(edges_rows)})",
+                "tables/",
+            )
+        )
+
+    # G2-002: Evidence Span & Hash Cryptographic Integrity
+    span_errors: list[str] = []
+    bv_text_cache: dict[str, str] = {}
+    bv_path = run_dir / "tables" / "body_variants.parquet"
+    if bv_path.is_file():
+        try:
+            bv_table = pq.read_table(bv_path).to_pylist()
+            for b_row in bv_table:
+                b_id = b_row.get("body_variant_id")
+                rel_p = b_row.get("body_blob_relative_path")
+                if b_id and rel_p:
+                    full_p = run_dir / rel_p
+                    if full_p.is_file():
+                        bv_text_cache[b_id] = full_p.read_text(encoding="utf-8")
+        except Exception:
+            pass
+
+    for c in claims_rows:
+        cid = c.get("claim_id")
+        b_id = c.get("body_variant_id")
+        start = c.get("evidence_span_start")
+        end = c.get("evidence_span_end")
+        h = c.get("evidence_text_hash")
+        if h in ("placeholder", "placeholder_hash", "") or h is None:
+            span_errors.append(f"Claim {cid} has placeholder/empty evidence_text_hash: {h}")
+            continue
+        if start is None or end is None or start >= end:
+            span_errors.append(f"Claim {cid} has invalid span [{start}, {end})")
+            continue
+        if b_id in bv_text_cache:
+            text = bv_text_cache[b_id]
+            if end > len(text) or start < 0:
+                span_errors.append(f"Claim {cid} span [{start}, {end}) exceeds text length {len(text)}")
+            else:
+                expected_hash = sha256_text(text[start:end])
+                if h != expected_hash:
+                    span_errors.append(f"Claim {cid} hash mismatch: expected {expected_hash}, got {h}")
+        else:
+            span_errors.append(f"Claim {cid} referenced body_variant {b_id} text blob not found in text cache")
+
+    checks.append(
+        _check(
+            "G2-002",
+            "FAIL" if span_errors else "PASS",
+            f"verified {len(claims_rows)} evidence spans; errors={len(span_errors)}" if not span_errors else f"span verification failed: {span_errors[:3]}",
+            "tables/extracted_claims.parquet",
+        )
+    )
+
+    # G2-003: Temporal Decoupling & Invariant Verification
+    temp_errors: list[str] = []
+    for f in facts_rows:
+        fid = f.get("fact_version_id")
+        obs_str = f.get("evidence_observed_at")
+        ing_str = f.get("ingested_at_real")
+        if not obs_str:
+            temp_errors.append(f"Fact {fid} missing evidence_observed_at")
+        if not ing_str:
+            temp_errors.append(f"Fact {fid} missing ingested_at_real")
+        vf = f.get("valid_from")
+        vt = f.get("valid_to")
+        if vf and vt and vf >= vt:
+            temp_errors.append(f"Fact {fid} valid_from {vf} >= valid_to {vt}")
+
+    checks.append(
+        _check(
+            "G2-003",
+            "FAIL" if temp_errors else "PASS",
+            f"verified temporal integrity of {len(facts_rows)} facts" if not temp_errors else f"temporal violations: {temp_errors[:3]}",
+            "tables/fact_versions.parquet",
+        )
+    )
+
+    # G2-004: Point-in-Time Entity Resolution & No Future Mapping Leakage
+    future_errors: list[str] = []
+    if snapshots_dir.is_dir():
+        for snap_dir in sorted(snapshots_dir.iterdir()):
+            if not snap_dir.is_dir():
+                continue
+            manifest_p = snap_dir / "snapshot_manifest.yaml"
+            if not manifest_p.is_file():
+                manifest_p = snap_dir / "snapshot_manifest.json"
+            if not manifest_p.is_file():
+                continue
+            try:
+                m_data = read_yaml(manifest_p) if manifest_p.suffix in (".yaml", ".yml") else read_json(manifest_p)
+                cutoff_raw = m_data.get("cutoff")
+                if not cutoff_raw:
+                    continue
+                if isinstance(cutoff_raw, datetime):
+                    cutoff_dt = cutoff_raw if cutoff_raw.tzinfo else cutoff_raw.replace(tzinfo=timezone.utc)
+                else:
+                    cutoff_dt = datetime.fromisoformat(str(cutoff_raw).replace("Z", "+00:00"))
+                # Check edges against support
+                supp_p = snap_dir / "snapshot_edge_support.parquet"
+                if supp_p.is_file():
+                    supp_rows = pq.read_table(supp_p).to_pylist()
+                    fact_by_id = {row["fact_version_id"]: row for row in facts_rows if row.get("fact_version_id")}
+                    for s in supp_rows:
+                        f_vid = s.get("fact_version_id")
+                        f_match = fact_by_id.get(f_vid)
+                        if f_match:
+                            f_obs = f_match.get("evidence_observed_at")
+                            if f_obs:
+                                f_obs_dt = f_obs if isinstance(f_obs, datetime) else datetime.fromisoformat(str(f_obs).replace("Z", "+00:00"))
+                                if f_obs_dt.tzinfo is None:
+                                    f_obs_dt = f_obs_dt.replace(tzinfo=timezone.utc)
+                                if f_obs_dt > cutoff_dt:
+                                    future_errors.append(f"Snapshot {snap_dir.name} has fact {f_vid} with obs {f_obs} > cutoff {cutoff_dt.isoformat()}")
+
+                # Check point-in-time entity resolution: no future entity mappings in snapshot
+                ent_path = run_dir / "tables" / "entity_mappings.parquet"
+                if not ent_path.is_file():
+                    try:
+                        ent_path = resolve_run_table_path(repo_root, run_id, "entity_mappings")
+                    except Exception:
+                        pass
+                if ent_path.is_file():
+                    ent_rows = pq.read_table(ent_path).to_pylist()
+                    future_mappings: dict[str, str] = {}
+                    for erow in ent_rows:
+                        m_avail = erow.get("mapping_available_at")
+                        if m_avail:
+                            m_dt = m_avail if isinstance(m_avail, datetime) else datetime.fromisoformat(str(m_avail).replace("Z", "+00:00"))
+                            if m_dt.tzinfo is None:
+                                m_dt = m_dt.replace(tzinfo=timezone.utc)
+                            if m_dt > cutoff_dt:
+                                future_mappings[erow.get("canonical_entity_id")] = erow.get("mention")
+
+                    edges_p = snap_dir / "snapshot_edges.parquet"
+                    if edges_p.is_file() and future_mappings:
+                        e_rows = pq.read_table(edges_p).to_pylist()
+                        for er in e_rows:
+                            sub = er.get("subject_id")
+                            obj = er.get("object_id")
+                            for ent_id in (sub, obj):
+                                if ent_id in future_mappings and ent_id != future_mappings[ent_id]:
+                                    future_errors.append(
+                                        f"Snapshot {snap_dir.name} has future mapped entity {ent_id} "
+                                        f"(mapping available after cutoff {cutoff_dt.isoformat()})"
+                                    )
+            except Exception as e:
+                future_errors.append(f"Error checking snapshot {snap_dir.name}: {e}")
+
+    checks.append(
+        _check(
+            "G2-004",
+            "FAIL" if future_errors else "PASS",
+            "no future evidence or entity mappings in snapshots" if not future_errors else f"future leakage: {future_errors[:3]}",
+            "snapshots/",
+        )
+    )
+
+    # G2-005: Strict Conservation Accounting
+    conservation_errors: list[str] = []
+    if len(claims_rows) > 0:
+        claimed_ids = {c["claim_id"] for c in claims_rows if c.get("claim_id")}
+        decision_claim_ids = {d["claim_id"] for d in decisions_rows if d.get("claim_id")}
+        missing_decisions = claimed_ids - decision_claim_ids
+        if missing_decisions:
+            conservation_errors.append(f"Claims missing explicit adjudication decisions: {len(missing_decisions)}")
+
+    checks.append(
+        _check(
+            "G2-005",
+            "FAIL" if conservation_errors else "PASS",
+            f"strict conservation holds: {len(claims_rows)} claims all have explicit decisions" if not conservation_errors else f"conservation mismatch: {conservation_errors}",
+            "tables/adjudication_decisions.parquet",
+        )
+    )
+
+    # G2-006: Snapshot Manifest & Hash Parity Check
+    manifest_errors: list[str] = []
+    if not snapshots_dir.is_dir() or not any(snapshots_dir.iterdir()):
+        manifest_errors.append("No snapshots generated in snapshots/")
+    else:
+        for snap_dir in sorted(snapshots_dir.iterdir()):
+            if not snap_dir.is_dir():
+                continue
+            m_yaml = snap_dir / "snapshot_manifest.yaml"
+            if not m_yaml.is_file():
+                manifest_errors.append(f"Missing snapshot_manifest.yaml in {snap_dir.name}")
+                continue
+            try:
+                m_data = read_yaml(m_yaml)
+                exp_graph_hash = m_data.get("graph_semantic_hash")
+                exp_manifest_hash = m_data.get("snapshot_manifest_hash")
+                semantic = {
+                    k: (v.isoformat() if isinstance(v, (datetime, date)) else v)
+                    for k, v in m_data.items()
+                    if k not in ("created_at_real", "snapshot_manifest_hash")
+                }
+                computed_m_hash = hashlib.sha256(json.dumps(semantic, sort_keys=True, default=str).encode("utf-8")).hexdigest()
+                if exp_manifest_hash != computed_m_hash:
+                    manifest_errors.append(f"Manifest hash mismatch in {snap_dir.name}")
+                edges_p = snap_dir / "snapshot_edges.parquet"
+                if not edges_p.is_file():
+                    manifest_errors.append(f"Missing snapshot_edges.parquet in {snap_dir.name}")
+                else:
+                    e_table = pq.read_table(edges_p).to_pylist()
+                    sorted_triples = sorted((r["subject_id"], r["relation_id"], r["object_id"]) for r in e_table)
+                    hasher = hashlib.sha256()
+                    for s, r, o in sorted_triples:
+                        hasher.update(f"{s}\t{r}\t{o}\n".encode("utf-8"))
+                    computed_graph_hash = hasher.hexdigest()
+                    if exp_graph_hash != computed_graph_hash:
+                        manifest_errors.append(f"Graph hash mismatch in {snap_dir.name}: {exp_graph_hash} vs {computed_graph_hash}")
+            except Exception as e:
+                manifest_errors.append(f"Failed verifying snapshot {snap_dir.name}: {e}")
+
+    checks.append(
+        _check(
+            "G2-006",
+            "FAIL" if manifest_errors else "PASS",
+            "all snapshot manifests exist and match graph semantic hashes" if not manifest_errors else f"snapshot manifest parity errors: {manifest_errors[:3]}",
+            "snapshots/",
+        )
+    )
+
+    statuses = {check["status"] for check in checks}
+    status = "FAIL" if "FAIL" in statuses else "BLOCKED" if "BLOCKED" in statuses else "NOT_RUN" if "NOT_RUN" in statuses else "PASS"
+
+    semantic = {
+        "gate": "G2",
+        "run_id": run_id,
+        "status": status,
+        "checks": checks,
+        "evaluated_count": evaluated_count,
+        "claims_count": len(claims_rows),
+        "facts_count": len(facts_rows),
+        "edges_count": len(edges_rows),
+        "commands": [
+            f"python scripts/verify_g2.py --run {run_id}",
+        ],
+    }
+    result = {**semantic, "evaluated_at_real": utc_now_iso(), "semantic_sha256": sha256_json(semantic)}
+
+    stamp = result["evaluated_at_real"].replace(":", "-")
+    path = run_dir / "gates" / "G2" / f"{stamp}_{uuid4().hex}.json"
+    write_json_immutable(path, result)
     return result

@@ -241,6 +241,26 @@ TABLE_SCHEMAS: dict[str, pa.Schema] = {
         ("field", S),
         ("detail", S),
     ),
+    "entity_mappings": _schema(
+        ("entity_mapping_id", S),
+        ("mention", S),
+        ("canonical_entity_id", S),
+        ("mapping_available_at", S),
+        ("entity_map_version", S),
+        ("supersedes_mapping_id", S),
+        ("mapping_basis", S),
+        ("mapping_confidence", F64),
+    ),
+    "adjudication_decisions": _schema(
+        ("decision_id", S),
+        ("claim_id", S),
+        ("fact_version_id", S),
+        ("decision_type", S),
+        ("rule_id", S),
+        ("decider", S),
+        ("evaluated_at_real", S),
+        ("reason", S),
+    ),
 }
 
 PRIMARY_KEYS: dict[str, list[str]] = {
@@ -262,6 +282,8 @@ PRIMARY_KEYS: dict[str, list[str]] = {
     "snapshot_edges": ["edge_id"],
     "snapshot_edge_support": ["support_id"],
     "snapshot_exclusions": ["exclusion_id"],
+    "entity_mappings": ["entity_mapping_id"],
+    "adjudication_decisions": ["decision_id"],
 }
 
 FOREIGN_KEYS: dict[str, dict[str, tuple[str, str]]] = {
@@ -306,6 +328,10 @@ FOREIGN_KEYS: dict[str, dict[str, tuple[str, str]]] = {
         "source_version_id": ("source_versions", "source_version_id"),
     },
     "snapshot_exclusions": {},
+    "entity_mappings": {},
+    "adjudication_decisions": {
+        "claim_id": ("extracted_claims", "claim_id"),
+    },
 }
 
 class ContractError(ValueError):
@@ -319,7 +345,7 @@ def make_row(table_name: str, **values: Any) -> dict[str, Any]:
     unexpected = set(values) - allowed
     if unexpected:
         raise ContractError(f"Unexpected fields for {table_name}: {sorted(unexpected)}")
-    row = {field: None for field in TABLE_SCHEMAS[table_name].names}
+    row: dict[str, Any] = {field: None for field in TABLE_SCHEMAS[table_name].names}
     row["schema_version"] = CONTRACT_VERSION
     row.update(values)
     return row
@@ -349,7 +375,7 @@ def validate_rows(table_name: str, rows: Iterable[dict[str, Any]]) -> list[dict[
         pk_vals = []
         for pk in pks:
             val = row.get(pk)
-            if not val:
+            if val is None or val == "":
                 raise ContractError(f"{table_name}[{index}] missing required primary key: {pk}")
             pk_vals.append(val)
 

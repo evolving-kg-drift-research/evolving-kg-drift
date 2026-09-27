@@ -34,6 +34,7 @@ def load_snapshot_from_parquet(
     # 1. Verify physical sha256 sidecar if present and verification requested
     if verify_manifest:
         sidecar_path = parquet_path.with_name(f"{parquet_path.name}.sha256")
+        manifest_sidecar = parquet_path.with_suffix(parquet_path.suffix + ".manifest.json")
         if sidecar_path.is_file():
             expected_sha = sidecar_path.read_text(encoding="utf-8").strip().split()[0]
             actual_sha = hashlib.sha256(parquet_path.read_bytes()).hexdigest()
@@ -42,6 +43,20 @@ def load_snapshot_from_parquet(
                     f"Parquet physical SHA-256 sidecar mismatch for {parquet_path.name}: "
                     f"expected {expected_sha}, got {actual_sha}"
                 )
+        elif manifest_sidecar.is_file():
+            try:
+                m_info = json.loads(manifest_sidecar.read_text(encoding="utf-8"))
+                expected_sha = m_info.get("physical_sha256_computed_at_real")
+                actual_sha = hashlib.sha256(parquet_path.read_bytes()).hexdigest()
+                if expected_sha and actual_sha != expected_sha:
+                    raise ValueError(
+                        f"Parquet physical SHA-256 sidecar mismatch for {parquet_path.name}: "
+                        f"expected {expected_sha}, got {actual_sha}"
+                    )
+            except ValueError:
+                raise
+            except Exception as e:
+                raise ValueError(f"Failed verifying Parquet sidecar {manifest_sidecar}: {e}") from e
 
     table = pq.read_table(parquet_path)
     triples: list[Triple] = []
