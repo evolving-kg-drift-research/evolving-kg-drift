@@ -1,5 +1,17 @@
 # Tiến độ pipeline
 
+## M1 C1 — 2026-09-28: chặn scientific PASS sai
+
+Đã triển khai và kiểm thử guard G1/G2: yêu cầu run rõ ràng, bỏ synthetic fallback,
+chọn run theo mtime và miễn kiểm chứng G1 bằng tag. Kiểm tra cấu trúc/fixture được
+tách khỏi chứng nhận khoa học. Chẩn đoán quality không PASS khi không có bản ghi
+được đánh giá hoặc thiếu coverage của gold.
+
+Regression: 174 passed, 10 skipped; bộ guard cuối cùng: 16 passed; Ruff và diff
+check đạt. Đây chỉ là bằng chứng kỹ thuật. G1/G2 vẫn BLOCKED do chưa có evaluator
+khoa học đầy đủ; Gate A và production không được mở. C2–C9 chưa hoàn thành.
+Chi tiết: [báo cáo C1](audit/m1_c1_gate_guards.md).
+
 ## Checkpoint khắc phục 0 — 2026-09-20
 
 Nhánh sửa: `fix/data-pipeline-compliance`, từ `origin/feature/data_try` tại `4c24da2`.

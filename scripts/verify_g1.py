@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import subprocess
 import sys
 import tempfile
@@ -9,27 +10,12 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-G1_TAG = "v0.2-vertical-slice"
 G1_TESTS = (
     "tests/test_hard_invariants.py::test_no_future_evidence",
     "tests/test_hard_invariants.py::test_no_future_entity_mapping",
     "tests/test_hard_invariants.py::test_snapshot_reproducible",
     "tests/test_hard_invariants.py::test_canonical_parquet_neo4j_parity",
 )
-
-
-def git_tag_exists(tag: str) -> bool:
-    try:
-        result = subprocess.run(
-            ["git", "tag", "--list", tag],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-    except (FileNotFoundError, subprocess.CalledProcessError):
-        return False
-    return result.stdout.strip() == tag
 
 
 def run_selected_tests() -> None:
@@ -66,28 +52,27 @@ def run_selected_tests() -> None:
         if failures or errors:
             raise SystemExit("[FAIL] G1 test report contains failures/errors.")
 
-    print("[OK] G1 temporal integrity tests run and pass without skips.")
+    print("[CODE_CONFORMANCE_PASS] Temporal helper tests passed; scientific G1 is not certified.")
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--ci",
-        action="store_true",
-        help=(
-            f"Before {G1_TAG} exists, keep bootstrap CI non-strict. After the tag exists, "
-            "the four G1 tests must run and pass without skips."
-        ),
-    )
-    args = parser.parse_args()
-
-    if args.ci and not git_tag_exists(G1_TAG):
-        print(f"[INFO] {G1_TAG} not present; G1 strict gate is not active yet.")
-        return
-
-    run_selected_tests()
-    print("G1 verification: PASS")
+    parser.add_argument("--run", help="Exact scientific run to verify")
+    parser.add_argument("--ci", action="store_true", help="Scientific checks remain strict in CI")
+    parser.add_argument("--code-checks", action="store_true", help="Run helper tests only; never certify G1")
+    args = parser.parse_args(argv)
+    if args.code_checks:
+        if args.run:
+            parser.error("--run and --code-checks are separate verification scopes")
+        run_selected_tests()
+        return 0
+    sys.path.insert(0, str(ROOT / "src"))
+    from kg_pipeline.gates import evaluate_scientific_gate
+    report = evaluate_scientific_gate(ROOT, args.run, "G1")
+    print(json.dumps(report, indent=2))
+    print(f"[{report['status']}] Scientific G1")
+    return 0 if report["status"] == "PASS" else 2
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

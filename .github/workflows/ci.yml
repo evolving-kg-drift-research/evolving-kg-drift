@@ -34,8 +34,8 @@ jobs:
       - name: Verify Week-1 contract state
         run: python scripts/verify_w1.py --ci
 
-      - name: Verify G1 gate state
-        run: python scripts/verify_g1.py --ci
+      - name: Verify temporal code conformance (not scientific G1)
+        run: python scripts/verify_g1.py --ci --code-checks
 
       - name: Verify W7/G6 gate state
         run: python scripts/verify_w7.py --ci

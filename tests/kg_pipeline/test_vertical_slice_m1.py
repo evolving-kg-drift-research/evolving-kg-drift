@@ -21,7 +21,7 @@ import pytest
 import pyarrow.parquet as pq
 
 from kg_pipeline.contracts import CONTRACT_VERSION, make_row
-from kg_pipeline.gates import evaluate_gate_g2
+from kg_pipeline.gates import evaluate_gate_g2, evaluate_m1_structure
 from kg_pipeline.hashing import sha256_text, stable_id, utc_now_iso
 from kg_pipeline.snapshot_runner import run_snapshot
 from kg_pipeline.storage import write_parquet_immutable, write_yaml_immutable
@@ -323,10 +323,13 @@ def test_vertical_slice_m1_raw_to_snapshots(tmp_path: Path):
     assert len(datasets["S2020"].triples) == 1
     assert len(datasets["S2022"].triples) == 1
 
-    # Assertion 8: Gate G2 Verification
+    # Fixture structural checks cannot certify independent scientific quality.
+    structure = evaluate_m1_structure(repo_root, run_id)
+    assert structure["status"] == "PASS"
+    assert structure["structural_record_count"] > 0
     g2_report = evaluate_gate_g2(repo_root, run_id)
-    assert g2_report["status"] == "PASS"
-    assert g2_report["evaluated_count"] > 0
+    assert g2_report["status"] == "BLOCKED"
+    assert g2_report["evaluated_count"] == 0
 
 
 def test_tampered_artifact_halts_downstream(tmp_path: Path):

@@ -250,8 +250,8 @@ def latest_gate_g2_report(run_dir: Path) -> dict[str, Any] | None:
     return read_json(legacy) if legacy.is_file() else None
 
 
-def evaluate_gate_g2(repo_root: Path, run_id: str) -> dict[str, Any]:
-    """Evaluate M1 data/KG gate G2: fails or blocks if evaluated_count == 0,
+def evaluate_m1_structure(repo_root: Path, run_id: str) -> dict[str, Any]:
+    """Evaluate structural diagnostics only; these cannot certify scientific G2.
 
     validates evidence span cryptographic integrity, temporal separation,
     point-in-time entity resolution, strict conservation accounting, and snapshot manifest parity.
@@ -538,21 +538,63 @@ def evaluate_gate_g2(repo_root: Path, run_id: str) -> dict[str, Any]:
     status = "FAIL" if "FAIL" in statuses else "BLOCKED" if "BLOCKED" in statuses else "NOT_RUN" if "NOT_RUN" in statuses else "PASS"
 
     semantic = {
-        "gate": "G2",
+        "gate": "M1_STRUCTURE",
+        "scope": "code_conformance",
         "run_id": run_id,
         "status": status,
         "checks": checks,
-        "evaluated_count": evaluated_count,
+        "structural_record_count": evaluated_count,
         "claims_count": len(claims_rows),
         "facts_count": len(facts_rows),
         "edges_count": len(edges_rows),
         "commands": [
-            f"python scripts/verify_g2.py --run {run_id}",
+            f"python scripts/verify_g2.py --run {run_id} --code-checks",
         ],
     }
     result = {**semantic, "evaluated_at_real": utc_now_iso(), "semantic_sha256": sha256_json(semantic)}
 
     stamp = result["evaluated_at_real"].replace(":", "-")
-    path = run_dir / "gates" / "G2" / f"{stamp}_{uuid4().hex}.json"
+    path = run_dir / "gates" / "M1_STRUCTURE" / f"{stamp}_{uuid4().hex}.json"
     write_json_immutable(path, result)
     return result
+
+
+def evaluate_scientific_gate(repo_root: Path, run_id: str | None, gate: str) -> dict[str, Any]:
+    """Fail closed until a production evidence evaluator is available.
+
+    Existing structural checks and pytest results are deliberately not scientific
+    evidence. Do not accept an arbitrary JSON report claiming PASS in their place.
+    """
+    if gate not in {"G1", "G2"}:
+        raise ValueError(f"Unsupported scientific gate: {gate}")
+    checks = []
+    manifest = None
+    if not run_id:
+        checks.append(_check("RUN_REQUIRED", "BLOCKED", "An explicit --run is required", ""))
+    else:
+        try:
+            manifest = load_run_manifest(repo_root, run_id)
+        except (OSError, ValueError, RuntimeError) as exc:
+            checks.append(_check("RUN_UNVERIFIED", "BLOCKED", str(exc), "run_manifest.yaml"))
+    detail = (
+        "Artifact-backed temporal/replay and actual Neo4j read-back verification is not implemented"
+        if gate == "G1" else
+        "Independent pilot gold, locked thresholds and their artifact-backed quality evaluator are required"
+    )
+    checks.append(_check("SCIENTIFIC_EVALUATOR_UNAVAILABLE", "BLOCKED", detail, ""))
+    semantic = {
+        "gate": gate, "scope": "scientific", "evaluator_version": "m1_gate_guard_v1",
+        "run_id": run_id, "status": "BLOCKED", "checks": checks,
+        "evaluated_count": 0,
+        "run_manifest_semantic_sha256": manifest.get("semantic_sha256") if manifest else None,
+    }
+    result = {**semantic, "evaluated_at_real": utc_now_iso(), "semantic_sha256": sha256_json(semantic)}
+    # A missing/unverified run must not be created by a verification command.
+    if manifest is not None:
+        stamp = result["evaluated_at_real"].replace(":", "-")
+        write_json_immutable(get_run_dir(repo_root, run_id) / "gates" / gate / f"{stamp}_{uuid4().hex}.json", result)
+    return result
+
+
+def evaluate_gate_g2(repo_root: Path, run_id: str | None) -> dict[str, Any]:
+    return evaluate_scientific_gate(repo_root, run_id, "G2")
