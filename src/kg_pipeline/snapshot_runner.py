@@ -62,6 +62,8 @@ def run_snapshot(
     cutoff_iso: str | None = None,
     snapshot_id: str | None = None,
 ) -> dict[str, Any]:
+    from .gates import require_gate_a
+    gate_a_ref = require_gate_a(repo_root, run_id)
     run_dir = get_run_dir(repo_root, run_id)
     (run_dir / "tables").mkdir(parents=True, exist_ok=True)
     (run_dir / "reports").mkdir(parents=True, exist_ok=True)
@@ -481,11 +483,18 @@ def run_snapshot(
         input_artifacts=[
             {"table": "fact_versions", "path": str(fact_versions_path)},
             {"table": "claim_provenance", "path": str(claim_provenance_path)},
+            *[{"table": name, "path": str(path)} for name, path in upstream_tables.items()],
+            *([{"table": "entity_mappings", "path": str(ent_map_path)}] if ent_map_path.is_file() else []),
         ],
         output_artifacts=[
             {"table": "snapshot_edges", "path": str(edges_parquet), "count": len(all_edges)},
             {"table": "snapshot_edge_support", "path": str(supports_parquet), "count": len(all_supports)},
             {"table": "snapshot_exclusions", "path": str(exclusions_parquet), "count": len(all_exclusions)},
+            *[
+                {"table": name, "path": str(run_dir / "snapshots" / sid / f"{name}.parquet")}
+                for sid, _ in target_cutoffs
+                for name in ("snapshot_edges", "snapshot_edge_support", "snapshot_exclusions")
+            ],
         ],
         conservation_metrics={
             "cutoffs_count": len(target_cutoffs),
@@ -494,6 +503,7 @@ def run_snapshot(
             "edge_supports_count": len(all_supports),
             "exclusions_count": len(all_exclusions),
         },
+        gate_a_ref=gate_a_ref,
     )
 
     return {

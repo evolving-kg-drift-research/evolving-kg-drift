@@ -1,5 +1,15 @@
 # Tiến độ pipeline
 
+## M1 C2 — 2026-09-28: chuỗi artifact và bàn giao M2
+
+Đã triển khai ArtifactRef và xác minh đệ quy run/stage lineage cho canonical
+Parquet. Các runner bind input/output và Gate A; M2 yêu cầu snapshot manifest,
+producer hoàn tất, Gate A hợp lệ và đúng snapshot được yêu cầu. Kiểm thử toàn bộ:
+187 passed, 10 skipped; bổ sung ca vòng stage: bộ test chuỗi 11 passed. Đây là
+kết quả code/fixture, không phải production hay G1/G2 PASS. Gate A vẫn BLOCKED.
+Chi tiết và phần dependency chưa khóa: [báo cáo C2](audit/m1_c2_artifact_chain.md).
+
+
 ## M1 C1 — 2026-09-28: chặn scientific PASS sai
 
 Đã triển khai và kiểm thử guard G1/G2: yêu cầu run rõ ràng, bỏ synthetic fallback,

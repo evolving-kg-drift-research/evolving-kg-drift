@@ -19,16 +19,11 @@ from temporal.schema import Claim, ContractError
 
 logger = logging.getLogger(__name__)
 
-def run_adjudication(repo_root: Path, run_id: str, *, enforce_gate_a: bool = False) -> dict[str, Any]:
+def run_adjudication(repo_root: Path, run_id: str) -> dict[str, Any]:
     run_dir = get_run_dir(repo_root, run_id)
 
-    if enforce_gate_a:
-        from .gates import latest_gate_a_report
-        gate_report = latest_gate_a_report(run_dir)
-        if not gate_report:
-            raise PermissionError(f"Adjudication blocked: Gate A has not been evaluated for run {run_id}")
-        if gate_report.get("status") != "PASS":
-            raise PermissionError(f"Adjudication blocked: Gate A status is {gate_report.get('status')}, expected PASS")
+    from .gates import require_gate_a
+    gate_a_ref = require_gate_a(repo_root, run_id)
 
     extracted_claims_path = resolve_run_table_path(repo_root, run_id, "extracted_claims")
     if not extracted_claims_path.is_file():
@@ -304,6 +299,9 @@ def run_adjudication(repo_root: Path, run_id: str, *, enforce_gate_a: bool = Fal
         input_artifacts=[
             {"table": "extracted_claims", "path": str(extracted_claims_path)},
             {"table": "claim_provenance", "path": str(provenance_path)},
+            {"table": "document_memberships", "path": str(memberships_path)},
+            {"table": "retrievals", "path": str(retrievals_path)},
+            {"table": "source_versions", "path": str(source_versions_path)},
         ],
         output_artifacts=[
             {"table": "fact_versions", "path": str(run_dir / "tables" / "fact_versions.parquet"), "count": len(fact_versions_rows)},
@@ -316,6 +314,7 @@ def run_adjudication(repo_root: Path, run_id: str, *, enforce_gate_a: bool = Fal
             "review_queue_count": len(review_queue),
             "decisions_count": len(decisions_rows),
         },
+        gate_a_ref=gate_a_ref,
     )
 
     return {

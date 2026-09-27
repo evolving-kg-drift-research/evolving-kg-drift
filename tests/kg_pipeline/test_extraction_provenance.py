@@ -15,6 +15,18 @@ from temporal.schema import ClaimCandidate, ContractError
 RUN_ID = "extract_test_run"
 
 
+@pytest.fixture(autouse=True)
+def isolated_provenance_logic(monkeypatch: pytest.MonkeyPatch):
+    """These unit cases exercise provenance rules; artifact-chain cases live separately."""
+    monkeypatch.setattr(
+        extract, "resolve_run_table_path",
+        lambda repo_root, run_id, name: repo_root / "runs" / run_id / "tables" / f"{name}.parquet",
+    )
+    monkeypatch.setattr(extract, "create_stage_manifest", lambda *args, **kwargs: {})
+    from kg_pipeline import gates
+    monkeypatch.setattr(gates, "require_gate_a", lambda *args, **kwargs: {"gate": "A"})
+
+
 def _claim(body_variant_id: str = "bv_test") -> ClaimCandidate:
     return ClaimCandidate(
         claim_id="claim_test",

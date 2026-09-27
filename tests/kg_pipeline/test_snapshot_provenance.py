@@ -155,6 +155,9 @@ def _run_with_inputs(monkeypatch, tmp_path: Path, inputs):
     writes = []
     monkeypatch.setattr(snapshot_runner, "write_parquet_immutable", lambda *args: writes.append(args))
     monkeypatch.setattr(snapshot_runner, "write_yaml_immutable", lambda *args: writes.append(args))
+    monkeypatch.setattr(snapshot_runner, "create_stage_manifest", lambda *args, **kwargs: {})
+    from kg_pipeline import gates
+    monkeypatch.setattr(gates, "require_gate_a", lambda *args, **kwargs: {"gate": "A"})
     monkeypatch.setattr(snapshot_runner, "build_snapshot_edges_and_support", lambda **kwargs: ([], [], []))
     return run_dir, writes
 

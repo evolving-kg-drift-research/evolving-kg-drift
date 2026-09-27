@@ -18,16 +18,11 @@ from temporal.schema import ClaimCandidate
 
 logger = logging.getLogger(__name__)
 
-def run_extraction(repo_root: Path, run_id: str, *, enforce_gate_a: bool = False) -> dict[str, Any]:
+def run_extraction(repo_root: Path, run_id: str) -> dict[str, Any]:
     run_dir = get_run_dir(repo_root, run_id)
 
-    if enforce_gate_a:
-        from .gates import latest_gate_a_report
-        gate_report = latest_gate_a_report(run_dir)
-        if not gate_report:
-            raise PermissionError(f"Extraction blocked: Gate A has not been evaluated for run {run_id}")
-        if gate_report.get("status") != "PASS":
-            raise PermissionError(f"Extraction blocked: Gate A status is {gate_report.get('status')}, expected PASS")
+    from .gates import require_gate_a
+    gate_a_ref = require_gate_a(repo_root, run_id)
 
     body_variants_path = resolve_run_table_path(repo_root, run_id, "body_variants")
     if not body_variants_path.is_file():
@@ -220,6 +215,7 @@ def run_extraction(repo_root: Path, run_id: str, *, enforce_gate_a: bool = False
             "extracted_claims_count": len(extracted_claims),
             "dlq_count": len(all_dlq),
         },
+        gate_a_ref=gate_a_ref,
     )
 
     return {

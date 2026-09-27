@@ -20,11 +20,12 @@ from pathlib import Path
 import pytest
 import pyarrow.parquet as pq
 
-from kg_pipeline.contracts import CONTRACT_VERSION, make_row
+from kg_pipeline.contracts import make_row
 from kg_pipeline.gates import evaluate_gate_g2, evaluate_m1_structure
 from kg_pipeline.hashing import sha256_text, stable_id, utc_now_iso
 from kg_pipeline.snapshot_runner import run_snapshot
-from kg_pipeline.storage import write_parquet_immutable, write_yaml_immutable
+from kg_pipeline.storage import ArtifactConflict, write_parquet_immutable, write_yaml_immutable
+from kg_pipeline.run import create_stage_manifest, init_run
 from kge.adapter import load_snapshots_from_run
 from temporal.schema import FactVersion
 from temporal.snapshot import build_snapshot_edges_and_support, compute_graph_semantic_hash
@@ -34,8 +35,11 @@ def _dt(year: int, month: int, day: int) -> datetime:
     return datetime(year, month, day, 0, 0, 0, tzinfo=timezone.utc)
 
 
-def test_vertical_slice_m1_raw_to_snapshots(tmp_path: Path):
+def test_vertical_slice_m1_raw_to_snapshots(tmp_path: Path, monkeypatch):
     repo_root = tmp_path
+    from kg_pipeline import gates
+    fixture_gate_ref = {"gate": "A", "run_id": "test_vertical_slice_001", "semantic_sha256": "fixture_only"}
+    monkeypatch.setattr(gates, "require_gate_a", lambda *args, **kwargs: fixture_gate_ref)
     run_id = "test_vertical_slice_001"
     run_dir = repo_root / "runs" / run_id
     tables_dir = run_dir / "tables"
@@ -46,6 +50,17 @@ def test_vertical_slice_m1_raw_to_snapshots(tmp_path: Path):
     reports_dir.mkdir(parents=True, exist_ok=True)
     inputs_dir.mkdir(parents=True, exist_ok=True)
     blobs_dir.mkdir(parents=True, exist_ok=True)
+    cutoffs = [("S2020", _dt(2020, 6, 1)), ("S2022", _dt(2022, 6, 1))]
+    cfg_cutoffs = {
+        "operational_snapshots": {
+            "provisional_cutoffs": [
+                {"id": sid, "cutoff": dt.isoformat()} for sid, dt in cutoffs
+            ]
+        }
+    }
+    (repo_root / "config").mkdir(parents=True, exist_ok=True)
+    write_yaml_immutable(repo_root / "config" / "snapshot_cutoffs.yaml", cfg_cutoffs)
+    init_run(repo_root, run_id, mode="snapshot")
 
     # 1. Raw Bytes & Upstream Inventory
     raw_content = b"VinFast auto was founded by Pham Nhat Vuong in Hanoi."
@@ -131,6 +146,10 @@ def test_vertical_slice_m1_raw_to_snapshots(tmp_path: Path):
     write_parquet_immutable(tables_dir / "retrievals.parquet", "retrievals", retrievals)
     write_parquet_immutable(tables_dir / "source_versions.parquet", "source_versions", source_versions)
     write_parquet_immutable(tables_dir / "document_memberships.parquet", "document_memberships", document_memberships)
+    create_stage_manifest(repo_root, run_id, "inventory", output_artifacts=[
+        {"table": name, "path": str(tables_dir / f"{name}.parquet")}
+        for name in ("body_variants", "retrievals", "source_versions", "document_memberships")
+    ])
 
     # 2. Evidence Spans & Extracted Claims
     # Span 1: "Pham Nhat Vuong in Hanoi" -> ("VinFast", "founded_by", "Pham Nhat Vuong")
@@ -176,6 +195,13 @@ def test_vertical_slice_m1_raw_to_snapshots(tmp_path: Path):
 
     write_parquet_immutable(tables_dir / "extracted_claims.parquet", "extracted_claims", [claim_1])
     write_parquet_immutable(tables_dir / "claim_provenance.parquet", "claim_provenance", [prov_1])
+    create_stage_manifest(repo_root, run_id, "extraction", input_artifacts=[
+        {"table": name, "path": str(tables_dir / f"{name}.parquet")}
+        for name in ("body_variants", "retrievals", "source_versions", "document_memberships")
+    ], output_artifacts=[
+        {"table": name, "path": str(tables_dir / f"{name}.parquet")}
+        for name in ("extracted_claims", "claim_provenance")
+    ])
 
     # 3. Adjudication & Fact Versions with Proven Observation Time
     fact_1 = make_row(
@@ -231,31 +257,15 @@ def test_vertical_slice_m1_raw_to_snapshots(tmp_path: Path):
     write_parquet_immutable(tables_dir / "fact_versions.parquet", "fact_versions", [fact_1])
     write_parquet_immutable(tables_dir / "adjudication_decisions.parquet", "adjudication_decisions", [decision_1])
     write_parquet_immutable(tables_dir / "entity_mappings.parquet", "entity_mappings", [mapping_future])
+    create_stage_manifest(repo_root, run_id, "adjudication", input_artifacts=[
+        {"table": name, "path": str(tables_dir / f"{name}.parquet")}
+        for name in ("extracted_claims", "claim_provenance")
+    ], output_artifacts=[
+        {"table": name, "path": str(tables_dir / f"{name}.parquet")}
+        for name in ("fact_versions", "adjudication_decisions", "entity_mappings")
+    ])
 
-    # Run manifest
-    run_manifest = {
-        "schema_version": CONTRACT_VERSION,
-        "run_id": run_id,
-        "parent_run_id": None,
-        "status": "COMPLETED",
-        "created_at_real": utc_now_iso(),
-    }
-    write_yaml_immutable(run_dir / "run_manifest.yaml", run_manifest)
-
-    # 4. Snapshot Publication across 2 Cutoffs: 2020-06-01 (past) and 2022-06-01 (future)
-    cutoffs = [
-        ("S2020", _dt(2020, 6, 1)),
-        ("S2022", _dt(2022, 6, 1)),
-    ]
-    cfg_cutoffs = {
-        "operational_snapshots": {
-            "provisional_cutoffs": [
-                {"id": sid, "cutoff": dt.isoformat()} for sid, dt in cutoffs
-            ]
-        }
-    }
-    (repo_root / "config").mkdir(parents=True, exist_ok=True)
-    write_yaml_immutable(repo_root / "config" / "snapshot_cutoffs.yaml", cfg_cutoffs)
+    # 4. Snapshot Publication across two fixture cutoffs.
 
     res = run_snapshot(repo_root, run_id)
     assert res["status"] == "COMPLETED"
@@ -332,8 +342,11 @@ def test_vertical_slice_m1_raw_to_snapshots(tmp_path: Path):
     assert g2_report["evaluated_count"] == 0
 
 
-def test_tampered_artifact_halts_downstream(tmp_path: Path):
+def test_tampered_artifact_halts_downstream(tmp_path: Path, monkeypatch):
     repo_root = tmp_path
+    from kg_pipeline import gates
+    fixture_gate_ref = {"gate": "A", "run_id": "test_tamper_001", "semantic_sha256": "fixture_only"}
+    monkeypatch.setattr(gates, "require_gate_a", lambda *args, **kwargs: fixture_gate_ref)
     run_id = "test_tamper_001"
     run_dir = repo_root / "runs" / run_id
     snap_dir = run_dir / "snapshots" / "S2020"
@@ -350,6 +363,18 @@ def test_tampered_artifact_halts_downstream(tmp_path: Path):
     )
     edge_p = snap_dir / "snapshot_edges.parquet"
     write_parquet_immutable(edge_p, "snapshot_edges", [edge])
+    init_run(repo_root, run_id, mode="snapshot")
+    create_stage_manifest(repo_root, run_id, "snapshot_stage", output_artifacts=[
+        {"table": "snapshot_edges", "path": str(edge_p)}
+    ], gate_a_ref=fixture_gate_ref)
+    from kge.contract import SnapshotDataset, Triple
+    dataset = SnapshotDataset.create("S2020", [Triple("s1", "r1", "o1")])
+    semantic = {"snapshot_id": "S2020", "cutoff": _dt(2020, 6, 1).isoformat(),
+                "graph_semantic_hash": dataset.snapshot_hash, "edge_count": 1}
+    write_yaml_immutable(snap_dir / "snapshot_manifest.yaml", {
+        **semantic, "created_at_real": utc_now_iso(),
+        "snapshot_manifest_hash": hashlib.sha256(json.dumps(semantic, sort_keys=True).encode()).hexdigest()
+    })
 
     # Downstream loads successfully before tampering
     ds = load_snapshots_from_run(repo_root, run_id, verify_manifest=True)
@@ -360,5 +385,5 @@ def test_tampered_artifact_halts_downstream(tmp_path: Path):
         f.write(b"CORRUPTED_BYTES")
 
     # Downstream load must fail closed with ValueError
-    with pytest.raises(ValueError, match="Parquet physical SHA-256 sidecar mismatch"):
+    with pytest.raises(ArtifactConflict, match="Parquet manifest mismatch"):
         load_snapshots_from_run(repo_root, run_id, verify_manifest=True)

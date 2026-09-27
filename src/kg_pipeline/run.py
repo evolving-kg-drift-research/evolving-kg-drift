@@ -11,6 +11,8 @@ from .contracts import CONTRACT_VERSION
 from .hashing import repo_relative, sha256_file, sha256_json, utc_now_iso
 from .storage import ArtifactConflict, read_yaml, verify_parquet_artifact, write_yaml_immutable
 
+ARTIFACT_REF_VERSION = "m1_artifact_ref_v1"
+
 RUN_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{2,80}$")
 
 CONFIG_CANDIDATES = (
@@ -248,7 +250,7 @@ def init_run(
     }
 
 
-def load_run_manifest(repo_root: Path, run_id: str) -> dict[str, Any]:
+def load_run_manifest(repo_root: Path, run_id: str, *, check_workspace: bool = True) -> dict[str, Any]:
     path = get_run_dir(repo_root, run_id) / "run_manifest.yaml"
     if not path.is_file():
         raise FileNotFoundError(f"Run has not been initialized: {path}")
@@ -260,47 +262,176 @@ def load_run_manifest(repo_root: Path, run_id: str) -> dict[str, Any]:
         raise ArtifactConflict("Run manifest semantic hash mismatch")
     if manifest.get("run_id") != run_id:
         raise ArtifactConflict("Run manifest identity mismatch")
-    if manifest.get("code_fingerprint_sha256") != package_fingerprint(repo_root):
+    if check_workspace and manifest.get("code_fingerprint_sha256") != package_fingerprint(repo_root):
         raise ArtifactConflict("Executing code differs from the initialized run; create a new run")
-    if manifest.get("config_candidates") != config_fingerprints(repo_root):
+    if check_workspace and manifest.get("config_candidates") != config_fingerprints(repo_root):
         raise ArtifactConflict("Configuration differs from the initialized run; create a new run")
-    if manifest.get("config_approval") != inspect_config_approval(repo_root, config_fingerprints(repo_root)):
+    if check_workspace and manifest.get("config_approval") != inspect_config_approval(repo_root, config_fingerprints(repo_root)):
         raise ArtifactConflict("Configuration approval differs from the initialized run; create a new run")
     return manifest
 
 
+def verified_run_ancestry(repo_root: Path, run_id: str, *, check_workspace: bool = True) -> set[str]:
+    """Return the declared run lineage after checking each manifest and cycles."""
+    lineage: set[str] = set()
+    current: str | None = run_id
+    while current:
+        if current in lineage:
+            raise ArtifactConflict(f"Parent-run lineage cycle at {current}")
+        lineage.add(current)
+        manifest = load_run_manifest(
+            repo_root, current, check_workspace=check_workspace and current == run_id
+        )
+        current = manifest.get("parent_run_id")
+    return lineage
+
+
+def _artifact_location(repo_root: Path, path: Path) -> tuple[str, str]:
+    runs_root = (repo_root / "runs").resolve()
+    resolved = path.resolve()
+    try:
+        relative = resolved.relative_to(runs_root)
+    except ValueError as exc:
+        raise ArtifactConflict(f"Artifact is outside runs/: {path}") from exc
+    if len(relative.parts) < 3:
+        raise ArtifactConflict(f"Artifact path lacks run-relative location: {path}")
+    producer_run = validate_run_id(relative.parts[0])
+    return producer_run, Path(*relative.parts[1:]).as_posix()
+
+
+def _parquet_ref(repo_root: Path, path: Path, table_name: str, stage_name: str) -> dict[str, Any]:
+    producer_run, relative = _artifact_location(repo_root, path)
+    sidecar = verify_parquet_artifact(path, table_name)
+    return {
+        "ref_version": ARTIFACT_REF_VERSION,
+        "producer_run_id": producer_run,
+        "producer_stage": stage_name,
+        "path": relative,
+        "table_name": table_name,
+        "contract_version": sidecar["contract_version"],
+        "physical_sha256": sidecar["physical_sha256_computed_at_real"],
+        "semantic_sha256": sidecar["semantic_sha256"],
+        "row_count": sidecar["row_count"],
+    }
+
+
+def _verify_ref(repo_root: Path, ref: dict[str, Any]) -> Path:
+    if ref.get("ref_version") != ARTIFACT_REF_VERSION:
+        raise ArtifactConflict("Unsupported or missing ArtifactRef version")
+    run_dir = get_run_dir(repo_root, ref["producer_run_id"])
+    relative = Path(ref["path"])
+    path = (run_dir / relative).resolve()
+    if relative.is_absolute() or run_dir not in path.parents:
+        raise ArtifactConflict("ArtifactRef path escapes producer run")
+    actual = _parquet_ref(repo_root, path, ref["table_name"], ref["producer_stage"])
+    for key, value in actual.items():
+        if ref.get(key) != value:
+            raise ArtifactConflict(f"ArtifactRef {key} mismatch: {path}")
+    return path
+
+
+def verify_stage_manifest(
+    repo_root: Path, run_id: str, stage_name: str, *,
+    _active: set[tuple[str, str]] | None = None,
+    _verified: dict[tuple[str, str], dict[str, Any]] | None = None,
+    check_workspace: bool = True,
+) -> dict[str, Any]:
+    """Verify a completed producer and every bound ancestor, detecting lineage cycles."""
+    key = (run_id, stage_name)
+    active = _active if _active is not None else set()
+    verified = _verified if _verified is not None else {}
+    if key in active:
+        raise ArtifactConflict(f"Stage lineage cycle at {run_id}/{stage_name}")
+    if key in verified:
+        return verified[key]
+    active.add(key)
+    try:
+        ancestry = verified_run_ancestry(repo_root, run_id, check_workspace=check_workspace)
+        run_manifest = load_run_manifest(repo_root, run_id, check_workspace=False)
+        path = get_run_dir(repo_root, run_id) / "reports" / f"{stage_name}_manifest.yaml"
+        if not path.is_file():
+            raise ArtifactConflict(f"Missing producer stage manifest: {path}")
+        manifest = read_yaml(path)
+        if not isinstance(manifest, dict):
+            raise ArtifactConflict(f"Invalid producer stage manifest: {path}")
+        semantic = {k: v for k, v in manifest.items() if k not in {"created_at_real", "stage_manifest_hash"}}
+        if manifest.get("stage_manifest_hash") != sha256_json(semantic):
+            raise ArtifactConflict(f"Producer stage manifest hash mismatch: {path}")
+        if manifest.get("run_id") != run_id or manifest.get("stage_name") != stage_name:
+            raise ArtifactConflict(f"Producer stage identity mismatch: {path}")
+        if manifest.get("status") != "COMPLETED":
+            raise ArtifactConflict(f"Producer stage is not COMPLETED: {path}")
+        if manifest.get("code_fingerprint_sha256") != run_manifest.get("code_fingerprint_sha256"):
+            raise ArtifactConflict(f"Producer stage code binding mismatch: {path}")
+        if not manifest.get("output_artifacts"):
+            raise ArtifactConflict(f"Producer stage has no bound outputs: {path}")
+        if "gate_a_ref" in manifest:
+            from .gates import require_gate_a
+            if manifest["gate_a_ref"] != require_gate_a(repo_root, run_id, check_workspace=check_workspace):
+                raise ArtifactConflict(f"Stage Gate A binding mismatch: {path}")
+        for ref in manifest["output_artifacts"]:
+            if ref.get("producer_run_id") != run_id or ref.get("producer_stage") != stage_name:
+                raise ArtifactConflict(f"Producer output identity mismatch: {path}")
+            _verify_ref(repo_root, ref)
+        for ref in manifest.get("input_artifacts", []):
+            if ref.get("producer_run_id") not in ancestry:
+                raise ArtifactConflict(f"Input producer is outside run ancestry: {path}")
+            parent = verify_stage_manifest(
+                repo_root, ref["producer_run_id"], ref["producer_stage"],
+                _active=active, _verified=verified,
+                check_workspace=check_workspace and ref["producer_run_id"] == run_id,
+            )
+            if ref.get("producer_stage_manifest_hash") != parent["stage_manifest_hash"]:
+                raise ArtifactConflict(f"Input producer manifest binding mismatch: {path}")
+            if not any(
+                all(out.get(k) == ref.get(k) for k in out)
+                for out in parent["output_artifacts"]
+            ):
+                raise ArtifactConflict(f"Input is not a declared producer output: {path}")
+            _verify_ref(repo_root, ref)
+        verified[key] = manifest
+        return manifest
+    finally:
+        active.remove(key)
+
+
+def _producer_ref_for_table(repo_root: Path, path: Path, table_name: str) -> dict[str, Any]:
+    producer_run, relative = _artifact_location(repo_root, path)
+    reports = get_run_dir(repo_root, producer_run) / "reports"
+    for manifest_path in sorted(reports.glob("*_manifest.yaml")):
+        candidate = read_yaml(manifest_path)
+        if not isinstance(candidate, dict) or "stage_manifest_hash" not in candidate:
+            continue
+        if not any(
+            isinstance(ref, dict) and ref.get("path") == relative and ref.get("table_name") == table_name
+            for ref in candidate.get("output_artifacts", [])
+        ):
+            continue
+        stage_name = manifest_path.name.removesuffix("_manifest.yaml")
+        manifest = verify_stage_manifest(repo_root, producer_run, stage_name, check_workspace=False)
+        for ref in manifest["output_artifacts"]:
+            if ref.get("path") == relative and ref.get("table_name") == table_name:
+                return {**ref, "producer_stage_manifest_hash": manifest["stage_manifest_hash"]}
+    raise ArtifactConflict(f"No COMPLETED producer binds {path}")
+
+
 def resolve_run_table_path(repo_root: Path, run_id: str, table_name: str) -> Path:
-    """Find a verified table parquet path in run_id, falling back up the verified parent_run_id chain."""
+    """Resolve only a table with an intact sidecar and completed producer lineage."""
+    verified_run_ancestry(repo_root, run_id)
     curr_id: str | None = run_id
     visited: set[str] = set()
-
-    while curr_id and curr_id not in visited:
+    while curr_id:
+        if curr_id in visited:
+            raise ArtifactConflict(f"Parent-run lineage cycle at {curr_id}")
         visited.add(curr_id)
         run_dir = get_run_dir(repo_root, curr_id)
         candidate = run_dir / "tables" / f"{table_name}.parquet"
-        manifest_sidecar = candidate.with_suffix(candidate.suffix + ".manifest.json")
-
+        manifest = load_run_manifest(repo_root, curr_id, check_workspace=False)
         if candidate.is_file():
-            # If sidecar exists, verify cryptographic Parquet integrity
-            if manifest_sidecar.is_file():
-                verify_parquet_artifact(candidate, table_name)
-            # If in parent run, verify parent run manifest is intact
-            if curr_id != run_id:
-                load_run_manifest(repo_root, curr_id)
+            _producer_ref_for_table(repo_root, candidate, table_name)
             return candidate
-
-        # Walk up lineage chain verifying parent run integrity
-        manifest_path = run_dir / "run_manifest.yaml"
-        if manifest_path.is_file():
-            try:
-                manifest = load_run_manifest(repo_root, curr_id)
-                curr_id = manifest.get("parent_run_id") if isinstance(manifest, dict) else None
-            except Exception:
-                curr_id = None
-        else:
-            curr_id = None
-
-    return get_run_dir(repo_root, run_id) / "tables" / f"{table_name}.parquet"
+        curr_id = manifest.get("parent_run_id")
+    raise FileNotFoundError(f"No completed producer for table {table_name} in run {run_id} ancestry")
 
 
 def create_stage_manifest(
@@ -313,10 +444,15 @@ def create_stage_manifest(
     conservation_metrics: dict[str, Any] | None = None,
     status: str = "COMPLETED",
     parent_run_id: str | None = None,
+    gate_a_ref: dict[str, str] | None = None,
 ) -> dict[str, Any]:
-    """Create and persist an immutable stage manifest with code/config/git lineage."""
+    """Publish a completed stage only after binding verified inputs and outputs."""
     import subprocess
 
+    if status != "COMPLETED":
+        raise ArtifactConflict("Only completed stages may publish output ArtifactRefs")
+    run_manifest = load_run_manifest(repo_root, run_id)
+    verified_run_ancestry(repo_root, run_id)
     run_dir = get_run_dir(repo_root, run_id)
     reports_dir = run_dir / "reports"
     reports_dir.mkdir(parents=True, exist_ok=True)
@@ -334,17 +470,37 @@ def create_stage_manifest(
     except Exception:
         pass
 
+    inputs = []
+    for item in input_artifacts or []:
+        inputs.append(_producer_ref_for_table(repo_root, Path(item["path"]), item["table"]))
+    outputs = []
+    for item in output_artifacts or []:
+        path = Path(item["path"])
+        producer_run, _ = _artifact_location(repo_root, path)
+        if producer_run != run_id:
+            raise ArtifactConflict("Stage output belongs to another run")
+        ref = _parquet_ref(repo_root, path, item["table"], stage_name)
+        if "count" in item and item["count"] != ref["row_count"]:
+            raise ArtifactConflict(f"Stage output count mismatch: {path}")
+        outputs.append(ref)
+    if not outputs:
+        raise ArtifactConflict("Completed stage must bind at least one output")
     semantic: dict[str, Any] = {
         "stage_name": stage_name,
         "run_id": run_id,
         "status": status,
         "contract_version": CONTRACT_VERSION,
-        "code_fingerprint_sha256": package_fingerprint(repo_root),
+        "code_fingerprint_sha256": run_manifest["code_fingerprint_sha256"],
         "git_commit": git_commit,
-        "input_artifacts": input_artifacts or [],
-        "output_artifacts": output_artifacts or [],
+        "input_artifacts": inputs,
+        "output_artifacts": outputs,
         "conservation_metrics": conservation_metrics or {},
     }
+    if gate_a_ref is not None:
+        from .gates import require_gate_a
+        if gate_a_ref != require_gate_a(repo_root, run_id):
+            raise ArtifactConflict("Stage Gate A reference is not current")
+        semantic["gate_a_ref"] = gate_a_ref
     if parent_run_id:
         semantic["parent_run_id"] = parent_run_id
 
@@ -355,5 +511,10 @@ def create_stage_manifest(
     }
 
     manifest_path = reports_dir / f"{stage_name}_manifest.yaml"
+    if manifest_path.is_file():
+        existing = verify_stage_manifest(repo_root, run_id, stage_name)
+        if existing["stage_manifest_hash"] != manifest["stage_manifest_hash"]:
+            raise ArtifactConflict(f"Refusing to replace completed stage manifest: {manifest_path}")
+        return existing
     write_yaml_immutable(manifest_path, manifest)
-    return manifest
+    return verify_stage_manifest(repo_root, run_id, stage_name)

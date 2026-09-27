@@ -52,7 +52,7 @@ def test_downstream_gate_a_enforcement(tmp_path: Path):
 
     # 1. No Gate A report evaluated -> PermissionError
     with pytest.raises(PermissionError, match="Gate A has not been evaluated|Gate A status"):
-        run_extraction(tmp_path, "gated_run", enforce_gate_a=True)
+        run_extraction(tmp_path, "gated_run")
 
     # 2. Gate A evaluated as NON-PASS (e.g. BLOCKED) -> PermissionError
     gate_a_dir = run_dir / "gates" / "A"
@@ -65,4 +65,4 @@ def test_downstream_gate_a_enforcement(tmp_path: Path):
     write_json_immutable(gate_a_dir / "report.json", bad_gate)
 
     with pytest.raises(PermissionError, match="Gate A status is BLOCKED"):
-        run_extraction(tmp_path, "gated_run", enforce_gate_a=True)
+        run_extraction(tmp_path, "gated_run")

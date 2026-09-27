@@ -109,6 +109,9 @@ def read_yaml(path: Path) -> dict[str, Any]:
 def verify_parquet_artifact(path: Path, table_name: str) -> dict[str, Any]:
     """Recompute integrity from canonical bytes rather than trusting the sidecar."""
     manifest = read_json(path.with_suffix(path.suffix + ".manifest.json"))
+    physical_hash = sha256_file(path)
+    if manifest.get("physical_sha256_computed_at_real") != physical_hash:
+        raise ArtifactConflict(f"Parquet manifest mismatch (physical_sha256): {path}")
     table = pq.read_table(path)
     if not table.schema.equals(TABLE_SCHEMAS[table_name], check_metadata=False):
         raise ArtifactConflict(f"Parquet schema mismatch: {path}")
@@ -120,7 +123,7 @@ def verify_parquet_artifact(path: Path, table_name: str) -> dict[str, Any]:
         "contract_version": CONTRACT_VERSION,
         "row_count": len(rows),
         "semantic_sha256": sha256_json({"table_name": table_name, "contract_version": CONTRACT_VERSION, "rows": rows}),
-        "physical_sha256_computed_at_real": sha256_file(path),
+        "physical_sha256_computed_at_real": physical_hash,
     }
     for key, value in expected.items():
         if manifest.get(key) != value:

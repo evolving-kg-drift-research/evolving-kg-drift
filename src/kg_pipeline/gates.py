@@ -15,7 +15,7 @@ from .baseline import inspect_config_approval, inspect_source_lock
 from .contracts import TABLE_SCHEMAS, FOREIGN_KEYS, validate_retrieval_rows
 from .hashing import sha256_json, sha256_text, utc_now_iso
 from .readiness import raw_input_blockers
-from .run import config_fingerprints, get_run_dir, load_run_manifest, resolve_run_table_path
+from .run import config_fingerprints, get_run_dir, load_run_manifest, resolve_run_table_path, verified_run_ancestry
 from .storage import read_json, read_yaml, verify_parquet_artifact, write_json_immutable
 
 REQUIRED_TABLES = (
@@ -56,6 +56,47 @@ def latest_gate_a_report(run_dir: Path) -> dict[str, Any] | None:
         return reports[-1]
     legacy = run_dir / "gates" / "gate_A.json"
     return read_json(legacy) if legacy.is_file() else None
+
+
+def require_gate_a(repo_root: Path, run_id: str, *, check_workspace: bool = True) -> dict[str, str]:
+    """Bind a downstream stage to a verified readiness report in its run ancestry."""
+    from .run import verify_stage_manifest
+    from .storage import ArtifactConflict
+
+    verified_run_ancestry(repo_root, run_id, check_workspace=check_workspace)
+    current: str | None = run_id
+    while current:
+        run_dir = get_run_dir(repo_root, current)
+        report = latest_gate_a_report(run_dir)
+        if report is not None:
+            if report.get("status") != "PASS":
+                raise PermissionError(f"Gate A status is {report.get('status')}, expected PASS")
+            semantic = {k: v for k, v in report.items() if k not in {"evaluated_at_real", "semantic_sha256"}}
+            if report.get("semantic_sha256") != sha256_json(semantic):
+                raise ArtifactConflict("Gate A report semantic hash mismatch")
+            if report.get("gate") != "A" or report.get("run_id") != current:
+                raise ArtifactConflict("Gate A report identity mismatch")
+            checks = report.get("checks")
+            if not checks or any(check.get("status") != "PASS" for check in checks):
+                raise ArtifactConflict("Gate A report does not contain passing checks")
+            manifest = load_run_manifest(
+                repo_root, current, check_workspace=check_workspace and current == run_id
+            )
+            if report.get("run_manifest_semantic_sha256") != manifest["semantic_sha256"]:
+                raise ArtifactConflict("Gate A run binding mismatch")
+            lock_path = run_dir / "inputs" / "input_lock.json"
+            lock = read_json(lock_path)
+            lock_semantic = {k: v for k, v in lock.items() if k not in {"created_at_real", "semantic_sha256"}}
+            if lock.get("semantic_sha256") != sha256_json(lock_semantic) or lock.get("status") != "READY":
+                raise ArtifactConflict("Gate A input lock is not intact and ready")
+            if report.get("input_lock_semantic_sha256") != lock["semantic_sha256"]:
+                raise ArtifactConflict("Gate A input lock binding mismatch")
+            verify_stage_manifest(
+                repo_root, current, "inventory", check_workspace=check_workspace and current == run_id
+            )
+            return {"gate": "A", "run_id": current, "semantic_sha256": report["semantic_sha256"]}
+        current = load_run_manifest(repo_root, current, check_workspace=False).get("parent_run_id")
+    raise PermissionError(f"Gate A has not been evaluated for run {run_id}")
 
 
 def evaluate_gate_a(repo_root: Path, run_id: str) -> dict[str, Any]:

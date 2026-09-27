@@ -36,10 +36,8 @@ def _parser() -> argparse.ArgumentParser:
     status.add_argument("--run", required=True)
     extract = commands.add_parser("extract", help="Run offline or local LLM extraction over extracted body variants")
     extract.add_argument("--run", required=True)
-    extract.add_argument("--allow-unverified-gate", action="store_true", help="Allow running extraction without verified Gate A PASS")
     adjudicate = commands.add_parser("adjudicate", help="Adjudicate extracted claims into FactVersions")
     adjudicate.add_argument("--run", required=True)
-    adjudicate.add_argument("--allow-unverified-gate", action="store_true", help="Allow running adjudication without verified Gate A PASS")
     snapshot = commands.add_parser("snapshot", help="Build point-in-time SnapshotEdge and support tables from FactVersions")
     snapshot.add_argument("--run", required=True)
     snapshot.add_argument("--cutoff", default=None, help="Optional ISO8601 cutoff timestamp")
@@ -86,10 +84,10 @@ def main(argv: list[str] | None = None) -> int:
             payload = _status(repo_root, args.run)
             exit_code = 0
         elif args.command == "extract":
-            payload = run_extraction(repo_root, args.run, enforce_gate_a=not args.allow_unverified_gate)
+            payload = run_extraction(repo_root, args.run)
             exit_code = 0
         elif args.command == "adjudicate":
-            payload = run_adjudication(repo_root, args.run, enforce_gate_a=not args.allow_unverified_gate)
+            payload = run_adjudication(repo_root, args.run)
             exit_code = 0
         elif args.command == "snapshot":
             payload = run_snapshot(repo_root, args.run, cutoff_iso=args.cutoff, snapshot_id=args.snapshot_id)

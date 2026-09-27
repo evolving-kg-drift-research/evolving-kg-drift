@@ -121,6 +121,9 @@ def setup_snapshot_io(monkeypatch, tmp_path: Path, rows):
     writes = []
     monkeypatch.setattr(snapshot_runner, "write_parquet_immutable", lambda *args: writes.append(args))
     monkeypatch.setattr(snapshot_runner, "write_yaml_immutable", lambda *args: writes.append(args))
+    monkeypatch.setattr(snapshot_runner, "create_stage_manifest", lambda *args, **kwargs: {})
+    from kg_pipeline import gates
+    monkeypatch.setattr(gates, "require_gate_a", lambda *args, **kwargs: {"gate": "A"})
     return run_dir, writes
 
 

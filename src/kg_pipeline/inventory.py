@@ -26,6 +26,7 @@ from .hashing import (
 from .readiness import raw_input_blockers
 from .reconcile import reconcile_stage_4_3
 from .run import (
+    create_stage_manifest,
     get_run_dir,
     load_run_manifest,
     package_fingerprint,
@@ -762,6 +763,14 @@ def run_inventory(repo_root: Path, run_id: str, *, verify_inputs: bool) -> dict[
         "semantic_sha256": sha256_json(readiness_semantic),
     }
     write_json_immutable(run_dir / "reports" / "input_readiness_report.json", readiness)
+    create_stage_manifest(
+        repo_root, run_id, "inventory",
+        output_artifacts=[
+            {"table": name, "path": str(run_dir / "tables" / f"{name}.parquet"), "count": len(rows)}
+            for name, rows in table_rows.items()
+        ],
+        conservation_metrics={"raw_paths": len(raw_inventory_rows), "retrievals": len(recovery_rows)},
+    )
     append_jsonl(
         run_dir / "logs" / "inventory_operations.jsonl",
         {

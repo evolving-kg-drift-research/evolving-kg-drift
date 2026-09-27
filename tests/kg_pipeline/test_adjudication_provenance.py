@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 
+from kg_pipeline import adjudicate
 from kg_pipeline.adjudicate import run_adjudication
 from kg_pipeline.contracts import make_row
 from kg_pipeline.hashing import stable_id
@@ -12,6 +13,18 @@ from kg_pipeline.storage import write_parquet_immutable
 from temporal.schema import ContractError
 
 RUN_ID = "adjudication_test_run"
+
+
+@pytest.fixture(autouse=True)
+def isolated_provenance_logic(monkeypatch: pytest.MonkeyPatch):
+    """These unit cases exercise provenance rules; artifact-chain cases live separately."""
+    monkeypatch.setattr(
+        adjudicate, "resolve_run_table_path",
+        lambda repo_root, run_id, name: repo_root / "runs" / run_id / "tables" / f"{name}.parquet",
+    )
+    monkeypatch.setattr(adjudicate, "create_stage_manifest", lambda *args, **kwargs: {})
+    from kg_pipeline import gates
+    monkeypatch.setattr(gates, "require_gate_a", lambda *args, **kwargs: {"gate": "A"})
 
 
 def _setup_run(tmp_path: Path, *, with_provenance: bool = True) -> Path:
