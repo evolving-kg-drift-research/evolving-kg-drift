@@ -100,20 +100,43 @@ class LocalOpenAIAdapter(LLMAdapter):
             import openai
         except ImportError:
             raise ImportError("The 'openai' package is required for LocalOpenAIAdapter")
-        self.client = openai.OpenAI(base_url=self.base_url, api_key="local-placeholder")
+        api_key = os.environ.get("OPENAI_API_KEY") or os.environ.get("GEMINI_API_KEY") or "local-placeholder"
+        self.client = openai.OpenAI(base_url=self.base_url, api_key=api_key)
 
     def __call__(self, prompt: str) -> dict[str, Any]:
-        response = self.client.chat.completions.create(
-            model=self.model,
-            temperature=self.temperature,
-            response_format={"type": "json_object"},
-            messages=[
-                {"role": "system", "content": "You are a JSON-only extraction bot."},
-                {"role": "user", "content": prompt}
-            ]
-        )
-        content = response.choices[0].message.content
-        return json.loads(content)
+        max_retries = 10
+        response = None
+        for attempt in range(max_retries):
+            try:
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    temperature=self.temperature,
+                    response_format={"type": "json_object"},
+                    timeout=60.0,
+                    messages=[
+                        {"role": "system", "content": "You are a JSON-only extraction bot."},
+                        {"role": "user", "content": prompt}
+                    ]
+                )
+                break
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    wait_time = 3 * (attempt + 1)
+                    logger.warning(f"Transient error calling local adapter ({type(e).__name__}: {e}). Retrying in {wait_time}s...")
+                    time.sleep(wait_time)
+                    continue
+                raise
+
+        content = response.choices[0].message.content or ""
+        cleaned = content.strip()
+        if cleaned.startswith("```json"):
+            cleaned = cleaned[7:]
+        elif cleaned.startswith("```"):
+            cleaned = cleaned[3:]
+        if cleaned.endswith("```"):
+            cleaned = cleaned[:-3]
+        cleaned = cleaned.strip()
+        return json.loads(cleaned)
 
 
 class GeminiAdapter(LLMAdapter):
@@ -150,12 +173,12 @@ class GeminiAdapter(LLMAdapter):
                 break
             except Exception as e:
                 err_str = f"{type(e).__name__}: {e}"
-                is_transient = any(code in err_str for code in ("503", "429", "UNAVAILABLE", "RESOURCE_EXHAUSTED", "deadline", "RemoteProtocolError", "Connection", "ProtocolError", "http", "socket"))
+                is_transient = any(code in err_str.lower() for code in ("503", "429", "unavailable", "resource_exhausted", "deadline", "remoteprotocolerror", "connection", "protocolerror", "http", "socket", "timeout", "readtimeout", "10060", "connecterror"))
                 if is_transient and attempt < max_retries - 1:
-                    if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
+                    if "429" in err_str or "resource_exhausted" in err_str.lower():
                         wait_time = 30 * (attempt + 1)
                     else:
-                        wait_time = 4 * (attempt + 1)
+                        wait_time = 5 * (attempt + 1)
                     logger.warning(f"Transient Gemini API / Network error ({type(e).__name__}). Retrying in {wait_time}s (attempt {attempt + 1}/{max_retries})...")
                     time.sleep(wait_time)
                     continue
@@ -175,7 +198,7 @@ class GeminiAdapter(LLMAdapter):
 
 def get_llm_adapter(
     mode: str = "hosted",
-    model: str = "gemini-3.1-flash-lite",
+    model: str = "ag/gemini-3.7-flash-low",
     temperature: float = 0.0,
     base_url: str | None = None,
     mock_payload: dict[str, Any] | None = None
@@ -185,7 +208,7 @@ def get_llm_adapter(
         return GeminiAdapter(model=model, temperature=temperature)
     elif mode == "local":
         return LocalOpenAIAdapter(
-            base_url=base_url or "http://localhost:8000/v1",
+            base_url=base_url or "http://localhost:20128/v1",
             model=model,
             temperature=temperature
         )

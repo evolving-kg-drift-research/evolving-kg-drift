@@ -39,10 +39,33 @@ def run_adjudication(repo_root: Path, run_id: str) -> dict[str, Any]:
     config = read_yaml(config_path) if config_path.is_file() else {}
     entity_catalog = config.get("entity_catalog", {})
 
+    # Map body variants to earliest true temporal acquisition/archive time
+    memberships_path = run_dir / "tables" / "document_memberships.parquet"
+    retrievals_path = run_dir / "tables" / "retrievals.parquet"
+    bv_to_time = {}
+    if memberships_path.is_file() and retrievals_path.is_file():
+        import json
+        ret = pq.read_table(retrievals_path)
+        ret_archive = {r["retrieval_id"]: r["archive_datetime"] for r in ret.to_pylist() if r.get("archive_datetime")}
+        ret_retrieved = {r["retrieval_id"]: r["retrieved_at_real"] for r in ret.to_pylist() if r.get("retrieved_at_real")}
+
+        dm = pq.read_table(memberships_path)
+        for r in dm.to_pylist():
+            bv = r["body_variant_id"]
+            ret_ids = json.loads(r["retrieval_ids_json"]) if r["retrieval_ids_json"] else []
+            arch_times = [ret_archive[rid] for rid in ret_ids if rid in ret_archive]
+            if arch_times:
+                bv_to_time[bv] = min(arch_times)
+            else:
+                crawl_times = [ret_retrieved[rid] for rid in ret_ids if rid in ret_retrieved]
+                if crawl_times:
+                    bv_to_time[bv] = min(crawl_times)
+
     table = pq.read_table(extracted_claims_path)
 
     claims = []
     observation_times = {}
+    now_utc = datetime.now(timezone.utc)
 
     for row in table.to_pylist():
         claim = Claim(
@@ -60,7 +83,11 @@ def run_adjudication(repo_root: Path, run_id: str) -> dict[str, Any]:
             is_speculative=row.get("is_speculative", False)
         )
         claims.append(claim)
-        observation_times[claim.claim_id] = datetime.now(timezone.utc)
+        doc_time_str = bv_to_time.get(claim.source_id)
+        if doc_time_str:
+            observation_times[claim.claim_id] = datetime.fromisoformat(doc_time_str)
+        else:
+            observation_times[claim.claim_id] = now_utc
 
         # Fallback entity catalog auto-resolution using sha256
         s_m = claim.subject_mention.strip()

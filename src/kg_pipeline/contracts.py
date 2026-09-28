@@ -175,6 +175,49 @@ TABLE_SCHEMAS: dict[str, pa.Schema] = {
         ("evidence_snippet", S),
         ("filter_version", S),
     ),
+    "kg_events": _schema(
+        ("event_id", S),
+        ("logical_fact_id", S),
+        ("subject_id", S),
+        ("relation_id", S),
+        ("object_id", S),
+        ("event_type", S),
+        ("effective_at", S),
+        ("source_fact_version_ids_json", S),
+        ("evidence_count", INT64),
+    ),
+    "anchor_candidates_prelock": _schema(
+        ("candidate_id", S),
+        ("entity_id", S),
+        ("total_events", INT64),
+        ("distinct_relations", INT64),
+        ("first_seen", S),
+        ("last_seen", S),
+        ("recurrence_score", FLOAT64),
+        ("feasibility_status", S),
+    ),
+    "transition_metadata": _schema(
+        ("transition_id", S),
+        ("snapshot_id", S),
+        ("start_at", S),
+        ("end_at", S),
+        ("duration_days", FLOAT64),
+        ("n_kg_events", INT64),
+        ("edge_additions", INT64),
+        ("edge_removals", INT64),
+        ("changed_logical_facts", INT64),
+    ),
+    "snapshot_facts": _schema(
+        ("fact_version_id", S),
+        ("logical_fact_id", S),
+        ("subject_id", S),
+        ("relation_id", S),
+        ("object_id", S),
+        ("valid_from", S),
+        ("valid_to", S),
+        ("evidence_observed_at", S),
+        ("source_id", S),
+    ),
 }
 
 PRIMARY_KEYS: dict[str, list[str]] = {
@@ -191,6 +234,10 @@ PRIMARY_KEYS: dict[str, list[str]] = {
     "missing_coverage_ledger": ["issue_id"],
     "coverage_ledger": ["coverage_row_id"],
     "filter_decisions": ["decision_id"],
+    "kg_events": ["event_id"],
+    "anchor_candidates_prelock": ["candidate_id"],
+    "transition_metadata": ["transition_id"],
+    "snapshot_facts": ["fact_version_id"],
 }
 
 FOREIGN_KEYS: dict[str, dict[str, tuple[str, str]]] = {
