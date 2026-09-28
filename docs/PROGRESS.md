@@ -1,5 +1,18 @@
 # Tiến độ pipeline
 
+## M1 C3 — 2026-09-28: machine contract và các clock
+
+Đã thêm audit đọc `config/schema.yaml`, chặn đường production khi PyArrow hoặc
+dataclass không tương thích; run lưu version/hash schema. Đã bỏ fallback 2020,
+việc dùng retrieval thay ingestion và suy diễn UTC cho thời gian thiếu timezone.
+Adjudication dừng khi chưa có artifact thời gian Stage 4.10 được duyệt.
+
+Audit thực tế: **BLOCKED, 9/17 bảng lệch contract**. Code/fixture tests: toàn bộ
+194 passed, 10 skipped; bộ C3 cuối cùng 9 passed; Ruff đạt. Đây không phải
+scientific PASS. Cần quyết định schema migration, nguồn clock và đánh giá
+reprocess trước khi triển khai phần còn lại của C3. Xem [báo cáo C3](audit/m1_c3_contract_time.md).
+
+
 ## M1 C2 — 2026-09-28: chuỗi artifact và bàn giao M2
 
 Đã triển khai ArtifactRef và xác minh đệ quy run/stage lineage cho canonical

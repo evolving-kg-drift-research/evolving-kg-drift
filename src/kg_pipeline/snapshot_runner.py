@@ -64,6 +64,8 @@ def run_snapshot(
 ) -> dict[str, Any]:
     from .gates import require_gate_a
     gate_a_ref = require_gate_a(repo_root, run_id)
+    from .contract_authority import require_schema_compatible
+    require_schema_compatible(repo_root, ["fact_versions", "snapshot_edges", "snapshot_edge_support", "snapshot_exclusions"])
     run_dir = get_run_dir(repo_root, run_id)
     (run_dir / "tables").mkdir(parents=True, exist_ok=True)
     (run_dir / "reports").mkdir(parents=True, exist_ok=True)

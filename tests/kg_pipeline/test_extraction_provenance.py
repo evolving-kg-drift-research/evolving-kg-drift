@@ -25,6 +25,8 @@ def isolated_provenance_logic(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(extract, "create_stage_manifest", lambda *args, **kwargs: {})
     from kg_pipeline import gates
     monkeypatch.setattr(gates, "require_gate_a", lambda *args, **kwargs: {"gate": "A"})
+    from kg_pipeline import contract_authority
+    monkeypatch.setattr(contract_authority, "require_schema_compatible", lambda *args, **kwargs: {})
 
 
 def _claim(body_variant_id: str = "bv_test") -> ClaimCandidate:

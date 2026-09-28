@@ -152,6 +152,8 @@ def load_snapshots_from_run(
 
     load_run_manifest(repo_root, run_id)
     gate_a_ref = require_gate_a(repo_root, run_id)
+    from kg_pipeline.contract_authority import require_schema_compatible
+    require_schema_compatible(repo_root, ["fact_versions", "snapshot_edges"])
     run_dir = get_run_dir(repo_root, run_id)
     snapshots_dir = run_dir / "snapshots"
 

@@ -40,6 +40,8 @@ def test_vertical_slice_m1_raw_to_snapshots(tmp_path: Path, monkeypatch):
     from kg_pipeline import gates
     fixture_gate_ref = {"gate": "A", "run_id": "test_vertical_slice_001", "semantic_sha256": "fixture_only"}
     monkeypatch.setattr(gates, "require_gate_a", lambda *args, **kwargs: fixture_gate_ref)
+    from kg_pipeline import contract_authority
+    monkeypatch.setattr(contract_authority, "require_schema_compatible", lambda *args, **kwargs: {})
     run_id = "test_vertical_slice_001"
     run_dir = repo_root / "runs" / run_id
     tables_dir = run_dir / "tables"
@@ -347,6 +349,8 @@ def test_tampered_artifact_halts_downstream(tmp_path: Path, monkeypatch):
     from kg_pipeline import gates
     fixture_gate_ref = {"gate": "A", "run_id": "test_tamper_001", "semantic_sha256": "fixture_only"}
     monkeypatch.setattr(gates, "require_gate_a", lambda *args, **kwargs: fixture_gate_ref)
+    from kg_pipeline import contract_authority
+    monkeypatch.setattr(contract_authority, "require_schema_compatible", lambda *args, **kwargs: {})
     run_id = "test_tamper_001"
     run_dir = repo_root / "runs" / run_id
     snap_dir = run_dir / "snapshots" / "S2020"

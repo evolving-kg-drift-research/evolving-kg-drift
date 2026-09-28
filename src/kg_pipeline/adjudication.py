@@ -10,13 +10,12 @@ def parse_extracted_date(date_str: str | None, default: datetime | None = None) 
     if not date_str:
         return default
     try:
-        # Assuming date_str is in ISO format
         dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
-        return dt
-    except ValueError:
-        return default
+    except ValueError as exc:
+        raise ValueError(f"Invalid extracted validity timestamp: {date_str}") from exc
+    if dt.tzinfo is None or dt.utcoffset() is None:
+        raise ValueError("Extracted validity timestamp requires an explicit timezone")
+    return dt
 
 def fuzzy_match_entity(mention: str, catalog: dict[str, str]) -> str | None:
     """Fuzzy matching to find entities in the catalog."""
@@ -58,6 +57,11 @@ def adjudicate_claims(
     """
     accepted = []
     review_queue = []
+    if ingested_at.tzinfo is None or ingested_at.utcoffset() is None:
+        raise ValueError("ingested_at_real requires an independent timezone-aware event")
+    for claim_id, observed_at in observation_times.items():
+        if observed_at.tzinfo is None or observed_at.utcoffset() is None:
+            raise ValueError(f"evidence_observed_at requires an explicit timezone: {claim_id}")
 
     latest_by_logical_id: dict[str, FactVersion] = {}
     if existing_facts:
@@ -135,14 +139,7 @@ def adjudicate_claims(
             resolved_source_id = primary_src.get("publisher_source_id") or bv_id
             resolved_source_url = primary_src.get("source_url") or f"internal://{bv_id}"
 
-            # Resolve actual acquisition timestamp (A08)
             fact_ingested_at = ingested_at
-            if primary_src.get("retrieved_at_real"):
-                try:
-                    dt_ing = datetime.fromisoformat(primary_src["retrieved_at_real"])
-                    fact_ingested_at = dt_ing if dt_ing.tzinfo else dt_ing.replace(tzinfo=timezone.utc)
-                except (ValueError, TypeError):
-                    pass
         else:
             is_trusted = claim.source_id in WHITELIST_SOURCES
             resolved_source_id = claim.source_id

@@ -23,6 +23,8 @@ def run_extraction(repo_root: Path, run_id: str) -> dict[str, Any]:
 
     from .gates import require_gate_a
     gate_a_ref = require_gate_a(repo_root, run_id)
+    from .contract_authority import require_schema_compatible
+    require_schema_compatible(repo_root, ["claims", "claim_provenance"])
 
     body_variants_path = resolve_run_table_path(repo_root, run_id, "body_variants")
     if not body_variants_path.is_file():

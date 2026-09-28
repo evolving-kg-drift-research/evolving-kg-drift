@@ -16,12 +16,14 @@ from .storage import read_json
 from .extract import run_extraction
 from .adjudicate import run_adjudication
 from .snapshot_runner import run_snapshot
+from .contract_authority import audit_machine_contract
 
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="kg_pipeline", description="Evidence-first Data/KG rebuild controls")
     parser.add_argument("--repo-root", type=Path, help="Repository root; defaults to the current repository")
     commands = parser.add_subparsers(dest="command", required=True)
+    commands.add_parser("audit-schema", help="Compare config/schema.yaml with PyArrow and dataclasses")
     init = commands.add_parser("init-run", help="Create a new immutable run namespace")
     init.add_argument("--run", required=True)
     init.add_argument("--mode", required=True, choices=("inventory", "extraction", "adjudication", "snapshot", "kge", "drift"))
@@ -71,7 +73,10 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         repo_root = _root(args.repo_root)
-        if args.command == "init-run":
+        if args.command == "audit-schema":
+            payload = audit_machine_contract(repo_root)
+            exit_code = 0 if payload["status"] == "PASS" else 2
+        elif args.command == "init-run":
             payload = init_run(repo_root, args.run, mode=args.mode, parent_run_id=args.parent_run)
             exit_code = 0
         elif args.command == "inventory":

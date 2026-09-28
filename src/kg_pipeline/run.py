@@ -8,6 +8,7 @@ from typing import Any
 
 from .baseline import inspect_config_approval, inspect_source_lock
 from .contracts import CONTRACT_VERSION
+from .contract_authority import load_machine_contract
 from .hashing import repo_relative, sha256_file, sha256_json, utc_now_iso
 from .storage import ArtifactConflict, read_yaml, verify_parquet_artifact, write_yaml_immutable
 
@@ -77,6 +78,18 @@ def config_fingerprints(repo_root: Path) -> list[dict[str, Any]]:
             }
         )
     return records
+
+
+def machine_schema_identity(repo_root: Path) -> dict[str, Any]:
+    path = repo_root / "config" / "schema.yaml"
+    if not path.is_file():
+        return {"status": "MISSING", "schema_version": None, "physical_sha256": None}
+    document = load_machine_contract(repo_root)
+    return {
+        "status": "PRESENT",
+        "schema_version": document["schema_version"],
+        "physical_sha256": sha256_file(path),
+    }
 
 
 def _bundle_payload(repo_root: Path) -> dict[str, Any]:
@@ -153,6 +166,7 @@ def _bundle_payload(repo_root: Path) -> dict[str, Any]:
 
     semantic = {
         "bundle_version": "ticket_a_proposed_baseline_v3",
+        "machine_schema": machine_schema_identity(repo_root),
         **inspect_config_approval(repo_root, candidate_files),
         "candidate_files": candidate_files,
         "resolved_config": resolved_config,
@@ -213,6 +227,7 @@ def init_run(
         "run_id": run_id,
         "mode": mode,
         "pipeline_contract_version": "ticket_a_v1",
+        "machine_schema": machine_schema_identity(repo_root),
         "raw_input_roots": ["data/raw/stage_4_4"],
         "upstream_stage_4_3_run": "data/stage_4_3_runs/stage4_3_final_20260906T144016Z",
         "code_fingerprint_sha256": package_fingerprint(repo_root),

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from datetime import date, datetime, timezone
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -446,9 +446,11 @@ def evaluate_m1_structure(repo_root: Path, run_id: str) -> dict[str, Any]:
                 if not cutoff_raw:
                     continue
                 if isinstance(cutoff_raw, datetime):
-                    cutoff_dt = cutoff_raw if cutoff_raw.tzinfo else cutoff_raw.replace(tzinfo=timezone.utc)
+                    cutoff_dt = cutoff_raw
                 else:
                     cutoff_dt = datetime.fromisoformat(str(cutoff_raw).replace("Z", "+00:00"))
+                if cutoff_dt.tzinfo is None or cutoff_dt.utcoffset() is None:
+                    raise ValueError("snapshot cutoff lacks an explicit timezone")
                 # Check edges against support
                 supp_p = snap_dir / "snapshot_edge_support.parquet"
                 if supp_p.is_file():
@@ -461,8 +463,8 @@ def evaluate_m1_structure(repo_root: Path, run_id: str) -> dict[str, Any]:
                             f_obs = f_match.get("evidence_observed_at")
                             if f_obs:
                                 f_obs_dt = f_obs if isinstance(f_obs, datetime) else datetime.fromisoformat(str(f_obs).replace("Z", "+00:00"))
-                                if f_obs_dt.tzinfo is None:
-                                    f_obs_dt = f_obs_dt.replace(tzinfo=timezone.utc)
+                                if f_obs_dt.tzinfo is None or f_obs_dt.utcoffset() is None:
+                                    raise ValueError(f"fact {f_vid} observation lacks an explicit timezone")
                                 if f_obs_dt > cutoff_dt:
                                     future_errors.append(f"Snapshot {snap_dir.name} has fact {f_vid} with obs {f_obs} > cutoff {cutoff_dt.isoformat()}")
 
@@ -480,8 +482,8 @@ def evaluate_m1_structure(repo_root: Path, run_id: str) -> dict[str, Any]:
                         m_avail = erow.get("mapping_available_at")
                         if m_avail:
                             m_dt = m_avail if isinstance(m_avail, datetime) else datetime.fromisoformat(str(m_avail).replace("Z", "+00:00"))
-                            if m_dt.tzinfo is None:
-                                m_dt = m_dt.replace(tzinfo=timezone.utc)
+                            if m_dt.tzinfo is None or m_dt.utcoffset() is None:
+                                raise ValueError("entity mapping availability lacks an explicit timezone")
                             if m_dt > cutoff_dt:
                                 future_mappings[erow.get("canonical_entity_id")] = erow.get("mention")
 

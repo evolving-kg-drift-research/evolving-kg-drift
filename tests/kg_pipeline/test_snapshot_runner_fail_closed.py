@@ -124,6 +124,8 @@ def setup_snapshot_io(monkeypatch, tmp_path: Path, rows):
     monkeypatch.setattr(snapshot_runner, "create_stage_manifest", lambda *args, **kwargs: {})
     from kg_pipeline import gates
     monkeypatch.setattr(gates, "require_gate_a", lambda *args, **kwargs: {"gate": "A"})
+    from kg_pipeline import contract_authority
+    monkeypatch.setattr(contract_authority, "require_schema_compatible", lambda *args, **kwargs: {})
     return run_dir, writes
 
 

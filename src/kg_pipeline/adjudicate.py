@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -19,11 +19,23 @@ from temporal.schema import Claim, ContractError
 
 logger = logging.getLogger(__name__)
 
+
+def _approved_temporal_inputs(run_dir: Path, claims: list[Claim]) -> tuple[dict[str, datetime], datetime]:
+    """Stage 4.10 has no verified artifact contract in the current repository."""
+    raise ContractError(
+        "Adjudication is blocked: approved evidence_observed_at, evidence_time_basis, "
+        "evidence_time_confidence and independent ingested_at_real inputs are unavailable; "
+        "retrieved_at_real or archive_datetime cannot substitute for those clocks. "
+        f"Run {run_dir.name} has {len(claims)} claims awaiting temporal normalization."
+    )
+
 def run_adjudication(repo_root: Path, run_id: str) -> dict[str, Any]:
     run_dir = get_run_dir(repo_root, run_id)
 
     from .gates import require_gate_a
     gate_a_ref = require_gate_a(repo_root, run_id)
+    from .contract_authority import require_schema_compatible
+    require_schema_compatible(repo_root, ["fact_versions", "adjudication_decisions", "entity_mapping_versions"])
 
     extracted_claims_path = resolve_run_table_path(repo_root, run_id, "extracted_claims")
     if not extracted_claims_path.is_file():
@@ -122,9 +134,8 @@ def run_adjudication(repo_root: Path, run_id: str) -> dict[str, Any]:
     if actual_by_id != expected_by_id:
         raise ContractError("claim_provenance does not match extracted claim IDs and upstream provenance links.")
 
-    # Map retrievals to resolve observation times and ingestion times
+    # Keep source links separate from the temporal-normalization decision.
     retrieval_by_id = {r["retrieval_id"]: r for r in retrieval_rows if r.get("retrieval_id")}
-    claim_to_retrieval: dict[str, dict[str, Any]] = {}
     body_to_sources: dict[str, list[dict[str, Any]]] = {}
     claim_by_id = {c.claim_id: c for c in claims}
 
@@ -132,8 +143,6 @@ def run_adjudication(repo_root: Path, run_id: str) -> dict[str, Any]:
         cid = prov.get("claim_id")
         r_id = prov.get("retrieval_id")
         r = retrieval_by_id.get(r_id) if r_id else None
-        if r and cid:
-            claim_to_retrieval[cid] = r
         c = claim_by_id.get(cid) if cid else None
         if c:
             body_to_sources.setdefault(c.body_variant_id, []).append({
@@ -142,39 +151,7 @@ def run_adjudication(repo_root: Path, run_id: str) -> dict[str, Any]:
                 "retrieved_at_real": r.get("retrieved_at_real") if r else None,
             })
 
-    observation_times: dict[str, datetime] = {}
-    for c in claims:
-        r = claim_to_retrieval.get(c.claim_id)
-        if r:
-            obs_raw = r.get("recorded_event_at") or r.get("archive_datetime")
-            if obs_raw:
-                try:
-                    dt_obs = datetime.fromisoformat(obs_raw.replace("Z", "+00:00"))
-                    if dt_obs.tzinfo is None:
-                        dt_obs = dt_obs.replace(tzinfo=timezone.utc)
-                    observation_times[c.claim_id] = dt_obs
-                except Exception:
-                    pass
-
-    # No approved input currently supplies evidence_observed_at or an independent
-    # ingestion event. Retrieval timestamps are project provenance, not known-time.
-    if claims and not any(observation_times.values()):
-        raise ContractError(
-            "Adjudication is blocked: approved evidence_observed_at and ingested_at_real inputs "
-            "are unavailable; retrieved_at_real cannot substitute for either field."
-        )
-
-    # Determine deterministic ingestion timestamp from retrieval inputs
-    retrieval_times = []
-    for r in retrieval_rows:
-        r_dt_str = r.get("retrieved_at_real")
-        if r_dt_str:
-            try:
-                r_dt = datetime.fromisoformat(r_dt_str.replace("Z", "+00:00"))
-                retrieval_times.append(r_dt if r_dt.tzinfo else r_dt.replace(tzinfo=timezone.utc))
-            except Exception:
-                pass
-    ingested_at = max(retrieval_times) if retrieval_times else datetime(2020, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+    observation_times, ingested_at = _approved_temporal_inputs(run_dir, claims)
 
     accepted, review_queue = adjudicate_claims(
         claims=claims,
@@ -245,8 +222,9 @@ def run_adjudication(repo_root: Path, run_id: str) -> dict[str, Any]:
     catalog_available_at = (
         config.get("entity_catalog_available_at")
         or res_cfg.get("entity_catalog_available_at")
-        or ingested_at.isoformat()
     )
+    if entity_catalog and not catalog_available_at:
+        raise ContractError("Entity catalog mapping_available_at needs independent provenance")
     entity_mapping_rows = []
     for idx, (mention, canonical_id) in enumerate(sorted(entity_catalog.items())):
         entity_mapping_rows.append({

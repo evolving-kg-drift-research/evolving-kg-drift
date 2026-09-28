@@ -121,17 +121,17 @@ class FactVersion:
     evidence_time_source: str = ""
 
     def __post_init__(self):
-        if self.valid_from is not None and self.valid_from.tzinfo is None:
+        if self.valid_from is not None and (self.valid_from.tzinfo is None or self.valid_from.utcoffset() is None):
             raise ContractError("valid_from must be timezone-aware.")
-        if self.valid_to is not None and self.valid_to.tzinfo is None:
+        if self.valid_to is not None and (self.valid_to.tzinfo is None or self.valid_to.utcoffset() is None):
             raise ContractError("valid_to must be timezone-aware.")
         if self.evidence_span_start is None or self.evidence_span_end is None:
             raise ContractError("FactVersion requires evidence span offsets.")
         if self.valid_from is not None and self.valid_to is not None and self.valid_from >= self.valid_to:
             raise ContractError("valid_from must be strictly before valid_to if valid_to is set.")
-        if self.evidence_observed_at.tzinfo is None:
+        if self.evidence_observed_at.tzinfo is None or self.evidence_observed_at.utcoffset() is None:
             raise ContractError("evidence_observed_at must be timezone-aware.")
-        if self.ingested_at_real.tzinfo is None:
+        if self.ingested_at_real.tzinfo is None or self.ingested_at_real.utcoffset() is None:
             raise ContractError("ingested_at_real must be timezone-aware.")
         if self.evidence_text_hash in ("placeholder_hash", "placeholder", ""):
             raise ContractError("FactVersion rejects fabricated placeholder evidence text hash.")
@@ -152,6 +152,5 @@ class EntityMappingVersion:
     mapping_confidence: float = 1.0
 
     def __post_init__(self):
-        if self.mapping_available_at.tzinfo is None:
+        if self.mapping_available_at.tzinfo is None or self.mapping_available_at.utcoffset() is None:
             raise ContractError("mapping_available_at must be timezone-aware.")
-

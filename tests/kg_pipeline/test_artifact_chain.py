@@ -161,6 +161,8 @@ def test_m2_requires_snapshot_manifest_and_exact_requested_id(tmp_path, monkeypa
     from kg_pipeline import gates
     fixture_gate_ref = {"gate": "A", "run_id": run_id, "semantic_sha256": "fixture_only"}
     monkeypatch.setattr(gates, "require_gate_a", lambda *args, **kwargs: fixture_gate_ref)
+    from kg_pipeline import contract_authority
+    monkeypatch.setattr(contract_authority, "require_schema_compatible", lambda *args, **kwargs: {})
     create_stage_manifest(tmp_path, run_id, "snapshot_stage", output_artifacts=[
         {"table": "snapshot_edges", "path": str(path)}
     ], gate_a_ref=fixture_gate_ref)
