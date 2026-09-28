@@ -12,6 +12,14 @@ Audit thực tế: **BLOCKED, 9/17 bảng lệch contract**. Code/fixture tests:
 scientific PASS. Cần quyết định schema migration, nguồn clock và đánh giá
 reprocess trước khi triển khai phần còn lại của C3. Xem [báo cáo C3](audit/m1_c3_contract_time.md).
 
+Đối chiếu đọc lại tại `922e319` ngày 2026-09-28 xác nhận audit còn BLOCKED ở 9/17
+bảng (schema version `1.0.0`, SHA-256
+`48ad42f86088ae0e9ca8b8cbb158017bf8ec14e0d450fdeff523bf59e6902840`). Hồ sơ
+quyết định C3 đã được lập để xin duyệt tên/kiểu contract, căn cứ clock và phạm
+vi reprocess; đây chưa phải quyết định được duyệt và chưa được ghi vào decision
+log. Xem [hồ sơ quyết định C3](audit/m1_c3_decision_package.md). C3 tiếp tục
+BLOCKED; không mở production adjudication hoặc snapshot.
+
 
 ## M1 C2 — 2026-09-28: chuỗi artifact và bàn giao M2
 
