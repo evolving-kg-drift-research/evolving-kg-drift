@@ -6,7 +6,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import yaml
 
-from temporal.schema import FactVersion
+from temporal.schema import ContractError, FactVersion
 from temporal.snapshot import (
     SnapshotEdge,
     SnapshotEdgeSupport,
@@ -61,9 +61,11 @@ def test_snapshot_hash_semantics_unification(tmp_path: Path):
         support_records=support,
         exclusions=exclusions,
         fact_versions=[fv1],
-        entity_mapping_hash="ent_map_hash_1",
-        resolved_config_hash="cfg_hash_1",
-        code_fingerprint="code_fp_1",
+        entity_mapping_hash="1" * 64,
+        resolved_config_hash="2" * 64,
+        boundary_hash="3" * 64,
+        code_fingerprint="4" * 64,
+        accepted_at_by_fact_id={"fv1": dt(2022, 1, 3)},
     )
 
     assert manifest.snapshot_id == "S_2023"
@@ -75,6 +77,14 @@ def test_snapshot_hash_semantics_unification(tmp_path: Path):
     assert len(manifest.snapshot_manifest_hash) == 64
     assert manifest.edge_count == 1
     assert manifest.support_count == 1
+
+
+def test_snapshot_manifest_rejects_unbound_dependency_defaults():
+    with pytest.raises(ContractError, match="verified SHA-256 entity_mapping_hash"):
+        create_snapshot_manifest(
+            snapshot_id="draft", cutoff=dt(2023, 1, 1), edges=[],
+            support_records=[], exclusions=[],
+        )
 
 
 def test_kge_adapter_verifies_snapshot_manifest_and_detects_tamper(tmp_path: Path):
@@ -91,17 +101,24 @@ def test_kge_adapter_verifies_snapshot_manifest_and_detects_tamper(tmp_path: Pat
         edges=[edge],
         support_records=[supp],
         exclusions=[],
+        entity_mapping_hash="1" * 64,
+        resolved_config_hash="2" * 64,
+        boundary_hash="3" * 64,
+        code_fingerprint="4" * 64,
     )
 
     # Write snapshot_manifest.yaml
     manifest_dict = {
         "snapshot_id": manifest.snapshot_id,
+        "snapshot_builder_version": manifest.snapshot_builder_version,
         "cutoff": manifest.cutoff,
         "graph_semantic_hash": manifest.graph_semantic_hash,
         "support_semantic_hash": manifest.support_semantic_hash,
         "fact_store_hash": manifest.fact_store_hash,
+        "accepted_clock_hash": manifest.accepted_clock_hash,
         "entity_mapping_hash": manifest.entity_mapping_hash,
         "resolved_config_hash": manifest.resolved_config_hash,
+        "boundary_hash": manifest.boundary_hash,
         "code_fingerprint": manifest.code_fingerprint,
         "edge_count": manifest.edge_count,
         "support_count": manifest.support_count,

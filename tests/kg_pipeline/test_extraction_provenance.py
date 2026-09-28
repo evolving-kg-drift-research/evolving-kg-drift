@@ -8,7 +8,8 @@ import pytest
 
 from kg_pipeline import extract
 from kg_pipeline.contracts import make_row
-from kg_pipeline.storage import write_parquet_immutable
+from kg_pipeline.hashing import sha256_text
+from kg_pipeline.storage import write_parquet_immutable, write_yaml_immutable
 from temporal.schema import ClaimCandidate, ContractError
 
 
@@ -46,6 +47,19 @@ def _setup_run(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, *, claims=None) 
     run_dir = tmp_path / "runs" / RUN_ID
     tables = run_dir / "tables"
     tables.mkdir(parents=True)
+    inputs = run_dir / "inputs"
+    inputs.mkdir(parents=True)
+    write_yaml_immutable(inputs / "proposed_config_bundle.yaml", {
+        "scientific_locked": False,
+        "resolved_config": {
+            "ontology": {"relations": {"is_CEO_of": {}}},
+            "llm_adapter": {
+                "type": "offline_mock",
+                "model": "offline_mock",
+                "temperature": 0.0,
+            },
+        },
+    })
     body_path = run_dir / "body_blobs" / "body.txt"
     body_path.parent.mkdir()
     body_path.write_text("Alpha is CEO of Beta", encoding="utf-8")
@@ -55,7 +69,7 @@ def _setup_run(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, *, claims=None) 
         [make_row(
             "body_variants",
             body_variant_id="bv_test",
-            body_text_sha256="a" * 64,
+            body_text_sha256=sha256_text("Alpha is CEO of Beta"),
             body_blob_relative_path="body_blobs/body.txt",
             parser_version="parser-v1",
             parser_fingerprint_sha256="b" * 64,

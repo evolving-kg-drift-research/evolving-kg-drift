@@ -469,10 +469,10 @@ def evaluate_m1_structure(repo_root: Path, run_id: str) -> dict[str, Any]:
                                     future_errors.append(f"Snapshot {snap_dir.name} has fact {f_vid} with obs {f_obs} > cutoff {cutoff_dt.isoformat()}")
 
                 # Check point-in-time entity resolution: no future entity mappings in snapshot
-                ent_path = run_dir / "tables" / "entity_mappings.parquet"
+                ent_path = run_dir / "tables" / "entity_mapping_versions.parquet"
                 if not ent_path.is_file():
                     try:
-                        ent_path = resolve_run_table_path(repo_root, run_id, "entity_mappings")
+                        ent_path = resolve_run_table_path(repo_root, run_id, "entity_mapping_versions")
                     except Exception:
                         pass
                 if ent_path.is_file():

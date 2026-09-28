@@ -173,8 +173,13 @@ def test_m2_requires_snapshot_manifest_and_exact_requested_id(tmp_path, monkeypa
     with pytest.raises(ValueError, match="verified manifests"):
         load_snapshots_from_run(tmp_path, run_id, verify_manifest=False)
     semantic = {"snapshot_id": "S1", "cutoff": "2020-01-01T00:00:00+00:00",
-                "graph_semantic_hash": hashlib.sha256(b"s\tr\to\n").hexdigest(), "edge_count": 1}
+                "graph_semantic_hash": hashlib.sha256(b"s\tr\to\n").hexdigest(), "edge_count": 1,
+                "snapshot_builder_version": "snapshot-builder-bitemporal-v2",
+                "fact_store_hash": "1" * 64, "accepted_clock_hash": "2" * 64,
+                "entity_mapping_hash": "3" * 64, "resolved_config_hash": "4" * 64,
+                "boundary_hash": "5" * 64, "code_fingerprint": "6" * 64}
     report = {**semantic, "created_at_real": "2026-01-01T00:00:00+00:00",
               "snapshot_manifest_hash": hashlib.sha256(json.dumps(semantic, sort_keys=True).encode()).hexdigest()}
     (path.parent / "snapshot_manifest.yaml").write_text(yaml.safe_dump(report), encoding="utf-8")
-    assert len(load_snapshots_from_run(tmp_path, run_id, ["S1"])["S1"].triples) == 1
+    with pytest.raises(PermissionError, match="scientific_locked"):
+        load_snapshots_from_run(tmp_path, run_id, ["S1"])

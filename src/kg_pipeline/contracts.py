@@ -241,7 +241,7 @@ TABLE_SCHEMAS: dict[str, pa.Schema] = {
         ("field", S),
         ("detail", S),
     ),
-    "entity_mappings": _schema(
+    "entity_mapping_versions": _schema(
         ("entity_mapping_id", S),
         ("mention", S),
         ("canonical_entity_id", S),
@@ -282,7 +282,7 @@ PRIMARY_KEYS: dict[str, list[str]] = {
     "snapshot_edges": ["edge_id"],
     "snapshot_edge_support": ["support_id"],
     "snapshot_exclusions": ["exclusion_id"],
-    "entity_mappings": ["entity_mapping_id"],
+    "entity_mapping_versions": ["entity_mapping_id"],
     "adjudication_decisions": ["decision_id"],
 }
 
@@ -328,7 +328,7 @@ FOREIGN_KEYS: dict[str, dict[str, tuple[str, str]]] = {
         "source_version_id": ("source_versions", "source_version_id"),
     },
     "snapshot_exclusions": {},
-    "entity_mappings": {},
+    "entity_mapping_versions": {},
     "adjudication_decisions": {
         "claim_id": ("extracted_claims", "claim_id"),
     },

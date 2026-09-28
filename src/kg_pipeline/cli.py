@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from .gates import evaluate_gate_a, latest_gate_a_report
+from .gates import evaluate_gate_a, evaluate_scientific_gate, latest_gate_a_report
 from .hashing import find_repo_root
 from .inventory import run_inventory
 from .run import get_run_dir, init_run, load_run_manifest
@@ -28,12 +28,22 @@ def _parser() -> argparse.ArgumentParser:
     init.add_argument("--run", required=True)
     init.add_argument("--mode", required=True, choices=("inventory", "extraction", "adjudication", "snapshot", "kge", "drift"))
     init.add_argument("--parent-run", default=None, help="Optional parent run ID for lineage and artifact resolution")
+    init.add_argument(
+        "--scientific-locked", action="store_true",
+        help="Bind the run to locked scientific replay mode (requires a frozen baseline)",
+    )
     inventory = commands.add_parser("inventory", help="Read raw input and write Ticket A artifacts")
     inventory.add_argument("--run", required=True)
     inventory.add_argument("--verify-inputs", action="store_true", help="Reconcile the upstream Stage 4.3 evidence before inventory")
     verify = commands.add_parser("verify", help="Evaluate the persisted Ticket A readiness gate")
     verify.add_argument("--run", required=True)
     verify.add_argument("--gate", required=True, choices=("A",))
+    scientific = commands.add_parser(
+        "verify-scientific",
+        help="Evaluate artifact-backed G1/G2 certification for an explicit run",
+    )
+    scientific.add_argument("--run", required=True)
+    scientific.add_argument("--gate", required=True, choices=("G1", "G2"))
     status = commands.add_parser("status", help="Show persisted run/input/gate status")
     status.add_argument("--run", required=True)
     extract = commands.add_parser("extract", help="Run offline or local LLM extraction over extracted body variants")
@@ -77,13 +87,19 @@ def main(argv: list[str] | None = None) -> int:
             payload = audit_machine_contract(repo_root)
             exit_code = 0 if payload["status"] == "PASS" else 2
         elif args.command == "init-run":
-            payload = init_run(repo_root, args.run, mode=args.mode, parent_run_id=args.parent_run)
+            payload = init_run(
+                repo_root, args.run, mode=args.mode, parent_run_id=args.parent_run,
+                scientific_locked=args.scientific_locked,
+            )
             exit_code = 0
         elif args.command == "inventory":
             payload = run_inventory(repo_root, args.run, verify_inputs=args.verify_inputs)
             exit_code = 0
         elif args.command == "verify":
             payload = evaluate_gate_a(repo_root, args.run)
+            exit_code = 0 if payload["status"] == "PASS" else 2
+        elif args.command == "verify-scientific":
+            payload = evaluate_scientific_gate(repo_root, args.run, args.gate)
             exit_code = 0 if payload["status"] == "PASS" else 2
         elif args.command == "status":
             payload = _status(repo_root, args.run)

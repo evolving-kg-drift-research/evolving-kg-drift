@@ -13,8 +13,11 @@ run records the YAML schema version and physical hash in its manifest and
 proposed config bundle. Reusing a run after schema bytes change is rejected.
 
 The actual repository audit is **BLOCKED: 9 of 17 declared tables differ**.
-`retrievals` and `snapshot_edges` match; `claims` and
-`entity_mapping_versions` have no corresponding runtime table;
+`retrievals` and `snapshot_edges` match; `claims` still have no corresponding
+runtime table. The runtime table is now named `entity_mapping_versions` to match
+the authoritative specification, but it still uses `mention` where the
+contract declares `mention_id`; this mapping table remains blocked until stable
+mention identity is represented end to end.
 `adjudication_decisions` and `fact_versions` omit required fields. In
 `fact_versions`, `accepted_into_kg_at` is absent from both PyArrow and the
 dataclass, while runtime `ingested_at_real` is not declared in the YAML table.

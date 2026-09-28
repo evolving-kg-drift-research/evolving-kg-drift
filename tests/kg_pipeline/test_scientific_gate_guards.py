@@ -3,6 +3,7 @@
 import pytest
 
 from kg_pipeline.gates import evaluate_scientific_gate
+from kg_pipeline.cli import main as cli_main
 from kg_pipeline.quality import evaluate_quality
 from kg_pipeline.run import init_run
 from kg_pipeline.storage import write_json_immutable
@@ -40,6 +41,12 @@ def test_empty_quality_is_unavailable():
     assert report["status"] == "BLOCKED"
     assert report["error_rate"] is None
     assert report["reason"] == "NO_EVALUATED_RECORDS"
+
+
+@pytest.mark.parametrize("gate", ["G1", "G2"])
+def test_scientific_cli_requires_explicit_run_and_keeps_blocked_exit(tmp_path, capsys, gate):
+    assert cli_main(["--repo-root", str(tmp_path), "verify-scientific", "--run", "missing_run", "--gate", gate]) == 2
+    assert '"status": "BLOCKED"' in capsys.readouterr().out
 
 
 def test_unmatched_gold_does_not_disappear():

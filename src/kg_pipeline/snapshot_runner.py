@@ -13,11 +13,17 @@ import pyarrow.parquet as pq
 
 from .claims import resolve_claim_provenance
 from .contracts import CONTRACT_VERSION
-from .hashing import stable_id, utc_now_iso
-from .run import create_stage_manifest, get_run_dir, resolve_run_table_path
+from .hashing import sha256_json, stable_id, utc_now_iso
+from .run import create_stage_manifest, get_run_dir, load_run_manifest, resolve_run_table_path
+from .locked_mode import scientific_locked_flag, validate_locked_baseline
+from temporal.schema import ContractError
 from .storage import read_yaml, write_parquet_immutable, write_yaml_immutable
 from temporal.schema import ClaimCandidate, EntityMappingVersion, FactVersion
-from temporal.snapshot import build_snapshot_edges_and_support, create_snapshot_manifest
+from temporal.snapshot import (
+    build_snapshot_edges_and_support,
+    compute_entity_mapping_hash,
+    create_snapshot_manifest,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -62,11 +68,39 @@ def run_snapshot(
     cutoff_iso: str | None = None,
     snapshot_id: str | None = None,
 ) -> dict[str, Any]:
+    run_dir = get_run_dir(repo_root, run_id)
+    config_path = run_dir / "inputs" / "proposed_config_bundle.yaml"
+    config = read_yaml(config_path) if config_path.is_file() else {}
+    locked_mode = scientific_locked_flag(config)
+    run_manifest = load_run_manifest(repo_root, run_id) if locked_mode else None
+    boundary_config = config.get("resolved_config", {}).get("snapshot_boundaries")
+    if locked_mode:
+        assert run_manifest is not None
+        validate_locked_baseline(config, run_manifest)
+        if not isinstance(boundary_config, dict) or not boundary_config.get("policy_version") or not isinstance(
+            boundary_config.get("snapshots"), list
+        ):
+            raise ContractError(
+                "Scientific locked snapshot requires approved snapshot boundaries and tie policy."
+            )
+        if not cutoff_iso:
+            raise ContractError("Scientific locked snapshot requires an explicit frozen boundary selection.")
+        if not any(
+            row.get("id") == snapshot_id and row.get("cutoff") == cutoff_iso
+            for row in boundary_config["snapshots"]
+        ):
+            raise ContractError("Requested snapshot cutoff is not one of the frozen approved boundaries.")
+
     from .gates import require_gate_a
     gate_a_ref = require_gate_a(repo_root, run_id)
     from .contract_authority import require_schema_compatible
-    require_schema_compatible(repo_root, ["fact_versions", "snapshot_edges", "snapshot_edge_support", "snapshot_exclusions"])
-    run_dir = get_run_dir(repo_root, run_id)
+    require_schema_compatible(
+        repo_root,
+        [
+            "fact_versions", "snapshot_edges", "snapshot_edge_support",
+            "snapshot_exclusions", "entity_mapping_versions",
+        ],
+    )
     (run_dir / "tables").mkdir(parents=True, exist_ok=True)
     (run_dir / "reports").mkdir(parents=True, exist_ok=True)
 
@@ -78,6 +112,7 @@ def run_snapshot(
     table = pq.read_table(fact_versions_path)
     fact_rows = table.to_pylist()
     facts: list[FactVersion] = []
+    accepted_at_by_fact_id: dict[str, datetime] = {}
     fact_id_by_claim: dict[str, str] = {}
     claim_ids_by_fact: dict[str, list[str]] = {}
 
@@ -108,6 +143,12 @@ def run_snapshot(
             raise ValueError("Missing required snapshot field: entity_map_version")
 
         fact_version_id = _required(row, "fact_version_id")
+        logical_fact_id = _required(row, "logical_fact_id")
+        subject_id = _required(row, "subject_id")
+        relation_id = _required(row, "relation_id")
+        object_id = _required(row, "object_id")
+        revision_type = _required(row, "revision_type")
+        adjudication_status = _required(row, "adjudication_status")
         supporting_claim_ids = row.get("supporting_claim_ids")
         if isinstance(supporting_claim_ids, str):
             try:
@@ -128,16 +169,16 @@ def run_snapshot(
         facts.append(
             FactVersion(
                 fact_version_id=fact_version_id,
-                logical_fact_id=_required(row, "logical_fact_id"),
-                subject_id=_required(row, "subject_id"),
-                relation_id=_required(row, "relation_id"),
-                object_id=_required(row, "object_id"),
+                logical_fact_id=logical_fact_id,
+                subject_id=subject_id,
+                relation_id=relation_id,
+                object_id=object_id,
                 valid_from=valid_from,
                 valid_to=valid_to,
                 evidence_observed_at=ev_obs,
                 ingested_at_real=ing_dt,
                 supersedes_version_id=row.get("supersedes_version_id"),
-                revision_type=_required(row, "revision_type"),
+                revision_type=revision_type,
                 source_id=source_id,
                 source_url=source_url,
                 evidence_span_start=span_start,
@@ -146,7 +187,7 @@ def run_snapshot(
                 extractor_version=row["extractor_version"],
                 entity_map_version=row["entity_map_version"],
                 confidence=row.get("confidence"),
-                adjudication_status=_required(row, "adjudication_status"),
+                adjudication_status=adjudication_status,
                 supporting_claim_ids=tuple(supporting_claim_ids),
             )
         )
@@ -294,6 +335,20 @@ def run_snapshot(
                 f"{sorted(extra_claim_ids)}"
             )
 
+    # Acceptance is an independent clock. Validate it after the complete
+    # upstream provenance chain so malformed lineage is never masked by a
+    # missing temporal-policy field.
+    for row in fact_rows:
+        fact_version_id = _required(row, "fact_version_id")
+        accepted_at = _parse_tz_datetime(
+            row.get("accepted_into_kg_at"),
+            field="accepted_into_kg_at",
+            required=True,
+        )
+        if accepted_at is None:
+            raise ValueError("accepted_into_kg_at is required for a bitemporal snapshot")
+        accepted_at_by_fact_id[fact_version_id] = accepted_at
+
     # 3. Determine cutoffs
     target_cutoffs: list[tuple[str, datetime]] = []
     if cutoff_iso:
@@ -318,31 +373,36 @@ def run_snapshot(
         if not target_cutoffs:
             raise ValueError("No explicit cutoff or configured operational snapshot cutoffs are available")
 
-    # Load entity mappings if available
+    if not isinstance(boundary_config, dict) or not boundary_config.get("policy_version"):
+        raise ContractError(
+            "Snapshot publication requires a versioned, outcome-blind boundary policy; "
+            "provisional cutoff configuration is not certifiable."
+        )
+
+    # A current catalog or an absent mapping history cannot certify a snapshot.
     entity_mappings: list[EntityMappingVersion] = []
-    ent_map_path = run_dir / "tables" / "entity_mappings.parquet"
+    ent_map_path = resolve_run_table_path(repo_root, run_id, "entity_mapping_versions")
     if not ent_map_path.is_file():
-        try:
-            ent_map_path = resolve_run_table_path(repo_root, run_id, "entity_mappings")
-        except Exception:
-            pass
-    if ent_map_path.is_file():
-        ent_table = pq.read_table(ent_map_path).to_pylist()
-        for erow in ent_table:
-            avail_dt = _parse_tz_datetime(erow.get("mapping_available_at"), field="mapping_available_at")
-            if avail_dt:
-                entity_mappings.append(
-                    EntityMappingVersion(
-                        entity_mapping_id=erow.get("entity_mapping_id", ""),
-                        mention=erow.get("mention", ""),
-                        canonical_entity_id=erow.get("canonical_entity_id", ""),
-                        mapping_available_at=avail_dt,
-                        entity_map_version=erow.get("entity_map_version", "ticket_a_v1"),
-                        supersedes_mapping_id=erow.get("supersedes_mapping_id"),
-                        mapping_basis=erow.get("mapping_basis", "catalog"),
-                        mapping_confidence=float(erow.get("mapping_confidence", 1.0)),
-                    )
-                )
+        raise ValueError("Snapshot requires a verified entity mapping-decision artifact")
+    ent_table = pq.read_table(ent_map_path).to_pylist()
+    for erow in ent_table:
+        avail_dt = _parse_tz_datetime(
+            erow.get("mapping_available_at"), field="mapping_available_at", required=True
+        )
+        if avail_dt is None:
+            raise ValueError("Mapping decision is missing mapping_available_at")
+        entity_mappings.append(
+            EntityMappingVersion(
+                entity_mapping_id=erow.get("entity_mapping_id", ""),
+                mention=erow.get("mention", ""),
+                canonical_entity_id=erow.get("canonical_entity_id", ""),
+                mapping_available_at=avail_dt,
+                entity_map_version=erow.get("entity_map_version", ""),
+                supersedes_mapping_id=erow.get("supersedes_mapping_id"),
+                mapping_basis=erow.get("mapping_basis", ""),
+                mapping_confidence=float(erow.get("mapping_confidence", 1.0)),
+            )
+        )
 
     # 4. Execute snapshot building across cutoffs
     all_edges: list[dict[str, Any]] = []
@@ -357,6 +417,8 @@ def run_snapshot(
             snapshot_id=s_id,
             entity_mappings=entity_mappings,
             provenance_map=provenance_map,
+            accepted_at_by_fact_id=accepted_at_by_fact_id,
+            require_accepted_clock=True,
         )
 
         snapshot_dir = run_dir / "snapshots" / s_id
@@ -427,6 +489,17 @@ def run_snapshot(
             snap_exclusions_rows,
         )
 
+        run_manifest = run_manifest or load_run_manifest(repo_root, run_id)
+        resolved_config_hash = sha256_json({
+            "config_candidates": run_manifest.get("config_candidates"),
+            "config_approval": run_manifest.get("config_approval"),
+            "machine_schema": run_manifest.get("machine_schema"),
+        })
+        boundary_hash = sha256_json({
+            "snapshot_id": s_id,
+            "cutoff": s_cutoff.isoformat(),
+            "boundary_policy": boundary_config,
+        })
         s_manifest = create_snapshot_manifest(
             snapshot_id=s_id,
             cutoff=s_cutoff,
@@ -434,6 +507,11 @@ def run_snapshot(
             support_records=supports,
             exclusions=exclusions,
             fact_versions=facts,
+            entity_mapping_hash=compute_entity_mapping_hash(entity_mappings),
+            resolved_config_hash=resolved_config_hash,
+            boundary_hash=boundary_hash,
+            code_fingerprint=run_manifest.get("code_fingerprint_sha256") or "",
+            accepted_at_by_fact_id=accepted_at_by_fact_id,
         )
         write_yaml_immutable(
             snapshot_dir / "snapshot_manifest.yaml",
@@ -486,7 +564,7 @@ def run_snapshot(
             {"table": "fact_versions", "path": str(fact_versions_path)},
             {"table": "claim_provenance", "path": str(claim_provenance_path)},
             *[{"table": name, "path": str(path)} for name, path in upstream_tables.items()],
-            *([{"table": "entity_mappings", "path": str(ent_map_path)}] if ent_map_path.is_file() else []),
+            {"table": "entity_mapping_versions", "path": str(ent_map_path)},
         ],
         output_artifacts=[
             {"table": "snapshot_edges", "path": str(edges_parquet), "count": len(all_edges)},

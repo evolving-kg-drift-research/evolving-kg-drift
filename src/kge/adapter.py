@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import re
 from pathlib import Path
 from typing import Any, Sequence
 
@@ -107,6 +108,25 @@ def load_snapshot_from_parquet(
                     f"expected {exp_graph_hash}, got {dataset.snapshot_hash}"
                 )
 
+            # Dependency fingerprints are mandatory; a historical or provisional
+            # manifest cannot silently receive current certification.
+            for field in (
+                "fact_store_hash",
+                "accepted_clock_hash",
+                "entity_mapping_hash",
+                "resolved_config_hash",
+                "boundary_hash",
+                "code_fingerprint",
+            ):
+                if not isinstance(manifest_data.get(field), str) or not re.fullmatch(
+                    r"[0-9a-f]{64}", manifest_data[field]
+                ):
+                    raise ValueError(
+                        f"Snapshot manifest lacks a valid dependency SHA-256: {field}"
+                    )
+            if manifest_data.get("snapshot_builder_version") != "snapshot-builder-bitemporal-v2":
+                raise ValueError("Snapshot manifest lacks a supported snapshot_builder_version")
+
             # Check snapshot manifest internal hash
             exp_manifest_hash = manifest_data.get("snapshot_manifest_hash")
             if not exp_manifest_hash:
@@ -147,10 +167,10 @@ def load_snapshots_from_run(
     """
     if not verify_manifest:
         raise ValueError("M2 run loading requires verified manifests")
-    from kg_pipeline.gates import require_gate_a
+    from kg_pipeline.gates import evaluate_scientific_gate, require_gate_a
     from kg_pipeline.run import _producer_ref_for_table, get_run_dir, load_run_manifest, verify_stage_manifest
 
-    load_run_manifest(repo_root, run_id)
+    run_manifest = load_run_manifest(repo_root, run_id)
     gate_a_ref = require_gate_a(repo_root, run_id)
     from kg_pipeline.contract_authority import require_schema_compatible
     require_schema_compatible(repo_root, ["fact_versions", "snapshot_edges"])
@@ -210,5 +230,17 @@ def load_snapshots_from_run(
                 len(dataset.triples),
                 len(dataset.entities),
         )
+
+    if run_manifest.get("scientific_locked") is not True:
+        raise PermissionError("M2 requires a run initialized with scientific_locked=true")
+    approval = run_manifest.get("config_approval")
+    if not isinstance(approval, dict) or approval.get("status") != "FROZEN":
+        raise PermissionError("M2 requires a frozen configuration baseline")
+    gate_reports = [
+        evaluate_scientific_gate(repo_root, run_id, gate)
+        for gate in ("G1", "G2")
+    ]
+    if any(report.get("status") != "PASS" for report in gate_reports):
+        raise PermissionError("M2 requires artifact-backed G1 and G2 PASS certificates")
 
     return results

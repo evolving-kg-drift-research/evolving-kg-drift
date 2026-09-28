@@ -32,6 +32,7 @@ def _valid_inputs():
         "valid_to": None,
         "evidence_observed_at": "2020-02-01T00:00:00Z",
         "ingested_at_real": "2020-02-02T00:00:00Z",
+        "accepted_into_kg_at": "2020-02-03T00:00:00Z",
         "supersedes_version_id": None,
         "revision_type": "creation",
         "source_id": "publisher_1",
@@ -129,6 +130,7 @@ def _valid_inputs():
         "retrievals": [retrieval],
         "source_versions": [source_version],
         "claim_provenance": [provenance],
+        "entity_mapping_versions": [],
     }
 
 
@@ -156,6 +158,22 @@ def _run_with_inputs(monkeypatch, tmp_path: Path, inputs):
     monkeypatch.setattr(snapshot_runner, "write_parquet_immutable", lambda *args: writes.append(args))
     monkeypatch.setattr(snapshot_runner, "write_yaml_immutable", lambda *args: writes.append(args))
     monkeypatch.setattr(snapshot_runner, "create_stage_manifest", lambda *args, **kwargs: {})
+    monkeypatch.setattr(
+        snapshot_runner,
+        "load_run_manifest",
+        lambda *args, **kwargs: {
+            "config_candidates": {},
+            "config_approval": {},
+            "machine_schema": {},
+            "code_fingerprint_sha256": "a" * 64,
+        },
+    )
+    config_dir = run_dir / "inputs"
+    config_dir.mkdir(parents=True, exist_ok=True)
+    (config_dir / "proposed_config_bundle.yaml").write_text(
+        "resolved_config:\n  snapshot_boundaries:\n    policy_version: fixture-only-v1\n",
+        encoding="utf-8",
+    )
     from kg_pipeline import gates
     monkeypatch.setattr(gates, "require_gate_a", lambda *args, **kwargs: {"gate": "A"})
     from kg_pipeline import contract_authority

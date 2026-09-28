@@ -1,7 +1,11 @@
 import pytest
 from datetime import datetime, timezone
 from temporal.schema import FactVersion
-from kg_pipeline.parity import verify_neo4j_parity, ParityError
+from kg_pipeline.parity import (
+    verify_neo4j_parity,
+    verify_snapshot_set_parity,
+    ParityError,
+)
 
 def dt(year, month, day):
     return datetime(year, month, day, tzinfo=timezone.utc)
@@ -47,3 +51,27 @@ def test_verify_neo4j_parity():
     )
     with pytest.raises(ParityError, match="Extra in Neo4j: 1"):
         verify_neo4j_parity([fact1], neo4j_edges)
+
+
+def test_snapshot_set_parity_detects_same_count_wrong_edge():
+    nodes = ["alice", "acme"]
+    canonical = [{
+        "subject_id": "alice", "relation_id": "works_at", "object_id": "acme",
+        "snapshot_id": "s1", "valid_from": "2020-01-01T00:00:00+00:00",
+        "valid_to": None, "fact_version_id": "fv1",
+    }]
+    wrong_but_same_count = [{**canonical[0], "object_id": "other", "fact_version_id": "fv2"}]
+    with pytest.raises(ParityError, match="set parity mismatch"):
+        verify_snapshot_set_parity(nodes, canonical, ["alice", "other"], wrong_but_same_count)
+
+
+def test_snapshot_set_parity_checks_temporal_metadata():
+    nodes = ["alice", "acme"]
+    canonical = [{
+        "subject_id": "alice", "relation_id": "works_at", "object_id": "acme",
+        "snapshot_id": "s1", "valid_from": "2020-01-01T00:00:00+00:00",
+        "valid_to": None, "fact_version_id": "fv1",
+    }]
+    materialized = [{**canonical[0], "valid_from": "2021-01-01T00:00:00+00:00"}]
+    with pytest.raises(ParityError, match="set parity mismatch"):
+        verify_snapshot_set_parity(nodes, canonical, nodes, materialized)

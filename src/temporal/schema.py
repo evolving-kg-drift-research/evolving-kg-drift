@@ -152,5 +152,13 @@ class EntityMappingVersion:
     mapping_confidence: float = 1.0
 
     def __post_init__(self):
+        if not self.entity_mapping_id.strip():
+            raise ContractError("entity_mapping_id must be non-empty.")
+        if not self.mention.strip():
+            raise ContractError("Entity mapping mention must be non-empty.")
+        if not self.canonical_entity_id.strip():
+            raise ContractError("canonical_entity_id must be non-empty.")
         if self.mapping_available_at.tzinfo is None or self.mapping_available_at.utcoffset() is None:
             raise ContractError("mapping_available_at must be timezone-aware.")
+        if not 0.0 <= self.mapping_confidence <= 1.0:
+            raise ContractError("mapping_confidence must be between 0 and 1.")

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 from datetime import datetime
 from pathlib import Path
@@ -9,15 +10,104 @@ from typing import Any
 
 import pyarrow.parquet as pq
 
-from .adjudication import adjudicate_claims
+from .adjudication import adjudicate_claims, validate_append_only_fact_versions
 from .claims import resolve_claim_provenance
 from .contracts import CONTRACT_VERSION
 from .hashing import stable_id, utc_now_iso
-from .run import create_stage_manifest, get_run_dir, resolve_run_table_path
+from .run import create_stage_manifest, get_run_dir, load_run_manifest, resolve_run_table_path
+from .locked_mode import scientific_locked_flag, validate_locked_baseline
 from .storage import read_yaml, write_json_immutable, write_parquet_immutable
-from temporal.schema import Claim, ContractError
+from temporal.schema import Claim, ContractError, EntityMappingVersion, FactVersion
 
 logger = logging.getLogger(__name__)
+
+
+def _parse_fact_datetime(value: Any, *, field: str, required: bool) -> datetime | None:
+    if value is None or value == "":
+        if required:
+            raise ContractError(f"Previous FactVersion is missing {field}.")
+        return None
+    if isinstance(value, datetime):
+        parsed = value
+    elif isinstance(value, str):
+        try:
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        except ValueError as exc:
+            raise ContractError(f"Previous FactVersion has invalid {field}.") from exc
+    else:
+        raise ContractError(f"Previous FactVersion has invalid {field} type.")
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ContractError(f"Previous FactVersion {field} must include an explicit timezone.")
+    return parsed
+
+
+def _fact_version_from_row(row: dict[str, Any]) -> FactVersion:
+    supporting_claim_ids = row.get("supporting_claim_ids")
+    if isinstance(supporting_claim_ids, str):
+        try:
+            supporting_claim_ids = json.loads(supporting_claim_ids)
+        except json.JSONDecodeError as exc:
+            raise ContractError("Previous FactVersion has invalid supporting_claim_ids.") from exc
+    if not isinstance(supporting_claim_ids, list) or any(
+        not isinstance(claim_id, str) or not claim_id for claim_id in supporting_claim_ids
+    ):
+        raise ContractError("Previous FactVersion has invalid supporting_claim_ids.")
+
+    required_strings = (
+        "fact_version_id", "logical_fact_id", "subject_id", "relation_id", "object_id",
+        "revision_type", "source_id", "source_url", "evidence_text_hash",
+    )
+    missing = [name for name in required_strings if not isinstance(row.get(name), str) or not row[name]]
+    if missing:
+        raise ContractError(f"Previous FactVersion is missing required fields: {missing}")
+    for name in ("evidence_span_start", "evidence_span_end"):
+        if type(row.get(name)) is not int:
+            raise ContractError(f"Previous FactVersion has invalid {name}.")
+
+    return FactVersion(
+        fact_version_id=row["fact_version_id"],
+        logical_fact_id=row["logical_fact_id"],
+        subject_id=row["subject_id"],
+        relation_id=row["relation_id"],
+        object_id=row["object_id"],
+        valid_from=_parse_fact_datetime(row.get("valid_from"), field="valid_from", required=False),
+        valid_to=_parse_fact_datetime(row.get("valid_to"), field="valid_to", required=False),
+        evidence_observed_at=_parse_fact_datetime(
+            row.get("evidence_observed_at"), field="evidence_observed_at", required=True
+        ),
+        ingested_at_real=_parse_fact_datetime(
+            row.get("ingested_at_real"), field="ingested_at_real", required=True
+        ),
+        supersedes_version_id=row.get("supersedes_version_id"),
+        revision_type=row["revision_type"],
+        source_id=row["source_id"],
+        source_url=row["source_url"],
+        evidence_span_start=row["evidence_span_start"],
+        evidence_span_end=row["evidence_span_end"],
+        evidence_text_hash=row["evidence_text_hash"],
+        extractor_version=row.get("extractor_version") or "",
+        entity_map_version=row.get("entity_map_version") or "",
+        confidence=row.get("confidence"),
+        adjudication_status=row.get("adjudication_status"),
+        supporting_claim_ids=tuple(supporting_claim_ids),
+        temporal_status=row.get("temporal_status") or "VALID",
+        evidence_time_basis=row.get("evidence_time_basis") or "",
+        evidence_time_confidence=row.get("evidence_time_confidence"),
+        evidence_time_source=row.get("evidence_time_source") or "",
+    )
+
+
+def _load_previous_fact_store(repo_root: Path, run_id: str) -> tuple[Path | None, list[dict[str, Any]], list[FactVersion]]:
+    parent_run_id = load_run_manifest(repo_root, run_id).get("parent_run_id")
+    if not parent_run_id:
+        return None, [], []
+    try:
+        path = resolve_run_table_path(repo_root, parent_run_id, "fact_versions")
+    except FileNotFoundError:
+        return None, [], []
+    rows = pq.read_table(path).to_pylist()
+    facts = [_fact_version_from_row(row) for row in rows]
+    return path, rows, facts
 
 
 def _approved_temporal_inputs(run_dir: Path, claims: list[Claim]) -> tuple[dict[str, datetime], datetime]:
@@ -41,20 +131,13 @@ def run_adjudication(repo_root: Path, run_id: str) -> dict[str, Any]:
     if not extracted_claims_path.is_file():
         raise FileNotFoundError(f"Missing {extracted_claims_path}")
 
-    # Load configuration and entities
+    # Load configuration for versioned ontology rules. The current entity catalog
+    # is intentionally not used as historical mapping evidence.
     config_path = run_dir / "inputs" / "proposed_config_bundle.yaml"
     config = read_yaml(config_path) if config_path.is_file() else {}
     res_cfg = config.get("resolved_config", {})
-    entity_catalog = config.get("entity_catalog") or res_cfg.get("entity_catalog", {})
-    if not entity_catalog:
-        cat_path = repo_root / "config" / "entity_catalog.yaml"
-        if cat_path.is_file():
-            try:
-                loaded_cat = read_yaml(cat_path)
-                if isinstance(loaded_cat, dict):
-                    entity_catalog = loaded_cat
-            except Exception:
-                entity_catalog = {}
+    if scientific_locked_flag(config):
+        validate_locked_baseline(config, load_run_manifest(repo_root, run_id))
     ontology_rules = config.get("ontology_rules") or res_cfg.get("ontology", {}).get("relations", {})
     if not ontology_rules:
         ont_path = repo_root / "config" / "ontology.yaml"
@@ -153,16 +236,46 @@ def run_adjudication(repo_root: Path, run_id: str) -> dict[str, Any]:
 
     observation_times, ingested_at = _approved_temporal_inputs(run_dir, claims)
 
+    mapping_path = resolve_run_table_path(repo_root, run_id, "entity_mapping_versions")
+    if not mapping_path.is_file():
+        raise ContractError(
+            "Adjudication requires an artifact-backed entity mapping-decision history; "
+            "the current entity catalog cannot stand in for historical decisions."
+        )
+    mapping_rows = pq.read_table(mapping_path).to_pylist()
+    entity_mappings: list[EntityMappingVersion] = []
+    for mapping_row in mapping_rows:
+        mapping_time = mapping_row.get("mapping_available_at")
+        if not mapping_time:
+            raise ContractError("Mapping decision is missing mapping_available_at.")
+        mapping_dt = datetime.fromisoformat(str(mapping_time).replace("Z", "+00:00"))
+        entity_mappings.append(EntityMappingVersion(
+            entity_mapping_id=mapping_row.get("entity_mapping_id") or "",
+            mention=mapping_row.get("mention") or "",
+            canonical_entity_id=mapping_row.get("canonical_entity_id") or "",
+            mapping_available_at=mapping_dt,
+            entity_map_version=mapping_row.get("entity_map_version") or "",
+            supersedes_mapping_id=mapping_row.get("supersedes_mapping_id"),
+            mapping_basis=mapping_row.get("mapping_basis") or "",
+            mapping_confidence=float(mapping_row.get("mapping_confidence", 1.0)),
+        ))
+
+    previous_fact_path, previous_fact_rows, previous_facts = _load_previous_fact_store(
+        repo_root, run_id
+    )
     accepted, review_queue = adjudicate_claims(
         claims=claims,
         observation_times=observation_times,
         ingested_at=ingested_at,
-        entity_catalog=entity_catalog,
+        entity_catalog={},
         body_to_sources=body_to_sources,
         ontology_rules=ontology_rules,
+        existing_facts=previous_facts,
+        entity_mappings=entity_mappings,
     )
 
-    fact_versions_rows = []
+    fact_versions_rows = [dict(row) for row in previous_fact_rows]
+    validate_append_only_fact_versions(previous_facts, [*previous_facts, *accepted])
     for f in accepted:
         fact_versions_rows.append({
             "schema_version": CONTRACT_VERSION,
@@ -212,31 +325,11 @@ def run_adjudication(repo_root: Path, run_id: str) -> dict[str, Any]:
             "decision_id": f"dec_rej_{cid}",
             "claim_id": cid,
             "fact_version_id": fact_vid,
-            "decision_type": "REJECTED_TO_REVIEW",
+            "decision_type": "PENDING_REVIEW",
             "rule_id": f"rule_{str(r.get('reason', '')).lower()}",
             "decider": "rule_engine_v1",
             "evaluated_at_real": utc_now_iso(),
             "reason": r.get("reason", "UNKNOWN"),
-        })
-
-    catalog_available_at = (
-        config.get("entity_catalog_available_at")
-        or res_cfg.get("entity_catalog_available_at")
-    )
-    if entity_catalog and not catalog_available_at:
-        raise ContractError("Entity catalog mapping_available_at needs independent provenance")
-    entity_mapping_rows = []
-    for idx, (mention, canonical_id) in enumerate(sorted(entity_catalog.items())):
-        entity_mapping_rows.append({
-            "schema_version": CONTRACT_VERSION,
-            "entity_mapping_id": f"ent_map_{idx}_{stable_id('entity', {'mention': mention, 'id': canonical_id})[:12]}",
-            "mention": mention,
-            "canonical_entity_id": canonical_id,
-            "mapping_available_at": catalog_available_at,
-            "entity_map_version": "ticket_a_v1",
-            "supersedes_mapping_id": None,
-            "mapping_basis": "entity_catalog",
-            "mapping_confidence": 1.0,
         })
 
     write_parquet_immutable(
@@ -249,12 +342,6 @@ def run_adjudication(repo_root: Path, run_id: str) -> dict[str, Any]:
         "adjudication_decisions",
         decisions_rows,
     )
-    write_parquet_immutable(
-        run_dir / "tables" / "entity_mappings.parquet",
-        "entity_mappings",
-        entity_mapping_rows,
-    )
-
     (run_dir / "reports").mkdir(parents=True, exist_ok=True)
     write_json_immutable(
         run_dir / "reports" / "adjudication_review_queue.json",
@@ -280,17 +367,22 @@ def run_adjudication(repo_root: Path, run_id: str) -> dict[str, Any]:
             {"table": "document_memberships", "path": str(memberships_path)},
             {"table": "retrievals", "path": str(retrievals_path)},
             {"table": "source_versions", "path": str(source_versions_path)},
+            {"table": "entity_mapping_versions", "path": str(mapping_path)},
+            *(
+                [{"table": "fact_versions", "path": str(previous_fact_path)}]
+                if previous_fact_path is not None else []
+            ),
         ],
         output_artifacts=[
             {"table": "fact_versions", "path": str(run_dir / "tables" / "fact_versions.parquet"), "count": len(fact_versions_rows)},
             {"table": "adjudication_decisions", "path": str(run_dir / "tables" / "adjudication_decisions.parquet"), "count": len(decisions_rows)},
-            {"table": "entity_mappings", "path": str(run_dir / "tables" / "entity_mappings.parquet"), "count": len(entity_mapping_rows)},
         ],
         conservation_metrics={
             "claims_count": len(claims),
             "accepted_facts_count": len(accepted),
             "review_queue_count": len(review_queue),
             "decisions_count": len(decisions_rows),
+            "adjudication_engine_version": "adjudication-v2-pending-conflicts",
         },
         gate_a_ref=gate_a_ref,
     )

@@ -25,6 +25,8 @@ CONFIG_CANDIDATES = (
     "config/filter_policy_v1.yaml",
     "config/stage_4_3.yaml",
     "config/snapshot_cutoffs.yaml",
+    "config/entity_catalog.yaml",
+    "config/llm_adapter.yaml",
     "requirements.lock.txt",
     "pyproject.toml",
     "configs/protocol_v1.yaml",
@@ -158,14 +160,19 @@ def _bundle_payload(repo_root: Path) -> dict[str, Any]:
             entity_catalog = {}
     resolved_config["entity_catalog"] = entity_catalog
 
-    resolved_config["llm_adapter"] = {
-        "type": "mock",
-        "model": "offline_mock",
-        "temperature": 0.0,
-    }
+    adapter_path = repo_root / "config" / "llm_adapter.yaml"
+    if adapter_path.is_file():
+        adapter_config = read_yaml(adapter_path)
+        if not isinstance(adapter_config, dict):
+            raise ArtifactConflict("config/llm_adapter.yaml must contain a YAML mapping")
+        resolved_config["llm_adapter"] = adapter_config
+    else:
+        # Keep the field explicit in the proposed bundle without inventing a
+        # runnable adapter; extraction rejects a missing declaration.
+        resolved_config["llm_adapter"] = None
 
     semantic = {
-        "bundle_version": "ticket_a_proposed_baseline_v3",
+        "bundle_version": "ticket_a_proposed_baseline_v4",
         "machine_schema": machine_schema_identity(repo_root),
         **inspect_config_approval(repo_root, candidate_files),
         "candidate_files": candidate_files,
@@ -188,10 +195,43 @@ def init_run(
     *,
     mode: str,
     parent_run_id: str | None = None,
+    scientific_locked: bool = False,
 ) -> dict[str, Any]:
     valid_modes = ("inventory", "extraction", "adjudication", "snapshot", "kge", "drift")
     if mode not in valid_modes:
         raise ValueError(f"Ticket A supports only valid run modes {valid_modes} (got {mode})")
+    if type(scientific_locked) is not bool:
+        raise ValueError("scientific_locked must be a boolean")
+    candidates = config_fingerprints(repo_root)
+    approval = inspect_config_approval(repo_root, candidates)
+    if scientific_locked and approval.get("status") != "FROZEN":
+        raise ArtifactConflict(
+            "Scientific locked run cannot be initialized from a draft or unapproved configuration baseline"
+        )
+    if scientific_locked:
+        from .locked_mode import validate_dependency_lock
+
+        try:
+            validate_dependency_lock(
+                repo_root / "pyproject.toml",
+                repo_root / "requirements.lock.txt",
+            )
+        except ValueError as exc:
+            raise ArtifactConflict(
+                "Scientific locked run requires every direct dependency to be exactly pinned in requirements.lock.txt"
+            ) from exc
+    bundle = _bundle_payload(repo_root)
+    bundle["scientific_locked"] = scientific_locked
+    if scientific_locked and mode == "extraction":
+        from .locked_mode import validate_local_adapter_declaration
+
+        try:
+            validate_local_adapter_declaration(bundle["resolved_config"].get("llm_adapter"))
+        except ValueError as exc:
+            raise ArtifactConflict(
+                "Scientific locked extraction requires a pinned local adapter in the approved "
+                "config/llm_adapter.yaml"
+            ) from exc
     run_dir = get_run_dir(repo_root, run_id)
     for relative in ("inputs", "tables", "body_blobs", "reports", "gates", "logs"):
         (run_dir / relative).mkdir(parents=True, exist_ok=True)
@@ -226,13 +266,14 @@ def init_run(
     semantic: dict[str, Any] = {
         "run_id": run_id,
         "mode": mode,
+        "scientific_locked": scientific_locked,
         "pipeline_contract_version": "ticket_a_v1",
         "machine_schema": machine_schema_identity(repo_root),
         "raw_input_roots": ["data/raw/stage_4_4"],
         "upstream_stage_4_3_run": "data/stage_4_3_runs/stage4_3_final_20260906T144016Z",
         "code_fingerprint_sha256": package_fingerprint(repo_root),
-        "config_candidates": config_fingerprints(repo_root),
-        "config_approval": inspect_config_approval(repo_root, config_fingerprints(repo_root)),
+        "config_candidates": candidates,
+        "config_approval": approval,
         "source_lock_status_at_init": source_lock["status"],
         "input_lock_path": "inputs/input_lock.json",
         "safety_scope": safety_scope,
@@ -240,23 +281,26 @@ def init_run(
     if parent_run_id:
         semantic["parent_run_id"] = parent_run_id
 
+    manifest_path = run_dir / "run_manifest.yaml"
+    semantic["config_bundle_semantic_sha256"] = sha256_json(bundle)
     manifest = {
         **semantic,
         "created_at_real": utc_now_iso(),
         "semantic_sha256": sha256_json(semantic),
     }
-    manifest_path = run_dir / "run_manifest.yaml"
     if manifest_path.is_file():
         existing_manifest = load_run_manifest(repo_root, run_id)
         if existing_manifest.get("run_id") != run_id or existing_manifest.get("mode") != mode:
             raise ArtifactConflict(f"Existing run manifest has incompatible identity: {manifest_path}")
+        if existing_manifest.get("scientific_locked", False) is not scientific_locked:
+            raise ArtifactConflict("Existing run scientific_locked mode cannot be changed in place")
         manifest_result = {
             "status": "REUSED",
             "semantic_sha256": existing_manifest.get("semantic_sha256"),
         }
     else:
         manifest_result = write_yaml_immutable(manifest_path, manifest)
-    bundle_result = write_yaml_immutable(run_dir / "inputs" / "proposed_config_bundle.yaml", _bundle_payload(repo_root))
+    bundle_result = write_yaml_immutable(run_dir / "inputs" / "proposed_config_bundle.yaml", bundle)
     return {
         "run_dir": str(run_dir),
         "manifest": manifest_result,
@@ -277,6 +321,12 @@ def load_run_manifest(repo_root: Path, run_id: str, *, check_workspace: bool = T
         raise ArtifactConflict("Run manifest semantic hash mismatch")
     if manifest.get("run_id") != run_id:
         raise ArtifactConflict("Run manifest identity mismatch")
+    bundle_path = path.parent / "inputs" / "proposed_config_bundle.yaml"
+    if not bundle_path.is_file():
+        raise ArtifactConflict("Run is missing its immutable resolved config bundle")
+    bundle = read_yaml(bundle_path)
+    if not isinstance(bundle, dict) or manifest.get("config_bundle_semantic_sha256") != sha256_json(bundle):
+        raise ArtifactConflict("Run resolved config bundle semantic hash mismatch")
     if check_workspace and manifest.get("code_fingerprint_sha256") != package_fingerprint(repo_root):
         raise ArtifactConflict("Executing code differs from the initialized run; create a new run")
     if check_workspace and manifest.get("config_candidates") != config_fingerprints(repo_root):

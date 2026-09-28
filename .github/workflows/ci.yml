@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  test:
+  code-checks:
     runs-on: ubuntu-latest
 
     steps:
@@ -34,6 +34,7 @@ jobs:
       - name: Verify Week-1 contract state
         run: python scripts/verify_w1.py --ci
 
+      # Code-only checks do not certify artifact-backed scientific G1/G2.
       - name: Verify temporal code conformance (not scientific G1)
         run: python scripts/verify_g1.py --ci --code-checks
 

@@ -21,6 +21,42 @@ log. Xem [hồ sơ quyết định C3](audit/m1_c3_decision_package.md). C3 ti�
 BLOCKED; không mở production adjudication hoặc snapshot.
 
 
+## M1 C4–C9 — 2026-09-28: code remediation, production vẫn BLOCKED
+
+Đã triển khai guard và fixture coverage cho mapping as-of, text/extraction
+provenance, cache replay bất biến, SourceClaim/conflict handling, parent
+FactVersion lineage, snapshot dependency hashes, M2 handoff, exact-set parity,
+và scientific locked mode. **C4–C9 chỉ hoàn tất một phần ở mức code**; từng
+checkpoint chưa đạt production certification. Ma trận M1-001–M1-020 đã được
+cập nhật riêng [tại đây](audit/m1_c4_c9_finding_matrix.md), với bốn trạng thái
+IMPLEMENTED, TESTED, EXECUTED và VERIFIED.
+
+Regression cuối: **230 passed, 10 skipped**; Ruff và `git diff --check` đạt.
+Đây là kiểm tra code/fixture, không phải scientific PASS. Schema machine audit
+vẫn **BLOCKED: 9/17 bảng**; Gate A, G1/G2, production stages và M2 vẫn BLOCKED.
+Không chạy production runner, không materialize Neo4j, không rerun hoặc sửa
+Stage 4.3/raw/source-lock, không ghi decision log và chưa commit.
+
+Sau lần regression trên, đã harden thêm C9: cấu hình local adapter nằm tại
+`config/llm_adapter.yaml` và được đưa vào run fingerprint; locked extraction
+từ chối thiếu adapter local/pins/decoding fields, ontology thiếu hoặc adapter
+mock. Locked init đối chiếu direct dependencies với exact pins trong lock và
+hiện chặn `openai>=1.0.0` vì không có exact pin tương ứng trong lock.
+Extraction runner không tự chọn ontology mẫu hay mock; helper cũng cần adapter,
+ontology và cache directory tường minh. Kiểm thử tập trung mới nhất:
+**25 passed, 4 deselected**; Ruff và `git diff --check` đạt. Chưa chạy lại toàn
+regression sau patch C9: pytest bị môi trường Windows từ chối truy cập thư mục
+temporary (`WinError 5`), nên số 230/10 ở trên chỉ thuộc revision ngay trước
+patch này. Xem [báo cáo C9](audit/m1_c9_locked_ci.md).
+
+- C4: [mapping theo cutoff](audit/m1_c4_mapping.md) — còn thiếu stable mention ID và identity policy.
+- C5: [text và extraction provenance](audit/m1_c5_text_extraction.md) — normalization mới chưa được phê duyệt.
+- C6: [claims và revisions](audit/m1_c6_claims_revisions.md) — conflict/SourceClaim persistence chưa có contract.
+- C7: [snapshot và bàn giao M2](audit/m1_c7_snapshots_m2.md) — acceptance clock, boundaries và G1/G2 còn thiếu.
+- C8: [Neo4j parity](audit/m1_c8_neo4j_parity.md) — chưa có materialization/read-back thật.
+- C9: [locked mode và CI](audit/m1_c9_locked_ci.md) — CI chưa thể cấp chứng nhận artifact-backed.
+
+
 ## M1 C2 — 2026-09-28: chuỗi artifact và bàn giao M2
 
 Đã triển khai ArtifactRef và xác minh đệ quy run/stage lineage cho canonical

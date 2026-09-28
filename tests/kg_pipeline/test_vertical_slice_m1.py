@@ -18,24 +18,19 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 import pytest
-import pyarrow.parquet as pq
-
 from kg_pipeline.contracts import make_row
-from kg_pipeline.gates import evaluate_gate_g2, evaluate_m1_structure
 from kg_pipeline.hashing import sha256_text, stable_id, utc_now_iso
 from kg_pipeline.snapshot_runner import run_snapshot
 from kg_pipeline.storage import ArtifactConflict, write_parquet_immutable, write_yaml_immutable
 from kg_pipeline.run import create_stage_manifest, init_run
 from kge.adapter import load_snapshots_from_run
-from temporal.schema import FactVersion
-from temporal.snapshot import build_snapshot_edges_and_support, compute_graph_semantic_hash
 
 
 def _dt(year: int, month: int, day: int) -> datetime:
     return datetime(year, month, day, 0, 0, 0, tzinfo=timezone.utc)
 
 
-def test_vertical_slice_m1_raw_to_snapshots(tmp_path: Path, monkeypatch):
+def test_vertical_slice_blocks_snapshot_until_acceptance_clock_contract_exists(tmp_path: Path, monkeypatch):
     repo_root = tmp_path
     from kg_pipeline import gates
     fixture_gate_ref = {"gate": "A", "run_id": "test_vertical_slice_001", "semantic_sha256": "fixture_only"}
@@ -245,7 +240,7 @@ def test_vertical_slice_m1_raw_to_snapshots(tmp_path: Path, monkeypatch):
 
     # Future entity mapping available ONLY in 2022
     mapping_future = make_row(
-        "entity_mappings",
+        "entity_mapping_versions",
         entity_mapping_id="map_vf_001",
         mention="VinFast",
         canonical_entity_id="Q_VINFAST_CANONICAL",
@@ -258,91 +253,21 @@ def test_vertical_slice_m1_raw_to_snapshots(tmp_path: Path, monkeypatch):
 
     write_parquet_immutable(tables_dir / "fact_versions.parquet", "fact_versions", [fact_1])
     write_parquet_immutable(tables_dir / "adjudication_decisions.parquet", "adjudication_decisions", [decision_1])
-    write_parquet_immutable(tables_dir / "entity_mappings.parquet", "entity_mappings", [mapping_future])
+    write_parquet_immutable(tables_dir / "entity_mapping_versions.parquet", "entity_mapping_versions", [mapping_future])
     create_stage_manifest(repo_root, run_id, "adjudication", input_artifacts=[
         {"table": name, "path": str(tables_dir / f"{name}.parquet")}
         for name in ("extracted_claims", "claim_provenance")
     ], output_artifacts=[
         {"table": name, "path": str(tables_dir / f"{name}.parquet")}
-        for name in ("fact_versions", "adjudication_decisions", "entity_mappings")
+        for name in ("fact_versions", "adjudication_decisions", "entity_mapping_versions")
     ])
 
-    # 4. Snapshot Publication across two fixture cutoffs.
-
-    res = run_snapshot(repo_root, run_id)
-    assert res["status"] == "COMPLETED"
-
-    # 5. Invariant Assertions
-
-    # Assertion 1: Isolated snapshot directories exist
-    snap_2020_dir = run_dir / "snapshots" / "S2020"
-    snap_2022_dir = run_dir / "snapshots" / "S2022"
-    assert snap_2020_dir.is_dir()
-    assert snap_2022_dir.is_dir()
-    assert (snap_2020_dir / "snapshot_manifest.yaml").is_file()
-    assert (snap_2022_dir / "snapshot_manifest.yaml").is_file()
-
-    # Assertion 2: Point-in-time entity resolution (no future entity mapping rewrite)
-    # In S2020 (cutoff 2020-06-01), the 2022 entity mapping was NOT available, so subject is "VinFast"
-    t_2020 = pq.read_table(snap_2020_dir / "snapshot_edges.parquet").to_pylist()
-    assert len(t_2020) == 1
-    assert t_2020[0]["subject_id"] == "VinFast"
-
-    # In S2022 (cutoff 2022-06-01), the 2022 entity mapping IS available, so subject resolved to canonical
-    t_2022 = pq.read_table(snap_2022_dir / "snapshot_edges.parquet").to_pylist()
-    assert len(t_2022) == 1
-    assert t_2022[0]["subject_id"] == "Q_VINFAST_CANONICAL"
-
-    # Assertion 3: No edge ID collision across snapshots
-    assert t_2020[0]["edge_id"] != t_2022[0]["edge_id"]
-
-    # Assertion 4: Provenance traceability to raw bytes
-    supp_2020 = pq.read_table(snap_2020_dir / "snapshot_edge_support.parquet").to_pylist()
-    assert len(supp_2020) == 1
-    assert supp_2020[0]["raw_blob_sha256"] == raw_blob_sha
-    assert supp_2020[0]["claim_id"] == claim_1["claim_id"]
-
-    # Assertion 5: Zero placeholder or fabricated fields
-    assert span1_hash != "placeholder" and span1_hash != "placeholder_hash"
-    assert len(span1_hash) == 64
-
-    # Assertion 6: Deterministic Rebuild
-    f_obj = FactVersion(
-        fact_version_id=fact_1["fact_version_id"],
-        logical_fact_id=fact_1["logical_fact_id"],
-        subject_id=fact_1["subject_id"],
-        relation_id=fact_1["relation_id"],
-        object_id=fact_1["object_id"],
-        valid_from=_dt(2017, 6, 1),
-        valid_to=None,
-        evidence_observed_at=_dt(2020, 1, 1),
-        ingested_at_real=_dt(2020, 1, 2),
-        supersedes_version_id=None,
-        revision_type="creation",
-        source_id="trusted_registry_1",
-        source_url="https://registry.gov.vn/vinfast",
-        evidence_span_start=span1_start,
-        evidence_span_end=span1_end,
-        evidence_text_hash=span1_hash,
-    )
-    e1, _, _ = build_snapshot_edges_and_support([f_obj], cutoff=_dt(2020, 6, 1))
-    e2, _, _ = build_snapshot_edges_and_support([f_obj], cutoff=_dt(2020, 6, 1))
-    assert compute_graph_semantic_hash(e1) == compute_graph_semantic_hash(e2)
-
-    # Assertion 7: Handover to M2 KGE Adapter
-    datasets = load_snapshots_from_run(repo_root, run_id, verify_manifest=True)
-    assert set(datasets.keys()) == {"S2020", "S2022"}
-    assert len(datasets["S2020"].triples) == 1
-    assert len(datasets["S2022"].triples) == 1
-
-    # Fixture structural checks cannot certify independent scientific quality.
-    structure = evaluate_m1_structure(repo_root, run_id)
-    assert structure["status"] == "PASS"
-    assert structure["structural_record_count"] > 0
-    g2_report = evaluate_gate_g2(repo_root, run_id)
-    assert g2_report["status"] == "BLOCKED"
-    assert g2_report["evaluated_count"] == 0
-
+    # The current FactVersion contract has no accepted_into_kg_at field. The
+    # production snapshot runner must stop here rather than infer acceptance from
+    # evidence observation, ingestion, or adjudication execution time.
+    with pytest.raises(ValueError, match="accepted_into_kg_at"):
+        run_snapshot(repo_root, run_id)
+    assert not (run_dir / "snapshots").exists()
 
 def test_tampered_artifact_halts_downstream(tmp_path: Path, monkeypatch):
     repo_root = tmp_path
@@ -374,15 +299,19 @@ def test_tampered_artifact_halts_downstream(tmp_path: Path, monkeypatch):
     from kge.contract import SnapshotDataset, Triple
     dataset = SnapshotDataset.create("S2020", [Triple("s1", "r1", "o1")])
     semantic = {"snapshot_id": "S2020", "cutoff": _dt(2020, 6, 1).isoformat(),
-                "graph_semantic_hash": dataset.snapshot_hash, "edge_count": 1}
+                "graph_semantic_hash": dataset.snapshot_hash, "edge_count": 1,
+                "snapshot_builder_version": "snapshot-builder-bitemporal-v2",
+                "fact_store_hash": "1" * 64, "accepted_clock_hash": "2" * 64,
+                "entity_mapping_hash": "3" * 64, "resolved_config_hash": "4" * 64,
+                "boundary_hash": "5" * 64, "code_fingerprint": "6" * 64}
     write_yaml_immutable(snap_dir / "snapshot_manifest.yaml", {
         **semantic, "created_at_real": utc_now_iso(),
         "snapshot_manifest_hash": hashlib.sha256(json.dumps(semantic, sort_keys=True).encode()).hexdigest()
     })
 
-    # Downstream loads successfully before tampering
-    ds = load_snapshots_from_run(repo_root, run_id, verify_manifest=True)
-    assert "S2020" in ds
+    # Even an intact fixture manifest is not a production M2 handoff.
+    with pytest.raises(PermissionError, match="scientific_locked"):
+        load_snapshots_from_run(repo_root, run_id, verify_manifest=True)
 
     # Tamper with the parquet bytes directly without updating the sidecar
     with open(edge_p, "ab") as f:

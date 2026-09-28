@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+import yaml
 
 from kg_pipeline import snapshot_runner
 from kg_pipeline.hashing import stable_id
@@ -26,6 +27,7 @@ def valid_fact_row():
         "valid_to": None,
         "evidence_observed_at": "2020-02-01T00:00:00Z",
         "ingested_at_real": "2020-02-02T00:00:00Z",
+        "accepted_into_kg_at": "2020-02-03T00:00:00Z",
         "supersedes_version_id": None,
         "revision_type": "creation",
         "source_id": "publisher_1",
@@ -43,6 +45,17 @@ def valid_fact_row():
 def setup_snapshot_io(monkeypatch, tmp_path: Path, rows):
     run_dir = tmp_path / "runs" / "run1"
     run_dir.mkdir(parents=True)
+    config_path = run_dir / "inputs" / "proposed_config_bundle.yaml"
+    config_path.parent.mkdir(parents=True)
+    config_path.write_text(yaml.safe_dump({
+        "scientific_locked": False,
+        "resolved_config": {
+            "snapshot_boundaries": {
+                "policy_version": "fixture-boundaries-v1",
+                "snapshots": [{"id": "S1", "cutoff": "2021-01-01T00:00:00Z"}],
+            }
+        },
+    }), encoding="utf-8")
     paths = {}
     fact_path = run_dir / "tables" / "fact_versions.parquet"
     fact_path.parent.mkdir()
@@ -102,6 +115,12 @@ def setup_snapshot_io(monkeypatch, tmp_path: Path, rows):
         "document_memberships": membership_rows,
         "retrievals": retrieval_rows,
         "source_versions": source_version_rows,
+        "entity_mapping_versions": [{
+            "entity_mapping_id": "mapping_1", "mention": "entity_a",
+            "canonical_entity_id": "entity_a", "mapping_available_at": "2019-01-01T00:00:00Z",
+            "entity_map_version": "mapping-v1", "supersedes_mapping_id": None,
+            "mapping_basis": "fixture", "mapping_confidence": 1.0,
+        }],
     }
     for name in table_rows:
         path = run_dir / "tables" / f"{name}.parquet"
@@ -122,6 +141,11 @@ def setup_snapshot_io(monkeypatch, tmp_path: Path, rows):
     monkeypatch.setattr(snapshot_runner, "write_parquet_immutable", lambda *args: writes.append(args))
     monkeypatch.setattr(snapshot_runner, "write_yaml_immutable", lambda *args: writes.append(args))
     monkeypatch.setattr(snapshot_runner, "create_stage_manifest", lambda *args, **kwargs: {})
+    monkeypatch.setattr(snapshot_runner, "load_run_manifest", lambda *args, **kwargs: {
+        "code_fingerprint_sha256": "f" * 64,
+        "config_candidates": [], "config_approval": {"status": "PROPOSED_UNFROZEN"},
+        "machine_schema": {},
+    })
     from kg_pipeline import gates
     monkeypatch.setattr(gates, "require_gate_a", lambda *args, **kwargs: {"gate": "A"})
     from kg_pipeline import contract_authority
@@ -143,6 +167,7 @@ def setup_snapshot_io(monkeypatch, tmp_path: Path, rows):
         "evidence_text_hash",
         "extractor_version",
         "entity_map_version",
+        "accepted_into_kg_at",
     ],
 )
 def test_snapshot_runner_rejects_missing_fact_fields(monkeypatch, tmp_path, field):
