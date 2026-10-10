@@ -42,14 +42,24 @@ def evaluate_quality(
                     "actual": [fact.evidence_span_start, fact.evidence_span_end]
                 })
 
-    error_rate = len(errors) / evaluated if evaluated > 0 else 0.0
+    if evaluated == 0:
+        return {
+            "status": "FAIL",
+            "reason": "ZERO_COVERAGE",
+            "evaluated_count": 0,
+            "error_count": 0,
+            "error_rate": None,
+            "errors": [],
+        }
+
+    error_rate = len(errors) / evaluated
 
     return {
         "status": "PASS" if error_rate <= error_threshold else "FAIL",
         "evaluated_count": evaluated,
         "error_count": len(errors),
         "error_rate": error_rate,
-        "errors": errors
+        "errors": errors,
     }
 
 

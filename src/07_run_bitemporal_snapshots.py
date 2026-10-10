@@ -117,6 +117,32 @@ def run_bitemporal_snapshots(repo_root: Path, run_id: str = "production_v2") -> 
         snap_parquet_path = snapshots_dir / f"snapshot_{snap_id}.parquet"
         write_parquet_immutable(snap_parquet_path, "snapshot_facts", snap_rows)
 
+        # Build deduplicated canonical triple rows for downstream training (TransE)
+        seen_triples = set()
+        canonical_rows = []
+        for r in snap_rows:
+            triple_key = (r["subject_id"], r["relation_id"], r["object_id"])
+            if triple_key not in seen_triples:
+                seen_triples.add(triple_key)
+                canonical_rows.append(
+                    make_row(
+                        "snapshot_facts_canonical",
+                        fact_version_id=r["fact_version_id"],
+                        logical_fact_id=r["logical_fact_id"],
+                        subject_id=r["subject_id"],
+                        relation_id=r["relation_id"],
+                        object_id=r["object_id"],
+                        valid_from=r["valid_from"],
+                        valid_to=r["valid_to"],
+                        evidence_observed_at=r["evidence_observed_at"],
+                        source_id=r["source_id"],
+                    )
+                )
+
+        validate_rows("snapshot_facts_canonical", canonical_rows)
+        canonical_parquet_path = snapshots_dir / f"snapshot_{snap_id}_canonical.parquet"
+        write_parquet_immutable(canonical_parquet_path, "snapshot_facts_canonical", canonical_rows)
+
         # Manifest
         manifest_path = snapshots_dir / f"snapshot_{snap_id}_manifest.yaml"
         manifest_payload = {
@@ -124,9 +150,11 @@ def run_bitemporal_snapshots(repo_root: Path, run_id: str = "production_v2") -> 
             "snapshot_id": snap_id,
             "cutoff": cutoff_str,
             "row_count": len(snap_rows),
+            "canonical_triple_count": len(canonical_rows),
             "entity_count": len(set([r["subject_id"] for r in snap_rows] + [r["object_id"] for r in snap_rows])),
             "semantic_sha256": semantic_hash,
             "physical_sha256": sha256_file(snap_parquet_path),
+            "canonical_physical_sha256": sha256_file(canonical_parquet_path),
             "created_at_real": utc_now_iso(),
         }
         with open(manifest_path, "w", encoding="utf-8") as f:

@@ -27,15 +27,18 @@ def build_snapshot(
     resolved_facts: list[FactVersion] = []
     
     for lfid, versions in logical_groups.items():
-        # 2. Resolve supersession chains.
-        # Create a map of superseded_by to trace the chain
+        # 2. Validity filter FIRST: only facts valid at cutoff
+        valid_versions = [
+            v for v in versions
+            if v.valid_from <= cutoff and (v.valid_to is None or cutoff < v.valid_to)
+        ]
+
+        # 3. Resolve supersession chains among valid versions (including retractions)
         superseded_by: dict[str, str] = {}
-        version_map: dict[str, FactVersion] = {v.fact_version_id: v for v in versions}
-        
-        for v in versions:
+        version_map: dict[str, FactVersion] = {v.fact_version_id: v for v in valid_versions}
+
+        for v in valid_versions:
             if v.supersedes_version_id and v.supersedes_version_id in version_map:
-                # If there are multiple superseding, we need a tie-breaker. 
-                # Pick the one with the latest evidence_observed_at, then lexicographically.
                 existing_winner_id = superseded_by.get(v.supersedes_version_id)
                 if not existing_winner_id:
                     superseded_by[v.supersedes_version_id] = v.fact_version_id
@@ -43,26 +46,16 @@ def build_snapshot(
                     existing = version_map[existing_winner_id]
                     if (v.evidence_observed_at, v.fact_version_id) > (existing.evidence_observed_at, existing.fact_version_id):
                         superseded_by[v.supersedes_version_id] = v.fact_version_id
-        
-        # Find the root(s) and trace to leaf
-        active_versions = []
+
         winning_supersessions = set(superseded_by.values())
-        for v in versions:
+        for v in valid_versions:
             current_id = v.fact_version_id
             is_superseded = current_id in superseded_by
             lost_tiebreaker = (v.supersedes_version_id is not None) and (current_id not in winning_supersessions)
 
             if not is_superseded and not lost_tiebreaker:
-                active_versions.append(v)
-                
-        # 3. Filter by validity and retraction
-        for v in active_versions:
-            if v.revision_type == "retraction":
-                continue
-            
-            # Validity filter: valid_from <= cutoff < valid_to
-            if v.valid_from <= cutoff:
-                if v.valid_to is None or cutoff < v.valid_to:
+                # 4. Filter out retractions: retractions supersede prior facts but are never emitted themselves
+                if v.revision_type != "retraction":
                     resolved_facts.append(v)
 
     # 4. Canonical deterministic sort

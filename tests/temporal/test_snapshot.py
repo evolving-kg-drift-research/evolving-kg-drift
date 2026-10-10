@@ -131,3 +131,27 @@ def test_snapshot_canonical_determinism():
     snap2, hash2 = build_snapshot([fact], cutoff=dt(2025, 1, 1))
     
     assert hash1 == hash2
+
+
+def test_future_effective_correction_keeps_old_fact():
+    """Correction known at cutoff but effective in future must NOT supersede old valid fact prematurely."""
+    old = FactVersion(
+        "fv1", "lf1", "A", "REL", "B",
+        valid_from=dt(2020, 1, 1), valid_to=None,
+        evidence_observed_at=dt(2020, 1, 1), ingested_at_real=dt(2020, 1, 1),
+        supersedes_version_id=None, revision_type="creation",
+        source_id="s1", source_url="", evidence_span_start=0, evidence_span_end=10, evidence_text_hash="h"
+    )
+    correction = FactVersion(
+        "fv2", "lf1", "A", "REL", "C",
+        valid_from=dt(2022, 1, 1), valid_to=None,  # Future-effective
+        evidence_observed_at=dt(2021, 1, 1), ingested_at_real=dt(2021, 1, 1),
+        supersedes_version_id="fv1", revision_type="correction",
+        source_id="s1", source_url="", evidence_span_start=0, evidence_span_end=10, evidence_text_hash="h"
+    )
+
+    # At cutoff 2021-06-01: correction is known (2021-01-01 <= cutoff) but not yet valid (2022-01-01 > cutoff)
+    snap, _ = build_snapshot([old, correction], cutoff=dt(2021, 6, 1))
+    assert len(snap) == 1
+    assert snap[0].fact_version_id == "fv1"
+

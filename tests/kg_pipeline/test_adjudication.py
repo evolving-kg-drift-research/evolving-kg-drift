@@ -61,7 +61,7 @@ def test_adjudicate_claims():
     assert accepted[0].subject_id == "org_apple"
     assert accepted[0].adjudication_status == "AUTO_ACCEPTED"
     assert accepted[0].valid_from == datetime(2011, 8, 24, tzinfo=timezone.utc)
-    assert accepted[0].confidence == 0.9
+    assert accepted[0].confidence == 0.85
 
     assert accepted[1].subject_id == "org_apple"
 

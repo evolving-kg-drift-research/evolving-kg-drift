@@ -1,5 +1,27 @@
 # PROGRESS.md — evolving-ai-kg Execution State
 
+## Checkpoint R15 — Remediation & Canonical Deduplication PASS — 2026-10-10
+
+- **Trạng thái**: **PASS** (Run: `production_v3`).
+- **Nguồn chân lý dữ liệu & Chuẩn bị huấn luyện TransE**:
+  - Đã xuất bản song song hai định dạng Parquet:
+    - `snapshot_T*.parquet`: Lưu toàn bộ provenance (1,803 rows tại T10).
+    - `snapshot_T*_canonical.parquet`: Lọc trùng lặp support rows theo `(subject_id, relation_id, object_id)` (1,205 unique edges tại T10).
+  - Cấu hình huấn luyện `downstream_transe_config.yaml` đã trỏ chính xác vào các snapshots `_canonical`.
+- **Sửa chữa logic thời gian & chất lượng (Remediation Plan Steps 1–7)**:
+  - **Temporal Ordering**: Đưa bộ lọc hiệu lực thời gian (`validity filter`) và `retraction` lên trước phân giải chuỗi thay thế (`supersession`), ngăn chặn việc correction trong tương lai ghi đè sai fact hiện tại.
+  - **Quality Gate**: Chuyển sang cơ chế fail-closed khi độ bao phủ gold standard = 0 (`ZERO_COVERAGE`).
+  - **Honest Parity**: Ghi nhận trung thực xuất file CSV Neo4j và gắn cờ `DB_READ_BACK_PERFORMED: False`.
+  - **Tests**: Toàn bộ 71/71 tests PASS (bổ sung tests cho entity mapping, fact schema, protocol, và regression tests).
+- **Hard Invariants trên run `production_v3`**:
+  - `NO_FUTURE_EVIDENCE`: PASS (0 vi phạm).
+  - `STRICT_TEMPORAL_VALIDITY`: PASS (0 vi phạm).
+  - `DETERMINISTIC_REBUILD`: PASS (100% khớp hash).
+  - `MONOTONIC_GROWTH`: PASS.
+  - `SET_EQUALITY`: PASS (10/10 snapshots).
+
+---
+
 ## Checkpoint R14 — Stage 4.18 Canonical Parquet & Neo4j Parity PASS — 2026-09-28
 
 - **Trạng thái Stage 4.18**: **PASS** (Run: production_v2).
@@ -132,7 +154,7 @@ uns/production_v2/reports/quality_gate_report.json.
   - Đã có hơn 4,875 file phản hồi trong `runs/production_v2/llm_cache/`.
 - **Cơ chế khôi phục (Resume)**: Khi mở lại máy, chỉ cần chạy một lệnh duy nhất:
   ```powershell
-  $env:OPENAI_API_KEY = "sk-1ad27e92326fc80b-6zm0qb-d779bcb7"; .venv\Scripts\python.exe src/04_run_production_pipeline.py --run production_v2
+  $env:OPENAI_API_KEY = "<REDACTED>"; .venv\Scripts\python.exe src/04_run_production_pipeline.py --run production_v2
   ```
 
 ---

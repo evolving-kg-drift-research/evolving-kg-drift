@@ -218,6 +218,17 @@ TABLE_SCHEMAS: dict[str, pa.Schema] = {
         ("evidence_observed_at", S),
         ("source_id", S),
     ),
+    "snapshot_facts_canonical": _schema(
+        ("fact_version_id", S),
+        ("logical_fact_id", S),
+        ("subject_id", S),
+        ("relation_id", S),
+        ("object_id", S),
+        ("valid_from", S),
+        ("valid_to", S),
+        ("evidence_observed_at", S),
+        ("source_id", S),
+    ),
 }
 
 PRIMARY_KEYS: dict[str, list[str]] = {
@@ -238,6 +249,7 @@ PRIMARY_KEYS: dict[str, list[str]] = {
     "anchor_candidates_prelock": ["candidate_id"],
     "transition_metadata": ["transition_id"],
     "snapshot_facts": ["fact_version_id"],
+    "snapshot_facts_canonical": ["fact_version_id"],
 }
 
 FOREIGN_KEYS: dict[str, dict[str, tuple[str, str]]] = {

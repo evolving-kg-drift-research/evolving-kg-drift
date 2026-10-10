@@ -40,3 +40,17 @@ def test_evaluate_quality():
     assert report["evaluated_count"] == 2
     assert report["error_count"] == 1
     assert report["errors"][0]["type"] == "SPAN_MISMATCH"
+
+
+def test_evaluate_quality_zero_coverage():
+    fact = FactVersion(
+        fact_version_id="f1", logical_fact_id="lf1",
+        subject_id="A", relation_id="REL", object_id="B",
+        valid_from=dt(2021,1,1), valid_to=None, evidence_observed_at=dt(2021,1,1),
+        ingested_at_real=dt(2021,1,1), supersedes_version_id=None, revision_type="creation",
+        source_id="s1", source_url="u1", evidence_span_start=0, evidence_span_end=10, evidence_text_hash="h"
+    )
+    report = evaluate_quality([fact], [], error_threshold=0.0)
+    assert report["status"] == "FAIL"
+    assert report["reason"] == "ZERO_COVERAGE"
+    assert report["evaluated_count"] == 0

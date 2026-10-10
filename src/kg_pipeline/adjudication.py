@@ -74,16 +74,10 @@ def adjudicate_claims(
             })
             continue
 
-        # Use extracted dates if available
+        # Use extracted dates if available (do not clamp valid_from/valid_to to observed_at,
+        # future-effective facts are valid semantic events with future valid_from)
         valid_from = parse_extracted_date(claim.valid_from_extracted, observed_at)
         valid_to = parse_extracted_date(claim.valid_to_extracted, None) if claim.valid_to_extracted else None
-
-        # Upper-bound verification
-        if valid_from > observed_at:
-            valid_from = observed_at
-
-        if valid_to and valid_to > observed_at:
-            valid_to = observed_at
 
         # Ignore speculative or negative claims for auto-accept
         if claim.is_speculative or claim.is_negative:
@@ -98,8 +92,8 @@ def adjudicate_claims(
         logical_fact_id = sha256_text(f"{subject_id}|{claim.relation_name}|{object_id}")[:16]
         fact_version_id = f"{logical_fact_id}_{claim.claim_id}"
 
-        is_trusted = claim.source_id in WHITELIST_SOURCES or claim.source_id.startswith("bodyvariant_")
-        confidence = 0.9 if is_trusted else 0.5
+        is_trusted = claim.source_id in WHITELIST_SOURCES
+        confidence = 0.85 if is_trusted else 0.5
 
         fact = FactVersion(
             fact_version_id=fact_version_id,
