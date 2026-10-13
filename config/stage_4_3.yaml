@@ -1,0 +1,37 @@
+stage_4_3_contract_version: 1.0.0
+
+tuoitre_locked:
+  source_id: tuoitre_congnghe
+  block_root: data/discovery/pilot
+  expected_blocks: 108
+  aggregate_sha256: 95d01d7ece31828f8e8f5f524976d849e3969fcb5b8004869441ff192a4d660f
+
+vnexpress:
+  source_id: vnexpress_sohoa
+  robots_url: https://vnexpress.net/robots.txt
+  sitemap_url: https://vnexpress.net/sitemap.xml
+  sections:
+    - https://vnexpress.net/so-hoa
+    - https://vnexpress.net/khoa-hoc-cong-nghe
+  archive_replay_prefix: https://web.archive.org/web
+  archive_target_days:
+    - 1
+    - 15
+  article_container_selector: article.item-news
+  article_path_regex: '-\d+\.html$'
+
+http:
+  user_agent: evolving-ai-kg-research/1.0
+  request_delay_seconds: 0.5
+  max_attempts: 3
+  connect_timeout_seconds: 15
+  read_timeout_seconds: 90
+
+compliance:
+  production_methods:
+    - publisher_static_sitemap
+    - rss_current
+    - publisher_section_html
+    - wayback_replay_html
+  legacy_noncompliant_methods:
+    - wayback_section

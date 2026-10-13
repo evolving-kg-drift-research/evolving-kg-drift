@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import json
 import subprocess
+import sys
 from pathlib import Path
 
 import yaml
@@ -118,44 +118,17 @@ def verify_repository_contract(protocol: dict) -> None:
 
 
 def verify_source_bytes(protocol: dict) -> None:
-    if not SOURCE_MANIFEST_PATH.exists():
-        fail("data/manifests/sources.lock.json is missing")
+    # Keep direct script execution usable without an editable package install.
+    sys.path.insert(0, str(ROOT / "src"))
+    from kg_pipeline.baseline import inspect_source_lock
 
-    manifest = json.loads(SOURCE_MANIFEST_PATH.read_text(encoding="utf-8"))
-    protocol_sources = protocol.get("sources", {})
-
-    for source_name, protocol_key in SOURCE_TO_PROTOCOL_KEY.items():
-        entry = manifest.get(source_name)
-        if not isinstance(entry, dict):
-            fail(f"Missing source manifest entry: {source_name}")
-
-        relative_path = entry.get("path")
-        expected = entry.get("sha256")
-        if not relative_path or not expected:
-            fail(f"Incomplete source manifest entry: {source_name}")
-
-        source_path = ROOT / relative_path
-        if not source_path.is_file():
-            fail(
-                f"Authoritative source file missing: {relative_path}. "
-                "Place the exact source bytes before Week-1 freeze."
-            )
-
-        actual = sha256_file(source_path)
-        if actual != expected:
-            fail(
-                f"Source hash mismatch for {source_name}: "
-                f"manifest={expected}, actual={actual}"
-            )
-
-        protocol_hash = protocol_sources.get(protocol_key)
-        if protocol_hash != expected:
-            fail(
-                f"Protocol/manifest hash mismatch for {source_name}: "
-                f"protocol={protocol_hash}, manifest={expected}"
-            )
-
-        ok(f"verified source bytes: {source_name}")
+    if protocol != load_protocol():
+        fail("Protocol changed since verification started")
+    result = inspect_source_lock(ROOT)
+    if result["status"] != "PASS":
+        fail(f"{result['reason']}: {result['items']}")
+    for item in result["items"]:
+        ok(f"verified source bytes: {item['role']}")
 
 
 def main() -> None:
