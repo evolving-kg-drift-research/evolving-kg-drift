@@ -1,4 +1,5 @@
 import hashlib
+from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
 import pytest
@@ -15,7 +16,7 @@ from temporal.snapshot import (
     compute_support_semantic_hash,
     create_snapshot_manifest,
 )
-from kge.adapter import load_snapshot_from_parquet
+from kge.adapter import _load_snapshot_from_parquet, load_snapshot_from_parquet
 
 
 def dt(year, month, day):
@@ -73,6 +74,7 @@ def test_snapshot_hash_semantics_unification(tmp_path: Path):
     assert manifest.support_semantic_hash == compute_support_semantic_hash(support)
     assert len(manifest.graph_semantic_hash) == 64
     assert len(manifest.support_semantic_hash) == 64
+    assert len(manifest.exclusion_semantic_hash) == 64
     assert len(manifest.fact_store_hash) == 64
     assert len(manifest.snapshot_manifest_hash) == 64
     assert manifest.edge_count == 1
@@ -108,24 +110,7 @@ def test_kge_adapter_verifies_snapshot_manifest_and_detects_tamper(tmp_path: Pat
     )
 
     # Write snapshot_manifest.yaml
-    manifest_dict = {
-        "snapshot_id": manifest.snapshot_id,
-        "snapshot_builder_version": manifest.snapshot_builder_version,
-        "cutoff": manifest.cutoff,
-        "graph_semantic_hash": manifest.graph_semantic_hash,
-        "support_semantic_hash": manifest.support_semantic_hash,
-        "fact_store_hash": manifest.fact_store_hash,
-        "accepted_clock_hash": manifest.accepted_clock_hash,
-        "entity_mapping_hash": manifest.entity_mapping_hash,
-        "resolved_config_hash": manifest.resolved_config_hash,
-        "boundary_hash": manifest.boundary_hash,
-        "code_fingerprint": manifest.code_fingerprint,
-        "edge_count": manifest.edge_count,
-        "support_count": manifest.support_count,
-        "exclusion_count": manifest.exclusion_count,
-        "created_at_real": manifest.created_at_real,
-        "snapshot_manifest_hash": manifest.snapshot_manifest_hash,
-    }
+    manifest_dict = asdict(manifest)
     (snapshot_dir / "snapshot_manifest.yaml").write_text(yaml.safe_dump(manifest_dict), encoding="utf-8")
 
     # Write snapshot_edges.parquet
@@ -144,7 +129,7 @@ def test_kge_adapter_verifies_snapshot_manifest_and_detects_tamper(tmp_path: Pat
     (snapshot_dir / "snapshot_edges.parquet.sha256").write_text(f"{sha}  snapshot_edges.parquet\n", encoding="utf-8")
 
     # 1. Clean load should succeed
-    ds = load_snapshot_from_parquet(parquet_path, verify_manifest=True)
+    ds = _load_snapshot_from_parquet(parquet_path, verify_manifest=True)
     assert len(ds.triples) == 1
     assert ds.triples[0].subject_id == "Alice"
 
@@ -162,11 +147,27 @@ def test_kge_adapter_verifies_snapshot_manifest_and_detects_tamper(tmp_path: Pat
     (snapshot_dir / "snapshot_edges.parquet.sha256").write_text(f"{new_sha}  snapshot_edges.parquet\n", encoding="utf-8")
 
     with pytest.raises(ValueError, match="graph_semantic_hash mismatch"):
-        load_snapshot_from_parquet(parquet_path, verify_manifest=True)
+        _load_snapshot_from_parquet(parquet_path, verify_manifest=True)
 
     # 3. Tampered physical sidecar must fail
     # Restore valid table
     pq.write_table(table, parquet_path)
     (snapshot_dir / "snapshot_edges.parquet.sha256").write_text("bad_hash  snapshot_edges.parquet\n", encoding="utf-8")
     with pytest.raises(ValueError, match="physical SHA-256 sidecar mismatch"):
-        load_snapshot_from_parquet(parquet_path, verify_manifest=True)
+        _load_snapshot_from_parquet(parquet_path, verify_manifest=True)
+
+
+def test_public_m2_loader_rejects_unbound_or_unverified_parquet(tmp_path: Path):
+    parquet_path = tmp_path / "snapshots" / "S1" / "snapshot_edges.parquet"
+
+    with pytest.raises(PermissionError, match="not a certified M2 handoff"):
+        load_snapshot_from_parquet(parquet_path, snapshot_id="S1")
+
+    with pytest.raises(ValueError, match="requires verified manifests"):
+        load_snapshot_from_parquet(
+            parquet_path,
+            snapshot_id="S1",
+            repo_root=tmp_path,
+            run_id="run1",
+            verify_manifest=False,
+        )

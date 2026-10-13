@@ -14,6 +14,7 @@ from pathlib import Path
 from temporal.schema import ClaimCandidate, ContractError
 from kg_pipeline.claims import extract_claims, resolve_claim_provenance
 from kg_pipeline.llm_adapter import OfflineMockAdapter
+from kg_pipeline.evidence import IDENTITY_NORMALIZATION_VERSION
 
 
 def test_claim_candidate_uses_body_variant_identity(tmp_path: Path):
@@ -36,7 +37,8 @@ def test_claim_candidate_uses_body_variant_identity(tmp_path: Path):
         body_variant_id="bv_alpha_001",
         cache_dir=cache_dir,
         ontology=["CEO"],
-        adapter=adapter
+        adapter=adapter,
+        normalization_version=IDENTITY_NORMALIZATION_VERSION,
     )
 
     assert len(dlq) == 0
@@ -229,4 +231,3 @@ def test_body_to_sources_trust_propagation_in_adjudication():
     assert review[0]["reason"] == "NON_WHITELIST_SOURCE"
     assert review[0]["provisional_fact"].source_id == "untrusted_blog"
     assert review[0]["provisional_fact"].source_url == "https://randomblog.test/post.htm"
-

@@ -14,7 +14,7 @@ import yaml
 
 from temporal.schema import FactVersion
 
-from .contracts import TABLE_SCHEMAS, ContractError
+from .contracts import FOREIGN_KEYS, PRIMARY_KEYS, TABLE_SCHEMAS, ContractError
 from .hashing import sha256_file
 
 
@@ -38,6 +38,52 @@ def load_machine_contract(repo_root: Path) -> dict[str, Any]:
     return document
 
 
+def _audit_physical_declaration(name: str, definition: dict[str, Any]) -> dict[str, Any]:
+    """Check explicit declarations only; never infer or approve a missing policy."""
+    columns = definition.get("columns")
+    if columns is None:
+        return {"status": "UNDECLARED", "issues": ["PHYSICAL_TYPES_AND_NULLABILITY_UNDECLARED"]}
+    issues = []
+    declared = set(definition["fields"])
+    if not isinstance(columns, dict) or set(columns) != declared:
+        return {"status": "BLOCKED", "issues": ["COLUMN_DECLARATIONS_MUST_MATCH_FIELDS"]}
+    runtime = TABLE_SCHEMAS.get(name)
+    for field_name, specification in columns.items():
+        if (
+            not isinstance(specification, dict)
+            or set(specification) != {"arrow_type", "nullable"}
+            or not isinstance(specification.get("arrow_type"), str)
+            or type(specification.get("nullable")) is not bool
+        ):
+            issues.append(f"INVALID_COLUMN_DECLARATION:{field_name}")
+            continue
+        if runtime is None or field_name not in runtime.names:
+            issues.append(f"MISSING_RUNTIME_COLUMN:{field_name}")
+            continue
+        field = runtime.field(field_name)
+        if str(field.type) != specification["arrow_type"]:
+            issues.append(f"ARROW_TYPE_MISMATCH:{field_name}")
+        if field.nullable != specification["nullable"]:
+            issues.append(f"NULLABILITY_MISMATCH:{field_name}")
+    primary = definition.get("primary_key")
+    if (
+        not isinstance(primary, list) or not primary
+        or any(not isinstance(key, str) or key not in declared for key in primary)
+        or len(primary) != len(set(primary)) or primary != PRIMARY_KEYS.get(name)
+    ):
+        issues.append("PRIMARY_KEY_MISMATCH_OR_UNDECLARED")
+    foreign = definition.get("foreign_keys")
+    expected = {field: list(target) for field, target in FOREIGN_KEYS.get(name, {}).items()}
+    if not isinstance(foreign, dict) or foreign != expected:
+        issues.append("FOREIGN_KEYS_MISMATCH_OR_UNDECLARED")
+    else:
+        for field, (target_table, target_field) in foreign.items():
+            target = TABLE_SCHEMAS.get(target_table)
+            if field not in declared or target is None or target_field not in target.names:
+                issues.append(f"INVALID_FOREIGN_KEY:{field}")
+    return {"status": "BLOCKED" if issues else "PASS", "issues": issues}
+
+
 def audit_machine_contract(repo_root: Path, table_names: list[str] | None = None) -> dict[str, Any]:
     """Check exact names. A proposed alias is a scientific decision, not a cast."""
     document = load_machine_contract(repo_root)
@@ -59,6 +105,11 @@ def audit_machine_contract(repo_root: Path, table_names: list[str] | None = None
             blockers.append("PYARROW_MISSING_DECLARED_FIELDS")
         if extra:
             blockers.append("PYARROW_UNDECLARED_FIELDS")
+        physical = _audit_physical_declaration(name, defined) if isinstance(defined, dict) else {
+            "status": "UNDECLARED", "issues": ["MISSING_IN_CONFIG_SCHEMA"],
+        }
+        if physical["status"] == "BLOCKED":
+            blockers.append("PHYSICAL_CONTRACT_MISMATCH")
         dataclass_missing: list[str] = []
         if name == "fact_versions":
             model_fields = {field.name for field in fields(FactVersion)}
@@ -72,10 +123,15 @@ def audit_machine_contract(repo_root: Path, table_names: list[str] | None = None
             "missing_in_pyarrow": missing,
             "undeclared_in_pyarrow": extra,
             "missing_in_dataclass": dataclass_missing,
+            "physical_contract": physical,
         })
     return {
         "status": "PASS" if all(item["status"] == "PASS" for item in entries) else "BLOCKED",
         "schema_version": document["schema_version"],
+        "physical_contract_status": (
+            "PASS" if all(item["physical_contract"]["status"] == "PASS" for item in entries)
+            else "BLOCKED"
+        ),
         "schema_physical_sha256": sha256_file(repo_root / "config" / "schema.yaml"),
         "tables": entries,
     }

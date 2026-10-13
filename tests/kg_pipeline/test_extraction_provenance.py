@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 
@@ -10,6 +11,7 @@ from kg_pipeline import extract
 from kg_pipeline.contracts import make_row
 from kg_pipeline.hashing import sha256_text
 from kg_pipeline.storage import write_parquet_immutable, write_yaml_immutable
+from kg_pipeline.evidence import IDENTITY_NORMALIZATION_VERSION
 from temporal.schema import ClaimCandidate, ContractError
 
 
@@ -43,7 +45,13 @@ def _claim(body_variant_id: str = "bv_test") -> ClaimCandidate:
     )
 
 
-def _setup_run(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, *, claims=None) -> Path:
+def _setup_run(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    claims=None,
+    normalization_version: str | None = IDENTITY_NORMALIZATION_VERSION,
+) -> Path:
     run_dir = tmp_path / "runs" / RUN_ID
     tables = run_dir / "tables"
     tables.mkdir(parents=True)
@@ -80,6 +88,18 @@ def _setup_run(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, *, claims=None) 
             quality_flags_json="[]",
         )],
     )
+    original_read_table = extract.pq.read_table
+
+    def read_table(path, *args, **kwargs):
+        table = original_read_table(path, *args, **kwargs)
+        if Path(path) == tables / "body_variants.parquet" and normalization_version is not None:
+            table = table.append_column(
+                "normalization_version",
+                pa.array([normalization_version] * table.num_rows, type=pa.string()),
+            )
+        return table
+
+    monkeypatch.setattr(extract.pq, "read_table", read_table)
     candidates = [_claim()] if claims is None else claims
     monkeypatch.setattr(extract, "extract_claims", lambda **_: (candidates, []))
     return run_dir
@@ -185,6 +205,43 @@ def test_extraction_validates_provenance_before_writing_claims(tmp_path: Path, m
 
     assert not (run_dir / "tables" / "extracted_claims.parquet").exists()
     assert not (run_dir / "tables" / "claim_provenance.parquet").exists()
+
+
+def test_extraction_blocks_body_variants_without_normalization_version(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    run_dir = _setup_run(tmp_path, monkeypatch, normalization_version=None)
+    memberships, retrievals, source_versions = _valid_rows()
+    _write_provenance_inputs(
+        run_dir,
+        membership_rows=memberships,
+        retrieval_rows=retrievals,
+        source_version_rows=source_versions,
+    )
+
+    with pytest.raises(ContractError, match="explicit body_variants.normalization_version"):
+        extract.run_extraction(tmp_path, RUN_ID)
+
+    assert not (run_dir / "tables" / "extracted_claims.parquet").exists()
+    assert not (run_dir / "tables" / "claim_provenance.parquet").exists()
+
+
+def test_extraction_does_not_activate_unapproved_nfc_normalization(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    run_dir = _setup_run(tmp_path, monkeypatch, normalization_version="clean-text-nfc-v1")
+    memberships, retrievals, source_versions = _valid_rows()
+    _write_provenance_inputs(
+        run_dir,
+        membership_rows=memberships,
+        retrieval_rows=retrievals,
+        source_version_rows=source_versions,
+    )
+
+    with pytest.raises(ContractError, match="unapproved normalization"):
+        extract.run_extraction(tmp_path, RUN_ID)
+
+    assert not (run_dir / "tables" / "extracted_claims.parquet").exists()
 
 
 def test_extraction_rejects_provenance_hash_mismatch_before_writing(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):

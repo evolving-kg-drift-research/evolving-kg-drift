@@ -4,16 +4,21 @@ from __future__ import annotations
 
 import json
 import logging
+from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 import pyarrow.parquet as pq
 
-from .adjudication import adjudicate_claims, validate_append_only_fact_versions
+from .adjudication import (
+    adjudicate_claims,
+    build_source_claims,
+    validate_append_only_fact_versions,
+)
 from .claims import resolve_claim_provenance
 from .contracts import CONTRACT_VERSION
-from .hashing import stable_id, utc_now_iso
+from .hashing import sha256_json, stable_id, utc_now_iso
 from .run import create_stage_manifest, get_run_dir, load_run_manifest, resolve_run_table_path
 from .locked_mode import scientific_locked_flag, validate_locked_baseline
 from .storage import read_yaml, write_json_immutable, write_parquet_immutable
@@ -103,8 +108,11 @@ def _load_previous_fact_store(repo_root: Path, run_id: str) -> tuple[Path | None
         return None, [], []
     try:
         path = resolve_run_table_path(repo_root, parent_run_id, "fact_versions")
-    except FileNotFoundError:
-        return None, [], []
+    except FileNotFoundError as exc:
+        raise ContractError(
+            f"Parent run {parent_run_id} has no verified FactVersion store; "
+            "cross-run adjudication cannot proceed without its append-only history."
+        ) from exc
     rows = pq.read_table(path).to_pylist()
     facts = [_fact_version_from_row(row) for row in rows]
     return path, rows, facts
@@ -216,6 +224,11 @@ def run_adjudication(repo_root: Path, run_id: str) -> dict[str, Any]:
     expected_by_id = {row["provenance_id"]: row for row in expected_rows}
     if actual_by_id != expected_by_id:
         raise ContractError("claim_provenance does not match extracted claim IDs and upstream provenance links.")
+
+    try:
+        source_claims = build_source_claims(claims, provenance_rows)
+    except ValueError as exc:
+        raise ContractError(f"Cannot construct source-level claim lineage: {exc}") from exc
 
     # Keep source links separate from the temporal-normalization decision.
     retrieval_by_id = {r["retrieval_id"]: r for r in retrieval_rows if r.get("retrieval_id")}
@@ -343,6 +356,18 @@ def run_adjudication(repo_root: Path, run_id: str) -> dict[str, Any]:
         decisions_rows,
     )
     (run_dir / "reports").mkdir(parents=True, exist_ok=True)
+    source_claims_semantic = {
+        "manifest_version": "source-claims-v1",
+        "run_id": run_id,
+        "source_claims": [asdict(source_claim) for source_claim in source_claims],
+    }
+    write_json_immutable(
+        run_dir / "reports" / "source_claims.json",
+        {
+            **source_claims_semantic,
+            "semantic_sha256": sha256_json(source_claims_semantic),
+        },
+    )
     write_json_immutable(
         run_dir / "reports" / "adjudication_review_queue.json",
         {
@@ -377,8 +402,13 @@ def run_adjudication(repo_root: Path, run_id: str) -> dict[str, Any]:
             {"table": "fact_versions", "path": str(run_dir / "tables" / "fact_versions.parquet"), "count": len(fact_versions_rows)},
             {"table": "adjudication_decisions", "path": str(run_dir / "tables" / "adjudication_decisions.parquet"), "count": len(decisions_rows)},
         ],
+        output_manifests=[{
+            "path": str(run_dir / "reports" / "source_claims.json"),
+            "contract_version": "source-claims-v1",
+        }],
         conservation_metrics={
             "claims_count": len(claims),
+            "source_claims_count": len(source_claims),
             "accepted_facts_count": len(accepted),
             "review_queue_count": len(review_queue),
             "decisions_count": len(decisions_rows),
@@ -391,6 +421,7 @@ def run_adjudication(repo_root: Path, run_id: str) -> dict[str, Any]:
         "status": "COMPLETED",
         "run_id": run_id,
         "adjudicated_facts_count": len(accepted),
+        "source_claims_count": len(source_claims),
         "review_queue_count": len(review_queue),
         "decisions_count": len(decisions_rows),
     }

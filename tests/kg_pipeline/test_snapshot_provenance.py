@@ -165,6 +165,7 @@ def _run_with_inputs(monkeypatch, tmp_path: Path, inputs):
             "config_candidates": {},
             "config_approval": {},
             "machine_schema": {},
+            "config_bundle_semantic_sha256": "b" * 64,
             "code_fingerprint_sha256": "a" * 64,
         },
     )
@@ -184,6 +185,12 @@ def _run_with_inputs(monkeypatch, tmp_path: Path, inputs):
 
 def test_snapshot_provenance_validates_full_canonical_chain(monkeypatch, tmp_path):
     run_dir, writes = _run_with_inputs(monkeypatch, tmp_path, _valid_inputs())
+    published_stage = {}
+    monkeypatch.setattr(
+        snapshot_runner,
+        "create_stage_manifest",
+        lambda _root, _run_id, _stage, **kwargs: published_stage.update(kwargs),
+    )
 
     result = snapshot_runner.run_snapshot(
         tmp_path, "run1", cutoff_iso="2021-01-01T00:00:00Z", snapshot_id="S1"
@@ -192,6 +199,10 @@ def test_snapshot_provenance_validates_full_canonical_chain(monkeypatch, tmp_pat
     assert result["status"] == "COMPLETED"
     assert len(writes) >= 4
     assert (run_dir / "tables").is_dir()
+    assert published_stage["output_manifests"] == [{
+        "path": str(run_dir / "snapshots" / "S1" / "snapshot_manifest.yaml"),
+        "contract_version": "snapshot-manifest-v2",
+    }]
 
 
 @pytest.mark.parametrize(

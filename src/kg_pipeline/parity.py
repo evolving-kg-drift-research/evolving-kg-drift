@@ -15,9 +15,13 @@ def _snapshot_edge_key(edge: dict) -> tuple:
         edge["relation_id"],
         edge["object_id"],
         edge.get("snapshot_id"),
+        edge.get("edge_id"),
         edge.get("valid_from"),
         edge.get("valid_to"),
+        edge.get("evidence_observed_at"),
+        edge.get("accepted_into_kg_at"),
         edge.get("fact_version_id"),
+        edge.get("temporal_support_json"),
     )
 
 

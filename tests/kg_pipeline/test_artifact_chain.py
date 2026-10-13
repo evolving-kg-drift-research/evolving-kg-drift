@@ -2,6 +2,8 @@
 
 import hashlib
 import json
+from dataclasses import asdict
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -16,7 +18,9 @@ from kg_pipeline.run import (
     resolve_run_table_path,
     verify_stage_manifest,
 )
-from kg_pipeline.storage import ArtifactConflict, write_parquet_immutable
+from kg_pipeline.storage import ArtifactConflict, write_json_immutable, write_parquet_immutable
+from kg_pipeline.storage import write_yaml_immutable
+from temporal.snapshot import SNAPSHOT_MANIFEST_CONTRACT_VERSION, create_snapshot_manifest
 
 
 def _stage_chain(root: Path) -> tuple[Path, Path]:
@@ -100,6 +104,79 @@ def test_stage_lineage_cycle_blocks_consumer(tmp_path):
         verify_stage_manifest(tmp_path, "chain_run", "snapshot_stage")
 
 
+def test_stage_manifest_binds_json_provenance_and_rejects_tampering(tmp_path):
+    init_run(tmp_path, "extract_manifest", mode="extraction")
+    table_path = tmp_path / "runs/extract_manifest/tables/extracted_claims.parquet"
+    write_parquet_immutable(table_path, "extracted_claims", [])
+    report_path = tmp_path / "runs/extract_manifest/reports/extractor_manifest.json"
+    semantic = {
+        "manifest_version": "extraction-provenance-v2",
+        "body_inputs": [{
+            "body_variant_id": "body_1",
+            "clean_text_sha256": "a" * 64,
+            "normalization_version": "clean-text-identity-v1",
+        }],
+    }
+    write_json_immutable(report_path, {**semantic, "semantic_sha256": sha256_json(semantic)})
+    create_stage_manifest(
+        tmp_path,
+        "extract_manifest",
+        "extraction",
+        output_artifacts=[{"table": "extracted_claims", "path": str(table_path)}],
+        output_manifests=[{
+            "path": str(report_path),
+            "contract_version": "extraction-provenance-v2",
+        }],
+    )
+
+    verified = verify_stage_manifest(tmp_path, "extract_manifest", "extraction")
+    assert verified["output_manifests"][0]["semantic_sha256"] == sha256_json(semantic)
+    assert verified["output_manifests"][0]["physical_sha256"]
+
+    with report_path.open("ab") as stream:
+        stream.write(b" ")
+    with pytest.raises(ArtifactConflict, match="physical_sha256 mismatch"):
+        verify_stage_manifest(tmp_path, "extract_manifest", "extraction")
+
+
+def test_stage_manifest_binds_snapshot_yaml_manifest_and_rejects_tampering(tmp_path):
+    init_run(tmp_path, "snapshot_yaml", mode="snapshot")
+    edge_path = tmp_path / "runs/snapshot_yaml/snapshots/S1/snapshot_edges.parquet"
+    write_parquet_immutable(edge_path, "snapshot_edges", [])
+    snapshot_manifest = create_snapshot_manifest(
+        snapshot_id="S1",
+        cutoff=datetime(2025, 1, 1, tzinfo=timezone.utc),
+        edges=[],
+        support_records=[],
+        exclusions=[],
+        entity_mapping_hash="1" * 64,
+        resolved_config_hash="2" * 64,
+        boundary_hash="3" * 64,
+        code_fingerprint="4" * 64,
+    )
+    manifest_path = edge_path.parent / "snapshot_manifest.yaml"
+    write_yaml_immutable(manifest_path, asdict(snapshot_manifest))
+    create_stage_manifest(
+        tmp_path,
+        "snapshot_yaml",
+        "snapshot_stage",
+        output_artifacts=[{"table": "snapshot_edges", "path": str(edge_path)}],
+        output_manifests=[{
+            "path": str(manifest_path),
+            "contract_version": SNAPSHOT_MANIFEST_CONTRACT_VERSION,
+        }],
+    )
+
+    stage = verify_stage_manifest(tmp_path, "snapshot_yaml", "snapshot_stage")
+    assert stage["output_manifests"][0]["artifact_kind"] == "yaml"
+    assert stage["output_manifests"][0]["semantic_sha256"] == snapshot_manifest.snapshot_manifest_hash
+
+    with manifest_path.open("a", encoding="utf-8") as handle:
+        handle.write("\n")
+    with pytest.raises(ArtifactConflict, match="physical_sha256 mismatch"):
+        verify_stage_manifest(tmp_path, "snapshot_yaml", "snapshot_stage")
+
+
 def test_parent_run_cycle_blocks_consumer(tmp_path):
     _stage_chain(tmp_path)
     path = tmp_path / "runs/chain_run/run_manifest.yaml"
@@ -181,5 +258,5 @@ def test_m2_requires_snapshot_manifest_and_exact_requested_id(tmp_path, monkeypa
     report = {**semantic, "created_at_real": "2026-01-01T00:00:00+00:00",
               "snapshot_manifest_hash": hashlib.sha256(json.dumps(semantic, sort_keys=True).encode()).hexdigest()}
     (path.parent / "snapshot_manifest.yaml").write_text(yaml.safe_dump(report), encoding="utf-8")
-    with pytest.raises(PermissionError, match="scientific_locked"):
+    with pytest.raises(ArtifactConflict, match="No COMPLETED producer binds manifest"):
         load_snapshots_from_run(tmp_path, run_id, ["S1"])

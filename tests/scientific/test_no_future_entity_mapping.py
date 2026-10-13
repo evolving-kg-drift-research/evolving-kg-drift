@@ -190,7 +190,7 @@ def test_revision_cannot_reference_parent_that_is_not_known_by_cutoff():
         supporting_claim_ids=("claim-revision",),
     )
 
-    with pytest.raises(ContractError, match="missing or not known/accepted"):
+    with pytest.raises(ContractError, match="missing or not yet known"):
         build_snapshot_edges_and_support(
             [future_parent, revision], cutoff=dt(2025, 1, 1)
         )

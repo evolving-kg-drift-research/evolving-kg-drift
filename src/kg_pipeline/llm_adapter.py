@@ -1,3 +1,4 @@
+import hashlib
 import json
 import logging
 from typing import Any
@@ -28,6 +29,7 @@ class LLMAdapter:
         self.temperature = temperature
         self.model_revision: str | None = None
         self.tokenizer_revision: str | None = None
+        self.runtime_fingerprint: str | None = None
 
     def cache_metadata(self) -> dict[str, Any]:
         """Return the frozen request identity used by extraction replay caches."""
@@ -36,6 +38,7 @@ class LLMAdapter:
             "model_id": self.model,
             "model_revision": self.model_revision,
             "tokenizer_revision": self.tokenizer_revision,
+            "runtime_fingerprint": self.runtime_fingerprint,
             "decoding_config": {"temperature": self.temperature},
         }
 
@@ -62,6 +65,7 @@ class LocalOpenAIAdapter(LLMAdapter):
         temperature: float = 0.0,
         model_revision: str | None = None,
         tokenizer_revision: str | None = None,
+        runtime_fingerprint: str | None = None,
         top_p: float | None = None,
         max_tokens: int | None = None,
     ):
@@ -69,6 +73,7 @@ class LocalOpenAIAdapter(LLMAdapter):
         self.base_url = base_url
         self.model_revision = model_revision
         self.tokenizer_revision = tokenizer_revision
+        self.runtime_fingerprint = runtime_fingerprint
         self.top_p = top_p
         self.max_tokens = max_tokens
         try:
@@ -85,6 +90,7 @@ class LocalOpenAIAdapter(LLMAdapter):
             "max_tokens": self.max_tokens,
             "response_format": "json_object",
         }
+        metadata["endpoint_sha256"] = hashlib.sha256(self.base_url.encode("utf-8")).hexdigest()
         return metadata
 
     def __call__(self, prompt: str) -> dict[str, Any]:

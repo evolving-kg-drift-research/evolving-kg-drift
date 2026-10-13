@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import re
 from pathlib import Path
 from typing import Any
@@ -10,7 +12,8 @@ from .baseline import inspect_config_approval, inspect_source_lock
 from .contracts import CONTRACT_VERSION
 from .contract_authority import load_machine_contract
 from .hashing import repo_relative, sha256_file, sha256_json, utc_now_iso
-from .storage import ArtifactConflict, read_yaml, verify_parquet_artifact, write_yaml_immutable
+from .storage import ArtifactConflict, read_json, read_yaml, verify_parquet_artifact, write_yaml_immutable
+from temporal.schema import ContractError
 
 ARTIFACT_REF_VERSION = "m1_artifact_ref_v1"
 
@@ -98,14 +101,19 @@ def _bundle_payload(repo_root: Path) -> dict[str, Any]:
     candidate_files = config_fingerprints(repo_root)
 
     resolved_config: dict[str, Any] = {}
-    for p_cand in ("configs/protocol_v1.yaml", "config/protocol.yaml"):
-        p_path = repo_root / p_cand
-        if p_path.is_file():
-            try:
-                resolved_config["protocol"] = read_yaml(p_path)
-            except Exception:
-                resolved_config["protocol"] = {}
-            break
+    protocol_path = repo_root / "configs" / "protocol_v1.yaml"
+    if protocol_path.is_file():
+        try:
+            protocol = read_yaml(protocol_path)
+        except Exception as exc:  # noqa: BLE001 - malformed authoritative config must not fall back.
+            raise ArtifactConflict(f"Authoritative configs/protocol_v1.yaml is unreadable: {exc}") from exc
+        if not isinstance(protocol, dict) or not protocol:
+            raise ArtifactConflict("Authoritative configs/protocol_v1.yaml must contain a nonempty mapping")
+        resolved_config["protocol"] = protocol
+    else:
+        # Non-scientific fixture/inventory runs may be initialized without a protocol;
+        # locked runs are rejected below. Never substitute the legacy runtime mapping.
+        resolved_config["protocol"] = None
 
     ont_path = repo_root / "config" / "ontology.yaml"
     if ont_path.is_file():
@@ -216,18 +224,22 @@ def init_run(
                 repo_root / "pyproject.toml",
                 repo_root / "requirements.lock.txt",
             )
-        except ValueError as exc:
+        except (ValueError, ContractError) as exc:
             raise ArtifactConflict(
-                "Scientific locked run requires every direct dependency to be exactly pinned in requirements.lock.txt"
+                "Scientific locked run requires every declared runtime/build dependency to be exactly pinned in requirements.lock.txt"
             ) from exc
     bundle = _bundle_payload(repo_root)
     bundle["scientific_locked"] = scientific_locked
+    if scientific_locked and not isinstance(bundle["resolved_config"].get("protocol"), dict):
+        raise ArtifactConflict(
+            "Scientific locked runs require the authoritative configs/protocol_v1.yaml; legacy config/protocol.yaml is not a fallback"
+        )
     if scientific_locked and mode == "extraction":
         from .locked_mode import validate_local_adapter_declaration
 
         try:
             validate_local_adapter_declaration(bundle["resolved_config"].get("llm_adapter"))
-        except ValueError as exc:
+        except (ValueError, ContractError) as exc:
             raise ArtifactConflict(
                 "Scientific locked extraction requires a pinned local adapter in the approved "
                 "config/llm_adapter.yaml"
@@ -395,6 +407,94 @@ def _verify_ref(repo_root: Path, ref: dict[str, Any]) -> Path:
     return path
 
 
+def _json_ref(
+    repo_root: Path,
+    path: Path,
+    stage_name: str,
+    contract_version: str,
+) -> dict[str, Any]:
+    producer_run, relative = _artifact_location(repo_root, path)
+    payload = read_json(path)
+    if not isinstance(payload, dict):
+        raise ArtifactConflict(f"JSON artifact must contain an object: {path}")
+    semantic_sha256 = payload.get("semantic_sha256")
+    if payload.get("manifest_version") != contract_version:
+        raise ArtifactConflict(f"JSON artifact contract version mismatch: {path}")
+    semantic_payload = {key: value for key, value in payload.items() if key != "semantic_sha256"}
+    if not isinstance(semantic_sha256, str) or semantic_sha256 != sha256_json(semantic_payload):
+        raise ArtifactConflict(f"JSON artifact semantic hash mismatch: {path}")
+    return {
+        "ref_version": ARTIFACT_REF_VERSION,
+        "artifact_kind": "json",
+        "producer_run_id": producer_run,
+        "producer_stage": stage_name,
+        "path": relative,
+        "contract_version": contract_version,
+        "physical_sha256": sha256_file(path),
+        "semantic_sha256": semantic_sha256,
+    }
+
+
+def _verify_json_ref(repo_root: Path, ref: dict[str, Any]) -> Path:
+    if ref.get("ref_version") != ARTIFACT_REF_VERSION or ref.get("artifact_kind") != "json":
+        raise ArtifactConflict("Unsupported or missing JSON ArtifactRef version")
+    run_dir = get_run_dir(repo_root, ref["producer_run_id"])
+    relative = Path(ref["path"])
+    path = (run_dir / relative).resolve()
+    if relative.is_absolute() or run_dir not in path.parents:
+        raise ArtifactConflict("JSON ArtifactRef path escapes producer run")
+    actual = _json_ref(repo_root, path, ref["producer_stage"], ref["contract_version"])
+    for key, value in actual.items():
+        if ref.get(key) != value:
+            raise ArtifactConflict(f"JSON ArtifactRef {key} mismatch: {path}")
+    return path
+
+
+def _yaml_ref(
+    repo_root: Path,
+    path: Path,
+    stage_name: str,
+    contract_version: str,
+) -> dict[str, Any]:
+    producer_run, relative = _artifact_location(repo_root, path)
+    payload = read_yaml(path)
+    if not isinstance(payload, dict) or payload.get("manifest_version") != contract_version:
+        raise ArtifactConflict(f"YAML artifact contract version mismatch: {path}")
+    semantic = {
+        key: value for key, value in payload.items()
+        if key not in {"created_at_real", "snapshot_manifest_hash"}
+    }
+    semantic_sha256 = payload.get("snapshot_manifest_hash")
+    expected_sha256 = hashlib.sha256(json.dumps(semantic, sort_keys=True).encode("utf-8")).hexdigest()
+    if not isinstance(semantic_sha256, str) or semantic_sha256 != expected_sha256:
+        raise ArtifactConflict(f"YAML artifact semantic hash mismatch: {path}")
+    return {
+        "ref_version": ARTIFACT_REF_VERSION,
+        "artifact_kind": "yaml",
+        "producer_run_id": producer_run,
+        "producer_stage": stage_name,
+        "path": relative,
+        "contract_version": contract_version,
+        "physical_sha256": sha256_file(path),
+        "semantic_sha256": semantic_sha256,
+    }
+
+
+def _verify_yaml_ref(repo_root: Path, ref: dict[str, Any]) -> Path:
+    if ref.get("ref_version") != ARTIFACT_REF_VERSION or ref.get("artifact_kind") != "yaml":
+        raise ArtifactConflict("Unsupported or missing YAML ArtifactRef version")
+    run_dir = get_run_dir(repo_root, ref["producer_run_id"])
+    relative = Path(ref["path"])
+    path = (run_dir / relative).resolve()
+    if relative.is_absolute() or run_dir not in path.parents:
+        raise ArtifactConflict("YAML ArtifactRef path escapes producer run")
+    actual = _yaml_ref(repo_root, path, ref["producer_stage"], ref["contract_version"])
+    for key, value in actual.items():
+        if ref.get(key) != value:
+            raise ArtifactConflict(f"YAML ArtifactRef {key} mismatch: {path}")
+    return path
+
+
 def verify_stage_manifest(
     repo_root: Path, run_id: str, stage_name: str, *,
     _active: set[tuple[str, str]] | None = None,
@@ -438,6 +538,16 @@ def verify_stage_manifest(
             if ref.get("producer_run_id") != run_id or ref.get("producer_stage") != stage_name:
                 raise ArtifactConflict(f"Producer output identity mismatch: {path}")
             _verify_ref(repo_root, ref)
+        for ref in manifest.get("output_manifests", []):
+            if ref.get("producer_run_id") != run_id or ref.get("producer_stage") != stage_name:
+                raise ArtifactConflict(f"Producer manifest output identity mismatch: {path}")
+            artifact_kind = ref.get("artifact_kind")
+            if artifact_kind == "json":
+                _verify_json_ref(repo_root, ref)
+            elif artifact_kind == "yaml":
+                _verify_yaml_ref(repo_root, ref)
+            else:
+                raise ArtifactConflict(f"Unsupported stage manifest output kind: {artifact_kind!r}")
         for ref in manifest.get("input_artifacts", []):
             if ref.get("producer_run_id") not in ancestry:
                 raise ArtifactConflict(f"Input producer is outside run ancestry: {path}")
@@ -480,6 +590,26 @@ def _producer_ref_for_table(repo_root: Path, path: Path, table_name: str) -> dic
     raise ArtifactConflict(f"No COMPLETED producer binds {path}")
 
 
+def _producer_ref_for_manifest(repo_root: Path, path: Path) -> dict[str, Any]:
+    producer_run, relative = _artifact_location(repo_root, path)
+    reports = get_run_dir(repo_root, producer_run) / "reports"
+    for manifest_path in sorted(reports.glob("*_manifest.yaml")):
+        candidate = read_yaml(manifest_path)
+        if not isinstance(candidate, dict) or "stage_manifest_hash" not in candidate:
+            continue
+        if not any(
+            isinstance(ref, dict) and ref.get("path") == relative
+            for ref in candidate.get("output_manifests", [])
+        ):
+            continue
+        stage_name = manifest_path.name.removesuffix("_manifest.yaml")
+        stage = verify_stage_manifest(repo_root, producer_run, stage_name, check_workspace=False)
+        for ref in stage.get("output_manifests", []):
+            if ref.get("path") == relative:
+                return dict(ref)
+    raise ArtifactConflict(f"No COMPLETED producer binds manifest {path}")
+
+
 def resolve_run_table_path(repo_root: Path, run_id: str, table_name: str) -> Path:
     """Resolve only a table with an intact sidecar and completed producer lineage."""
     verified_run_ancestry(repo_root, run_id)
@@ -506,6 +636,7 @@ def create_stage_manifest(
     *,
     input_artifacts: list[dict[str, Any]] | None = None,
     output_artifacts: list[dict[str, Any]] | None = None,
+    output_manifests: list[dict[str, Any]] | None = None,
     conservation_metrics: dict[str, Any] | None = None,
     status: str = "COMPLETED",
     parent_run_id: str | None = None,
@@ -548,6 +679,14 @@ def create_stage_manifest(
         if "count" in item and item["count"] != ref["row_count"]:
             raise ArtifactConflict(f"Stage output count mismatch: {path}")
         outputs.append(ref)
+    output_json = []
+    for item in output_manifests or []:
+        path = Path(item["path"])
+        producer_run, _ = _artifact_location(repo_root, path)
+        if producer_run != run_id:
+            raise ArtifactConflict("Stage manifest output belongs to another run")
+        ref_builder = _yaml_ref if path.suffix.lower() in {".yaml", ".yml"} else _json_ref
+        output_json.append(ref_builder(repo_root, path, stage_name, item["contract_version"]))
     if not outputs:
         raise ArtifactConflict("Completed stage must bind at least one output")
     semantic: dict[str, Any] = {
@@ -559,6 +698,7 @@ def create_stage_manifest(
         "git_commit": git_commit,
         "input_artifacts": inputs,
         "output_artifacts": outputs,
+        "output_manifests": output_json,
         "conservation_metrics": conservation_metrics or {},
     }
     if gate_a_ref is not None:

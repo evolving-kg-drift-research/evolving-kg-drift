@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 import pytest
 
-from temporal.schema import Claim, EntityMappingVersion
+from temporal.schema import Claim, ContractError, EntityMappingVersion
 from kg_pipeline import adjudicate as adjudicate_runner
 from kg_pipeline.adjudication import (
     adjudicate_claims,
@@ -72,6 +72,8 @@ def test_adjudicate_claims():
     assert accepted[0].valid_from == datetime(2011, 8, 24, tzinfo=timezone.utc)
     assert accepted[0].confidence == 0.9
     assert set(accepted[0].supporting_claim_ids) == {"c1", "c4"}
+    assert accepted[0].revision_type == "creation"
+    assert accepted[0].supersedes_version_id is None
 
     # c2, c3, c5 should be in review
     assert len(review) == 3
@@ -193,6 +195,20 @@ def test_previous_fact_store_load_uses_parent_run_artifact(monkeypatch):
     assert facts[0].evidence_observed_at == dt(2024, 1, 2)
 
 
+def test_declared_parent_without_verified_fact_store_blocks(monkeypatch):
+    monkeypatch.setattr(
+        adjudicate_runner, "load_run_manifest", lambda *args, **kwargs: {"parent_run_id": "run_parent"}
+    )
+    monkeypatch.setattr(
+        adjudicate_runner,
+        "resolve_run_table_path",
+        lambda *args, **kwargs: (_ for _ in ()).throw(FileNotFoundError("missing FactVersion producer")),
+    )
+
+    with pytest.raises(ContractError, match="no verified FactVersion store"):
+        adjudicate_runner._load_previous_fact_store(Path("."), "run_child")
+
+
 def test_adjudication_mapping_history_blocks_alias_until_available():
     claim = Claim(
         claim_id="late-map", source_id="trusted_registry_1",
@@ -247,3 +263,50 @@ def test_conflicting_object_and_retraction_remain_pending_without_policy():
     )
     assert len(accepted) == 1
     assert {item["reason"] for item in review} == {"REVISION_CONFLICT_PENDING_APPROVED_POLICY"}
+
+
+def test_cross_run_support_and_conflict_do_not_rewrite_prior_fact():
+    ontology_rules = {"CEO": {"logical_key": ["subject", "relation"]}}
+    prior, prior_review = adjudicate_claims(
+        claims=[Claim(
+            claim_id="prior", source_id="trusted_registry_1", subject_mention="Apple",
+            relation_name="CEO", object_mention="Person A", evidence_span_start=0,
+            evidence_span_end=5, evidence_text_hash="prior-hash",
+        )],
+        observation_times={"prior": dt(2024, 1, 1)},
+        ingested_at=dt(2024, 1, 2),
+        entity_catalog={"Apple": "org_apple", "Person A": "person_a", "Person B": "person_b"},
+        ontology_rules=ontology_rules,
+    )
+    assert prior_review == []
+    assert len(prior) == 1
+    original = prior[0]
+
+    followup, review = adjudicate_claims(
+        claims=[
+            Claim(
+                claim_id="same-support", source_id="trusted_registry_1", subject_mention="Apple",
+                relation_name="CEO", object_mention="Person A", evidence_span_start=0,
+                evidence_span_end=5, evidence_text_hash="support-hash",
+            ),
+            Claim(
+                claim_id="late-conflict", source_id="trusted_registry_1", subject_mention="Apple",
+                relation_name="CEO", object_mention="Person B", evidence_span_start=0,
+                evidence_span_end=5, evidence_text_hash="conflict-hash",
+            ),
+        ],
+        observation_times={"same-support": dt(2025, 1, 1), "late-conflict": dt(2025, 1, 2)},
+        ingested_at=dt(2025, 1, 3),
+        entity_catalog={"Apple": "org_apple", "Person A": "person_a", "Person B": "person_b"},
+        ontology_rules=ontology_rules,
+        existing_facts=prior,
+    )
+
+    assert followup == []
+    assert {item["reason"] for item in review} == {
+        "SUPPORT_FOR_EXISTING_FACT_REQUIRES_SUPPORT_ARTIFACT",
+        "REVISION_CONFLICT_PENDING_APPROVED_POLICY",
+    }
+    assert prior == [original]
+    assert original.revision_type == "creation"
+    assert original.supersedes_version_id is None

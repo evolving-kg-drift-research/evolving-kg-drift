@@ -16,6 +16,7 @@ from .llm_adapter import OfflineMockAdapter, LocalOpenAIAdapter
 from .run import create_stage_manifest, get_run_dir, load_run_manifest, resolve_run_table_path
 from .storage import read_yaml, write_json_immutable, write_parquet_immutable
 from temporal.schema import ClaimCandidate, ContractError
+from .evidence import IDENTITY_NORMALIZATION_VERSION
 from .locked_mode import scientific_locked_flag, validate_scientific_locked_run
 
 logger = logging.getLogger(__name__)
@@ -73,6 +74,7 @@ def run_extraction(repo_root: Path, run_id: str) -> dict[str, Any]:
             temperature=adapter_config.get("temperature", 0.0),
             model_revision=adapter_config.get("model_revision"),
             tokenizer_revision=adapter_config.get("tokenizer_revision"),
+            runtime_fingerprint=adapter_config.get("runtime_fingerprint"),
             top_p=adapter_config.get("top_p"),
             max_tokens=adapter_config.get("max_tokens"),
         )
@@ -135,10 +137,22 @@ def run_extraction(repo_root: Path, run_id: str) -> dict[str, Any]:
         table.column("parser_fingerprint_sha256").to_pylist()
         if "parser_fingerprint_sha256" in table.column_names else [None] * len(body_variant_ids)
     )
-    normalization_versions = (
-        table.column("normalization_version").to_pylist()
-        if "normalization_version" in table.column_names else [None] * len(body_variant_ids)
-    )
+    if "normalization_version" not in table.column_names:
+        raise ContractError(
+            "Extraction requires an explicit body_variants.normalization_version; "
+            "the current schema contract must be approved and migrated before extraction."
+        )
+    normalization_versions = table.column("normalization_version").to_pylist()
+    for body_id, version in zip(body_variant_ids, normalization_versions, strict=True):
+        if not isinstance(version, str) or not version.strip():
+            raise ContractError(
+                f"Body variant {body_id} has no explicit clean-text normalization version."
+            )
+        if version != IDENTITY_NORMALIZATION_VERSION:
+            raise ContractError(
+                f"Body variant {body_id} requests unapproved normalization {version!r}; "
+                "semantic approval is required before activating a new normalization."
+            )
 
     extracted_claims = []
     all_candidates: list[ClaimCandidate] = []
@@ -288,8 +302,9 @@ def run_extraction(repo_root: Path, run_id: str) -> dict[str, Any]:
             )
         ],
     }
+    extractor_manifest_path = run_dir / "reports" / "extractor_manifest.json"
     write_json_immutable(
-        run_dir / "reports" / "extractor_manifest.json",
+        extractor_manifest_path,
         {**extractor_manifest, "semantic_sha256": sha256_json(extractor_manifest)},
     )
 
@@ -310,6 +325,10 @@ def run_extraction(repo_root: Path, run_id: str) -> dict[str, Any]:
             {"table": "extracted_claims", "path": str(claims_parquet), "count": len(extracted_claims)},
             {"table": "claim_provenance", "path": str(provenance_parquet), "count": provenance_count},
         ],
+        output_manifests=[{
+            "path": str(extractor_manifest_path),
+            "contract_version": extractor_manifest["manifest_version"],
+        }],
         conservation_metrics={
             "body_variants_count": len(body_variant_ids),
             "extracted_claims_count": len(extracted_claims),

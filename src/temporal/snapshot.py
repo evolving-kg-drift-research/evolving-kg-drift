@@ -11,6 +11,7 @@ from typing import Any
 from .schema import ContractError, FactVersion, EntityMappingVersion
 
 SNAPSHOT_BUILDER_VERSION = "snapshot-builder-bitemporal-v2"
+SNAPSHOT_MANIFEST_CONTRACT_VERSION = "snapshot-manifest-v2"
 
 
 @dataclass(frozen=True)
@@ -48,10 +49,12 @@ class SnapshotExclusion:
 @dataclass(frozen=True)
 class SnapshotManifest:
     snapshot_id: str
+    manifest_version: str
     snapshot_builder_version: str
     cutoff: str
     graph_semantic_hash: str
     support_semantic_hash: str
+    exclusion_semantic_hash: str
     fact_store_hash: str
     accepted_clock_hash: str
     entity_mapping_hash: str
@@ -79,6 +82,21 @@ def compute_support_semantic_hash(support_records: Iterable[SnapshotEdgeSupport]
     for s in sorted_supp:
         hasher.update(f"{s.provenance_id}\t{s.edge_id}\t{s.fact_version_id}\t{s.claim_id}\t{s.source_version_id}\t{s.raw_blob_sha256}\n".encode("utf-8"))
     return hasher.hexdigest()
+
+
+def compute_exclusion_semantic_hash(exclusions: Iterable[SnapshotExclusion]) -> str:
+    rows = [asdict(exclusion) for exclusion in exclusions]
+    rows.sort(key=lambda row: (
+        row["fact_version_id"], row["reason_code"], row["exclusion_id"],
+        row["record_id"], row["stage"], row["field"], row["detail"],
+    ))
+    encoded = json.dumps(rows, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
+def compute_snapshot_manifest_hash(semantic: dict[str, Any]) -> str:
+    """Hash a snapshot manifest's semantic fields using its published encoding."""
+    return hashlib.sha256(json.dumps(semantic, sort_keys=True).encode("utf-8")).hexdigest()
 
 
 def compute_fact_store_hash(
@@ -122,6 +140,63 @@ def compute_entity_mapping_hash(mappings: Iterable[EntityMappingVersion] | None)
     ).hexdigest()
 
 
+def _validate_revision_graph(
+    known_facts: Iterable[FactVersion],
+    valid_facts: Iterable[FactVersion],
+) -> None:
+    """Reject broken or ambiguous revision lineage before resolving snapshot state."""
+    known_by_id: dict[str, FactVersion] = {}
+    parent_by_id: dict[str, str] = {}
+    for fact in known_facts:
+        if fact.fact_version_id in known_by_id:
+            raise ContractError(f"Duplicate FactVersionID: {fact.fact_version_id}")
+        known_by_id[fact.fact_version_id] = fact
+
+    for fact in known_by_id.values():
+        parent_id = fact.supersedes_version_id
+        if not parent_id:
+            continue
+        parent = known_by_id.get(parent_id)
+        if parent is None:
+            raise ContractError(
+                f"FactVersion {fact.fact_version_id} references a parent that is missing "
+                "or not yet known at this cutoff."
+            )
+        if parent.logical_fact_id != fact.logical_fact_id:
+            raise ContractError(
+                f"FactVersion {fact.fact_version_id} supersedes a different LogicalFactID."
+            )
+        parent_by_id[fact.fact_version_id] = parent_id
+
+    settled: set[str] = set()
+    for start_id in known_by_id:
+        path: set[str] = set()
+        current_id = start_id
+        while current_id in parent_by_id and current_id not in settled:
+            if current_id in path:
+                raise ContractError(f"FactVersion revision cycle includes {current_id}.")
+            path.add(current_id)
+            current_id = parent_by_id[current_id]
+        settled.update(path)
+
+    valid_ids = {fact.fact_version_id for fact in valid_facts}
+    valid_children: dict[str, list[str]] = {}
+    for fact in known_by_id.values():
+        parent_id = fact.supersedes_version_id
+        if fact.fact_version_id in valid_ids and parent_id:
+            valid_children.setdefault(parent_id, []).append(fact.fact_version_id)
+    ambiguous = {
+        parent_id: sorted(children)
+        for parent_id, children in valid_children.items()
+        if len(children) > 1
+    }
+    if ambiguous:
+        parent_id, children = sorted(ambiguous.items())[0]
+        raise ContractError(
+            f"Competing effective revisions of {parent_id} require adjudication: {children}."
+        )
+
+
 def create_snapshot_manifest(
     snapshot_id: str,
     cutoff: datetime,
@@ -155,16 +230,19 @@ def create_snapshot_manifest(
 
     graph_hash = compute_graph_semantic_hash(edges)
     support_hash = compute_support_semantic_hash(support_records)
+    exclusion_hash = compute_exclusion_semantic_hash(exclusions)
     fact_hash = compute_fact_store_hash(facts, accepted_at_by_fact_id)
     created_at = datetime.now(timezone.utc).isoformat()
     cutoff_str = cutoff.isoformat()
 
     semantic = {
         "snapshot_id": snapshot_id,
+        "manifest_version": SNAPSHOT_MANIFEST_CONTRACT_VERSION,
         "snapshot_builder_version": SNAPSHOT_BUILDER_VERSION,
         "cutoff": cutoff_str,
         "graph_semantic_hash": graph_hash,
         "support_semantic_hash": support_hash,
+        "exclusion_semantic_hash": exclusion_hash,
         "fact_store_hash": fact_hash,
         "accepted_clock_hash": hashlib.sha256(
             json.dumps(
@@ -184,14 +262,16 @@ def create_snapshot_manifest(
         "support_count": len(support_records),
         "exclusion_count": len(exclusions),
     }
-    manifest_hash = hashlib.sha256(json.dumps(semantic, sort_keys=True).encode("utf-8")).hexdigest()
+    manifest_hash = compute_snapshot_manifest_hash(semantic)
 
     return SnapshotManifest(
         snapshot_id=snapshot_id,
+        manifest_version=SNAPSHOT_MANIFEST_CONTRACT_VERSION,
         snapshot_builder_version=SNAPSHOT_BUILDER_VERSION,
         cutoff=cutoff_str,
         graph_semantic_hash=graph_hash,
         support_semantic_hash=support_hash,
+        exclusion_semantic_hash=exclusion_hash,
         fact_store_hash=fact_hash,
         accepted_clock_hash=semantic["accepted_clock_hash"],
         entity_mapping_hash=entity_mapping_hash,
@@ -330,7 +410,7 @@ def build_snapshot_edges_and_support(
 
     quarantining excluded records into SnapshotExclusion.
     """
-    if cutoff.tzinfo is None:
+    if cutoff.tzinfo is None or cutoff.utcoffset() is None:
         raise ValueError("Cutoff must be timezone-aware.")
 
     exclusions: list[SnapshotExclusion] = []
@@ -410,21 +490,9 @@ def build_snapshot_edges_and_support(
             continue
         valid_facts.append(fact)
 
-    # 3. Group by logical_fact_id and resolve append-only revision chains.
-    accepted_by_id = {fact.fact_version_id: fact for fact in accepted_facts}
-    for fact in accepted_facts:
-        if not fact.supersedes_version_id:
-            continue
-        parent = accepted_by_id.get(fact.supersedes_version_id)
-        if parent is None:
-            raise ContractError(
-                f"FactVersion {fact.fact_version_id} supersedes a parent that is missing "
-                "or not known/accepted by this snapshot cutoff."
-            )
-        if parent.logical_fact_id != fact.logical_fact_id:
-            raise ContractError(
-                f"FactVersion {fact.fact_version_id} supersedes a different LogicalFactID."
-            )
+    # 3. Validate append-only lineage and refuse to choose between competing
+    # effective revisions without an approved conflict decision.
+    _validate_revision_graph(accepted_facts, valid_facts)
 
     # Retractions are tombstones, not ordinary world-state assertions. Keep
     # only tombstones already known/accepted and effective by the cutoff; their
@@ -444,18 +512,12 @@ def build_snapshot_edges_and_support(
     active_facts: list[FactVersion] = []
 
     for versions in logical_groups.values():
-        superseded_by: dict[str, str] = {}
         version_map: dict[str, FactVersion] = {v.fact_version_id: v for v in versions}
-
-        for v in versions:
-            if v.supersedes_version_id and v.supersedes_version_id in version_map:
-                existing_winner_id = superseded_by.get(v.supersedes_version_id)
-                if not existing_winner_id:
-                    superseded_by[v.supersedes_version_id] = v.fact_version_id
-                else:
-                    existing = version_map[existing_winner_id]
-                    if (v.evidence_observed_at, v.fact_version_id) > (existing.evidence_observed_at, existing.fact_version_id):
-                        superseded_by[v.supersedes_version_id] = v.fact_version_id
+        superseded_by = {
+            fact.supersedes_version_id: fact.fact_version_id
+            for fact in versions
+            if fact.supersedes_version_id in version_map
+        }
 
         for v in versions:
             current_id = v.fact_version_id
@@ -630,51 +692,56 @@ def build_snapshot(
     fact_versions: Iterable[FactVersion],
     cutoff: datetime,
 ) -> tuple[list[FactVersion], str]:
-    """Builds a deterministic KG snapshot at a specific point in time (FactVersion view)."""
-    if cutoff.tzinfo is None:
+    """Build a FactVersion-only snapshot view.
+
+    Production publication must use ``build_snapshot_edges_and_support`` so
+    acceptance clocks, mapping history, provenance and exclusions are bound.
+    """
+    if cutoff.tzinfo is None or cutoff.utcoffset() is None:
         raise ValueError("Cutoff must be timezone-aware.")
 
     # 1. Known Filter: only consider facts where evidence was observed <= cutoff.
     known_facts = [f for f in fact_versions if f.evidence_observed_at <= cutoff]
 
-    # Map by logical_fact_id to a list of versions
+    # World validity must be resolved before revisions. A correction can be
+    # known at this cutoff while becoming effective only in the future; it
+    # must not supersede the currently valid version yet.
+    valid_facts = [
+        f
+        for f in known_facts
+        if (f.valid_from is None or f.valid_from <= cutoff)
+        and (f.valid_to is None or cutoff < f.valid_to)
+    ]
+    _validate_revision_graph(known_facts, valid_facts)
+
+    # Map currently valid, known versions by LogicalFactID.
     logical_groups: dict[str, list[FactVersion]] = {}
-    for f in known_facts:
+    for f in valid_facts:
         logical_groups.setdefault(f.logical_fact_id, []).append(f)
 
     resolved_facts: list[FactVersion] = []
 
     for versions in logical_groups.values():
-        superseded_by: dict[str, str] = {}
         version_map: dict[str, FactVersion] = {v.fact_version_id: v for v in versions}
-
-        for v in versions:
-            if v.supersedes_version_id and v.supersedes_version_id in version_map:
-                existing_winner_id = superseded_by.get(v.supersedes_version_id)
-                if not existing_winner_id:
-                    superseded_by[v.supersedes_version_id] = v.fact_version_id
-                else:
-                    existing = version_map[existing_winner_id]
-                    if (v.evidence_observed_at, v.fact_version_id) > (existing.evidence_observed_at, existing.fact_version_id):
-                        superseded_by[v.supersedes_version_id] = v.fact_version_id
+        superseded_by = {
+            fact.supersedes_version_id: fact.fact_version_id
+            for fact in versions
+            if fact.supersedes_version_id in version_map
+        }
 
         active_versions = []
-        winning_supersessions = set(superseded_by.values())
         for v in versions:
             current_id = v.fact_version_id
             is_superseded = current_id in superseded_by
-            lost_tiebreaker = (v.supersedes_version_id is not None) and (current_id not in winning_supersessions)
 
-            if not is_superseded and not lost_tiebreaker:
+            if not is_superseded:
                 active_versions.append(v)
 
         for v in active_versions:
             if v.revision_type == "retraction":
                 continue
 
-            if v.valid_from is None or v.valid_from <= cutoff:
-                if v.valid_to is None or cutoff < v.valid_to:
-                    resolved_facts.append(v)
+            resolved_facts.append(v)
 
     # 4. Canonical deterministic sort
     resolved_facts.sort(key=lambda x: (

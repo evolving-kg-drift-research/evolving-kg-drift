@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import platform
+import re
 from pathlib import Path
 from typing import Any
 
@@ -14,7 +15,7 @@ from .llm_cache import (
     set_cached_response,
 )
 from .hashing import canonical_json, sha256_text
-from .evidence import EvidenceSpan
+from .evidence import EvidenceSpan, normalize_clean_text
 
 from .llm_adapter import generate_extraction_prompt, LLMAdapter
 
@@ -49,6 +50,10 @@ def extract_claims(
         raise ContractError("Claim extraction requires an explicit run-scoped cache directory.")
     if adapter is None:
         raise ContractError("Claim extraction requires an explicitly configured adapter.")
+    if not isinstance(normalization_version, str) or not normalization_version.strip():
+        raise ContractError("Claim extraction requires an explicit clean-text normalization version.")
+    if normalize_clean_text(text, normalization_version) != text:
+        raise ContractError("Stored clean text does not match its declared normalization version.")
 
     if isinstance(ontology, dict):
         relations_val = ontology.get("relations")
@@ -80,6 +85,8 @@ def extract_claims(
         "runtime": {
             "python_implementation": platform.python_implementation(),
             "python_version": platform.python_version(),
+            "platform": platform.platform(),
+            "machine": platform.machine(),
         },
     }
     if locked_replay and (
@@ -91,8 +98,16 @@ def extract_claims(
     ):
         raise ContractError(
             "Locked extraction replay requires pinned model/tokenizer revisions "
-        "and the parser/normalization fingerprints."
+            "and the parser/normalization fingerprints."
         )
+    if locked_replay and not re.fullmatch(
+        r"[0-9a-f]{64}", adapter_metadata.get("runtime_fingerprint") or ""
+    ):
+        raise ContractError("Locked extraction replay requires a SHA-256 local runtime fingerprint.")
+    if locked_replay and not re.fullmatch(r"[0-9a-f]{64}", body_parser_fingerprint or ""):
+        raise ContractError("Locked extraction replay requires a SHA-256 body parser fingerprint.")
+    if locked_replay and not re.fullmatch(r"[0-9a-f]{64}", dependency_lock_sha256 or ""):
+        raise ContractError("Locked extraction replay requires a SHA-256 dependency-lock fingerprint.")
     decoding_config = adapter_metadata.get("decoding_config")
     if not isinstance(decoding_config, dict):
         raise ContractError("Extractor adapter must provide a decoding configuration.")
@@ -136,14 +151,7 @@ def extract_claims(
             if type(start_idx) is not int or type(end_idx) is not int:
                 raise ContractError("Evidence span offsets are mandatory.")
 
-            if not normalization_version:
-                if locked_replay:
-                    raise ContractError("Evidence span requires an explicit normalization version.")
-                span = EvidenceSpan.from_text(
-                    text, start_idx, end_idx, "clean-text-identity-v1"
-                )
-            else:
-                span = EvidenceSpan.from_text(text, start_idx, end_idx, normalization_version)
+            span = EvidenceSpan.from_text(text, start_idx, end_idx, normalization_version)
 
             extracted_text = text[start_idx:end_idx].strip()
             if not extracted_text:

@@ -22,3 +22,34 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.ruff]
+# Exact pre-existing pytest output roots; production source and tests remain linted.
+# New test output stays under .pytest_cache/tmp (pytest.ini).
+extend-exclude = [
+    ".pytest-c0-basetemp",
+    ".pytest-c4-run-20261003",
+    ".pytest-c4-run-20261003b",
+    ".pytest-c4c9-final",
+    ".pytest-c4c9-focused",
+    ".pytest-c4c9-rerun",
+    ".pytest-c4c9-run",
+    ".pytest-c5-final-20261003",
+    ".pytest-c5-focused-20261003",
+    ".pytest-c5-retry-20261003",
+    ".pytest-c6-20261003",
+    ".pytest-c8-escalated-20261003",
+    ".pytest-c8-recheck-20261003",
+    ".pytest-c9-final-20261003",
+    ".pytest-c9-focused-20261003",
+    ".pytest-c9-full-20261003",
+    ".pytest-c9-full-rerun-20261003",
+    ".pytest-c9-rerun-20261003",
+    ".pytest-r1-snapshot-temp",
+    ".pytest-review-20261004-verified",
+    ".pytest-tmp-c5",
+    ".pytest-tmp-c5-run",
+    ".pytest-user-request-c4c9-fresh-9821",
+    ".tmp-pytest-c4c9",
+    "tmp-c4c9-targeted-run",
+]

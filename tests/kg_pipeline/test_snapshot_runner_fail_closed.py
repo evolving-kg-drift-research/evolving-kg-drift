@@ -42,7 +42,7 @@ def valid_fact_row():
     }
 
 
-def setup_snapshot_io(monkeypatch, tmp_path: Path, rows):
+def setup_snapshot_io(monkeypatch, tmp_path: Path, rows, *, mapping_rows=None):
     run_dir = tmp_path / "runs" / "run1"
     run_dir.mkdir(parents=True)
     config_path = run_dir / "inputs" / "proposed_config_bundle.yaml"
@@ -115,7 +115,7 @@ def setup_snapshot_io(monkeypatch, tmp_path: Path, rows):
         "document_memberships": membership_rows,
         "retrievals": retrieval_rows,
         "source_versions": source_version_rows,
-        "entity_mapping_versions": [{
+        "entity_mapping_versions": mapping_rows if mapping_rows is not None else [{
             "entity_mapping_id": "mapping_1", "mention": "entity_a",
             "canonical_entity_id": "entity_a", "mapping_available_at": "2019-01-01T00:00:00Z",
             "entity_map_version": "mapping-v1", "supersedes_mapping_id": None,
@@ -143,6 +143,7 @@ def setup_snapshot_io(monkeypatch, tmp_path: Path, rows):
     monkeypatch.setattr(snapshot_runner, "create_stage_manifest", lambda *args, **kwargs: {})
     monkeypatch.setattr(snapshot_runner, "load_run_manifest", lambda *args, **kwargs: {
         "code_fingerprint_sha256": "f" * 64,
+        "config_bundle_semantic_sha256": "e" * 64,
         "config_candidates": [], "config_approval": {"status": "PROPOSED_UNFROZEN"},
         "machine_schema": {},
     })
@@ -228,3 +229,60 @@ def test_snapshot_runner_keeps_explicit_cutoff_and_fact_times(monkeypatch, tmp_p
     assert fact.ingested_at_real.isoformat() == "2020-02-02T00:00:00+00:00"
     assert captured["cutoff"].isoformat() == "2021-01-01T00:00:00+00:00"
     assert result["cutoffs_count"] == 1
+
+
+def test_snapshot_runner_applies_mapping_versions_as_of_each_cutoff(monkeypatch, tmp_path):
+    row = valid_fact_row()
+    row["subject_id"] = "Alpha"
+    row["object_id"] = "Beta"
+    mapping_rows = [
+        {
+            "entity_mapping_id": "alpha-v1",
+            "mention": "Alpha",
+            "canonical_entity_id": "entity_alpha_v1",
+            "mapping_available_at": "2019-01-01T00:00:00Z",
+            "entity_map_version": "mapping-v1",
+            "supersedes_mapping_id": None,
+            "mapping_basis": "fixture",
+            "mapping_confidence": 1.0,
+        },
+        {
+            "entity_mapping_id": "alpha-v2",
+            "mention": "Alpha",
+            "canonical_entity_id": "entity_alpha_v2",
+            "mapping_available_at": "2022-01-01T00:00:00Z",
+            "entity_map_version": "mapping-v2",
+            "supersedes_mapping_id": "alpha-v1",
+            "mapping_basis": "fixture",
+            "mapping_confidence": 1.0,
+        },
+        {
+            "entity_mapping_id": "beta-v1",
+            "mention": "Beta",
+            "canonical_entity_id": "entity_beta",
+            "mapping_available_at": "2019-01-01T00:00:00Z",
+            "entity_map_version": "mapping-v1",
+            "supersedes_mapping_id": None,
+            "mapping_basis": "fixture",
+            "mapping_confidence": 1.0,
+        },
+    ]
+    _, writes = setup_snapshot_io(monkeypatch, tmp_path, [row], mapping_rows=mapping_rows)
+
+    early_result = snapshot_runner.run_snapshot(
+        tmp_path, "run1", cutoff_iso="2021-01-01T00:00:00Z", snapshot_id="early"
+    )
+    late_result = snapshot_runner.run_snapshot(
+        tmp_path, "run1", cutoff_iso="2023-01-01T00:00:00Z", snapshot_id="late"
+    )
+
+    edge_rows_by_snapshot = {
+        path.parent.name: rows
+        for write in writes
+        if len(write) == 3
+        for path, table_name, rows in (write,)
+        if table_name == "snapshot_edges" and path.parent.name in {"early", "late"}
+    }
+    assert early_result["status"] == late_result["status"] == "COMPLETED"
+    assert edge_rows_by_snapshot["early"][0]["subject_id"] == "entity_alpha_v1"
+    assert edge_rows_by_snapshot["late"][0]["subject_id"] == "entity_alpha_v2"

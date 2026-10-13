@@ -310,7 +310,7 @@ def test_tampered_artifact_halts_downstream(tmp_path: Path, monkeypatch):
     })
 
     # Even an intact fixture manifest is not a production M2 handoff.
-    with pytest.raises(PermissionError, match="scientific_locked"):
+    with pytest.raises(ArtifactConflict, match="No COMPLETED producer binds manifest"):
         load_snapshots_from_run(repo_root, run_id, verify_manifest=True)
 
     # Tamper with the parquet bytes directly without updating the sidecar

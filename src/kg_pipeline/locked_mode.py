@@ -33,10 +33,17 @@ def validate_dependency_lock(project_file: Path, lock_file: Path) -> None:
 
 
 def validate_dependency_lock_content(project: dict[str, Any], lock_text: str) -> None:
-    """Validate parsed project metadata and its lock text without filesystem access."""
-    dependencies = project.get("project", {}).get("dependencies")
+    """Validate runtime and declared build requirements against exact lock pins."""
+    project_metadata = project.get("project", {})
+    dependencies = project_metadata.get("dependencies") if isinstance(project_metadata, dict) else None
     if not isinstance(dependencies, list) or any(not isinstance(dep, str) for dep in dependencies):
         raise ContractError("pyproject.toml must declare project.dependencies as a list of requirements.")
+    build_system = project.get("build-system", {})
+    if not isinstance(build_system, dict):
+        raise ContractError("pyproject.toml build-system must be a mapping when declared.")
+    build_requirements = build_system.get("requires", [])
+    if not isinstance(build_requirements, list) or any(not isinstance(dep, str) for dep in build_requirements):
+        raise ContractError("pyproject.toml build-system.requires must be a list of requirements.")
     locked: dict[str, str] = {}
     for line_number, raw_line in enumerate(lock_text.splitlines(), start=1):
         line = raw_line.split("#", 1)[0].strip()
@@ -47,11 +54,16 @@ def validate_dependency_lock_content(project: dict[str, Any], lock_text: str) ->
             raise ContractError(f"requirements.lock.txt has conflicting pins for {name}.")
         locked[name] = version
 
-    for raw_requirement in dependencies:
-        name, version = _parse_exact_pin(raw_requirement, source="pyproject.toml dependency")
+    all_requirements = [
+        (raw_requirement, "pyproject.toml dependency") for raw_requirement in dependencies
+    ] + [
+        (raw_requirement, "pyproject.toml build requirement") for raw_requirement in build_requirements
+    ]
+    for raw_requirement, source in all_requirements:
+        name, version = _parse_exact_pin(raw_requirement, source=source)
         if locked.get(name) != version:
             raise ContractError(
-                f"Direct dependency {name}=={version} is not exactly pinned in requirements.lock.txt."
+                f"{source} {name}=={version} is not exactly pinned in requirements.lock.txt."
             )
 
 
@@ -79,7 +91,7 @@ def validate_scientific_locked_run(
     adapter = resolved.get("llm_adapter") or config.get("llm_adapter")
     validate_local_adapter_declaration(adapter)
     metadata = adapter_metadata or {}
-    for name in ("model_revision", "tokenizer_revision"):
+    for name in ("model_revision", "tokenizer_revision", "runtime_fingerprint"):
         if metadata.get(name) != adapter[name]:
             raise ContractError(f"Scientific locked adapter fingerprint does not match llm_adapter.{name}.")
 
@@ -88,12 +100,18 @@ def validate_local_adapter_declaration(adapter: Any, *, require_pins: bool = Tru
     """Validate that extraction uses an explicit local adapter declaration."""
     if not isinstance(adapter, dict) or adapter.get("type") != "local":
         raise ContractError("Scientific extraction requires an explicitly declared local inference adapter.")
-    required = ("model", "model_revision", "tokenizer_revision") if require_pins else ("model",)
+    required = (
+        "model", "model_revision", "tokenizer_revision", "runtime_fingerprint"
+    ) if require_pins else ("model",)
     for name in required:
         if not isinstance(adapter.get(name), str) or not adapter[name].strip():
             qualifier = "pinned " if require_pins else "explicit "
             raise ContractError(f"Scientific extraction requires {qualifier}llm_adapter.{name}.")
     if require_pins:
+        if not re.fullmatch(r"[0-9a-f]{64}", adapter["runtime_fingerprint"]):
+            raise ContractError(
+                "Scientific locked extraction requires a SHA-256 local inference runtime fingerprint."
+            )
         for name in ("temperature", "top_p", "max_tokens"):
             if name not in adapter:
                 raise ContractError(f"Scientific locked extraction requires explicit llm_adapter.{name}.")

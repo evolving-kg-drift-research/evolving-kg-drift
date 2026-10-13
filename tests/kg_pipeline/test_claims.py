@@ -2,8 +2,9 @@ import json
 
 import pytest
 from kg_pipeline.claims import extract_claims
-from kg_pipeline.llm_adapter import OfflineMockAdapter
+from kg_pipeline.llm_adapter import LLMAdapter, LocalOpenAIAdapter, OfflineMockAdapter
 from kg_pipeline.llm_cache import CacheIntegrityError
+from kg_pipeline.evidence import IDENTITY_NORMALIZATION_VERSION
 
 def get_mock_response():
     # Returns a mocked response simulating an LLM extracting facts
@@ -65,7 +66,8 @@ def test_extract_claims_offline_cache(tmp_path):
         source_id="source_1",
         cache_dir=cache_dir,
         ontology=["CEO", "IS"],
-        adapter=adapter
+        adapter=adapter,
+        normalization_version=IDENTITY_NORMALIZATION_VERSION,
     )
 
     # Expect 1 valid claim, 5 in dead letter queue (missing span, OOB, whitespace, invalid relation, unrelated evidence)
@@ -88,7 +90,8 @@ def test_extract_claims_offline_cache(tmp_path):
         source_id="source_1",
         cache_dir=cache_dir,
         ontology=["CEO", "IS"],
-        adapter=failing_adapter
+        adapter=failing_adapter,
+        normalization_version=IDENTITY_NORMALIZATION_VERSION,
     )
 
     assert len(valid_claims2) == 1
@@ -115,6 +118,19 @@ def test_extract_claims_requires_explicit_ontology_cache_and_adapter(tmp_path):
             cache_dir=tmp_path / "cache", ontology=["employs"], adapter=None,
         )
 
+
+def test_extract_claims_requires_explicit_normalization_version(tmp_path):
+    from temporal.schema import ContractError
+
+    with pytest.raises(ContractError, match="explicit clean-text normalization version"):
+        extract_claims(
+            "Company A employs Person B.",
+            body_variant_id="body-v1",
+            cache_dir=tmp_path / "cache",
+            ontology=["employs"],
+            adapter=OfflineMockAdapter({"claims": []}),
+        )
+
 def test_offline_mode_raises_if_not_cached(tmp_path):
     cache_dir = tmp_path / "llm_cache"
     with pytest.raises(RuntimeError, match="Offline mode: No cached response"):
@@ -122,7 +138,10 @@ def test_offline_mode_raises_if_not_cached(tmp_path):
             def __call__(self, prompt):
                 raise RuntimeError("Offline mode: No cached response for unseen")
 
-        extract_claims("Unseen text", "s1", cache_dir, ontology=["CEO"], adapter=FailingAdapter({}))
+        extract_claims(
+            "Unseen text", "s1", cache_dir, ontology=["CEO"],
+            adapter=FailingAdapter({}), normalization_version=IDENTITY_NORMALIZATION_VERSION,
+        )
 
 
 def test_locked_replay_requires_cached_response_and_never_calls_adapter(tmp_path):
@@ -130,18 +149,112 @@ def test_locked_replay_requires_cached_response_and_never_calls_adapter(tmp_path
         def __call__(self, prompt):
             raise AssertionError("locked replay must not invoke the adapter")
 
+    adapter = NoCallAdapter({"claims": []})
+    adapter.runtime_fingerprint = "e" * 64
     with pytest.raises(CacheIntegrityError, match="requires an immutable cached response"):
         extract_claims(
             "Company A employs Person B.",
             body_variant_id="body-v1",
             cache_dir=tmp_path / "cache",
             ontology=["employs"],
-            adapter=NoCallAdapter({"claims": []}),
+            adapter=adapter,
             locked_replay=True,
             body_parser_version="body-parser-v1",
             body_parser_fingerprint="b" * 64,
             normalization_version="clean-text-identity-v1",
+            dependency_lock_sha256="d" * 64,
         )
+
+
+def test_locked_replay_requires_dependency_lock_fingerprint(tmp_path):
+    from temporal.schema import ContractError
+
+    adapter = OfflineMockAdapter({"claims": []})
+    adapter.runtime_fingerprint = "e" * 64
+    with pytest.raises(ContractError, match="SHA-256 dependency-lock fingerprint"):
+        extract_claims(
+            "Company A employs Person B.",
+            body_variant_id="body-v1",
+            cache_dir=tmp_path / "cache",
+            ontology=["employs"],
+            adapter=adapter,
+            locked_replay=True,
+            body_parser_version="body-parser-v1",
+            body_parser_fingerprint="b" * 64,
+            normalization_version=IDENTITY_NORMALIZATION_VERSION,
+        )
+
+
+def test_locked_replay_requires_local_runtime_fingerprint(tmp_path):
+    from temporal.schema import ContractError
+
+    with pytest.raises(ContractError, match="SHA-256 local runtime fingerprint"):
+        extract_claims(
+            "Company A employs Person B.",
+            body_variant_id="body-v1",
+            cache_dir=tmp_path / "cache",
+            ontology=["employs"],
+            adapter=OfflineMockAdapter({"claims": []}),
+            locked_replay=True,
+            body_parser_version="body-parser-v1",
+            body_parser_fingerprint="b" * 64,
+            normalization_version=IDENTITY_NORMALIZATION_VERSION,
+            dependency_lock_sha256="d" * 64,
+        )
+
+
+def test_locked_replay_reuses_immutable_cache_with_full_fingerprints(tmp_path):
+    class TrackingAdapter(OfflineMockAdapter):
+        def __init__(self):
+            super().__init__({"claims": []})
+            self.calls = 0
+            self.fail = False
+            self.runtime_fingerprint = "e" * 64
+
+        def __call__(self, prompt):
+            self.calls += 1
+            if self.fail:
+                raise AssertionError("locked replay must use the immutable cache")
+            return super().__call__(prompt)
+
+    adapter = TrackingAdapter()
+    options = {
+        "text": "Company A employs Person B.",
+        "body_variant_id": "body-v1",
+        "cache_dir": tmp_path / "cache",
+        "ontology": ["employs"],
+        "adapter": adapter,
+        "body_parser_version": "body-parser-v1",
+        "body_parser_fingerprint": "b" * 64,
+        "normalization_version": IDENTITY_NORMALIZATION_VERSION,
+        "dependency_lock_sha256": "d" * 64,
+    }
+    assert extract_claims(**options) == ([], [])
+    assert adapter.calls == 1
+    cache_path = next((tmp_path / "cache").glob("*.json"))
+    envelope = json.loads(cache_path.read_text(encoding="utf-8"))
+    runtime = envelope["request_fingerprints"]["runtime"]
+    assert runtime["platform"]
+    assert runtime["machine"]
+
+    adapter.fail = True
+    assert extract_claims(**options, locked_replay=True) == ([], [])
+    assert adapter.calls == 1
+
+
+def test_local_adapter_fingerprint_binds_endpoint_without_storing_raw_endpoint():
+    def make_adapter(endpoint):
+        adapter = object.__new__(LocalOpenAIAdapter)
+        LLMAdapter.__init__(adapter, "model-v1", 0.0)
+        adapter.base_url = endpoint
+        adapter.top_p = None
+        adapter.max_tokens = None
+        return adapter.cache_metadata()
+
+    first = make_adapter("http://127.0.0.1:8000/v1")
+    second = make_adapter("http://127.0.0.1:8001/v1")
+    assert first["endpoint_sha256"] != second["endpoint_sha256"]
+    assert "base_url" not in first
 
 
 def test_cache_response_tampering_is_not_treated_as_a_cache_miss(tmp_path):
@@ -154,6 +267,7 @@ def test_cache_response_tampering_is_not_treated_as_a_cache_miss(tmp_path):
         ontology=["CEO", "IS"],
         adapter=OfflineMockAdapter(get_mock_response()),
         body_parser_version="body-parser-v1",
+        normalization_version=IDENTITY_NORMALIZATION_VERSION,
     )
     cache_path = next(cache_dir.glob("*.json"))
     envelope = json.loads(cache_path.read_text(encoding="utf-8"))
@@ -168,6 +282,7 @@ def test_cache_response_tampering_is_not_treated_as_a_cache_miss(tmp_path):
             ontology=["CEO", "IS"],
             adapter=OfflineMockAdapter({"claims": []}),
             body_parser_version="body-parser-v1",
+            normalization_version=IDENTITY_NORMALIZATION_VERSION,
         )
 
 
@@ -193,10 +308,10 @@ def test_cache_writer_will_not_repair_a_missing_immutable_manifest(tmp_path):
         set_cached_response(cache_dir, key, response, fingerprints)
 
 
-def test_locked_replay_requires_normalization_and_parser_fingerprints(tmp_path):
+def test_locked_replay_requires_explicit_normalization_version(tmp_path):
     from temporal.schema import ContractError
 
-    with pytest.raises(ContractError, match="parser/normalization fingerprints"):
+    with pytest.raises(ContractError, match="explicit clean-text normalization version"):
         extract_claims(
             "Company A employs Person B.",
             body_variant_id="body-v1",
@@ -206,4 +321,24 @@ def test_locked_replay_requires_normalization_and_parser_fingerprints(tmp_path):
             locked_replay=True,
             body_parser_version="body-parser-v1",
             body_parser_fingerprint="b" * 64,
+        )
+
+
+def test_locked_replay_requires_sha256_parser_fingerprint(tmp_path):
+    from temporal.schema import ContractError
+
+    adapter = OfflineMockAdapter({"claims": []})
+    adapter.runtime_fingerprint = "e" * 64
+    with pytest.raises(ContractError, match="SHA-256 body parser fingerprint"):
+        extract_claims(
+            "Company A employs Person B.",
+            body_variant_id="body-v1",
+            cache_dir=tmp_path / "cache",
+            ontology=["employs"],
+            adapter=adapter,
+            locked_replay=True,
+            body_parser_version="body-parser-v1",
+            body_parser_fingerprint="not-a-sha256",
+            normalization_version=IDENTITY_NORMALIZATION_VERSION,
+            dependency_lock_sha256="d" * 64,
         )

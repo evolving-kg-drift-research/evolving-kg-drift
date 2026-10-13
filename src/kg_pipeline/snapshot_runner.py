@@ -20,6 +20,7 @@ from temporal.schema import ContractError
 from .storage import read_yaml, write_parquet_immutable, write_yaml_immutable
 from temporal.schema import ClaimCandidate, EntityMappingVersion, FactVersion
 from temporal.snapshot import (
+    SNAPSHOT_MANIFEST_CONTRACT_VERSION,
     build_snapshot_edges_and_support,
     compute_entity_mapping_hash,
     create_snapshot_manifest,
@@ -72,10 +73,9 @@ def run_snapshot(
     config_path = run_dir / "inputs" / "proposed_config_bundle.yaml"
     config = read_yaml(config_path) if config_path.is_file() else {}
     locked_mode = scientific_locked_flag(config)
-    run_manifest = load_run_manifest(repo_root, run_id) if locked_mode else None
+    run_manifest = load_run_manifest(repo_root, run_id)
     boundary_config = config.get("resolved_config", {}).get("snapshot_boundaries")
     if locked_mode:
-        assert run_manifest is not None
         validate_locked_baseline(config, run_manifest)
         if not isinstance(boundary_config, dict) or not boundary_config.get("policy_version") or not isinstance(
             boundary_config.get("snapshots"), list
@@ -90,6 +90,13 @@ def run_snapshot(
             for row in boundary_config["snapshots"]
         ):
             raise ContractError("Requested snapshot cutoff is not one of the frozen approved boundaries.")
+
+    config_bundle_hash = run_manifest.get("config_bundle_semantic_sha256")
+    code_fingerprint = run_manifest.get("code_fingerprint_sha256")
+    if not isinstance(config_bundle_hash, str) or len(config_bundle_hash) != 64:
+        raise ContractError("Snapshot certification requires the initialized resolved-config bundle hash.")
+    if not isinstance(code_fingerprint, str) or len(code_fingerprint) != 64:
+        raise ContractError("Snapshot certification requires the initialized code fingerprint.")
 
     from .gates import require_gate_a
     gate_a_ref = require_gate_a(repo_root, run_id)
@@ -489,8 +496,8 @@ def run_snapshot(
             snap_exclusions_rows,
         )
 
-        run_manifest = run_manifest or load_run_manifest(repo_root, run_id)
         resolved_config_hash = sha256_json({
+            "resolved_config_bundle_semantic_sha256": config_bundle_hash,
             "config_candidates": run_manifest.get("config_candidates"),
             "config_approval": run_manifest.get("config_approval"),
             "machine_schema": run_manifest.get("machine_schema"),
@@ -510,7 +517,7 @@ def run_snapshot(
             entity_mapping_hash=compute_entity_mapping_hash(entity_mappings),
             resolved_config_hash=resolved_config_hash,
             boundary_hash=boundary_hash,
-            code_fingerprint=run_manifest.get("code_fingerprint_sha256") or "",
+            code_fingerprint=code_fingerprint,
             accepted_at_by_fact_id=accepted_at_by_fact_id,
         )
         write_yaml_immutable(
@@ -575,6 +582,13 @@ def run_snapshot(
                 for sid, _ in target_cutoffs
                 for name in ("snapshot_edges", "snapshot_edge_support", "snapshot_exclusions")
             ],
+        ],
+        output_manifests=[
+            {
+                "path": str(run_dir / "snapshots" / sid / "snapshot_manifest.yaml"),
+                "contract_version": SNAPSHOT_MANIFEST_CONTRACT_VERSION,
+            }
+            for sid, _ in target_cutoffs
         ],
         conservation_metrics={
             "cutoffs_count": len(target_cutoffs),

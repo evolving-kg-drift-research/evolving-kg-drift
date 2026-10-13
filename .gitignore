@@ -45,6 +45,8 @@ htmlcov/
 /data/**/*.jsonl
 /data/**/*.tar
 /data/**/*.zst
+/data/*.zip
+/data/*.docx
 /data/**/*.csv
 
 # Small metadata under data/manifests/ remains opt-in and must be staged explicitly.

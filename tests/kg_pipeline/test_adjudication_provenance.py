@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
+import pyarrow.parquet as pq
 import pytest
 
 from kg_pipeline import adjudicate
@@ -181,3 +183,79 @@ def test_adjudication_rejects_orphaned_claim_provenance_before_time_gate(tmp_pat
         run_adjudication(tmp_path, RUN_ID)
 
     assert not (run_dir / "tables" / "fact_versions.parquet").exists()
+
+
+def test_adjudication_runner_does_not_use_mapping_available_after_evidence_time(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    run_dir = _setup_run(tmp_path)
+    published_stage: dict[str, object] = {}
+    monkeypatch.setattr(
+        adjudicate,
+        "create_stage_manifest",
+        lambda _root, _run_id, _stage, **kwargs: published_stage.update(kwargs),
+    )
+    mapping_path = run_dir / "tables" / "entity_mapping_versions.parquet"
+    write_parquet_immutable(
+        mapping_path,
+        "entity_mapping_versions",
+        [
+            make_row(
+                "entity_mapping_versions",
+                entity_mapping_id="alpha-late",
+                mention="Alpha",
+                canonical_entity_id="canonical_alpha_current",
+                mapping_available_at="2026-01-01T00:00:00Z",
+                entity_map_version="mapping-v2",
+                supersedes_mapping_id=None,
+                mapping_basis="fixture",
+                mapping_confidence=1.0,
+            ),
+            make_row(
+                "entity_mapping_versions",
+                entity_mapping_id="beta-known",
+                mention="Beta",
+                canonical_entity_id="canonical_beta",
+                mapping_available_at="2024-01-01T00:00:00Z",
+                entity_map_version="mapping-v1",
+                supersedes_mapping_id=None,
+                mapping_basis="fixture",
+                mapping_confidence=1.0,
+            ),
+        ],
+    )
+    monkeypatch.setattr(
+        adjudicate,
+        "_approved_temporal_inputs",
+        lambda _run_dir, claims: (
+            {claim.claim_id: datetime(2025, 1, 1, tzinfo=timezone.utc) for claim in claims},
+            datetime(2025, 1, 2, tzinfo=timezone.utc),
+        ),
+    )
+    monkeypatch.setattr(adjudicate, "load_run_manifest", lambda *args, **kwargs: {"parent_run_id": None})
+
+    result = run_adjudication(tmp_path, RUN_ID)
+
+    assert result["adjudicated_facts_count"] == 0
+    assert result["source_claims_count"] == 1
+    assert result["review_queue_count"] == 1
+    facts = pq.read_table(run_dir / "tables" / "fact_versions.parquet").to_pylist()
+    assert facts == []
+    source_claim_manifest = json.loads(
+        (run_dir / "reports" / "source_claims.json").read_text(encoding="utf-8")
+    )
+    assert source_claim_manifest["manifest_version"] == "source-claims-v1"
+    assert source_claim_manifest["run_id"] == RUN_ID
+    assert len(source_claim_manifest["source_claims"]) == 1
+    source_claim = source_claim_manifest["source_claims"][0]
+    assert source_claim["claim_id"] == "claim_test"
+    assert source_claim["source_version_id"] == "sv_test"
+    assert source_claim["retrieval_id"] == "ret_test"
+    assert source_claim["raw_blob_sha256"] == "c" * 64
+    assert source_claim["source_claim_id"].startswith("sourceclaim_")
+    assert published_stage["output_manifests"] == [{
+        "path": str(run_dir / "reports" / "source_claims.json"),
+        "contract_version": "source-claims-v1",
+    }]
+    review = json.loads((run_dir / "reports" / "adjudication_review_queue.json").read_text(encoding="utf-8"))
+    assert review["review_records"] == [{"claim_id": "claim_test", "reason": "UNRESOLVED_ENTITY"}]
