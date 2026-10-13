@@ -29,6 +29,11 @@ Thumbs.db
 .coverage
 htmlcov/
 
+# Historical local test output roots (not research artifacts)
+/.pytest-*/
+/.tmp-pytest-*/
+/tmp-c4c9-*/
+
 # Pipeline outputs and local execution artifacts
 /runs/
 /logs/
@@ -47,7 +52,11 @@ htmlcov/
 /data/**/*.zst
 /data/*.zip
 /data/*.docx
+/data/KG_lan2/
 /data/**/*.csv
+
+# Preserved audit backup; keep it on disk without staging it by accident.
+/docs/audit/m1_implementation_20261004/preexisting.patch
 
 # Small metadata under data/manifests/ remains opt-in and must be staged explicitly.
 # Do not add generated data artifacts by default.
