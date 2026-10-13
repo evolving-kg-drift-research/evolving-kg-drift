@@ -2,6 +2,36 @@
 
 Date: 2026-09-28. Base commit: `7f865a7` (C2).
 
+## Read-only re-audit — 2026-10-03
+
+This current-checkout result supersedes the older audit summary below. Running
+`audit_machine_contract()` again against `config/schema.yaml` version `1.0.0`
+and physical SHA-256
+`48ad42f86088ae0e9ca8b8cbb158017bf8ec14e0d450fdeff523bf59e6902840` returned
+**BLOCKED for 9/17 tables**. The other eight tables pass exact field-name
+comparison: `retrievals`, `source_versions`, `body_variants`,
+`document_memberships`, `claim_provenance`, `snapshot_edges`,
+`snapshot_edge_support`, and `snapshot_exclusions`.
+
+| Blocked table | Current audit evidence |
+|---|---|
+| `source_registry` | No PyArrow schema; nine declared fields absent |
+| `raw_source_versions` | No PyArrow schema; ten declared fields absent |
+| `document_clusters` | Eight declared fields absent; six runtime fields undeclared |
+| `corpus_filtered` | No PyArrow schema; four declared fields absent |
+| `entity_mentions` | No PyArrow schema; six declared fields absent |
+| `entity_mapping_versions` | `mention` is runtime-only; declared `mention_id` is absent |
+| `claims` | No PyArrow schema; twenty declared fields absent |
+| `adjudication_decisions` | Nine declared fields absent; seven runtime fields undeclared |
+| `fact_versions` | Eleven declared fields absent from PyArrow and dataclass; seven runtime fields undeclared |
+
+The complete field-level result is preserved as
+[machine-readable audit evidence](m1_c3_contract_diff_20261003.json). This is
+contract diagnosis, not permission to choose aliases, Arrow types, clock basis,
+or migration semantics. C3 remains blocked pending the approval questions in
+the [decision package](m1_c3_decision_package.md); no schema or decision log
+was changed during this re-audit.
+
 ## Implementation and validation
 
 `config/schema.yaml` is now read as a machine contract. The `audit-schema` CLI

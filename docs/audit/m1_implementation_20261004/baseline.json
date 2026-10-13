@@ -1,0 +1,106 @@
+{
+  "head": "6000f3834b62e36cf3239cabe5eb14db5352a2a5",
+  "branch": "codex/m1-thu-huong-remediation",
+  "refs": [
+    "refs/remotes/origin/HEAD 9544e41586ee2594e592509fb4b5e2b8c35ebe30",
+    "refs/remotes/origin/feature/data_try 4c24da2028a53e54f992ea0b52ae1e4e9d857e52",
+    "refs/remotes/origin/feature/integrated-kge-drift 286368eb02e8fa3007b4d72c9622a5bbabc007b4",
+    "refs/remotes/origin/fix/data-pipeline-compliance 05d0eb5736930e6da9e87412e86a2902718d4c57",
+    "refs/remotes/origin/fix/data-pipeline-compliance-cont e19fe25d2325a53ebf49ada27cff4692aa1c6638",
+    "refs/remotes/origin/main 9544e41586ee2594e592509fb4b5e2b8c35ebe30",
+    "refs/remotes/origin/reconcile/pipeline-drift-compliance 6000f3834b62e36cf3239cabe5eb14db5352a2a5"
+  ],
+  "preexisting_worktree_sha256": {
+    ".github/workflows/ci.yml": "360198fe2a05951edfaf922e8198ffbba4b839fa06fe16c305a9d1369b1a0934",
+    ".gitignore": "83170d85bea46ff90a10c30805eac112c14126212602978e8f32b9661c8679c8",
+    "AGENTS.md": "a335943e0a2723e331c4393f62e4f40534e24322f1434375ecf288f37bf182b6",
+    "docs/PROGRESS.md": "c9f365ae65aa8bf6ddf9c95d5b463b1d9c9123f641d7641e7cda92432ddcacf1",
+    "docs/audit/m1_c3_contract_diff_20261003.json": "ac1fa083fa14c01048afce697026c8a777663854f84f2d7538d5e73f7fe5678c",
+    "docs/audit/m1_c3_contract_time.md": "3ed215e4d2742d44d2a026c5389a3d938ac67f4cca28878f4c52b8cc6a939df1",
+    "docs/audit/m1_c4_c9_finding_matrix.md": "d6399157c697ac37dedf113cda94b17dbe7fc571c2f6357369c1524d80b793a3",
+    "docs/audit/m1_c4_runner_regression_20261003.md": "eb658ba687d912381e4c2d75fc19285551dbe43d72325c2adc7f0c3c7e928aef",
+    "docs/audit/m1_c5_text_provenance_20261003.md": "1b161c2336e4452068bb7c117eeecb9b6f2199e917fbe78a72b3b90461f97780",
+    "docs/audit/m1_c6_claim_revision_20261003.md": "755203960cef0e9ccfa751b24e8dd089ea06cc5b54d4aa4ef0cc9666446a148c",
+    "docs/audit/m1_c7_snapshot_certification_20261003.md": "e85492c2b15264428d2a2eaca7ec6fd926d5cdb829f363f4a524bf602ab4cf8c",
+    "docs/audit/m1_c8_neo4j_readback_20261003.md": "1b0dc1498c77000317411d8171aae9c85b5d2b920b46798f9671767495b900ea",
+    "docs/audit/m1_c9_locked_ci_20261003.md": "03cc8c0731570b29eebc38eb4217472ee627077eb911159587b9b940b4abd329",
+    "docs/audit/m1_final_direction_20261004.md": "b6d3095746efcdca6ec361a7ed55027fb8b81307aa30b235cded9f3ff85ab4b1",
+    "docs/audit/m1_graph_readiness_20261004.json": "1ca09aa3e26aec27a87cc148fa59e241a7bd63ad365dd315331429534278fd0f",
+    "docs/audit/m1_input_readiness_recovery_20261003.md": "53ccafbc8730aa5816d79a7381cdfd2ac3e9cf0714c7a5b9a72dd559fd0e796c",
+    "docs/audit/m1_package_recheck_20261004.json": "ad284b0e8d4f4d2943d54aa3aeec07625da60b88ae2902693c243d9df196bf0a",
+    "docs/audit/m1_snapshot_revision_guard_20261003.md": "3006804efa34a0092a816aad12a2e16abcbddeec4f9f92aae51a2e7ff7fbce0d",
+    "docs/audit/m1_thu_huong_branch_safety_supplement_20261003.md": "ca2070e7392bd86d34f6db16549125df061caa484b021e942c0a99aa3d374fa8",
+    "docs/audit/m1_thu_huong_package_review_20261003.json": "686c59b4b91729bacd33a78b316dc2bb282518eb8de097b2ff3b1aa92a3f139d",
+    "docs/audit/m1_thu_huong_package_review_20261003.md": "9c742480bf1048cca8db522965c95d85ae7fde0d672050ca9d31a147303d71a5",
+    "docs/audit/m1_thu_huong_remediation_plan_20261003.md": "332c4ebda5733c153908b7aea47a3e50ea84840ea575605f3bf7a10f7b4abb86",
+    "scripts/audit_m1_downstream_package.py": "e23008ffc3515d18ebf93dfababe8415befbfa26ab52abcd029255f8c4489efa",
+    "scripts/audit_m1_graph_readiness.py": "623e65b826b9e739d1aae0aeb42f9408e93623fef23ebd5702013af8ae14e33b",
+    "src/kg_pipeline/adjudicate.py": "637bf69fffb5039aa4fae282733743679a555a90c24e04ce94ee6b4954f690bd",
+    "src/kg_pipeline/claims.py": "397e38ecec5010252270c58a81368d3308acde88c0759adedb46d389af2107e7",
+    "src/kg_pipeline/extract.py": "050b3fcee7b8b7cc672a61ac66a73bdd427f05c4d991f4eb417c8006593c7eaa",
+    "src/kg_pipeline/llm_adapter.py": "2ec8cd96743cd5e21a4a22d5eb5648e4b0be8eb47f14fa67e4b253fae5e893d8",
+    "src/kg_pipeline/locked_mode.py": "6c54a66d7a6f7ba54e7506686fc516c3bf58464f1bf6cd17739e258e7e4ffe4c",
+    "src/kg_pipeline/neo4j_materializer.py": "b4af99948b6c0d7f86e572c3c5ae9959a518f8e45961be6ac49773435b93595e",
+    "src/kg_pipeline/parity.py": "7ae26d8d08a874a3e7077b49eb9ee5743b06cf3cd1051b7c66143ee986f3c981",
+    "src/kg_pipeline/run.py": "23e2536ec122ae93b472c12b8c906a03f36501e8567f70de0a3249bedb896e9a",
+    "src/kg_pipeline/snapshot_runner.py": "405f44263f0e6bf96cc7f6b4cade694cd3027115388825139afe36f8b219a78e",
+    "src/kge/adapter.py": "d49d64d0454d97042cc00043bc41072d77b75a923ec1985131b4238ba328a855",
+    "src/temporal/snapshot.py": "9766f51985a52b31ffc7370de18fc543d327d8aeb8a508f2a235c124fcb80fbb",
+    "tests/kg_pipeline/test_adjudication.py": "7d91bdb08a001559420c512e444bab95319fde481b30464fecf102846b553997",
+    "tests/kg_pipeline/test_adjudication_provenance.py": "4cca21dcdd65a771b39cf07d7603ae7fce6e9ad67d7d4e94d5936bf32066042d",
+    "tests/kg_pipeline/test_artifact_chain.py": "83e35707e3e2c63b2f8b85f364d50106e015ecb18f8b7ddfa606e2c0250783e0",
+    "tests/kg_pipeline/test_ci_scientific_scope.py": "0cb111ef8af0ed7917df26d48a73950522cb3325396de5694f5b7b95366cc6d5",
+    "tests/kg_pipeline/test_claims.py": "293a826abaacb4616db4844ceb5bbd19ef87d8ed06fcc8bc15726419327a8909",
+    "tests/kg_pipeline/test_extraction_provenance.py": "495640bb2eb100201b184565c79da8b6c8b767d056650af93878cf99cef8656b",
+    "tests/kg_pipeline/test_locked_mode.py": "e2bb7171178c5d93f233712c1adf03a3246bc870e76c1ed6ffb1ea35bb2932f3",
+    "tests/kg_pipeline/test_m2_snapshot_certification.py": "ac4f93b0bf6f9ad20b37a9f1da29be93f1ea2af10ee1218940a58a89692fa262",
+    "tests/kg_pipeline/test_neo4j_materializer.py": "8e4f5c1a9be6d16587d5e86c7e175085737bff234a10084fe2f76976d95b45d0",
+    "tests/kg_pipeline/test_snapshot_provenance.py": "1032f65dd5f102b5aa3d7b77c0dd6ba8f49dfa40ec404fc96a1f1dc5ce176aaa",
+    "tests/kg_pipeline/test_snapshot_runner_fail_closed.py": "9cdb074b1c20a7f4be07adb65320c08b0460ecc20780419bdcfce036141a98b5",
+    "tests/kg_pipeline/test_vertical_slice_m1.py": "359ea901b067d750836534964fa18fea15fc282f89c04fe0913d3b0b6c558bc8",
+    "tests/scientific/test_claim_provenance_chain.py": "577b2114866767bc560005d3ac9e81e77a89a7a57a34581b3cbcf19875aa4a26",
+    "tests/scientific/test_no_future_entity_mapping.py": "16ab528844d23b9f893c1888f4b7b1888db1bcf3e89b0ffad0510b8123122d74",
+    "tests/scientific/test_snapshot_manifest_and_adapter.py": "d2f8a6be820f769ce08a3621509cb10d9cbdc6fceda3d571fe975d1b62be4bd8",
+    "tests/temporal/test_snapshot.py": "6c09f054e011405c4719f35d6763638e5e24387a12b65b27178ce45225e85b67"
+  },
+  "protected_sha256": {
+    "AGENTS.md": "a335943e0a2723e331c4393f62e4f40534e24322f1434375ecf288f37bf182b6",
+    "configs/protocol_v1.yaml": "61d1eb47ec9fbfb06fff418c785722fecb16090ef886039cd1359ff5cc465c73",
+    "config/schema.yaml": "48ad42f86088ae0e9ca8b8cbb158017bf8ec14e0d450fdeff523bf59e6902840",
+    "data/manifests/sources.lock.json": "a6e32c14f28aa60e7977ec25b1ee60e71bf1226273d4f94de4edb58cf9a796b7",
+    "decisions/decision_log.jsonl": "2c86b736141f90dc59ae3c6fe2bf6c576a52e51c93224c7241ee653dee58a2fb",
+    "data/evolving_kg_downstream_v2.zip": "de9b273cec9ca13ba6d629017f83a8d00e4471ff8843d00898e5980c7c2b1161"
+  },
+  "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+  "executable": "C:\\Users\\ducan\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+  "installed_dependencies": {
+    "pyarrow": {
+      "version": "22.0.0",
+      "requires_python": ">=3.10"
+    },
+    "numpy": {
+      "version": "2.4.3",
+      "requires_python": ">=3.11"
+    },
+    "pandas": {
+      "version": "2.3.3",
+      "requires_python": ">=3.9"
+    },
+    "pytest": {
+      "version": "9.0.2",
+      "requires_python": ">=3.10"
+    },
+    "ruff": {
+      "version": "0.15.14",
+      "requires_python": ">=3.7"
+    },
+    "PyYAML": {
+      "version": "6.0.3",
+      "requires_python": ">=3.8"
+    },
+    "setuptools": {
+      "version": "81.0.0",
+      "requires_python": ">=3.9"
+    }
+  }
+}

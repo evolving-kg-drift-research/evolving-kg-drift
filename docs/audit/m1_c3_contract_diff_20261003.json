@@ -1,0 +1,294 @@
+{
+  "schema_physical_sha256": "48ad42f86088ae0e9ca8b8cbb158017bf8ec14e0d450fdeff523bf59e6902840",
+  "schema_version": "1.0.0",
+  "status": "BLOCKED",
+  "tables": [
+    {
+      "blockers": [
+        "MISSING_PYARROW_SCHEMA",
+        "PYARROW_MISSING_DECLARED_FIELDS"
+      ],
+      "missing_in_dataclass": [],
+      "missing_in_pyarrow": [
+        "archive_availability",
+        "domain",
+        "enabled",
+        "name",
+        "robots_legal_notes",
+        "rss",
+        "source_id",
+        "source_type",
+        "trust_notes"
+      ],
+      "status": "BLOCKED",
+      "table": "source_registry",
+      "undeclared_in_pyarrow": []
+    },
+    {
+      "blockers": [
+        "MISSING_PYARROW_SCHEMA",
+        "PYARROW_MISSING_DECLARED_FIELDS"
+      ],
+      "missing_in_dataclass": [],
+      "missing_in_pyarrow": [
+        "archive_or_revision_datetime",
+        "content_hash_sha256",
+        "published_at_declared",
+        "raw_blob_path",
+        "raw_source_id",
+        "retrieved_at_real",
+        "source_id",
+        "source_version_relation",
+        "updated_at_declared",
+        "url"
+      ],
+      "status": "BLOCKED",
+      "table": "raw_source_versions",
+      "undeclared_in_pyarrow": []
+    },
+    {
+      "blockers": [],
+      "missing_in_dataclass": [],
+      "missing_in_pyarrow": [],
+      "status": "PASS",
+      "table": "retrievals",
+      "undeclared_in_pyarrow": []
+    },
+    {
+      "blockers": [],
+      "missing_in_dataclass": [],
+      "missing_in_pyarrow": [],
+      "status": "PASS",
+      "table": "source_versions",
+      "undeclared_in_pyarrow": []
+    },
+    {
+      "blockers": [],
+      "missing_in_dataclass": [],
+      "missing_in_pyarrow": [],
+      "status": "PASS",
+      "table": "body_variants",
+      "undeclared_in_pyarrow": []
+    },
+    {
+      "blockers": [
+        "PYARROW_MISSING_DECLARED_FIELDS",
+        "PYARROW_UNDECLARED_FIELDS"
+      ],
+      "missing_in_dataclass": [],
+      "missing_in_pyarrow": [
+        "algorithm_version",
+        "canonical_document_id",
+        "dedup_score",
+        "document_cluster_id",
+        "duplicate_cluster_id",
+        "is_syndicated_copy",
+        "raw_source_id",
+        "source_lineage_group_id"
+      ],
+      "status": "BLOCKED",
+      "table": "document_clusters",
+      "undeclared_in_pyarrow": [
+        "body_variant_id",
+        "cluster_id",
+        "cluster_type",
+        "member_count",
+        "member_ids_json",
+        "policy_status"
+      ]
+    },
+    {
+      "blockers": [
+        "MISSING_PYARROW_SCHEMA",
+        "PYARROW_MISSING_DECLARED_FIELDS"
+      ],
+      "missing_in_dataclass": [],
+      "missing_in_pyarrow": [
+        "document_cluster_id",
+        "filter_decision",
+        "filter_version",
+        "reason_code"
+      ],
+      "status": "BLOCKED",
+      "table": "corpus_filtered",
+      "undeclared_in_pyarrow": []
+    },
+    {
+      "blockers": [
+        "MISSING_PYARROW_SCHEMA",
+        "PYARROW_MISSING_DECLARED_FIELDS"
+      ],
+      "missing_in_dataclass": [],
+      "missing_in_pyarrow": [
+        "mention_id",
+        "normalized_mention",
+        "raw_form",
+        "raw_source_id",
+        "span_end",
+        "span_start"
+      ],
+      "status": "BLOCKED",
+      "table": "entity_mentions",
+      "undeclared_in_pyarrow": []
+    },
+    {
+      "blockers": [
+        "PYARROW_MISSING_DECLARED_FIELDS",
+        "PYARROW_UNDECLARED_FIELDS"
+      ],
+      "missing_in_dataclass": [],
+      "missing_in_pyarrow": [
+        "mention_id"
+      ],
+      "status": "BLOCKED",
+      "table": "entity_mapping_versions",
+      "undeclared_in_pyarrow": [
+        "mention"
+      ]
+    },
+    {
+      "blockers": [
+        "MISSING_PYARROW_SCHEMA",
+        "PYARROW_MISSING_DECLARED_FIELDS"
+      ],
+      "missing_in_dataclass": [],
+      "missing_in_pyarrow": [
+        "claim_id",
+        "evidence_observed_at",
+        "evidence_span_end",
+        "evidence_span_start",
+        "evidence_text_hash",
+        "evidence_time_basis",
+        "evidence_time_confidence",
+        "extraction_confidence",
+        "extractor_version",
+        "object_id",
+        "object_value",
+        "ontology_version",
+        "raw_source_id",
+        "relation_id",
+        "scope",
+        "subject_id",
+        "valid_from",
+        "valid_from_inferred",
+        "valid_to"
+      ],
+      "status": "BLOCKED",
+      "table": "claims",
+      "undeclared_in_pyarrow": []
+    },
+    {
+      "blockers": [],
+      "missing_in_dataclass": [],
+      "missing_in_pyarrow": [],
+      "status": "PASS",
+      "table": "document_memberships",
+      "undeclared_in_pyarrow": []
+    },
+    {
+      "blockers": [
+        "PYARROW_MISSING_DECLARED_FIELDS",
+        "PYARROW_UNDECLARED_FIELDS"
+      ],
+      "missing_in_dataclass": [],
+      "missing_in_pyarrow": [
+        "LogicalFactID",
+        "acceptance_basis",
+        "accepted_into_kg_at",
+        "adjudicated_at_real",
+        "adjudication_rule_version",
+        "candidate_claim_ids",
+        "decision",
+        "reviewer_provenance",
+        "supporting_claim_ids"
+      ],
+      "status": "BLOCKED",
+      "table": "adjudication_decisions",
+      "undeclared_in_pyarrow": [
+        "claim_id",
+        "decider",
+        "decision_type",
+        "evaluated_at_real",
+        "fact_version_id",
+        "reason",
+        "rule_id"
+      ]
+    },
+    {
+      "blockers": [
+        "PYARROW_MISSING_DECLARED_FIELDS",
+        "PYARROW_UNDECLARED_FIELDS",
+        "DATACLASS_MISSING_DECLARED_FIELDS"
+      ],
+      "missing_in_dataclass": [
+        "FactVersionID",
+        "LogicalFactID",
+        "accepted_into_kg_at",
+        "adjudicated_at_real",
+        "adjudication_rule_version",
+        "object_value",
+        "ontology_version",
+        "raw_source_id",
+        "retrieved_at_real",
+        "scope",
+        "url"
+      ],
+      "missing_in_pyarrow": [
+        "FactVersionID",
+        "LogicalFactID",
+        "accepted_into_kg_at",
+        "adjudicated_at_real",
+        "adjudication_rule_version",
+        "object_value",
+        "ontology_version",
+        "raw_source_id",
+        "retrieved_at_real",
+        "scope",
+        "url"
+      ],
+      "status": "BLOCKED",
+      "table": "fact_versions",
+      "undeclared_in_pyarrow": [
+        "evidence_span_end",
+        "evidence_span_start",
+        "evidence_text_hash",
+        "fact_version_id",
+        "ingested_at_real",
+        "logical_fact_id",
+        "source_url"
+      ]
+    },
+    {
+      "blockers": [],
+      "missing_in_dataclass": [],
+      "missing_in_pyarrow": [],
+      "status": "PASS",
+      "table": "claim_provenance",
+      "undeclared_in_pyarrow": []
+    },
+    {
+      "blockers": [],
+      "missing_in_dataclass": [],
+      "missing_in_pyarrow": [],
+      "status": "PASS",
+      "table": "snapshot_edges",
+      "undeclared_in_pyarrow": []
+    },
+    {
+      "blockers": [],
+      "missing_in_dataclass": [],
+      "missing_in_pyarrow": [],
+      "status": "PASS",
+      "table": "snapshot_edge_support",
+      "undeclared_in_pyarrow": []
+    },
+    {
+      "blockers": [],
+      "missing_in_dataclass": [],
+      "missing_in_pyarrow": [],
+      "status": "PASS",
+      "table": "snapshot_exclusions",
+      "undeclared_in_pyarrow": []
+    }
+  ]
+}

@@ -1,0 +1,1244 @@
+proposal_id: C3-CONTRACT-01-FIELDS
+revision: 1
+status: PROPOSED_NOT_APPROVED
+public_version_proposed: 1.1.0
+runtime_apply_allowed: false
+source_schema_sha256: 48ad42f86088ae0e9ca8b8cbb158017bf8ec14e0d450fdeff523bf59e6902840
+tables:
+  source_registry:
+    primary_key:
+    - source_id
+    foreign_keys: {}
+    fields:
+    - public_field: source_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: name
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: domain
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: source_type
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: rss
+      proposed_arrow_type: 'list<item: string>'
+      proposed_nullable: true
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: enabled
+      proposed_arrow_type: bool
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: trust_notes
+      proposed_arrow_type: string
+      proposed_nullable: true
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: archive_availability
+      proposed_arrow_type: string
+      proposed_nullable: true
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: robots_legal_notes
+      proposed_arrow_type: string
+      proposed_nullable: true
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+  raw_source_versions:
+    primary_key:
+    - raw_source_id
+    foreign_keys:
+      source_id:
+      - source_registry
+      - source_id
+    fields:
+    - public_field: raw_source_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: source_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: url
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: content_hash_sha256
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: retrieved_at_real
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: timezone-aware UTC ISO8601; retain exact source timestamp in evidence
+        record
+    - public_field: published_at_declared
+      proposed_arrow_type: string
+      proposed_nullable: true
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: updated_at_declared
+      proposed_arrow_type: string
+      proposed_nullable: true
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: archive_or_revision_datetime
+      proposed_arrow_type: string
+      proposed_nullable: true
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: timezone-aware UTC ISO8601; retain exact source timestamp in evidence
+        record
+    - public_field: source_version_relation
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: raw_blob_path
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+  retrievals:
+    primary_key:
+    - retrieval_id
+    foreign_keys: {}
+    fields:
+    - public_field: retrieval_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: retrieval_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: raw_blob_sha256
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: raw_blob_sha256
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: source_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: source_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: requested_url
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: requested_url
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: final_url
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: final_url
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: retrieved_at_real
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: retrieved_at_real
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: timezone-aware UTC ISO8601; retain exact source timestamp in evidence
+        record
+    - public_field: archive_datetime
+      proposed_arrow_type: string
+      proposed_nullable: true
+      runtime_field: archive_datetime
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: timezone-aware UTC ISO8601; retain exact source timestamp in evidence
+        record
+    - public_field: recorded_event_at
+      proposed_arrow_type: string
+      proposed_nullable: true
+      runtime_field: recorded_event_at
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: timezone-aware UTC ISO8601; retain exact source timestamp in evidence
+        record
+    - public_field: recorded_event_time_field
+      proposed_arrow_type: string
+      proposed_nullable: true
+      runtime_field: recorded_event_time_field
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: provenance_status
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: provenance_status
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: strict_source_input_eligible
+      proposed_arrow_type: bool
+      proposed_nullable: false
+      runtime_field: strict_source_input_eligible
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: evidence_path
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: evidence_path
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: evidence_locator
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: evidence_locator
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: evidence_file_sha256
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: evidence_file_sha256
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: evidence_record_sha256
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: evidence_record_sha256
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+  source_versions:
+    primary_key:
+    - source_version_id
+    foreign_keys:
+      retrieval_id:
+      - retrievals
+      - retrieval_id
+      source_id:
+      - source_registry
+      - source_id
+    fields:
+    - public_field: source_version_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: source_version_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: raw_blob_sha256
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: raw_blob_sha256
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: retrieval_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: retrieval_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: source_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: source_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: canonical_or_final_url
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: canonical_or_final_url
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: retrieved_at_real
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: retrieved_at_real
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: timezone-aware UTC ISO8601; retain exact source timestamp in evidence
+        record
+    - public_field: archive_datetime
+      proposed_arrow_type: string
+      proposed_nullable: true
+      runtime_field: archive_datetime
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: timezone-aware UTC ISO8601; retain exact source timestamp in evidence
+        record
+    - public_field: source_version_status
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: source_version_status
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: strict_source_input_eligible
+      proposed_arrow_type: bool
+      proposed_nullable: false
+      runtime_field: strict_source_input_eligible
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: evidence_path
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: evidence_path
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: evidence_locator
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: evidence_locator
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+  body_variants:
+    primary_key:
+    - body_variant_id
+    foreign_keys: {}
+    fields:
+    - public_field: body_variant_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: body_variant_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: body_text_sha256
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: body_text_sha256
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: body_blob_relative_path
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: body_blob_relative_path
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: parser_version
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: parser_version
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: parser_fingerprint_sha256
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: parser_fingerprint_sha256
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: decoder
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: decoder
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: selector
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: selector
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: text_char_count
+      proposed_arrow_type: int64
+      proposed_nullable: false
+      runtime_field: text_char_count
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: extraction_status
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: extraction_status
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: quality_flags_json
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: quality_flags_json
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+  document_clusters:
+    primary_key:
+    - document_cluster_id
+    - raw_source_id
+    foreign_keys:
+      raw_source_id:
+      - raw_source_versions
+      - raw_source_id
+    fields:
+    - public_field: document_cluster_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: raw_source_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: duplicate_cluster_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: canonical_document_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: source_lineage_group_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: is_syndicated_copy
+      proposed_arrow_type: bool
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: dedup_method
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: dedup_method
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: dedup_score
+      proposed_arrow_type: double
+      proposed_nullable: true
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: algorithm_version
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+  corpus_filtered:
+    primary_key:
+    - document_cluster_id
+    foreign_keys: {}
+    fields:
+    - public_field: document_cluster_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: filter_decision
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: reason_code
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: filter_version
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+  entity_mentions:
+    primary_key:
+    - mention_id
+    foreign_keys:
+      raw_source_id:
+      - raw_source_versions
+      - raw_source_id
+    fields:
+    - public_field: mention_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: raw_source_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: span_start
+      proposed_arrow_type: int64
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: span_end
+      proposed_arrow_type: int64
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: raw_form
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: normalized_mention
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+  entity_mapping_versions:
+    primary_key:
+    - entity_mapping_id
+    foreign_keys:
+      mention_id:
+      - entity_mentions
+      - mention_id
+      supersedes_mapping_id:
+      - entity_mapping_versions
+      - entity_mapping_id
+    fields:
+    - public_field: entity_mapping_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: entity_mapping_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: mention_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: canonical_entity_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: canonical_entity_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: mapping_available_at
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: mapping_available_at
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: timezone-aware UTC ISO8601; retain exact source timestamp in evidence
+        record
+    - public_field: entity_map_version
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: entity_map_version
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: supersedes_mapping_id
+      proposed_arrow_type: string
+      proposed_nullable: true
+      runtime_field: supersedes_mapping_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: mapping_basis
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: mapping_basis
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: mapping_confidence
+      proposed_arrow_type: double
+      proposed_nullable: true
+      runtime_field: mapping_confidence
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: finite [0,1] or null; never substitute a score for evidence
+  claims:
+    primary_key:
+    - claim_id
+    foreign_keys:
+      raw_source_id:
+      - raw_source_versions
+      - raw_source_id
+    fields:
+    - public_field: claim_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: raw_source_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: subject_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: relation_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: object_id
+      proposed_arrow_type: string
+      proposed_nullable: true
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: object_value
+      proposed_arrow_type: string
+      proposed_nullable: true
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: scope
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: evidence_span_start
+      proposed_arrow_type: int64
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: evidence_span_end
+      proposed_arrow_type: int64
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: evidence_text_hash
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: valid_from
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: timezone-aware UTC ISO8601; retain exact source timestamp in evidence
+        record
+    - public_field: valid_to
+      proposed_arrow_type: string
+      proposed_nullable: true
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: timezone-aware UTC ISO8601; retain exact source timestamp in evidence
+        record
+    - public_field: evidence_observed_at
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: timezone-aware UTC ISO8601; retain exact source timestamp in evidence
+        record
+    - public_field: evidence_time_basis
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: evidence_time_confidence
+      proposed_arrow_type: double
+      proposed_nullable: true
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: finite [0,1] or null; never substitute a score for evidence
+    - public_field: valid_from_inferred
+      proposed_arrow_type: bool
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: extractor_version
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: ontology_version
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: extraction_confidence
+      proposed_arrow_type: double
+      proposed_nullable: true
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: finite [0,1] or null; never substitute a score for evidence
+  document_memberships:
+    primary_key:
+    - membership_id
+    foreign_keys: {}
+    fields:
+    - public_field: membership_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: membership_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: raw_blob_sha256
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: raw_blob_sha256
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: raw_candidate_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: raw_candidate_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: body_variant_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: body_variant_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: exact_cluster_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: exact_cluster_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: retrieval_ids_json
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: retrieval_ids_json
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: source_provenance_status
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: source_provenance_status
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: strict_input_eligible
+      proposed_arrow_type: bool
+      proposed_nullable: false
+      runtime_field: strict_input_eligible
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: membership_status
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: membership_status
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: reason
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: reason
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+  adjudication_decisions:
+    primary_key:
+    - decision_id
+    foreign_keys: {}
+    fields:
+    - public_field: decision_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: decision_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: LogicalFactID
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: EXPLICIT_SERIALIZER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: candidate_claim_ids
+      proposed_arrow_type: 'list<item: string>'
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: supporting_claim_ids
+      proposed_arrow_type: 'list<item: string>'
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: decision
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: acceptance_basis
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: accepted_into_kg_at
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: timezone-aware UTC ISO8601; retain exact source timestamp in evidence
+        record
+    - public_field: adjudicated_at_real
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: timezone-aware UTC ISO8601; retain exact source timestamp in evidence
+        record
+    - public_field: adjudication_rule_version
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: reviewer_provenance
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+  fact_versions:
+    primary_key:
+    - FactVersionID
+    foreign_keys:
+      raw_source_id:
+      - raw_source_versions
+      - raw_source_id
+      source_id:
+      - source_registry
+      - source_id
+      supersedes_version_id:
+      - fact_versions
+      - FactVersionID
+    fields:
+    - public_field: FactVersionID
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: fact_version_id
+      migration: EXPLICIT_SERIALIZER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: LogicalFactID
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: logical_fact_id
+      migration: EXPLICIT_SERIALIZER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: subject_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: subject_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: relation_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: relation_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: object_id
+      proposed_arrow_type: string
+      proposed_nullable: true
+      runtime_field: object_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: object_value
+      proposed_arrow_type: string
+      proposed_nullable: true
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: scope
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: valid_from
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: valid_from
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: timezone-aware UTC ISO8601; retain exact source timestamp in evidence
+        record
+    - public_field: valid_to
+      proposed_arrow_type: string
+      proposed_nullable: true
+      runtime_field: valid_to
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: timezone-aware UTC ISO8601; retain exact source timestamp in evidence
+        record
+    - public_field: evidence_observed_at
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: evidence_observed_at
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: timezone-aware UTC ISO8601; retain exact source timestamp in evidence
+        record
+    - public_field: accepted_into_kg_at
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: timezone-aware UTC ISO8601; retain exact source timestamp in evidence
+        record
+    - public_field: retrieved_at_real
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: timezone-aware UTC ISO8601; retain exact source timestamp in evidence
+        record
+    - public_field: adjudicated_at_real
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: timezone-aware UTC ISO8601; retain exact source timestamp in evidence
+        record
+    - public_field: supersedes_version_id
+      proposed_arrow_type: string
+      proposed_nullable: true
+      runtime_field: supersedes_version_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: revision_type
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: revision_type
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: source_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: source_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: url
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: source_url
+      migration: EXPLICIT_SERIALIZER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: raw_source_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: supporting_claim_ids
+      proposed_arrow_type: 'list<item: string>'
+      proposed_nullable: false
+      runtime_field: supporting_claim_ids
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: extractor_version
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: extractor_version
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: entity_map_version
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: entity_map_version
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: ontology_version
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: adjudication_rule_version
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: null
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: confidence
+      proposed_arrow_type: double
+      proposed_nullable: true
+      runtime_field: confidence
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: finite [0,1] or null; never substitute a score for evidence
+    - public_field: adjudication_status
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: adjudication_status
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+  claim_provenance:
+    primary_key:
+    - provenance_id
+    foreign_keys:
+      claim_id:
+      - claims
+      - claim_id
+      membership_id:
+      - document_memberships
+      - membership_id
+      source_version_id:
+      - source_versions
+      - source_version_id
+      retrieval_id:
+      - retrievals
+      - retrieval_id
+      publisher_source_id:
+      - source_registry
+      - source_id
+    fields:
+    - public_field: provenance_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: provenance_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: claim_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: claim_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: membership_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: membership_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: source_version_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: source_version_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: retrieval_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: retrieval_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: raw_blob_sha256
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: raw_blob_sha256
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: publisher_source_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: publisher_source_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: source_url
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: source_url
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+  snapshot_edges:
+    primary_key:
+    - edge_id
+    foreign_keys: {}
+    fields:
+    - public_field: edge_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: edge_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: subject_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: subject_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: relation_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: relation_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: object_id
+      proposed_arrow_type: string
+      proposed_nullable: true
+      runtime_field: object_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: snapshot_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: snapshot_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+  snapshot_edge_support:
+    primary_key:
+    - support_id
+    foreign_keys:
+      edge_id:
+      - snapshot_edges
+      - edge_id
+      fact_version_id:
+      - fact_versions
+      - FactVersionID
+      claim_id:
+      - claims
+      - claim_id
+      provenance_id:
+      - claim_provenance
+      - provenance_id
+      source_version_id:
+      - source_versions
+      - source_version_id
+    fields:
+    - public_field: support_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: support_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: provenance_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: provenance_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: edge_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: edge_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: fact_version_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: fact_version_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: claim_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: claim_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: source_version_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: source_version_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: raw_blob_sha256
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: raw_blob_sha256
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+  snapshot_exclusions:
+    primary_key:
+    - exclusion_id
+    foreign_keys: {}
+    fields:
+    - public_field: exclusion_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: exclusion_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: record_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: record_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: fact_version_id
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: fact_version_id
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: reason_code
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: reason_code
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: severity
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: severity
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: stage
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: stage
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: field
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: field
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+    - public_field: detail
+      proposed_arrow_type: string
+      proposed_nullable: false
+      runtime_field: detail
+      migration: DIRECT_OR_NEW_PRODUCER
+      domain: declared identifier/value with provenance; no synthetic default
+additional_contract_work:
+  required_new_tables:
+  - source_claims
+  - support_events
+  - entity_registry
+  - temporal_evidence
+  runtime_auxiliary_tables_to_register:
+  - coverage_ledger
+  - extracted_claims
+  - lineage_edges
+  - missing_coverage_ledger
+  - near_duplicate_candidates
+  - provenance_recovery_ledger
+  - raw_hash_audit
+  - raw_inventory
+  cross_table_rules:
+  - Object entity or literal must match ontology; no automatic literal-to-entity conversion.
+  - Corpus/document cluster identities need explicit parent membership joins; no invented
+    scalar alias for a composite key.
+  - candidate/supporting_claim_ids reference every claims row; collection FK validation
+    must be explicit.
+  - Entity IDs reference the proposed entity registry; mapping availability has independent
+    evidence.
+  - SourceClaim/support events retain full provenance and append-only history.
+  status: DRAFT_DESIGN_REQUIRES_REVIEW; not a loadable runtime schema

@@ -1,0 +1,1736 @@
+{
+  "scope": "read_only_recovery_inventory",
+  "production_execution": false,
+  "search_roots": [
+    "D:\\Users\\Documents\\HUCE\\HK1_2026-2027\\2. Machine Learning2\\Code\\evolving-kg-drift",
+    "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main"
+  ],
+  "allowlisted_prefixes": [
+    "sources",
+    "runs",
+    "data/raw",
+    "data/stage_4_3_runs",
+    "data/stage_4_4_runs",
+    "data/stage_4_4",
+    "data/event_store",
+    "data/snapshots"
+  ],
+  "excluded": [
+    "locked_test",
+    "symlinks/reparse paths",
+    "hidden entries",
+    "other locations not supplied"
+  ],
+  "package_sha256": "de9b273cec9ca13ba6d629017f83a8d00e4471ff8843d00898e5980c7c2b1161",
+  "files": [
+    {
+      "root": "D:\\Users\\Documents\\HUCE\\HK1_2026-2027\\2. Machine Learning2\\Code\\evolving-kg-drift",
+      "path": "sources/README.md",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 765,
+      "sha256": "5f29c39cd32644450fdfeba8e4c9bb5c5270df43f0fba63d0066913369c92a6b"
+    },
+    {
+      "root": "D:\\Users\\Documents\\HUCE\\HK1_2026-2027\\2. Machine Learning2\\Code\\evolving-kg-drift",
+      "path": "sources/huce_evolving_kg_modular_proposal(8).pdf",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 399801,
+      "sha256": "d9e6d74b84fabdff880698eb6a5774bed8445897539b3713ba1e0594a446ea6f"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "sources/README.md",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 765,
+      "sha256": "5f29c39cd32644450fdfeba8e4c9bb5c5270df43f0fba63d0066913369c92a6b"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/run_manifest.yaml",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 2494,
+      "sha256": "5bd50fea08939a133309624107f235117561a2471abc7c8b43b5e2668bac66d9",
+      "declared_metadata": {
+        "run_id": "pilot-test-run",
+        "mode": "inventory",
+        "source_lock_status_at_init": "BLOCKED",
+        "config_approval": {
+          "approval_blockers": [
+            "[Errno 2] No such file or directory: 'C:\\\\Users\\\\ducan\\\\orca\\\\workspaces\\\\evolving-kg-drift\\\\main\\\\data\\\\manifests\\\\config_baseline.json'"
+          ],
+          "status": "PROPOSED_UNFROZEN"
+        }
+      }
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/gates/A/2026-09-20T12-38-29.782281+00-00_839e3b7fc35b4088a53bb65598c4d972.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 2596,
+      "sha256": "dc426c8757dd11a21a1940e8f730e8ca9f8f2fa2f8d77d194c51c216331ff071"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/inputs/input_lock.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 4247,
+      "sha256": "87df92dafe4fd84226ae72acd7e4fdcfdf26a95a12c6973c019d1f9b8499cdb6"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/inputs/proposed_config_bundle.yaml",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 2337,
+      "sha256": "7bb32b460367efb96411bdbcf0be1efd96ee68d00fc9e3ef62d5817ea91b4822"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/logs/inventory_operations.jsonl",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 312,
+      "sha256": "98e15c7f27c9690b6ada3ee7c8b42eaf164f2a90a8cb6a7940ee63ac9bec6d24"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/reports/input_readiness_report.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 1977,
+      "sha256": "18e51ae0f5e14955e8ca1f1c41c88df74820f92243cdf1b579d7a787332ea8ed"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/tables/body_variants.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 2203,
+      "sha256": "81072e5beb3a4f7e5fb9c6965cac8e986d95950a97f81cbfdd71838ff9d3e7bc",
+      "parquet": {
+        "rows": 0,
+        "fields": [
+          "schema_version",
+          "body_variant_id",
+          "body_text_sha256",
+          "body_blob_relative_path",
+          "parser_version",
+          "parser_fingerprint_sha256",
+          "decoder",
+          "selector",
+          "text_char_count",
+          "extraction_status",
+          "quality_flags_json"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/tables/body_variants.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 388,
+      "sha256": "9c0ac4191bb5573cf59c7f9ab2338167cad7e27392a11d2e041e6ce7e5e6d618"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/tables/coverage_ledger.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 4328,
+      "sha256": "e989bc05d2c030bc55f87597844ae94f3062461e63bc589e9c582f88505d328d",
+      "parquet": {
+        "rows": 1,
+        "fields": [
+          "schema_version",
+          "coverage_row_id",
+          "upstream_scope",
+          "upstream_observation_count",
+          "upstream_unique_url_count",
+          "raw_blob_count",
+          "recovered_retrieval_count",
+          "strict_retrieval_count",
+          "comparison_status",
+          "reason"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/tables/coverage_ledger.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 390,
+      "sha256": "3add774045484ba59d25396248cd2fc03e3b263f684cac3c5a4de6e840e6f467"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/tables/document_clusters.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 1596,
+      "sha256": "badd5bd1e2abe5fa0edf78c1e6bd281a9c06e29ba625fc5dd182010c44d61caa",
+      "parquet": {
+        "rows": 0,
+        "fields": [
+          "schema_version",
+          "cluster_id",
+          "cluster_type",
+          "body_variant_id",
+          "member_count",
+          "member_ids_json",
+          "dedup_method",
+          "policy_status"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/tables/document_clusters.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 392,
+      "sha256": "2ce0e0ef426d40cd9fa10b320ec76e9a03d9b73c1c95c73b986e511f30b3aee6"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/tables/document_memberships.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 2163,
+      "sha256": "58e85e943bc13c8fbf827b34fb9a1fbce2eeb1ee9e5902cf1fee8b86848e339f",
+      "parquet": {
+        "rows": 0,
+        "fields": [
+          "schema_version",
+          "membership_id",
+          "raw_blob_sha256",
+          "raw_candidate_id",
+          "body_variant_id",
+          "exact_cluster_id",
+          "retrieval_ids_json",
+          "source_provenance_status",
+          "strict_input_eligible",
+          "membership_status",
+          "reason"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/tables/document_memberships.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 395,
+      "sha256": "23f065cb16bad691ad9e171d16dc2fc917f05c1efb1afe7aa858171cb9be6f78"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/tables/lineage_edges.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 1632,
+      "sha256": "2bbc593de03c609614835464cc955775a2f4a354a24039125ae462a91bf338c6",
+      "parquet": {
+        "rows": 0,
+        "fields": [
+          "schema_version",
+          "lineage_edge_id",
+          "from_source_version_id",
+          "to_source_version_id",
+          "relation_type",
+          "evidence_status",
+          "reason",
+          "evidence_path"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/tables/lineage_edges.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 388,
+      "sha256": "5c9ba020a40f3bae8e194d50c138dc1216a7e93ae45017c237f25b5d5acb626f"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/tables/missing_coverage_ledger.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 4092,
+      "sha256": "228e10321c65b01542f5cb465240fb5e63c8f4590dd9f3fc3f34dc3d17b334c5",
+      "parquet": {
+        "rows": 1,
+        "fields": [
+          "schema_version",
+          "issue_id",
+          "issue_type",
+          "raw_candidate_id",
+          "raw_blob_sha256",
+          "severity",
+          "blocks_strict_input",
+          "reason",
+          "recommended_next_action"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/tables/missing_coverage_ledger.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 398,
+      "sha256": "2f93e7b88dd16ca1d340fe6d86ff35da85f61c0152c848a2bc9534c4f9c9a7e9"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/tables/near_duplicate_candidates.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 3411,
+      "sha256": "7dac976340dfede9e6ac9cae2f7d78cff4a1db823a64cc748bae38a9f80dc978",
+      "parquet": {
+        "rows": 1,
+        "fields": [
+          "schema_version",
+          "candidate_id",
+          "left_body_variant_id",
+          "right_body_variant_id",
+          "candidate_generation_status",
+          "reason",
+          "policy_status"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/tables/near_duplicate_candidates.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 400,
+      "sha256": "d6a92e9bc3b8288191e436672019d95ea524b612e92ab7539493ee03fb7c4617"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/tables/provenance_recovery_ledger.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 1928,
+      "sha256": "eb918ffcd02792813d2103e17be587f8295d57ff00013e80c86b0e0296ca2d7f",
+      "parquet": {
+        "rows": 0,
+        "fields": [
+          "schema_version",
+          "ledger_id",
+          "raw_blob_sha256",
+          "field_name",
+          "recovered_value",
+          "recovery_status",
+          "reason",
+          "evidence_path",
+          "evidence_locator",
+          "evidence_file_sha256"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/tables/provenance_recovery_ledger.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 401,
+      "sha256": "2f38970d8f9aea0f837c4da4292ce4ab31846b0c6421a8f36bd81354a3cc69c0"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/tables/raw_hash_audit.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 2543,
+      "sha256": "3b68a99f8839eaf6b46ba5c3373415106d11761439cc531992b7034250e10d87",
+      "parquet": {
+        "rows": 0,
+        "fields": [
+          "schema_version",
+          "hash_audit_id",
+          "raw_candidate_id",
+          "relative_path",
+          "bytes",
+          "computed_sha256",
+          "hash_computed_now",
+          "filename_sha256",
+          "filename_hash_status",
+          "historical_hash_evidence_status",
+          "historical_hash_evidence_count",
+          "read_status",
+          "read_error"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/tables/raw_hash_audit.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 389,
+      "sha256": "793e5fed09f4cd0d3b7ad4b9db3ee3c7678f2deaa14f86dcc44947c33b581dc9"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/tables/raw_inventory.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 3634,
+      "sha256": "5f92a9a8cb87d91ee2a25d03e0fb42a50fbc2b234ffc0301933dc6818a9d3abb",
+      "parquet": {
+        "rows": 0,
+        "fields": [
+          "schema_version",
+          "inventory_row_id",
+          "raw_candidate_id",
+          "raw_kind",
+          "relative_path",
+          "raw_blob_sha256",
+          "filename_sha256",
+          "filename_hash_status",
+          "bytes",
+          "content_type_detected",
+          "content_type_basis",
+          "read_status",
+          "read_error",
+          "hash_computed_now",
+          "historical_hash_evidence_status",
+          "historical_hash_evidence_count",
+          "source_provenance_status",
+          "strict_input_eligible",
+          "unknown_reason"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/tables/raw_inventory.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 388,
+      "sha256": "18faf3f3791dbf3330342b28194f4929537b443482127387c2e7a95cca7e8d4c"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/tables/retrievals.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 3101,
+      "sha256": "ea5520a0f4bc63af071d352475edca3373b0172c288677ebfbc3abe919bc3968",
+      "parquet": {
+        "rows": 0,
+        "fields": [
+          "schema_version",
+          "retrieval_id",
+          "raw_blob_sha256",
+          "source_id",
+          "requested_url",
+          "final_url",
+          "retrieved_at_real",
+          "archive_datetime",
+          "recorded_event_at",
+          "recorded_event_time_field",
+          "provenance_status",
+          "strict_source_input_eligible",
+          "evidence_path",
+          "evidence_locator",
+          "evidence_file_sha256",
+          "evidence_record_sha256"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/tables/retrievals.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 385,
+      "sha256": "1211600819d982f7d26f24a0595ef3f2e060b161fb1ff9eada8fc8e549e6af61"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/tables/source_versions.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 2376,
+      "sha256": "16cd0543b09ea6aed51d91a4e25a5b7b60cf92266b90ec4173905d03166ed92f",
+      "parquet": {
+        "rows": 0,
+        "fields": [
+          "schema_version",
+          "source_version_id",
+          "raw_blob_sha256",
+          "retrieval_id",
+          "source_id",
+          "canonical_or_final_url",
+          "retrieved_at_real",
+          "archive_datetime",
+          "source_version_status",
+          "strict_source_input_eligible",
+          "evidence_path",
+          "evidence_locator"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run/tables/source_versions.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 390,
+      "sha256": "51cbf8e7ba764ee824153fc0e22a2a5e5ad5b836ea191231c8fd4656fd6fef78"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/run_manifest.yaml",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 2496,
+      "sha256": "123a381314b4f4701152179f93684732d1cfa9006bed6ef75c6a30d4933252c2",
+      "declared_metadata": {
+        "run_id": "pilot-test-run-2",
+        "mode": "inventory",
+        "source_lock_status_at_init": "BLOCKED",
+        "config_approval": {
+          "approval_blockers": [
+            "[Errno 2] No such file or directory: 'C:\\\\Users\\\\ducan\\\\orca\\\\workspaces\\\\evolving-kg-drift\\\\main\\\\data\\\\manifests\\\\config_baseline.json'"
+          ],
+          "status": "PROPOSED_UNFROZEN"
+        }
+      }
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/inputs/input_lock.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 4249,
+      "sha256": "3eafd74616e43ab66d4b2b266073d9d6f2bd3b238a6f9bdac1aa70770654fcca"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/inputs/proposed_config_bundle.yaml",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 2337,
+      "sha256": "3428e18664cf308c2d079d310c182ed8603447dacc18906f1822cbe865f6ed41"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/logs/inventory_operations.jsonl",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 314,
+      "sha256": "10c085a4cbdb23c7603f249d3bde82c5d6f58d4c6fad115257146f302aaaade4"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/reports/input_readiness_report.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 1977,
+      "sha256": "7a7e9f52cb15e289e51a69b6295a26cad327f2613d88592ecb17700a76f1c500"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/body_variants.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 2203,
+      "sha256": "81072e5beb3a4f7e5fb9c6965cac8e986d95950a97f81cbfdd71838ff9d3e7bc",
+      "parquet": {
+        "rows": 0,
+        "fields": [
+          "schema_version",
+          "body_variant_id",
+          "body_text_sha256",
+          "body_blob_relative_path",
+          "parser_version",
+          "parser_fingerprint_sha256",
+          "decoder",
+          "selector",
+          "text_char_count",
+          "extraction_status",
+          "quality_flags_json"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/body_variants.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 388,
+      "sha256": "592b012e24aa010b83a7f0d6361a1c6a237a747ee90d061cd88df9bc584cdfb2"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/coverage_ledger.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 4328,
+      "sha256": "e989bc05d2c030bc55f87597844ae94f3062461e63bc589e9c582f88505d328d",
+      "parquet": {
+        "rows": 1,
+        "fields": [
+          "schema_version",
+          "coverage_row_id",
+          "upstream_scope",
+          "upstream_observation_count",
+          "upstream_unique_url_count",
+          "raw_blob_count",
+          "recovered_retrieval_count",
+          "strict_retrieval_count",
+          "comparison_status",
+          "reason"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/coverage_ledger.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 390,
+      "sha256": "028edc7568c296c7680b122feceefadbc10bb4f9cb20a6302378fa80ef3d270a"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/document_clusters.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 1596,
+      "sha256": "badd5bd1e2abe5fa0edf78c1e6bd281a9c06e29ba625fc5dd182010c44d61caa",
+      "parquet": {
+        "rows": 0,
+        "fields": [
+          "schema_version",
+          "cluster_id",
+          "cluster_type",
+          "body_variant_id",
+          "member_count",
+          "member_ids_json",
+          "dedup_method",
+          "policy_status"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/document_clusters.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 392,
+      "sha256": "e12f8f372627acd32b200b00044b4327d1739cb457de0c0d5abcc23bb787b187"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/document_memberships.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 2163,
+      "sha256": "58e85e943bc13c8fbf827b34fb9a1fbce2eeb1ee9e5902cf1fee8b86848e339f",
+      "parquet": {
+        "rows": 0,
+        "fields": [
+          "schema_version",
+          "membership_id",
+          "raw_blob_sha256",
+          "raw_candidate_id",
+          "body_variant_id",
+          "exact_cluster_id",
+          "retrieval_ids_json",
+          "source_provenance_status",
+          "strict_input_eligible",
+          "membership_status",
+          "reason"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/document_memberships.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 395,
+      "sha256": "bf306c177000da37aeb7a072ee2b1b6759ec46ce1b1f4ee0cab2820acc502746"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/extracted_claims.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 2443,
+      "sha256": "d0a192cc660ab7ac8b11ad5daa16023275117fbbbecb4860ea604aa6218b21f5",
+      "parquet": {
+        "rows": 0,
+        "fields": [
+          "schema_version",
+          "claim_id",
+          "source_id",
+          "subject_mention",
+          "relation_name",
+          "object_mention",
+          "evidence_span_start",
+          "evidence_span_end",
+          "evidence_text_hash",
+          "valid_from_extracted",
+          "valid_to_extracted",
+          "is_negative",
+          "is_speculative"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/extracted_claims.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 391,
+      "sha256": "702fe61b3bb36f0f901f5a9dfb60d2e597ece98c7f0c14573e82d754f0a9bd8b"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/fact_versions.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 3896,
+      "sha256": "f2b88777e287797b0395102a914473be5fff9dc11c06922cdc19507594b6d903",
+      "parquet": {
+        "rows": 0,
+        "fields": [
+          "schema_version",
+          "fact_version_id",
+          "logical_fact_id",
+          "subject_id",
+          "relation_id",
+          "object_id",
+          "valid_from",
+          "valid_to",
+          "evidence_observed_at",
+          "ingested_at_real",
+          "supersedes_version_id",
+          "revision_type",
+          "source_id",
+          "source_url",
+          "evidence_span_start",
+          "evidence_span_end",
+          "evidence_text_hash",
+          "extractor_version",
+          "entity_map_version",
+          "confidence",
+          "adjudication_status"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/fact_versions.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 388,
+      "sha256": "3be5f9e6ef8b0c7c15c760b7e5cdf6b25b8fda7f0a2502e8bab0f8ed4cd427a2"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/lineage_edges.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 1632,
+      "sha256": "2bbc593de03c609614835464cc955775a2f4a354a24039125ae462a91bf338c6",
+      "parquet": {
+        "rows": 0,
+        "fields": [
+          "schema_version",
+          "lineage_edge_id",
+          "from_source_version_id",
+          "to_source_version_id",
+          "relation_type",
+          "evidence_status",
+          "reason",
+          "evidence_path"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/lineage_edges.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 388,
+      "sha256": "59a5cd6d43294bef1abbfd5c14d0645d1eaf15d88ab236b8c73f2b6adeec261e"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/missing_coverage_ledger.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 4092,
+      "sha256": "228e10321c65b01542f5cb465240fb5e63c8f4590dd9f3fc3f34dc3d17b334c5",
+      "parquet": {
+        "rows": 1,
+        "fields": [
+          "schema_version",
+          "issue_id",
+          "issue_type",
+          "raw_candidate_id",
+          "raw_blob_sha256",
+          "severity",
+          "blocks_strict_input",
+          "reason",
+          "recommended_next_action"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/missing_coverage_ledger.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 398,
+      "sha256": "a2193be853270d79ed8e7ae2a4efddcc339b4ee08d5c43643c2843a72f5b1572"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/near_duplicate_candidates.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 3411,
+      "sha256": "7dac976340dfede9e6ac9cae2f7d78cff4a1db823a64cc748bae38a9f80dc978",
+      "parquet": {
+        "rows": 1,
+        "fields": [
+          "schema_version",
+          "candidate_id",
+          "left_body_variant_id",
+          "right_body_variant_id",
+          "candidate_generation_status",
+          "reason",
+          "policy_status"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/near_duplicate_candidates.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 400,
+      "sha256": "46f90341851445ca9e38ae128f2d32354c706c0030195181f6e1b1c2a9bdff47"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/provenance_recovery_ledger.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 1928,
+      "sha256": "eb918ffcd02792813d2103e17be587f8295d57ff00013e80c86b0e0296ca2d7f",
+      "parquet": {
+        "rows": 0,
+        "fields": [
+          "schema_version",
+          "ledger_id",
+          "raw_blob_sha256",
+          "field_name",
+          "recovered_value",
+          "recovery_status",
+          "reason",
+          "evidence_path",
+          "evidence_locator",
+          "evidence_file_sha256"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/provenance_recovery_ledger.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 401,
+      "sha256": "e8bc8586392db58eed5b2e37f08ebe97ae09cd0b679924a593cd2a4bfa93d05b"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/raw_hash_audit.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 2543,
+      "sha256": "3b68a99f8839eaf6b46ba5c3373415106d11761439cc531992b7034250e10d87",
+      "parquet": {
+        "rows": 0,
+        "fields": [
+          "schema_version",
+          "hash_audit_id",
+          "raw_candidate_id",
+          "relative_path",
+          "bytes",
+          "computed_sha256",
+          "hash_computed_now",
+          "filename_sha256",
+          "filename_hash_status",
+          "historical_hash_evidence_status",
+          "historical_hash_evidence_count",
+          "read_status",
+          "read_error"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/raw_hash_audit.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 389,
+      "sha256": "3d8d73a05a6de1cb12a8a6d69185d07f612370238f8d8c3a3cd1424a160f260b"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/raw_inventory.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 3634,
+      "sha256": "5f92a9a8cb87d91ee2a25d03e0fb42a50fbc2b234ffc0301933dc6818a9d3abb",
+      "parquet": {
+        "rows": 0,
+        "fields": [
+          "schema_version",
+          "inventory_row_id",
+          "raw_candidate_id",
+          "raw_kind",
+          "relative_path",
+          "raw_blob_sha256",
+          "filename_sha256",
+          "filename_hash_status",
+          "bytes",
+          "content_type_detected",
+          "content_type_basis",
+          "read_status",
+          "read_error",
+          "hash_computed_now",
+          "historical_hash_evidence_status",
+          "historical_hash_evidence_count",
+          "source_provenance_status",
+          "strict_input_eligible",
+          "unknown_reason"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/raw_inventory.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 388,
+      "sha256": "2d69b2efb4b587c8094251ac5698cff85f59aaaf894137149f4fe27b9fd1c218"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/retrievals.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 3101,
+      "sha256": "ea5520a0f4bc63af071d352475edca3373b0172c288677ebfbc3abe919bc3968",
+      "parquet": {
+        "rows": 0,
+        "fields": [
+          "schema_version",
+          "retrieval_id",
+          "raw_blob_sha256",
+          "source_id",
+          "requested_url",
+          "final_url",
+          "retrieved_at_real",
+          "archive_datetime",
+          "recorded_event_at",
+          "recorded_event_time_field",
+          "provenance_status",
+          "strict_source_input_eligible",
+          "evidence_path",
+          "evidence_locator",
+          "evidence_file_sha256",
+          "evidence_record_sha256"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/retrievals.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 385,
+      "sha256": "67c2536b759df7bb622a0d9cebbc971b6e3e5254c31576855a674f5520f44573"
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/source_versions.parquet",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 2376,
+      "sha256": "16cd0543b09ea6aed51d91a4e25a5b7b60cf92266b90ec4173905d03166ed92f",
+      "parquet": {
+        "rows": 0,
+        "fields": [
+          "schema_version",
+          "source_version_id",
+          "raw_blob_sha256",
+          "retrieval_id",
+          "source_id",
+          "canonical_or_final_url",
+          "retrieved_at_real",
+          "archive_datetime",
+          "source_version_status",
+          "strict_source_input_eligible",
+          "evidence_path",
+          "evidence_locator"
+        ]
+      },
+      "sidecar_hash_match": true
+    },
+    {
+      "root": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main",
+      "path": "runs/pilot-test-run-2/tables/source_versions.parquet.manifest.json",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "current_bytes_only",
+      "bytes": 390,
+      "sha256": "c358ff292b391de34210ddfd9ad074ed302f32e6df394e360e3e42a66e9a76ef"
+    }
+  ],
+  "zip_files": [
+    {
+      "path": "neo4j_materialization/T01/nodes.csv",
+      "bytes": 3528,
+      "sha256": "3279d458d5adc6bb00afe636035a843c546c6d3a52bef2e865aa1f9c54916cc6",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "neo4j_materialization/T01/relationships.csv",
+      "bytes": 30263,
+      "sha256": "ed6fb45b8de2d2ccf6b9e943b1f15efdd60b3c2c1018e020ffcbdac3940332a9",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "neo4j_materialization/T02/nodes.csv",
+      "bytes": 7224,
+      "sha256": "f1044428912e2755e27fc41f8a6824812274a08cb9686ec044ab330a2d44ed9a",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "neo4j_materialization/T02/relationships.csv",
+      "bytes": 63272,
+      "sha256": "587bd2314ab5791f103241c0be3ee7189d4fc4ddd943351d30e073b4ec12822d",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "neo4j_materialization/T03/nodes.csv",
+      "bytes": 10584,
+      "sha256": "314363e6915876142b60947e1c196951076839124c7402f89baf39e833c45b91",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "neo4j_materialization/T03/relationships.csv",
+      "bytes": 94487,
+      "sha256": "2d021c7661c7c83be2e525f3fcf86eaaf08bf871a37b8dac7baedff093cce540",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "neo4j_materialization/T04/nodes.csv",
+      "bytes": 13587,
+      "sha256": "9b0320570362ddfac089ace0fe2a43ec04563811fd0001a951d9d0b2ace2bcfd",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "neo4j_materialization/T04/relationships.csv",
+      "bytes": 127468,
+      "sha256": "c1af75a21732c3a8cae6464b3df5a95bb4a1df1ce68a083783ee7a64fe13e8c8",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "neo4j_materialization/T05/nodes.csv",
+      "bytes": 16548,
+      "sha256": "69f0a2aa29a6d3972c4a5f22fe81aa5b230375c1665c2621823a4b171a9602f0",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "neo4j_materialization/T05/relationships.csv",
+      "bytes": 162062,
+      "sha256": "799b863b0a4c5272727de1c5d39d30689f7a0dbd877a1794dde30b3039b702ab",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "neo4j_materialization/T06/nodes.csv",
+      "bytes": 19677,
+      "sha256": "9c09a4afe145ae9574764900c83ec546a6003e40b8fafd7fb2c5f42744f79349",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "neo4j_materialization/T06/relationships.csv",
+      "bytes": 195465,
+      "sha256": "39398c83fe1f4643c48e4dfb0d9911ba6fabe60b262f08537e365e1138cadcce",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "neo4j_materialization/T07/nodes.csv",
+      "bytes": 22218,
+      "sha256": "bf0daa09a1d087c74b2f54c8e64cfe78d798fa08086872cae6ab71ebd5f6f446",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "neo4j_materialization/T07/relationships.csv",
+      "bytes": 238496,
+      "sha256": "ae8bfe8b46fc829fea5da7c5d9e41c57b7982bb0a7d104038a2f13c2540a18fa",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "neo4j_materialization/T08/nodes.csv",
+      "bytes": 24717,
+      "sha256": "81d543ec4df8ba700b59cb5469b7d75f06a759129fbc847830e59736a26f494a",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "neo4j_materialization/T08/relationships.csv",
+      "bytes": 299233,
+      "sha256": "8761b052345b76640f0f8e9d404b0ba19095f209fd4eb26cebd92dee06e8c30e",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "neo4j_materialization/T09/nodes.csv",
+      "bytes": 26943,
+      "sha256": "b7694fddd80648b8124235757d9599eca20bd4fee5804bc3a3b70377e127f696",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "neo4j_materialization/T09/relationships.csv",
+      "bytes": 362122,
+      "sha256": "9fc73bb1f49622fcff1b821c38b2ace1987be163778c02e18fc11d4509031468",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "neo4j_materialization/T10/nodes.csv",
+      "bytes": 29190,
+      "sha256": "021c5ca10f2b77cb4ff6a6701f52f658ea580281d8de38af1f5555d78a3dfe35",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "neo4j_materialization/T10/relationships.csv",
+      "bytes": 427832,
+      "sha256": "898bbf63667433af7a820c5ddf06c4033c8c764c313ebc26427e1076ad63c37a",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "reports/parity_report.json",
+      "bytes": 5066,
+      "sha256": "beb382791381aa33eb21f6adc6fcf464a6eb0a0d951affd10c700f1c63e21aa7",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "reports/snapshots_integrity_report.json",
+      "bytes": 4948,
+      "sha256": "b9894a6a9263921ed27f3d3db0bed44d2ecdea317268fd70779570f4b946365a",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "snapshots/snapshot_T01.parquet",
+      "bytes": 12493,
+      "sha256": "17bfb5c56f79d4bc1c9428d22969955213b67ba829eb5ae196125eb5ff490e4e",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "snapshots/snapshot_T02.parquet",
+      "bytes": 21755,
+      "sha256": "90f80fb0e5cad34c702ab484aa8e695f104e96b141f75fee7218e02ef048a5ee",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "snapshots/snapshot_T03.parquet",
+      "bytes": 30785,
+      "sha256": "c0791e945328355cb00fdecc098c5389808b8809d85502a5265c897560a1c751",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "snapshots/snapshot_T04.parquet",
+      "bytes": 40802,
+      "sha256": "91f6ff02b3d8847eaedcf81902b30a41361cc23b4f2f83e4cf4ab9a375f52542",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "snapshots/snapshot_T05.parquet",
+      "bytes": 49817,
+      "sha256": "d18f2ee5be93ab89429cb563373abf17a26d08378fc6f460262d448ca2bdff45",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "snapshots/snapshot_T06.parquet",
+      "bytes": 59732,
+      "sha256": "8459d647275931510d1bf422fbd974fb555e633d078d03056f0267f8181939f5",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "snapshots/snapshot_T07.parquet",
+      "bytes": 72119,
+      "sha256": "689c504221da0a5b34c5991592a53583ab83976dd9167286dd09c936fec84661",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "snapshots/snapshot_T08.parquet",
+      "bytes": 86875,
+      "sha256": "b903b98493f9c86eab8e527bb45f53049d2b6bb0ec05ced715165b6783799465",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "snapshots/snapshot_T09.parquet",
+      "bytes": 99581,
+      "sha256": "005d05ed9ec857fff49d300f2da7ea5a5a4d647ab71c94a2407f1b0eca4f5832",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "snapshots/snapshot_T10.parquet",
+      "bytes": 115183,
+      "sha256": "e85d204ec952eacee5b7ef4d5c9ecad364c05b97ee7dfb1c2489fa200fc2abbb",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "tables/anchor_candidates_prelock.parquet",
+      "bytes": 36949,
+      "sha256": "cad292ab98003dadcfe2d2176696a13725aba08783ea729fdbf61918a0d21e0b",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "tables/fact_versions.parquet",
+      "bytes": 182950,
+      "sha256": "5b48a6acc9b29665c43044cc2fa786dbe6733a25c4fd8fb1d0420647fc40455a",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "tables/filter_decisions.parquet",
+      "bytes": 497465,
+      "sha256": "6056e5696725d36e7776c72e9fddf685b115573ee8f1d50aabd1a15285396939",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "tables/kg_events.parquet",
+      "bytes": 95074,
+      "sha256": "9a3ea4d00198828226bb36f0e829b9171d1bf4fc1e23e8c21cd52bfe81a3c489",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "downstream_transe_config.yaml",
+      "bytes": 1582,
+      "sha256": "96baefdce16ccc101da64b8833ac219d8cf26aa4bc3a25258572ff1c87acf200",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    },
+    {
+      "path": "snapshot_boundaries.yaml",
+      "bytes": 2674,
+      "sha256": "9286598fa644c53f1fa6da5c61fecdb6cc77baf5cb6b49c0329d0c58507fbac5",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "ZIP CRC and current bytes only; no producer/gate certification"
+    }
+  ],
+  "categories": {
+    "raw_bytes": {
+      "status": "MISSING",
+      "candidates": []
+    },
+    "stage_4_3": {
+      "status": "MISSING",
+      "candidates": []
+    },
+    "retrievals": {
+      "status": "PRESENT_UNVERIFIED",
+      "candidates": [
+        "runs/pilot-test-run/tables/retrievals.parquet",
+        "runs/pilot-test-run-2/tables/retrievals.parquet"
+      ]
+    },
+    "source_versions": {
+      "status": "PRESENT_UNVERIFIED",
+      "candidates": [
+        "runs/pilot-test-run/tables/source_versions.parquet",
+        "runs/pilot-test-run-2/tables/source_versions.parquet"
+      ]
+    },
+    "memberships": {
+      "status": "PRESENT_UNVERIFIED",
+      "candidates": [
+        "runs/pilot-test-run/tables/document_memberships.parquet",
+        "runs/pilot-test-run-2/tables/document_memberships.parquet"
+      ]
+    },
+    "body_variants": {
+      "status": "PRESENT_UNVERIFIED",
+      "candidates": [
+        "runs/pilot-test-run/tables/body_variants.parquet",
+        "runs/pilot-test-run-2/tables/body_variants.parquet"
+      ]
+    },
+    "body_text": {
+      "status": "MISSING",
+      "candidates": []
+    },
+    "claims": {
+      "status": "PRESENT_UNVERIFIED",
+      "candidates": [
+        "runs/pilot-test-run-2/tables/extracted_claims.parquet"
+      ]
+    },
+    "claim_provenance": {
+      "status": "MISSING",
+      "candidates": []
+    },
+    "mappings": {
+      "status": "MISSING",
+      "candidates": []
+    },
+    "decisions": {
+      "status": "MISSING",
+      "candidates": []
+    },
+    "extractor_cache": {
+      "status": "MISSING",
+      "candidates": []
+    },
+    "run_manifests": {
+      "status": "PRESENT_UNVERIFIED",
+      "candidates": [
+        "runs/pilot-test-run/run_manifest.yaml",
+        "runs/pilot-test-run-2/run_manifest.yaml"
+      ]
+    },
+    "stage_manifests": {
+      "status": "MISSING",
+      "candidates": []
+    },
+    "gold": {
+      "status": "MISSING",
+      "candidates": []
+    },
+    "gates": {
+      "status": "PRESENT_UNVERIFIED",
+      "candidates": [
+        "runs/pilot-test-run/gates/A/2026-09-20T12-38-29.782281+00-00_839e3b7fc35b4088a53bb65598c4d972.json"
+      ]
+    }
+  },
+  "reference_checks": [
+    {
+      "directory": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main\\runs\\pilot-test-run-2\\tables",
+      "child": "source_versions",
+      "parent": "retrievals",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "reference integrity only",
+      "child_rows": 0,
+      "missing_references": 0,
+      "duplicate_parent_ids": 0,
+      "reason": "NO_ROWS_TO_VERIFY"
+    },
+    {
+      "directory": "C:\\Users\\ducan\\orca\\workspaces\\evolving-kg-drift\\main\\runs\\pilot-test-run\\tables",
+      "child": "source_versions",
+      "parent": "retrievals",
+      "status": "PRESENT_UNVERIFIED",
+      "scope": "reference integrity only",
+      "child_rows": 0,
+      "missing_references": 0,
+      "duplicate_parent_ids": 0,
+      "reason": "NO_ROWS_TO_VERIFY"
+    }
+  ],
+  "source_candidates": [
+    {
+      "role": "proposal",
+      "path": "sources/huce_evolving_kg_modular_proposal(8).pdf",
+      "git_ref": "e19fe25d2325a53ebf49ada27cff4692aa1c6638",
+      "git_blob_sha256": "d9e6d74b84fabdff880698eb6a5774bed8445897539b3713ba1e0594a446ea6f",
+      "bytes": 399801,
+      "current_locked_sha256": "d9e6d74b84fabdff880698eb6a5774bed8445897539b3713ba1e0594a446ea6f",
+      "branch_declared_sha256": "d9e6d74b84fabdff880698eb6a5774bed8445897539b3713ba1e0594a446ea6f",
+      "matches_current_lock": true,
+      "matches_branch_lock": true,
+      "local_original_available": true,
+      "status": "PRESENT_VERIFIED",
+      "verification_scope": "exact bytes against current source lock only",
+      "amendment_approved": false
+    },
+    {
+      "role": "execution_plan",
+      "path": "sources/Research_Execution_Plan_v1.0.md",
+      "git_ref": "e19fe25d2325a53ebf49ada27cff4692aa1c6638",
+      "git_blob_sha256": "12e492387dc562e623fba098ae3956c65411f4420fdb3c368848b72521f24bc5",
+      "bytes": 12449,
+      "current_locked_sha256": "c61d08fc6a5a63658e2b99c1245867b9221a3f84c04fa9d872bad8fbbb638b94",
+      "branch_declared_sha256": "667aa4601afdb888dd079670336a45611531fa34d8d8b283a1773d06d4ff7949",
+      "matches_current_lock": false,
+      "matches_branch_lock": false,
+      "local_original_available": false,
+      "status": "CONFLICTING",
+      "verification_scope": "exact bytes against current source lock only",
+      "amendment_approved": false
+    },
+    {
+      "role": "patch",
+      "path": "sources/Research_Execution_Plan_v1.1_Patch.md",
+      "git_ref": "e19fe25d2325a53ebf49ada27cff4692aa1c6638",
+      "git_blob_sha256": "faae34f40f6380fe6222374f682335bedbe69ba5779b9d00b6222875080e1611",
+      "bytes": 783,
+      "current_locked_sha256": "3f1bc9fd9d3dca2bb47eadc59c0ec6266a12794612761ce6b7ffb204fccb31a5",
+      "branch_declared_sha256": "509046466a6f81b9dc2119ab8fdd56d50fbb1019a0e83e5c46000a126bfcd3fe",
+      "matches_current_lock": false,
+      "matches_branch_lock": false,
+      "local_original_available": false,
+      "status": "CONFLICTING",
+      "verification_scope": "exact bytes against current source lock only",
+      "amendment_approved": false
+    }
+  ],
+  "dependencies": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "executable": "C:\\Users\\ducan\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "packages": [
+      {
+        "package": "attrs",
+        "locked": "26.1.0",
+        "installed": "26.1.0",
+        "installed_requires_python": ">=3.9",
+        "matches_lock": true
+      },
+      {
+        "package": "beautifulsoup4",
+        "locked": "4.15.0",
+        "installed": "4.14.3",
+        "installed_requires_python": ">=3.7.0",
+        "matches_lock": false
+      },
+      {
+        "package": "certifi",
+        "locked": "2026.7.22",
+        "installed": "2026.5.20",
+        "installed_requires_python": ">=3.7",
+        "matches_lock": false
+      },
+      {
+        "package": "cffi",
+        "locked": "2.1.1",
+        "installed": "2.0.0",
+        "installed_requires_python": ">=3.9",
+        "matches_lock": false
+      },
+      {
+        "package": "charset-normalizer",
+        "locked": "3.5.1",
+        "installed": "3.4.7",
+        "installed_requires_python": ">=3.7",
+        "matches_lock": false
+      },
+      {
+        "package": "colorama",
+        "locked": "0.4.6",
+        "installed": "0.4.6",
+        "installed_requires_python": "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7",
+        "matches_lock": true
+      },
+      {
+        "package": "feedparser",
+        "locked": "6.0.14",
+        "installed": null,
+        "installed_requires_python": null,
+        "matches_lock": false
+      },
+      {
+        "package": "feedparser-sgmllib",
+        "locked": "2.1.0",
+        "installed": null,
+        "installed_requires_python": null,
+        "matches_lock": false
+      },
+      {
+        "package": "h11",
+        "locked": "0.16.0",
+        "installed": "0.16.0",
+        "installed_requires_python": ">=3.8",
+        "matches_lock": true
+      },
+      {
+        "package": "idna",
+        "locked": "3.20",
+        "installed": "3.16",
+        "installed_requires_python": ">=3.9",
+        "matches_lock": false
+      },
+      {
+        "package": "iniconfig",
+        "locked": "2.3.0",
+        "installed": "2.3.0",
+        "installed_requires_python": ">=3.10",
+        "matches_lock": true
+      },
+      {
+        "package": "numpy",
+        "locked": "2.4.6",
+        "installed": "2.4.3",
+        "installed_requires_python": ">=3.11",
+        "matches_lock": false
+      },
+      {
+        "package": "outcome",
+        "locked": "1.3.0.post0",
+        "installed": null,
+        "installed_requires_python": null,
+        "matches_lock": false
+      },
+      {
+        "package": "packaging",
+        "locked": "26.3",
+        "installed": "26.0",
+        "installed_requires_python": ">=3.8",
+        "matches_lock": false
+      },
+      {
+        "package": "pandas",
+        "locked": "3.0.5",
+        "installed": "2.3.3",
+        "installed_requires_python": ">=3.9",
+        "matches_lock": false
+      },
+      {
+        "package": "pluggy",
+        "locked": "1.6.0",
+        "installed": "1.6.0",
+        "installed_requires_python": ">=3.9",
+        "matches_lock": true
+      },
+      {
+        "package": "pyarrow",
+        "locked": "25.0.1",
+        "installed": "22.0.0",
+        "installed_requires_python": ">=3.10",
+        "matches_lock": false
+      },
+      {
+        "package": "pycparser",
+        "locked": "3.0",
+        "installed": "3.0",
+        "installed_requires_python": ">=3.10",
+        "matches_lock": true
+      },
+      {
+        "package": "Pygments",
+        "locked": "2.21.0",
+        "installed": "2.19.2",
+        "installed_requires_python": ">=3.8",
+        "matches_lock": false
+      },
+      {
+        "package": "PySocks",
+        "locked": "1.7.1",
+        "installed": "1.7.1",
+        "installed_requires_python": ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
+        "matches_lock": true
+      },
+      {
+        "package": "pytest",
+        "locked": "9.1.1",
+        "installed": "9.0.2",
+        "installed_requires_python": ">=3.10",
+        "matches_lock": false
+      },
+      {
+        "package": "python-dateutil",
+        "locked": "2.9.0.post0",
+        "installed": "2.9.0.post0",
+        "installed_requires_python": "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7",
+        "matches_lock": true
+      },
+      {
+        "package": "PyYAML",
+        "locked": "6.0.3",
+        "installed": "6.0.3",
+        "installed_requires_python": ">=3.8",
+        "matches_lock": true
+      },
+      {
+        "package": "requests",
+        "locked": "2.34.2",
+        "installed": "2.32.5",
+        "installed_requires_python": ">=3.9",
+        "matches_lock": false
+      },
+      {
+        "package": "ruff",
+        "locked": "0.16.7",
+        "installed": "0.15.14",
+        "installed_requires_python": ">=3.7",
+        "matches_lock": false
+      },
+      {
+        "package": "selenium",
+        "locked": "4.49.0",
+        "installed": null,
+        "installed_requires_python": null,
+        "matches_lock": false
+      },
+      {
+        "package": "setuptools",
+        "locked": "84.0.0",
+        "installed": "81.0.0",
+        "installed_requires_python": ">=3.9",
+        "matches_lock": false
+      },
+      {
+        "package": "six",
+        "locked": "1.17.0",
+        "installed": "1.17.0",
+        "installed_requires_python": ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*",
+        "matches_lock": true
+      },
+      {
+        "package": "sniffio",
+        "locked": "1.3.1",
+        "installed": "1.3.1",
+        "installed_requires_python": ">=3.7",
+        "matches_lock": true
+      },
+      {
+        "package": "sortedcontainers",
+        "locked": "2.4.0",
+        "installed": null,
+        "installed_requires_python": null,
+        "matches_lock": false
+      },
+      {
+        "package": "soupsieve",
+        "locked": "2.9.2",
+        "installed": "2.8.3",
+        "installed_requires_python": ">=3.9",
+        "matches_lock": false
+      },
+      {
+        "package": "trio",
+        "locked": "0.34.0",
+        "installed": null,
+        "installed_requires_python": null,
+        "matches_lock": false
+      },
+      {
+        "package": "trio-websocket",
+        "locked": "0.12.2",
+        "installed": null,
+        "installed_requires_python": null,
+        "matches_lock": false
+      },
+      {
+        "package": "typing_extensions",
+        "locked": "4.16.0",
+        "installed": "4.15.0",
+        "installed_requires_python": ">=3.9",
+        "matches_lock": false
+      },
+      {
+        "package": "tzdata",
+        "locked": "2026.4",
+        "installed": "2025.3",
+        "installed_requires_python": ">=2",
+        "matches_lock": false
+      },
+      {
+        "package": "urllib3",
+        "locked": "2.8.0",
+        "installed": "2.7.0",
+        "installed_requires_python": ">=3.10",
+        "matches_lock": false
+      },
+      {
+        "package": "websocket-client",
+        "locked": "1.9.2",
+        "installed": null,
+        "installed_requires_python": null,
+        "matches_lock": false
+      },
+      {
+        "package": "wsproto",
+        "locked": "1.3.2",
+        "installed": null,
+        "installed_requires_python": null,
+        "matches_lock": false
+      }
+    ],
+    "locked_environment_verified": false,
+    "python_310_runtime_tested": false,
+    "python_311_runtime_tested": false
+  },
+  "scientific_certification": "BLOCKED",
+  "recovery_conclusion": "Presence/hash inspection does not establish provenance or eligibility; no artifact promoted"
+}

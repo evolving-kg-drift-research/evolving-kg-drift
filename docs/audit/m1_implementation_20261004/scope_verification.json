@@ -1,0 +1,413 @@
+{
+  "preexisting_paths_changed_this_turn": [
+    "src/kg_pipeline/neo4j_materializer.py",
+    "src/kge/adapter.py",
+    "tests/kg_pipeline/test_m2_snapshot_certification.py",
+    "tests/kg_pipeline/test_neo4j_materializer.py"
+  ],
+  "protected_unchanged": {
+    "AGENTS.md": true,
+    "configs/protocol_v1.yaml": true,
+    "config/schema.yaml": true,
+    "data/manifests/sources.lock.json": true,
+    "decisions/decision_log.jsonl": true,
+    "data/evolving_kg_downstream_v2.zip": true
+  },
+  "machine_contract": {
+    "status": "BLOCKED",
+    "schema_version": "1.0.0",
+    "physical_contract_status": "BLOCKED",
+    "schema_physical_sha256": "48ad42f86088ae0e9ca8b8cbb158017bf8ec14e0d450fdeff523bf59e6902840",
+    "tables": [
+      {
+        "table": "source_registry",
+        "status": "BLOCKED",
+        "blockers": [
+          "MISSING_PYARROW_SCHEMA",
+          "PYARROW_MISSING_DECLARED_FIELDS"
+        ],
+        "missing_in_pyarrow": [
+          "archive_availability",
+          "domain",
+          "enabled",
+          "name",
+          "robots_legal_notes",
+          "rss",
+          "source_id",
+          "source_type",
+          "trust_notes"
+        ],
+        "undeclared_in_pyarrow": [],
+        "missing_in_dataclass": [],
+        "physical_contract": {
+          "status": "UNDECLARED",
+          "issues": [
+            "PHYSICAL_TYPES_AND_NULLABILITY_UNDECLARED"
+          ]
+        }
+      },
+      {
+        "table": "raw_source_versions",
+        "status": "BLOCKED",
+        "blockers": [
+          "MISSING_PYARROW_SCHEMA",
+          "PYARROW_MISSING_DECLARED_FIELDS"
+        ],
+        "missing_in_pyarrow": [
+          "archive_or_revision_datetime",
+          "content_hash_sha256",
+          "published_at_declared",
+          "raw_blob_path",
+          "raw_source_id",
+          "retrieved_at_real",
+          "source_id",
+          "source_version_relation",
+          "updated_at_declared",
+          "url"
+        ],
+        "undeclared_in_pyarrow": [],
+        "missing_in_dataclass": [],
+        "physical_contract": {
+          "status": "UNDECLARED",
+          "issues": [
+            "PHYSICAL_TYPES_AND_NULLABILITY_UNDECLARED"
+          ]
+        }
+      },
+      {
+        "table": "retrievals",
+        "status": "PASS",
+        "blockers": [],
+        "missing_in_pyarrow": [],
+        "undeclared_in_pyarrow": [],
+        "missing_in_dataclass": [],
+        "physical_contract": {
+          "status": "UNDECLARED",
+          "issues": [
+            "PHYSICAL_TYPES_AND_NULLABILITY_UNDECLARED"
+          ]
+        }
+      },
+      {
+        "table": "source_versions",
+        "status": "PASS",
+        "blockers": [],
+        "missing_in_pyarrow": [],
+        "undeclared_in_pyarrow": [],
+        "missing_in_dataclass": [],
+        "physical_contract": {
+          "status": "UNDECLARED",
+          "issues": [
+            "PHYSICAL_TYPES_AND_NULLABILITY_UNDECLARED"
+          ]
+        }
+      },
+      {
+        "table": "body_variants",
+        "status": "PASS",
+        "blockers": [],
+        "missing_in_pyarrow": [],
+        "undeclared_in_pyarrow": [],
+        "missing_in_dataclass": [],
+        "physical_contract": {
+          "status": "UNDECLARED",
+          "issues": [
+            "PHYSICAL_TYPES_AND_NULLABILITY_UNDECLARED"
+          ]
+        }
+      },
+      {
+        "table": "document_clusters",
+        "status": "BLOCKED",
+        "blockers": [
+          "PYARROW_MISSING_DECLARED_FIELDS",
+          "PYARROW_UNDECLARED_FIELDS"
+        ],
+        "missing_in_pyarrow": [
+          "algorithm_version",
+          "canonical_document_id",
+          "dedup_score",
+          "document_cluster_id",
+          "duplicate_cluster_id",
+          "is_syndicated_copy",
+          "raw_source_id",
+          "source_lineage_group_id"
+        ],
+        "undeclared_in_pyarrow": [
+          "body_variant_id",
+          "cluster_id",
+          "cluster_type",
+          "member_count",
+          "member_ids_json",
+          "policy_status"
+        ],
+        "missing_in_dataclass": [],
+        "physical_contract": {
+          "status": "UNDECLARED",
+          "issues": [
+            "PHYSICAL_TYPES_AND_NULLABILITY_UNDECLARED"
+          ]
+        }
+      },
+      {
+        "table": "corpus_filtered",
+        "status": "BLOCKED",
+        "blockers": [
+          "MISSING_PYARROW_SCHEMA",
+          "PYARROW_MISSING_DECLARED_FIELDS"
+        ],
+        "missing_in_pyarrow": [
+          "document_cluster_id",
+          "filter_decision",
+          "filter_version",
+          "reason_code"
+        ],
+        "undeclared_in_pyarrow": [],
+        "missing_in_dataclass": [],
+        "physical_contract": {
+          "status": "UNDECLARED",
+          "issues": [
+            "PHYSICAL_TYPES_AND_NULLABILITY_UNDECLARED"
+          ]
+        }
+      },
+      {
+        "table": "entity_mentions",
+        "status": "BLOCKED",
+        "blockers": [
+          "MISSING_PYARROW_SCHEMA",
+          "PYARROW_MISSING_DECLARED_FIELDS"
+        ],
+        "missing_in_pyarrow": [
+          "mention_id",
+          "normalized_mention",
+          "raw_form",
+          "raw_source_id",
+          "span_end",
+          "span_start"
+        ],
+        "undeclared_in_pyarrow": [],
+        "missing_in_dataclass": [],
+        "physical_contract": {
+          "status": "UNDECLARED",
+          "issues": [
+            "PHYSICAL_TYPES_AND_NULLABILITY_UNDECLARED"
+          ]
+        }
+      },
+      {
+        "table": "entity_mapping_versions",
+        "status": "BLOCKED",
+        "blockers": [
+          "PYARROW_MISSING_DECLARED_FIELDS",
+          "PYARROW_UNDECLARED_FIELDS"
+        ],
+        "missing_in_pyarrow": [
+          "mention_id"
+        ],
+        "undeclared_in_pyarrow": [
+          "mention"
+        ],
+        "missing_in_dataclass": [],
+        "physical_contract": {
+          "status": "UNDECLARED",
+          "issues": [
+            "PHYSICAL_TYPES_AND_NULLABILITY_UNDECLARED"
+          ]
+        }
+      },
+      {
+        "table": "claims",
+        "status": "BLOCKED",
+        "blockers": [
+          "MISSING_PYARROW_SCHEMA",
+          "PYARROW_MISSING_DECLARED_FIELDS"
+        ],
+        "missing_in_pyarrow": [
+          "claim_id",
+          "evidence_observed_at",
+          "evidence_span_end",
+          "evidence_span_start",
+          "evidence_text_hash",
+          "evidence_time_basis",
+          "evidence_time_confidence",
+          "extraction_confidence",
+          "extractor_version",
+          "object_id",
+          "object_value",
+          "ontology_version",
+          "raw_source_id",
+          "relation_id",
+          "scope",
+          "subject_id",
+          "valid_from",
+          "valid_from_inferred",
+          "valid_to"
+        ],
+        "undeclared_in_pyarrow": [],
+        "missing_in_dataclass": [],
+        "physical_contract": {
+          "status": "UNDECLARED",
+          "issues": [
+            "PHYSICAL_TYPES_AND_NULLABILITY_UNDECLARED"
+          ]
+        }
+      },
+      {
+        "table": "document_memberships",
+        "status": "PASS",
+        "blockers": [],
+        "missing_in_pyarrow": [],
+        "undeclared_in_pyarrow": [],
+        "missing_in_dataclass": [],
+        "physical_contract": {
+          "status": "UNDECLARED",
+          "issues": [
+            "PHYSICAL_TYPES_AND_NULLABILITY_UNDECLARED"
+          ]
+        }
+      },
+      {
+        "table": "adjudication_decisions",
+        "status": "BLOCKED",
+        "blockers": [
+          "PYARROW_MISSING_DECLARED_FIELDS",
+          "PYARROW_UNDECLARED_FIELDS"
+        ],
+        "missing_in_pyarrow": [
+          "LogicalFactID",
+          "acceptance_basis",
+          "accepted_into_kg_at",
+          "adjudicated_at_real",
+          "adjudication_rule_version",
+          "candidate_claim_ids",
+          "decision",
+          "reviewer_provenance",
+          "supporting_claim_ids"
+        ],
+        "undeclared_in_pyarrow": [
+          "claim_id",
+          "decider",
+          "decision_type",
+          "evaluated_at_real",
+          "fact_version_id",
+          "reason",
+          "rule_id"
+        ],
+        "missing_in_dataclass": [],
+        "physical_contract": {
+          "status": "UNDECLARED",
+          "issues": [
+            "PHYSICAL_TYPES_AND_NULLABILITY_UNDECLARED"
+          ]
+        }
+      },
+      {
+        "table": "fact_versions",
+        "status": "BLOCKED",
+        "blockers": [
+          "PYARROW_MISSING_DECLARED_FIELDS",
+          "PYARROW_UNDECLARED_FIELDS",
+          "DATACLASS_MISSING_DECLARED_FIELDS"
+        ],
+        "missing_in_pyarrow": [
+          "FactVersionID",
+          "LogicalFactID",
+          "accepted_into_kg_at",
+          "adjudicated_at_real",
+          "adjudication_rule_version",
+          "object_value",
+          "ontology_version",
+          "raw_source_id",
+          "retrieved_at_real",
+          "scope",
+          "url"
+        ],
+        "undeclared_in_pyarrow": [
+          "evidence_span_end",
+          "evidence_span_start",
+          "evidence_text_hash",
+          "fact_version_id",
+          "ingested_at_real",
+          "logical_fact_id",
+          "source_url"
+        ],
+        "missing_in_dataclass": [
+          "FactVersionID",
+          "LogicalFactID",
+          "accepted_into_kg_at",
+          "adjudicated_at_real",
+          "adjudication_rule_version",
+          "object_value",
+          "ontology_version",
+          "raw_source_id",
+          "retrieved_at_real",
+          "scope",
+          "url"
+        ],
+        "physical_contract": {
+          "status": "UNDECLARED",
+          "issues": [
+            "PHYSICAL_TYPES_AND_NULLABILITY_UNDECLARED"
+          ]
+        }
+      },
+      {
+        "table": "claim_provenance",
+        "status": "PASS",
+        "blockers": [],
+        "missing_in_pyarrow": [],
+        "undeclared_in_pyarrow": [],
+        "missing_in_dataclass": [],
+        "physical_contract": {
+          "status": "UNDECLARED",
+          "issues": [
+            "PHYSICAL_TYPES_AND_NULLABILITY_UNDECLARED"
+          ]
+        }
+      },
+      {
+        "table": "snapshot_edges",
+        "status": "PASS",
+        "blockers": [],
+        "missing_in_pyarrow": [],
+        "undeclared_in_pyarrow": [],
+        "missing_in_dataclass": [],
+        "physical_contract": {
+          "status": "UNDECLARED",
+          "issues": [
+            "PHYSICAL_TYPES_AND_NULLABILITY_UNDECLARED"
+          ]
+        }
+      },
+      {
+        "table": "snapshot_edge_support",
+        "status": "PASS",
+        "blockers": [],
+        "missing_in_pyarrow": [],
+        "undeclared_in_pyarrow": [],
+        "missing_in_dataclass": [],
+        "physical_contract": {
+          "status": "UNDECLARED",
+          "issues": [
+            "PHYSICAL_TYPES_AND_NULLABILITY_UNDECLARED"
+          ]
+        }
+      },
+      {
+        "table": "snapshot_exclusions",
+        "status": "PASS",
+        "blockers": [],
+        "missing_in_pyarrow": [],
+        "undeclared_in_pyarrow": [],
+        "missing_in_dataclass": [],
+        "physical_contract": {
+          "status": "UNDECLARED",
+          "issues": [
+            "PHYSICAL_TYPES_AND_NULLABILITY_UNDECLARED"
+          ]
+        }
+      }
+    ]
+  }
+}

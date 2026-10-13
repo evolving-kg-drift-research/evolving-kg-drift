@@ -1,5 +1,201 @@
 # Tiến độ pipeline
 
+## Kiểm tra trước commit remediation — 2026-10-13
+
+Kiểm tra working tree trên Python 3.12.10: `python -m pytest -q
+--basetemp=.pytest_cache/commit_verified_20261013 --tb=short` đạt **303 passed,
+10 skipped**, một cảnh báo deprecation pytz. Lượt sandbox ban đầu bị lỗi quyền
+thư mục tạm; lượt chạy lại với quyền phù hợp hoàn tất thành công.
+`python scripts/verify_g1.py --ci --code-checks` đạt **4 passed**; chỉ là
+CODE_CONFORMANCE_PASS, không chứng nhận scientific G1. `python -m ruff check .`
+không có lỗi lint, nhưng báo ba warning quyền đọc thư mục; chưa kiểm tra lại
+trên Python 3.10/3.11 trong lượt này.
+
+Phạm vi: đóng gói code/tests, CI và hồ sơ audit đang mở trên nhánh remediation.
+Không đưa dữ liệu nguồn hoặc bản sao `preexisting.patch` vào commit. Mức xác
+nhận là **IMPLEMENTED + TESTED** (fixtures/code); không chạy production,
+Neo4j thật hoặc huấn luyện trên dữ liệu thật. Gate A/G1/G2 và M2 production
+tiếp tục **BLOCKED** theo hồ sơ hiện hành. Không thay protocol/source lock.
+
+## Đánh giá lại nhánh Hương và hướng M1 → M2 — 2026-10-04
+
+Đã fetch tất cả remote; tip Hương vẫn `e19fe25`, không có commit mới so với
+review 03/10. ZIP `data/evolving_kg_downstream_v2.zip` được người dùng xác nhận,
+hash không đổi. Kiểm lại 10 snapshots: export/replay/hash nhất quán; temporal
+future-effective fixture và zero-gold quality PASS trên producer Hương vẫn lỗi.
+Schema checkout vẫn BLOCKED 9/17, hai source Markdown gốc thiếu, raw chỉ có
+`.gitkeep`, không có local `runs/` hoặc approved baseline file.
+
+Audit cấu trúc bổ sung: T01 có 121 triples/167 entities/24 chuỗi 2-hop có hướng;
+T10 có 1.205 triples/1.389 entities/313 weak components, 1.040 entities chỉ có
+một láng giềng. Chín transitions chỉ thêm triples; chưa chứng minh QA/anchor
+feasibility hay correction/retraction production. Khuyến nghị giữ nhánh
+remediation làm nền, khôi phục upstream và sửa M1 có chọn lọc trước M2 production.
+Chưa merge nhánh Hương vì xung đột locked source baseline chưa giải quyết.
+
+Focused checkout regressions: **43 passed**; G1 code checks: **4 passed**,
+không cấp scientific PASS. Ruff `src tests scripts` PASS; whole-repo Ruff FAIL
+15 lỗi từ pytest fixture directories cũ; diff check báo whitespace sẵn có
+trong AGENTS.md. Không chạy production/Neo4j/training hay sửa locked inputs.
+Gate A/G1/G2 và M2 handoff tiếp tục BLOCKED. Kết luận, structured findings,
+bằng chứng và lộ trình từng stage ở [báo cáo 04/10](audit/m1_final_direction_20261004.md).
+
+## Nhánh khắc phục sau review Thu Hương — 2026-10-03
+
+Đã tạo `codex/m1-thu-huong-remediation` từ `6000f38`, giữ các thay đổi đang mở.
+Sửa `src/temporal/snapshot.py` để cả hai snapshot paths lọc validity trước
+revision; kiểm tra revision graph và dừng khi thiếu parent, sai LogicalFactID,
+cycle hoặc hai revision hiệu lực cạnh tranh. Future-effective correction không
+còn loại fact cũ trước cutoff. Regression snapshot/provenance: **35 passed**;
+Ruff đạt. Bước này **IMPLEMENTED + TESTED** ở fixture tier; chưa chạy production.
+
+Chi tiết finding, bằng chứng regression và blocker: [báo cáo snapshot](audit/m1_snapshot_revision_guard_20261003.md).
+
+Kế hoạch tích hợp chọn lọc C3–C9 và stage production, blocker/chứng cứ cần có,
+và tiêu chí nghiệm thu ở [đây](audit/m1_thu_huong_remediation_plan_20261003.md).
+C3 và policy identity/conflict/normalization chưa duyệt; Gate A/G1/G2, các
+production stages và M2 vẫn **BLOCKED**.
+Review tĩnh bổ sung phát hiện source-lock hash mismatch, helper có thể ghi
+placeholder/ghi lại lock, đường rerun 108-block Stage 4.3, wrapper tự chạy
+nhiều bước, copy helper có thể ghi đè và hosted model mode trên nhánh Thu
+Hương. Xem [phụ lục](audit/m1_thu_huong_branch_safety_supplement_20261003.md).
+
+### Đối chiếu input readiness read-only — 2026-10-03
+
+Đã khôi phục đúng proposal PDF từ blob ở commit `6779bf4` vì SHA-256 khớp
+source-lock; `inspect_source_lock` hiện báo proposal `MATCH`. Hai Markdown gốc
+vẫn `MISSING`; bản trong Git history lệch hash nên không dùng. Raw chỉ có
+`.gitkeep`, không có `runs/` hoặc artifact Stage 4.3. ZIP downstream không đổi,
+không có upstream provenance/gate evidence. Xem [báo cáo input readiness](audit/m1_input_readiness_recovery_20261003.md).
+W1 `--ci` chỉ đạt scaffold/contracts; strict W1 verifier vẫn FAIL vì hai
+Markdown gốc thiếu. Không nhầm scaffold PASS với source-lock PASS.
+Checkout phụ cũng chỉ có hai `inventory` pilot runs, config
+`PROPOSED_UNFROZEN`, source lock và recorded Gate A đều `BLOCKED`.
+Không mở `data/locked_test/`,
+không rerun Stage 4.3, không sửa source-lock hay raw; Gate A vẫn **BLOCKED**.
+
+## Review gói dữ liệu Thu Hương — 2026-10-03
+
+Đã đối chiếu read-only `data/evolving_kg_downstream_v2.zip` với nhánh
+`fix/data-pipeline-compliance-cont` tại `e19fe25`. Cả 10 snapshot khớp hash,
+replay rows/semantic hash bằng hàm producer và CSV node/edge sets cùng metadata.
+10 cutoff có timestamp khác nhau; T07–T10 vượt historical window hiện tại.
+Đây là xác minh tính nhất quán file export, chưa là Neo4j database parity hay
+scientific PASS. Temporal future-effective regression vẫn FAIL; evaluator
+quality trả PASS khi evaluated_count=0. Package thiếu upstream provenance,
+mapping as-of, gold, freeze/gate certificates và verified handoff manifests.
+
+Gate A/G1/G2, production và M2 tiếp tục **BLOCKED**. Không chạy production
+stage, không sửa raw/source-lock, không merge nhánh Thu Hương. ZIP/guide đã
+được ignore. Xem [review chi tiết và bằng chứng](audit/m1_thu_huong_package_review_20261003.md).
+
+## C4 — mapping theo cutoff, runner fixtures — 2026-10-03
+
+Thêm regression fixtures gọi trực tiếp `run_adjudication` và `run_snapshot`:
+mapping alias chỉ có sau `evidence_observed_at` không tạo FactVersion; snapshot
+trước ngày supersession giữ mapping cũ và snapshot sau ngày đó dùng mapping mới.
+Bộ test tập trung đạt **48 passed**, Ruff đạt. Đây là **IMPLEMENTED + TESTED**
+ở fixture tier; Gate A/schema/artifact I/O được cô lập trong test, không phải
+`EXECUTED` hay `VERIFIED` production.
+
+C4 vẫn **PARTIAL/BLOCKED**: schema audit còn 9/17 bảng lệch; runtime chưa nối
+stable `MentionID` và `MappingDecisionID` xuyên Claim → FactVersion → snapshot;
+identity policy và mapping-catalog fingerprint/binding chưa được chứng minh.
+Không chạy production. Xem [báo cáo C4](audit/m1_c4_runner_regression_20261003.md).
+
+## C5 — text/evidence provenance và locked extraction cache — 2026-10-03
+
+Extraction giờ từ chối body variant thiếu `normalization_version`, và chỉ dùng
+identity normalization hiện tại; NFC chưa được bật khi chưa có quyết định được
+duyệt. Helper extraction yêu cầu version tường minh và text đúng với version.
+Locked replay bind hash input, parser, dependency lock, model/tokenizer,
+normalization, prompt/schema/decoding, endpoint, runtime và nền tảng; replay
+thiếu cache hoặc fingerprint thì dừng. Stage Manifest kiểm physical và
+semantic hash cho `extractor_manifest.json`, nơi body variant nối clean-text
+hash/version với claim span.
+
+Focused tests: **52 passed**, một cảnh báo deprecation pytz hiện hữu; Ruff đạt.
+Đây là **IMPLEMENTED + TESTED** trên fixtures, không phải extraction
+EXECUTED/VERIFIED production. C5 còn **BLOCKED** cho production: schema hiện
+không có `body_variants.normalization_version`, C3 còn 9/17 bảng lệch, chưa có
+duyệt NFC, và local runtime fingerprint chưa được attest độc lập. Xem [báo cáo
+C5](audit/m1_c5_text_provenance_20261003.md).
+
+## C6 — source claims và append-only revisions — 2026-10-03
+
+`run_adjudication` ghi `source_claims-v1` JSON theo provenance path và
+đăng ký artifact đó trong output manifests để stage chain kiểm tra hash. Nếu
+run con khai báo parent nhưng FactVersion store đã xác minh không có, runner
+giờ dừng thay vì khởi động lịch sử rỗng. Support xuyên run không tạo version
+mới; conflict, correction và retraction tiếp tục pending khi chưa có policy.
+Focused adjudication/provenance/artifact-chain suite: **25 passed**; toàn bộ
+`tests/kg_pipeline/`: **176 passed**, một cảnh báo deprecation pytz hiện hữu.
+Ruff đạt, dù lượt toàn repo có warning quyền đọc thư mục pytest cũ. Đây là
+**IMPLEMENTED + TESTED** fixtures;
+chưa có production `EXECUTED` hoặc độc lập `VERIFIED`.
+
+C6 còn **PARTIAL/BLOCKED**: chưa có contract schema cho SourceClaim/support
+aggregation, chưa xác định nhóm nguồn độc lập, conflict/revision policy chưa
+được duyệt, Stage 4.10 và Gate A vẫn chặn production. Xem [báo cáo C6]
+(audit/m1_c6_claim_revision_20261003.md).
+
+## C7 — snapshot certification và bàn giao M2 — 2026-10-03
+
+Snapshot manifest `v2` bind semantic hash của exclusions; per-snapshot YAML
+manifest được đăng ký làm output của snapshot producer stage. M2 kiểm tra
+ArtifactRef chain, hash config/code/mapping/boundary, support/exclusion lineage
+tới fact và claim provenance, Gate A hiện hành, cùng G1/G2 certificate đã lưu
+và gắn đúng run/hash. Public single-snapshot loader cũng bắt buộc run context
+và chuyển qua verified-run loader, đóng đường đọc Parquet trực tiếp bỏ qua
+stage/gates. Bộ `tests/kg_pipeline/`, temporal snapshot và M2 adapter đạt
+**204 passed**; Ruff mục tiêu đạt. Đây chỉ là **IMPLEMENTED + TESTED** trên
+fixture, không phải production execution hay certification.
+
+C7 còn **PARTIAL/BLOCKED**: `accepted_into_kg_at` chưa có trong contract có
+thẩm quyền, schema audit vẫn lệch 9/17 bảng, boundary/identity policy chưa được
+duyệt, Gate A/G1/G2 và production artifacts vẫn thiếu. Không có production
+snapshot hoặc M2 handoff nào được chạy/xác minh. Xem [báo cáo C7]
+(audit/m1_c7_snapshot_certification_20261003.md).
+
+## C8 — Neo4j materialization và read-back parity — 2026-10-03
+
+Thêm adapter chỉ materialize sau khi M2 verified-run loader chấp nhận snapshot;
+đọc cạnh/support/fact trực tiếp từ canonical Parquet, giữ temporal support theo
+FactVersion, ghi Neo4j bằng thao tác append-only và so sánh read-back toàn bộ
+node/edge sets cùng thời gian. Parity key bắt cả lệch metadata khi counts bằng
+nhau. Bộ `tests/kg_pipeline/`, temporal snapshot và M2 adapter đạt **210
+passed**; Ruff mục tiêu đạt. Các test dùng driver double.
+
+C8 **PARTIAL/BLOCKED**: không có Neo4j driver hoặc Docker daemon trong môi
+trường; Gate A/G1/G2 và artifact runner production vẫn blocked. Stage 4.10
+thiếu approved temporal evidence và runtime contract thiếu
+`accepted_into_kg_at`, nên không thể chạy vertical slice qua snapshot runner mà
+không bypass policy. Chưa có Neo4j database read-back hoặc hai production-runner
+semantic hashes. Xem [báo cáo C8](audit/m1_c8_neo4j_readback_20261003.md).
+
+## C9 — locked mode và phạm vi CI — 2026-10-03
+
+Locked initialization kiểm tra exact pin cho dependency runtime và build;
+config run chỉ lấy protocol có thẩm quyền từ `configs/protocol_v1.yaml`, không
+dùng `config/protocol.yaml` làm fallback. CI mặc định chỉ chạy code checks và
+G1 code conformance, không gọi verifier để cấp scientific PASS; regression
+khóa ranh giới này. C9-focused tests đạt **82 passed**; full suite đạt **278
+passed, 10 skipped**. Mười skip là các placeholder M2/M3/M4 và locked-test
+workflow trong `tests/test_hard_invariants.py`. Ruff và diff check đạt.
+
+C9 **IMPLEMENTED + TESTED** ở fixture/code tier; chưa có locked production
+`EXECUTED` hoặc `VERIFIED`. Baseline config chưa được duyệt, `openai>=1.0.0`
+chưa có exact pin trong lock, Gate A/G1/G2 và production artifacts vẫn
+BLOCKED; C8 cũng chưa có Neo4j read-back thật. Xem [báo cáo C9](audit/m1_c9_locked_ci_20261003.md).
+Chưa commit.
+
+Audit machine schema chạy lại read-only sau C9: vẫn **BLOCKED 9/17** với
+schema version `1.0.0`, hash
+`48ad42f86088ae0e9ca8b8cbb158017bf8ec14e0d450fdeff523bf59e6902840`.
+Chi tiết field mismatch được lưu tại
+[JSON audit](audit/m1_c3_contract_diff_20261003.json); chưa đổi schema vì các
+clock/version/reprocess choices cần approval.
+
 ## M1 C3 — 2026-09-28: machine contract và các clock
 
 Đã thêm audit đọc `config/schema.yaml`, chặn đường production khi PyArrow hoặc
@@ -51,7 +247,9 @@ patch này. Xem [báo cáo C9](audit/m1_c9_locked_ci.md).
 
 - C4: [mapping theo cutoff](audit/m1_c4_mapping.md) — còn thiếu stable mention ID và identity policy.
 - C5: [text và extraction provenance](audit/m1_c5_text_extraction.md) — normalization mới chưa được phê duyệt.
-- C6: [claims và revisions](audit/m1_c6_claims_revisions.md) — conflict/SourceClaim persistence chưa có contract.
+- C6: [claims và revisions](audit/m1_c6_claims_revisions.md), cập nhật fixture
+  ngày 2026-10-03 tại [đây](audit/m1_c6_claim_revision_20261003.md) — source
+  paths đã được persist/bind; policy support/conflict và production vẫn BLOCKED.
 - C7: [snapshot và bàn giao M2](audit/m1_c7_snapshots_m2.md) — acceptance clock, boundaries và G1/G2 còn thiếu.
 - C8: [Neo4j parity](audit/m1_c8_neo4j_parity.md) — chưa có materialization/read-back thật.
 - C9: [locked mode và CI](audit/m1_c9_locked_ci.md) — CI chưa thể cấp chứng nhận artifact-backed.

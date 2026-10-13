@@ -1,0 +1,15 @@
+{
+  "package_version": "m1-policy-proposals-v1",
+  "status": "PROPOSED_NOT_APPROVED",
+  "runtime_apply_allowed": false,
+  "files_sha256": {
+    "boundaries.md": "071b126b325f8524afe455fcd7501d772473829188776c2d00b1027f81538db7",
+    "contract.md": "5f74b7d93e38e0e40a4e1501b2773fd645b37c55014c7307137d24eccdd0c538",
+    "contract_field_matrix.yaml": "716eaf74a1915fff4d39349b6071cd0a03cb7610ed8a3accb73ca151bbd2948c",
+    "identity.md": "e235c95147c43f353c06a3799922277e0d10f97d51fbe1f7a2bbb8f66f2d910d",
+    "quality.md": "53e409164d88924f5a199415a8922895f8348129488d601a8ed1b0d65dffd281",
+    "README.md": "d42aadb7c86da30e73e5a7e36f3838a266ac33efbc72e24eedf9282212ab5494",
+    "support_revision.md": "afd0a08250682ce55cdf78c10e7f03e6d97c823eeccefdc2662ce2cc5629942c",
+    "temporal.md": "b2a31898f0f0a3e7606299e718507ea04d639fbe5b3f54460628ac12d965bd4a"
+  }
+}
