@@ -433,7 +433,499 @@ PDF nguồn hoặc `preexisting.patch`. Checkpoints và logs nằm trong thư m�
 ignored, cần giữ nguyên run directories để bảo toàn replay reference.
 Chưa push các commit legacy mới hoặc merge main trong lượt này.
 
-## 11. Artifacts và tái hiện
+## 11. Kiểm tra content readiness trước khi tìm được release upstream
+
+Người dùng yêu cầu bước tiếp theo và mở rộng kiểm tra toàn bộ. Lượt này là
+kiểm tra read-only trên các repository roots đã biết, không tìm trên toàn
+bộ ổ đĩa cá nhân và không thay scientific population hoặc gold labels.
+
+### Bước 11.1 — Mở rộng tìm kiếm artifact upstream
+
+Đã index file paths trong repository hiện tại và checkout phụ:
+
+```text
+D:/Users/Documents/HUCE/HK1_2026-2027/2. Machine Learning2/Code/evolving-kg-drift
+C:/Users/ducan/orca/workspaces/evolving-kg-drift/main
+```
+
+Inventory cuối ghi 296 và 164 file paths tương ứng. Không truy cập
+`locked_test`, hidden entries, symlinks/reparse paths, tests, model outputs,
+dependency directories hoặc temporary fixture roots. Index names không phải
+chứng minh mọi payload đã được kiểm ngữ nghĩa.
+
+Không tìm thấy candidate mapping/mention artifacts, body blobs hoặc acquisition
+logs theo tên/đường dẫn trong phạm vi này. Kiểm thêm từng body/evidence path
+được khai báo trong mẫu, tương đối với package và hai roots: không file nào
+tồn tại. Guide DOCX có hướng dẫn nạp canonical Parquet nhưng không thấy các
+từ khóa mapping/entity_map/body_blobs/acquisition/raw hoặc HTTP source pointer
+trong phần text đã trích; guide không thay thế source evidence. Chưa có căn cứ
+kết luận artifact không tồn tại ở nơi khác ngoài hai roots này.
+
+### Bước 11.2 — Lưu kế hoạch lấy mẫu trước khi đọc nội dung
+
+Thêm `scripts/audit_v3_content_readiness.py`. Trước khi đọc full facts/claims,
+chỉ đọc FactVersionID và relation_id, rồi lưu plan:
+
+- Population: toàn bộ 1.803 FactVersion rows v3, không chọn từ lỗi TransE.
+- Mẫu chẩn đoán: 3 facts mỗi relation, 10 relations, tổng 30.
+- Thứ tự: SHA-256 của JSON chứa salt `v3-content-readiness-diagnostic-v1`,
+  relation_id và FactVersionID; lấy ba IDs đầu mỗi relation.
+- Mục tiêu: kiểm traceability và availability, không ước lượng fact accuracy
+  hoặc xây gold test set. Không đổi decision log, cutoffs hoặc corpus filtering.
+
+Sample plan được ghi exclusive-create trước content review. Plan SHA-256:
+`7e3c2902a29445135ffedb25220256d0d3c5467dca71e00a480b24988cfcac91`.
+Không đọc training ranks/model scores để chọn hoặc thay mẫu. Năm tests kiểm
+row-order independence, không phụ thuộc extra outcome fields và chặn unsafe/
+held-out evidence paths đều PASS.
+
+### Bước 11.3 — Kiểm hash và truy nguyên candidate claims
+
+Đối chiếu physical/semantic hashes và counts trước khi đọc facts, final claims,
+body metadata, memberships và retrievals. Không dùng partial claims làm input.
+Truy candidate claims bằng đúng tổ hợp:
+
+```text
+source_id + evidence_span_start + evidence_span_end + evidence_text_hash + relation
+```
+
+Kết quả toàn store: 1.497 facts khớp một candidate claim; 306 facts khớp từ
+2–6 candidates. Không có fact nào zero candidate theo tổ hợp này.
+Đây là đối chiếu metadata, không phải verified supporting-claim lineage.
+
+Trong mẫu 30 facts: 22 khớp một claim; 8 khớp nhiều claims và có cặp mention
+khác nhau. Một span có thể chứa nhiều facts đúng cùng relation; việc khớp
+nhiều candidates tự nó không chứng minh extraction sai. Thiếu supporting
+claim IDs và mapping decisions nên chưa chọn được candidate có thẩm quyền.
+
+### Bước 11.4 — Ghi tên/alias có thể quan sát, không tạo mapping mới
+
+`sample_reviews.json` lưu subject/object IDs cùng candidate mention strings
+và claim IDs. Ví dụ metadata có mention `X` và `xAI`; các chuỗi này chỉ là
+nhãn quan sát trong extracted claims, không xác nhận identity hay fact đúng.
+
+Không hash lại mention text để tạo canonical IDs, không fuzzy-merge aliases,
+không tự suy ra mapping_available_at hoặc nâng `v1_mock` thành certified mapping.
+Tất cả 30 rows giữ trạng thái mapping **NOT_VERIFIABLE** vì chưa có registered
+mapping artifact có căn cứ as-of.
+
+### Bước 11.5 — Đối chiếu body, span và temporal evidence
+
+Cả 30 facts có body metadata để tham chiếu, nhưng body text tại các vị trí
+khai báo không có. Các retrieval links dẫn tới metadata, không tới file evidence
+có thể đọc trong phạm vi đã tìm.
+
+| Phép kiểm tra trên mẫu | Kết quả |
+|---|---|
+| Quan sát candidate mention labels | Có, 30/30 |
+| Đối chiếu span hash với body text | 0/30 có đủ payload để kiểm |
+| Đọc acquisition/evidence logs được tham chiếu | 0 paths có sẵn trong mẫu |
+| Xác minh mapping availability theo cutoff | Chưa đủ artifact |
+| Đánh giá đúng/sai của facts từ source content | Chưa thực hiện được |
+
+Không dùng retrieval timestamps làm evidence_observed_at, không dùng valid_from
+làm căn cứ evidence time, không tạo fallback timestamps. **0/30 có payload
+không phải accuracy=0%**; đúng/sai vẫn chưa được đánh giá.
+
+### Bước 11.6 — Lưu báo cáo và xác minh integrity
+
+Run hoàn chỉnh:
+`outputs/v3_content_readiness/20261013T173633Z_fb877e13/`.
+UTC trong tên run; ngày địa phương 14/10/2026. Gồm sample plan và hash,
+inventory, sample reviews, summary, input hashes, code snapshot,
+experiment manifest và independent verification.
+
+Đã kiểm lại output hashes, 30 IDs trong reviews bằng plan đã lưu, sample không
+trùng và manifest required fields. Package Parquet giữ nguyên hash. Ruff
+không lỗi lint; có warnings quyền đọc các fixture directories cũ.
+
+Run sơ bộ `20261013T173555Z_9d815e6e` cũng được giữ nguyên, nhưng báo cáo hiện
+tại tham chiếu run hoàn chỉnh có code/manifest lineage bên trên. Việc chạy
+lại chỉ bổ sung lineage/lint fix; không thay cách chọn mẫu hoặc results.
+
+### Bước 11.7 — Finding và phần còn bị chặn
+
+**Finding V3-CONTENT-001 — HIGH**
+
+- **Affected files:** `data/KG_lan2/evolving_kg_downstream_v3/tables/fact_versions.parquet`,
+  `extracted_claims.parquet`, `body_variants.parquet`, `retrievals.parquet` trong
+  cùng tables directory; mapping/body/evidence artifacts được tham chiếu còn thiếu.
+- **Expected:** Fact → supporting claim → span/body → immutable source evidence,
+  cùng registered identity/mapping availability và temporal basis kiểm được.
+- **Actual:** Các metadata joins tồn tại nhưng thiếu payload/as-of mapping;
+  8 sampled facts có nhiều cặp mention candidates, không có explicit support IDs
+  để xác định claim liên quan. 30 sampled facts không chấm correctness được.
+- **Evidence:** `sample_reviews.json`, `inventory.json`, `summary.json` của run.
+- **Root cause vs hypothesis:** Xác nhận thiếu chứng cứ ở locations đã kiểm tra;
+  chưa chứng minh dữ liệu sai hoặc artifact đã mất ở mọi nơi. Multiple claims
+  trên một span có thể là hợp lệ, nhưng chưa có lineage để disambiguate.
+- **Reproduction:** `python scripts/audit_v3_content_readiness.py`; mỗi lần tạo run mới.
+- **Proposed minimal fix:** Cung cấp bundle upstream gốc có mapping/mentions,
+  supporting-claim decisions, body blobs và acquisition logs đúng hashes; không
+  sửa historical facts hoặc tự dựng timestamps để làm cho verifier PASS.
+- **Regression tests:** 5 sample/path-guard tests PASS; khi upstream recovery
+  có thể thực hiện, cần tests cho missing/tampered body, span/hash mismatch và
+  mapping available sau cutoff.
+- **Remaining blockers:** Mapping/identity policy, source payloads, supporting
+  claim lineage và evidence-time basis chưa được chứng thực.
+
+Tier: IMPLEMENTED audit/report; TESTED 5 fixtures; EXECUTED read-only audit thật;
+VERIFIED metadata/integrity trong phạm vi nêu trên. Semantic quality/G2 vẫn
+**BLOCKED_NOT_VERIFIED**. Không mở gate và không chỉnh bộ dữ liệu.
+
+### Bước 11.8 — Artifact cần có để tiếp tục
+
+Để hoàn tất phần kiểm nội dung, cần bổ sung từ upstream gốc:
+
+1. `entity_mentions` và `entity_mapping_versions` theo `config/schema.yaml`, gồm
+   mention_id, canonical_entity_id, mapping_available_at, version/basis/confidence.
+2. Body blobs ở đúng `body_blob_relative_path`, cùng normalization/extractor
+   version và immutable clean-text hashes để kiểm span.
+3. Acquisition logs và raw bytes đúng evidence paths/hash references.
+4. Claim provenance và adjudication decisions nối supporting_claim_ids tới
+   FactVersion; căn cứ evidence time/validity và approval/component manifests.
+
+Có thể giữ artifacts gốc ở thư mục riêng và cung cấp đường dẫn; recovery phải
+kiểm hash và source authority trước khi dùng. Không crawl lại Stage 4.3 hoặc
+thay lock/protocol. Khi artifacts có đủ, tiếp tục review chính 30 sampled IDs
+đã lưu; không thay mẫu vì kết quả TransE hoặc vì facts khó kiểm.
+
+## 12. Khôi phục upstream từ GitHub Release và kiểm lại evidence — đã thực hiện
+
+Người dùng yêu cầu thực hiện bước tiếp theo. Lượt này mở rộng từ local files
+sang Git history, registered worktrees và GitHub repository artifacts. Đây là
+khôi phục artifact đã lưu của dự án qua developer tooling; không crawl hoặc
+thu thập lại research data. Không gửi tin nhắn cho người tạo bộ v3.
+
+### Bước 12.1 — Kiểm các nguồn có thể khôi phục
+
+- Fetch remote refs; không thay working tree hoặc merge.
+- Kiểm thêm worktree `C:/Users/ducan/orca/workspaces/evolving-kg-drift/dottyback`:
+  không có mapping/body/acquisition candidate trong các prefix được phép.
+- Nhánh producer `origin/feature/remediation-and-parity` và
+  `origin/fix/data-pipeline-compliance-cont` có `entity_map_v1.json`,
+  `source_manifest.json`, `snapshot_manifest.json` nhưng đều 0 bytes.
+- GitHub Actions artifact listing trả `total_count=0`.
+- Tìm được release [data/pre-gate-a-audit-v1](https://github.com/evolving-kg-drift-research/evolving-kg-drift/releases/tag/data/pre-gate-a-audit-v1)
+  có archive, dataset manifest, README và SHA256SUMS.
+
+### Bước 12.2 — Đọc metadata trước khi dùng archive
+
+Release được ghi rõ `AUDIT_ONLY`, Gate A BLOCKED, source-hash mismatch chưa
+giải quyết, config unfrozen; không phải gói producer run v3 được chứng nhận.
+Không dùng approval hoặc source lock bên trong release để thay baseline hiện tại.
+
+Archive `kg-data-pre-gate-a-audit-v1.tar.zst`: 215.571.355 bytes; SHA-256:
+`9d72dfce30a63a1048e4e20cc08784a900e3de5d22401f6fe51af96cbedb5184`.
+Đã tải và kiểm đúng hash, lưu riêng ở
+`outputs/upstream_recovery_release_20261014/`.
+
+### Bước 12.3 — Preflight và khôi phục có chọn lọc
+
+Index 11.431 archive entries trước extraction; kiểm path traversal, absolute
+paths, duplicate names, held-out paths và special/link entries. Chỉ file và
+directory thông thường được chấp nhận. Không giải nén vào `data/`, `runs/`
+hoặc ghi đè artifact hiện có.
+
+Đợt đầu khôi phục 4.790 file entries được chọn, gồm 4.745 body text files,
+27 acquisition logs và các evidence files được mẫu tham chiếu. Thêm đợt hai
+khôi phục đúng 30 sample raw blobs có đuôi `.bin` từ archive. Member lists
+và selection metadata được giữ trong recovery folder.
+
+Payload nằm tại `outputs/upstream_recovery_release_20261014/recovered/`.
+Release đầy đủ được giữ nguyên để tái hiện; không cần giải nén toàn bộ khoảng
+2,25 GB uncompressed content vào pipeline để kiểm mẫu này.
+
+### Bước 12.4 — Chứng minh payload trùng với references của v3
+
+Không suy ra toàn release bằng v3 từ tên file. Đối chiếu từng payload:
+
+| Phép đối chiếu | Kết quả |
+|---|---:|
+| Body bytes khớp `body_text_sha256` của v3 | 4.745/4.745 |
+| Strict retrieval evidence file hash | 5.271/5.271 |
+| Strict retrieval canonical JSON record hash theo locator | 5.271/5.271 |
+| Raw hash field trong receipt | 5.271/5.271 |
+| Requested/final URL và retrieval time trong receipt | 5.271/5.271 |
+| Raw bytes của mẫu khớp content hash | 30/30 |
+
+27 acquisition log files phủ toàn bộ 5.271 retrievals được v3 đánh dấu strict.
+Record hash ở đây là SHA-256 canonical JSON, không phải hash raw JSONL line.
+Không xác minh bytes toàn bộ 5.168 raw blobs trong lượt này: chỉ 30 sample
+raw blobs được khôi phục và hash-check; receipts cho phần còn lại là evidence
+metadata đã đối chiếu, không thay thế raw-byte verification.
+
+### Bước 12.5 — Kiểm lại đúng mẫu 30 facts đã lưu
+
+Giữ nguyên sample IDs từ plan ở bước 11.2. Có 29 body variants và 30 raw blobs
+liên quan tới 30 facts; không đổi mẫu vì findings mới.
+Đọc UTF-8 từ payload bytes đúng hash, kiểm offsets và tính SHA-256 của
+`body_text[start:end]`, không thay normalization hoặc tìm vị trí mới để làm
+span PASS. Đã kiểm giả thuyết CRLF/universal-newline trên mẫu: không có CRLF
+trong các body này và newline conversion không giải thích mismatch.
+
+| Phạm vi | Offsets trong bounds | Hash span khớp | Hash toàn body khớp |
+|---|---:|---:|---:|
+| Mẫu 30 facts | 30/30 | 1/30 | 30/30 |
+| Toàn store 1.803 facts | 1.803/1.803 | 15/1.803 | 1.803/1.803 |
+
+Do đó **1.788 facts** không bind được exact evidence span theo contract hiện
+tại. Đây là kiểm integrity/grounding, **không phải tỷ lệ facts đúng hoặc sai**.
+Ngay cả 15 span khớp cũng chưa xác nhận entity mapping, relation correctness
+hoặc temporal semantics.
+
+### Bước 12.6 — Finding V3-REC-001: evidence hash đang bind toàn body
+
+- **Severity:** HIGH.
+- **Affected files:** `data/KG_lan2/evolving_kg_downstream_v3/tables/fact_versions.parquet`,
+  `extracted_claims.parquet`; producer candidate `src/kg_pipeline/claims.py`
+  trên `origin/feature/remediation-and-parity`.
+- **Expected:** Exact code-point span có hash riêng, tách khỏi clean-text/body
+  hash; contract hiện tại ở `src/kg_pipeline/evidence.py:EvidenceSpan` và
+  `src/kg_pipeline/claims.py` lưu `span.text_sha256`.
+- **Actual:** `evidence_text_hash` của toàn bộ 1.803 facts bằng v3 body hash;
+  chỉ 15 exact spans khớp; mẫu có 29/30 span mismatches.
+- **Evidence:** `summary.json`, `sample_review.json` của recovery review;
+  code candidate ghi `text_hash = sha256_text(text)` rồi
+  `evidence_text_hash=text_hash`.
+- **Root cause vs hypothesis:** Sai binding toàn body trong artifacts đã
+  xác nhận; code candidate có đúng cơ chế gây ra nó. Chưa có v3 producer
+  code/run manifest để chứng minh chính commit candidate đã tạo v3.
+- **Reproduction:** `python scripts/audit_recovered_v3_evidence.py` sau khi
+  restore các selected members; so hash body slice với field được lưu.
+- **Proposed minimal fix:** Producer/extractor của run mới phải bind exact
+  span và body version riêng; kiểm source mentions và relation trong span.
+  Không sửa hash/offsets trong historical facts. Phạm vi reprocess và contract
+  cần được chốt theo thẩm quyền trước production execution.
+- **Regression tests:** Hai tests mới chứng minh whole-body hash không chứng
+  nhận subspan và kiểm exact span/out-of-bounds. Current extraction code đã
+  có span hashing; không patch lại bằng logic từ producer branch cũ.
+- **Remaining blockers:** V3 producer lineage, normalization/extractor
+  versions, mapping/identity và upstream stage approval.
+
+### Bước 12.7 — Mapping và temporal semantics còn thiếu
+
+`entity_map_v1.json` trong release cũng 0 bytes. Chưa khôi phục được registered
+mapping có mention_id, canonical_entity_id, availability và decision basis;
+không tạo mapping từ mention strings hoặc đổi nhãn `v1_mock`.
+
+Acquisition receipts giờ có thể kiểm độc lập, nhưng `retrieved_at_real` là
+engineering time; nó không chứng minh public observation time hoặc world
+validity của từng fact. Không dùng receipt time thay `evidence_observed_at`.
+Supporting-claim/adjudication lineage của producer v3 vẫn thiếu.
+
+Vì vậy không cấp verdict semantic correctness cho mẫu 30 facts trong lượt này.
+Source excerpts được lưu để review; các facts có span mismatch chưa có căn cứ
+để chứng nhận rằng offset đang trỏ đúng supporting evidence. Không tự lấy đoạn
+khác, đổi gold, bỏ fact hoặc sửa corpus theo kết quả TransE.
+
+### Bước 12.8 — Báo cáo, tests và điểm dừng
+
+Thêm `scripts/audit_recovered_v3_evidence.py` và
+`tests/test_recovered_evidence_span.py` (2 PASS). Ruff không lỗi lint; warnings
+quyền đọc fixture directories cũ vẫn còn. Package v3 giữ nguyên hashes.
+
+Report: `outputs/upstream_recovery_release_20261014/review_20261013T175025Z_5237eafe/`.
+Gồm release/v3 comparison summary, receipt checks, recovered body hashes,
+sample raw hash checks, nguyên sample plan, source excerpts/span checks,
+actual executed code snapshot, experiment manifest và independent verification.
+Code snapshot trong run là bản trước khi bỏ hai unused imports; thay đổi lint
+này không sửa logic và report không bị ghi đè.
+
+Tier: IMPLEMENTED recovery audit/tests; TESTED 2 fixtures; EXECUTED recovery
+và read-only verification trên archived real payloads; VERIFIED exact hashes/
+receipts/offset binding trong phạm vi nêu trên. G1/G2, mapping, semantic quality
+và production vẫn BLOCKED. Không rerun acquisition/Stage 4.3 hoặc sửa source lock.
+
+**Điểm dừng tiếp theo:** cần producer v3 run/code/config manifests, mapping/
+adjudication decisions gốc và quyết định reprocess có thẩm quyền. Có thể review
+findings và thiết kế remediation từ source artifacts đã khôi phục; không được
+coi lỗi hash là đã RESOLVED chỉ vì body/raw đã lấy lại được.
+
+## 13. Kiểm producer v3 và lập phạm vi remediation — đã thực hiện
+
+### Bước 13.1 — So fingerprints với lịch sử Git
+
+Đối chiếu 13 candidate config hashes của v3 với 32 reachable commits.
+Tối đa 6/13 khớp exact Git blob bytes. Bảy files còn lại khớp khi mô phỏng
+CRLF của checkout Windows; cả 13 tương thích sáu commits thuộc họ producer.
+Không sửa config originals, không dùng newline conversion để cấp source-lock
+PASS. Vì nhiều commits có cùng config và thiếu v3 run/code manifest, chưa
+xác định được actual producer commit.
+
+### Bước 13.2 — Đối chiếu ID rules và khôi phục mention links cho audit
+
+1.803/1.803 FactVersionID suffixes trỏ tới claim có trong final claims table;
+source/relation/span/hash fields khớp claim đó. Subject/object IDs đều khớp
+`ent_ + SHA256(strip(lower(mention)))[:8]`; LogicalFactID khớp hash của
+`subject|relation|object` lấy 16 hex. Cơ chế này có trong code producer candidate.
+
+Audit tạo mention links cho 1.389 legacy entity IDs, gắn DIAGNOSTIC_ONLY và
+availability=null. Không ghi vào mapping production, không tuyên bố aliases
+đúng/canonical/as-of. Kết quả mới giúp thu hẹp 8 ambiguous candidate-claim
+matches trước đó bằng cú pháp IDs, nhưng vẫn thiếu explicit supporting-claim
+decision lineage có thẩm quyền.
+
+### Bước 13.3 — Kiểm remediation boundary của extractor hiện tại
+
+Current extractor đã dùng exact subspan hash và both-role grounding. Thêm
+tests gọi trực tiếp extractor bằng ASCII/Unicode fixtures có context trước/sau
+span; field output phải là hash đoạn evidence, khác hash toàn body. Claim chỉ
+có subject mà thiếu object trong slice phải vào quarantine/review.
+
+Suite extractor boundary/producer diagnostics/recovered span: **7 passed**;
+Ruff không lỗi lint. Không có patch production source hoặc historical-data
+rewrite. Code producer candidate cũ không được transplant vào nhánh hiện tại.
+
+### Bước 13.4 — Ghi phạm vi remediation có thể review
+
+Hồ sơ [V3_REMEDIATION_SCOPE_20261014.md](audit/V3_REMEDIATION_SCOPE_20261014.md)
+lưu dependencies, stage impact set, acceptance checks và finding V3-PROD-001.
+Đây là REVIEW REQUIRED, không phải amendment hoặc approved production plan.
+
+Phạm vi đề xuất: Stage 4.9 claims/span → 4.10 temporal normalization → 4.11
+as-of adjudication → 4.12 append-only FactVersion → 4.13 quality; sau đó mới
+review impacts lên freeze/events/boundaries/snapshots/parity. Chỉ được thực thi
+một stage mỗi lần khi đủ inputs/policies/gates và user yêu cầu; không rerun
+Stage 4.3 hoặc ghi đè historical artifacts.
+
+### Bước 13.5 — Evidence và điểm dừng
+
+Audit output: `outputs/v3_producer_lineage/20261013T175716Z_b01c9055/`.
+Có config comparisons từng commit/file, ID-rule checks, diagnostic mention
+links, reference code snapshots, manifest và independent integrity verification.
+Code snapshot giữ đúng bản chạy trước lint-only removal of unused import.
+
+IMPLEMENTED/TESTED: diagnostics, tests và scope document. EXECUTED/VERIFIED:
+read-only metadata/ID-rule checks; actual producer/mapping/gates chưa VERIFIED.
+Chưa chạy production reprocess. Cần producer originals và approved contract,
+identity/temporal policies để vượt blocker; nội dung khoa học không được tự
+quyết bằng cách suy ra từ hashes.
+
+## 14. Bảng quyết định và dọn repository — đã thực hiện
+
+Người dùng yêu cầu lập bước tiếp theo, dọn file không cần thiết và ghi lại quy
+trình. Lượt này chuẩn bị hồ sơ review và thực hiện cleanup engineering; không
+áp dụng policy draft hoặc thực thi production reprocess.
+
+### Bước 14.1 — Chuyển remediation scope thành bảng quyết định cụ thể
+
+Tạo [V3_DECISION_TABLE_20261014.md](audit/V3_DECISION_TABLE_20261014.md), gồm
+11 IDs: sources, producer lineage, contract, text representation, identity,
+observation/acceptance clocks, support/revision, reprocess scope, quality/gold
+và window/boundaries. Mỗi mục có hướng đề xuất, lựa chọn khác/hệ quả, hồ sơ
+hoặc evidence phải có và trạng thái DECISION/EVIDENCE REQUIRED.
+
+Có mẫu ghi approval theo policy ID/version/path/hash, người có thẩm quyền,
+evidence references và affected stages. Không điền approval thay người duyệt.
+Với các mục còn thiếu evidence, việc duyệt lựa chọn không tạo ra payload/history
+đang thiếu. Không dùng một câu “duyệt toàn pipeline” để bỏ stage prerequisites.
+
+### Bước 14.2 — Kiểm exact hashes của các proposal được tham chiếu
+
+7/8 files khớp manifest proposal tháng 10. `contract_field_matrix.yaml` hiện
+có SHA-256 `9cc5e6079fb5f3635cb6bf25593e7b9a3312a12465efe7b3b72c6250371de6c3`,
+trong khi manifest cũ khai báo
+`716eaf74a1915fff4d39349b6071cd0a03cb7610ed8a3accb73ca151bbd2948c`.
+Bản CRLF mô phỏng từ LF hiện tại cho hash manifest, nhưng exact current bytes
+không khớp. Không sửa manifest cũ hoặc tự công nhận approval cho schema.
+
+Bảng review ghi rõ mismatch và cả hai hashes. Cần revision/hash binding mới
+cho matrix trước approval. Bằng chứng ở
+`outputs/repo_cleanup_20261014/policy_hash_review.json`.
+
+### Bước 14.3 — Xác định mục cleanup từ trạng thái thực tế
+
+Rà Git status, tracked files, root directories và references. `diff.txt` là
+tracked file 0 bytes, không thấy code/docs/tests tham chiếu. Có 30 directories
+tạm/cache cũ: `.pytest-*`, `.tmp-pytest-*`, `tmp-c4c9-*`, `.pytest_cache`,
+`.ruff_cache` và root `__pycache__`. Không có tracked files trong các directories.
+
+Giữ scripts/tests active, audit reports, source PDF đúng lock, data v3 và mọi
+experiment/recovery outputs. Không coi untracked source original là rác.
+Không đọc hoặc cleanup `data/locked_test/`.
+
+### Bước 14.4 — Archive có thể khôi phục, không xóa lịch sử
+
+Chuyển 30 directories và `diff.txt` vào
+`backups/repo_cleanup_20261014/`. Dùng native PowerShell `Move-Item -LiteralPath`;
+kiểm resolved source là direct child của workspace, resolved target là child
+của backup root, không reparse root, không target collision, và diff.txt vẫn
+rỗng trước khi move. Không chạy recursive delete hoặc Git clean/reset.
+
+31 mục đều ARCHIVED. Old root paths đã rời workspace root; payload trong backup
+giữ lại. Git diff thấy `diff.txt` bị xóa khỏi active tracked layout, nhưng bản
+0-byte còn ở backup. `.pytest_cache` mới được tạo lại cho verification, không
+ghi đè bản cũ trong backup.
+
+Plan/path map/results: `outputs/repo_cleanup_20261014/plan.json` và `result.json`.
+Nếu cần khôi phục mục nào, dùng path map và native `Move-Item`, kiểm root/path
+và destination chưa tồn tại trước; không ghi đè cache/run mới.
+
+### Bước 14.5 — Ngăn stage nhầm artifacts và bỏ exclusions đã hết tác dụng
+
+`.gitignore` bổ sung root patterns cho historical pytest/temp directories,
+`/data/KG_lan2/` và exact path của audit backup `preexisting.patch`.
+Data/patch vẫn ở disk; không đưa chúng vào Git tự động. `backups/` và
+`outputs/` đã được ignore từ trước.
+
+Bỏ danh sách 25 Ruff exclusions theo tên cũ trong `pyproject.toml` vì các
+directories đã archive; Ruff dựa vào Git ignore. Production source/tests
+vẫn được lint. Không đổi dependencies, model configs hoặc scientific parameters.
+
+### Bước 14.6 — Giữ một basetemp chuẩn hoạt động sau cleanup
+
+Lượt full suite đầu bị 173 fixture setup errors do parent `.pytest_cache`
+chưa tồn tại cho nested basetemp sau archive; đây không phải production finding.
+Tạo lại parent rồi full suite PASS. Sau đó đổi mặc định trong `pytest.ini`
+sang `--basetemp=.pytest-tmp`: parent là repo root luôn tồn tại, một temp
+directory chuẩn được Git ignore. Chạy lại 5 tests dùng tmp_path theo mặc định
+đạt, không cần tạo nested parent thủ công.
+
+Lượt full-suite verification:
+
+```powershell
+python -m pytest -q --basetemp=.pytest_cache/repo_cleanup_verified_20261014 --tb=short --junitxml=outputs/repo_cleanup_20261014/fixture_results.xml
+```
+
+**345 passed, 10 skipped**, một pytz deprecation warning, Python 3.12.10.
+Sau đổi default basetemp, fixture smoke **5 passed**. Không cộng hai lượt thành
+số test của một suite và không coi skipped placeholders là scientific PASS.
+
+### Bước 14.7 — Verify cleanup không thay dữ liệu hoặc protected contracts
+
+113 files của package v3 đều giữ nguyên hashes so với inventory ban đầu.
+Proposal PDF vẫn khớp source lock. `git diff` không thay source lock,
+`configs/protocol_v1.yaml`, `config/schema.yaml`, decision log hoặc `src/`.
+Ruff toàn repo `--no-cache` PASS, không còn warnings quyền đọc directories
+tạm cũ; diff check PASS. Verify result ở
+`outputs/repo_cleanup_20261014/verification.json`.
+
+### Bước 14.8 — Trạng thái sau lượt này
+
+IMPLEMENTED: bảng quyết định, archive cleanup, ignore/lint/pytest configuration.
+TESTED: fixture suite và default basetemp checks đạt. VERIFIED: cleanup path
+map, active layout và v3/proposal hashes trong phạm vi đã nêu. Không EXECUTED
+production stage; Gate A/G1/G2 vẫn BLOCKED. Ở thời điểm cleanup, sửa mới chưa
+commit; đợt publish tiếp theo được ghi ở bước 14.9.
+
+Hồ sơ đã sẵn sàng để người có thẩm quyền review từng ID; contract matrix
+hash mismatch và evidence gaps vẫn phải giải quyết. Chưa áp dụng schema/
+mapping/time decisions hoặc amendment.
+
+### Bước 14.9 — Commit và publish nhánh legacy theo yêu cầu
+
+Người dùng yêu cầu commit/push ngày 14/10. Đóng gói thành commit audit/recovery
+`fc46402`, cleanup `80897d2` và commit tài liệu riêng. Hai commit legacy trước
+`08c352b` và `d97325e` cũng thuộc phần chưa publish từ mốc remote `6ef3ff5`.
+Nhánh đích là `codex/transe-legacy-exploration`, không merge main.
+
+Chọn rõ từng file code/tests/config/docs; không stage `data/`, `outputs/`,
+`backups/` hoặc proposal PDF untracked. Kiểm diff và Ruff trước commit; không
+coi publish code là giải quyết các scientific blockers. Xác minh push bằng
+remote branch SHA so với local HEAD, không chỉ bằng thông báo branch local.
+
+## 15. Artifacts và tái hiện
 
 | Công việc | Code / báo cáo |
 |---|---|
@@ -445,6 +937,14 @@ Chưa push các commit legacy mới hoặc merge main trong lượt này.
 | Kiểm tra cơ chế | `tests/scientific/test_transe_mechanics.py` |
 | Chẩn đoán training/logging | `scripts/diagnose_legacy_t01_training.py` |
 | Kiểm observer | `tests/test_legacy_training_observer.py` |
+| Content/mapping readiness | `scripts/audit_v3_content_readiness.py` |
+| Sample/path guards | `tests/test_v3_content_readiness.py` |
+| Recovery evidence verification | `scripts/audit_recovered_v3_evidence.py` |
+| Exact span hash tests | `tests/test_recovered_evidence_span.py` |
+| Producer lineage diagnostics | `scripts/audit_v3_producer_lineage.py` |
+| Extractor remediation boundary | `tests/kg_pipeline/test_v3_extractor_remediation_boundary.py` |
+| Bảng quyết định | `docs/audit/V3_DECISION_TABLE_20261014.md` |
+| Cleanup plan/results | `outputs/repo_cleanup_20261014/` |
 
 Training/evaluation runners tạo output run mới, không ghi đè checkpoint cũ.
 Audit v3/error analysis dùng output cố định và exclusive-create; muốn tái hiện
@@ -457,20 +957,26 @@ input/output hashes, manifests và kết quả kiểm lại. Base commit là `6e
 với working tree dirty khi chạy; không giả vờ chỉ commit đó đủ tái hiện mọi
 file mới. `outputs/` được ignore, cần bảo quản riêng khi bàn giao.
 
-## 12. Trạng thái hiện tại và điều kiện đi tiếp
+## 16. Trạng thái hiện tại và điều kiện đi tiếp
 
 | Tier | Phạm vi đã đạt |
 |---|---|
 | IMPLEMENTED | Legacy runners, audit scripts, ranking và mechanics tests, báo cáo |
 | TESTED | Các suite mục tiêu đã nêu; không coi tổng các lượt là một full-suite result |
-| EXECUTED | Thử legacy T01, đánh giá 101/20, phân tích artifacts, logging replay 101 train |
-| VERIFIED | Hashes, exact replay smoke/logging, saved ranking metrics, fixture mechanics |
+| EXECUTED | Thử legacy T01, logging replay, content readiness và release recovery audit |
+| VERIFIED | Hashes, exact replay, ranks/logs, recovered body/raw/receipts, span-binding findings |
 
 Gate A/G1/G2, mapping/provenance certification và M2 production vẫn BLOCKED.
 Chưa thực hiện alignment/null/drift/SED+/QA/H1/H2. Chưa merge main.
 
-**Điểm dừng:** hoàn tất tài liệu, fixture diagnostics và logging replay. Nếu tiếp tục, thiết
-kế một thử nghiệm mới và chốt trước candidate policy, dữ liệu đánh giá và
-configuration. Không retune trên 20 held-out rồi coi điểm mới là độc lập;
+**Điểm dừng:** body/raw/receipt recovery, producer diagnostics, remediation
+scope và bảng quyết định đã lập; repository temporary files đã archive.
+Mapping authority/actual producer
+lineage còn thiếu và exact-span binding sai ở 1.788 facts. Cần approved
+dependencies nêu trong hồ sơ remediation trước semantic certification. Code và phần
+bổ sung content/recovery được đóng gói trong đợt publish ở bước 14.9; data/
+artifacts vẫn lưu riêng ngoài Git. Nếu thử mô hình tiếp, thiết kế
+run mới trước và chốt candidate policy, dữ liệu đánh giá và configuration.
+Không retune trên 20 held-out rồi coi điểm mới là độc lập;
 không sửa corpus/cutoff/mapping dựa vào outcomes. Các blocker upstream phải
 được giải quyết theo protocol, không theo việc cấu hình nào cho điểm tốt hơn.

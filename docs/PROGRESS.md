@@ -1,5 +1,62 @@
 # Tiến độ pipeline
 
+## Đóng gói audit/recovery và cleanup theo yêu cầu commit/push — 2026-10-14
+
+Nhánh đích: `codex/transe-legacy-exploration`. Commit audit/recovery:
+`fc46402`; commit cleanup: `80897d2`. Hai commit legacy trước đó `08c352b`
+và `d97325e` cùng tài liệu cập nhật được đưa vào đợt publish này. Dữ liệu,
+checkpoints, recovery archives, backups và proposal PDF không được stage.
+Validation trước commit: Ruff/diff PASS; fixture suite đã đạt 345 passed,
+10 skipped và 5 default-temp checks. Decision table vẫn REVIEW REQUIRED,
+production gates vẫn BLOCKED. Trạng thái GitHub được xác minh từ remote tip
+sau push, không suy ra từ local commits.
+
+## Bảng quyết định và repository cleanup — 2026-10-14
+
+Đã lập [11 mục quyết định](audit/V3_DECISION_TABLE_20261014.md), status REVIEW
+REQUIRED, không tự apply scientific choices. Proposal hash check 7/8 exact;
+contract matrix lệch manifest (CRLF hypothesis matches), giữ cả hashes để review.
+Archive 30 temp/cache directories và diff.txt rỗng vào backups riêng; không
+xóa data/experiment outputs. Ignore rules/lint exclusions/default pytest temp
+đã dọn; v3 113 files và locked proposal hash giữ nguyên. Full suite 345 passed,
+10 skipped; default tmp fixture smoke 5 passed. Ruff/diff PASS. Quy trình đầy
+đủ ở [mục 14](QUY_TRINH_THU_TRANSE_LEGACY_T01.md#14-bảng-quyết-định-và-dọn-repository--đã-thực-hiện).
+Gates còn BLOCKED; phần cleanup được đóng gói trong đợt commit/push ở trên.
+
+## Producer diagnostics và phạm vi remediation v3 — 2026-10-14
+
+Đối chiếu 32 commits/13 config inputs: 6 exact blob hashes, cả 13 tương thích
+với CRLF/LF hypotheses ở sáu producer-family commits; chưa verified actual
+v3 commit. Toàn bộ 1.803 facts khớp claim-ID suffix, metadata và legacy
+lowercase-mention hash IDs. Tạo diagnostic mention links cho 1.389 IDs,
+không registered mapping/availability. 7 tests extractor boundary/producer/
+span PASS, Ruff không lỗi lint; current extractor đã bind exact span/both
+roles nên không patch production. Phạm vi stage/dependency review tại
+[V3 remediation scope](audit/V3_REMEDIATION_SCOPE_20261014.md), trạng thái
+REVIEW REQUIRED; chưa reprocess, không thay lock/protocol/gates.
+
+## Khôi phục release upstream và kiểm evidence v3 — 2026-10-14
+
+Đã lấy audit-only release `data/pre-gate-a-audit-v1`, archive SHA-256 khớp;
+restore có chọn lọc vào outputs riêng. 4.745 body hashes khớp v3, 5.271 strict
+receipt references khớp file/record/raw hash/URL/retrieval time, 30 sample raw
+blobs khớp bytes. Mapping manifest vẫn rỗng, chưa phải producer run v3.
+Finding V3-REC-001: toàn bộ 1.803 evidence hashes bind body, chỉ 15 exact spans
+khớp (mẫu 1/30); không sửa historical facts/hashes. 2 regression tests PASS,
+Ruff không lỗi lint. Gates/semantic quality tiếp tục BLOCKED. Chi tiết từng
+bước ở [mục 12 của quy trình](QUY_TRINH_THU_TRANSE_LEGACY_T01.md#12-khôi-phục-upstream-từ-github-release-và-kiểm-lại-evidence--đã-thực-hiện).
+
+## Content/mapping readiness v3 — 2026-10-14
+
+Read-only inventory toàn bộ hai repository roots đã biết (loại locked_test,
+hidden/reparse paths và model outputs) không tìm thêm mapping/body/acquisition
+artifacts. Plan 30 facts (3/relation) được lưu trước content review, không dùng
+outcomes. 22 sample facts khớp một claim; 8 khớp nhiều cặp mention. Cả 30 thiếu
+body/evidence payload nên chưa đánh giá correctness hoặc as-of mapping.
+Metadata/integrity kiểm độc lập đạt, 5 tests PASS, package giữ nguyên; G2 và
+semantic quality tiếp tục BLOCKED_NOT_VERIFIED. Quy trình, finding và bundle
+cần bổ sung tại [mục 11](QUY_TRINH_THU_TRANSE_LEGACY_T01.md#11-kiểm-tra-chất-lượng-nội-dung-và-mapping-v3--đã-thực-hiện-phần-khả-dụng).
+
 ## Replay training 101 triples với logging — 2026-10-14
 
 Đã quan sát training hiện có qua read-only tracing, không thay RNG/calculations.
