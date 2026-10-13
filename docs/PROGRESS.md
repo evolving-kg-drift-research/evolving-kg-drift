@@ -1,5 +1,69 @@
 # Tiến độ pipeline
 
+## Replay training 101 triples với logging — 2026-10-14
+
+Đã quan sát training hiện có qua read-only tracing, không thay RNG/calculations.
+Ba checkpoint bytes khớp reference 101/20. Trên 15.150 lượt triple, 0 skip,
+14.996 active updates, 86 self-loop negatives (tất cả active); cuối training
+relation norms 0.7601–1.2568. Kiểm lại 15.150 saved samples/losses/norms và hashes
+đạt. 25 tests observer/ranking/split/mechanics PASS; Ruff không lỗi lint.
+Không chấm lại held-out/tuning, không sửa production code hoặc mở gates.
+Quy trình từng bước, số liệu và diễn giải tại
+[mục 10 của quy trình T01](QUY_TRINH_THU_TRANSE_LEGACY_T01.md#10-chẩn-đoán-training-101-triples-bằng-logging--đã-thực-hiện).
+
+## Tổng hợp quy trình và kiểm tra cơ chế TransE — 2026-10-14
+
+Đã tổng hợp toàn bộ tiến trình legacy trong
+[quy trình T01](QUY_TRINH_THU_TRANSE_LEGACY_T01.md). Thêm fixture checks cho
+numerical gradients (head/tail, shared indices, self-loops), sampler rejection,
+saturated-side skip, inactive hinge, projection và evaluation không sửa weights.
+Suite cơ chế/sampling/ranking cuối: **20 passed**, Ruff mục tiêu PASS. Có thêm
+retry-budget fixtures xác nhận skip có thể xảy ra dù tồn tại negative hợp lệ;
+chưa đo xác suất trên dữ liệu thật và không sửa sampling semantics. Chưa thấy
+lỗi triển khai trong phạm vi này; không đổi production code/candidate policy,
+không training lại T01. Self-loop behavior đúng công thức nhưng nguyên nhân
+chất lượng prediction chưa được chứng minh. Gates tiếp tục BLOCKED.
+
+## Phân tích lỗi legacy T01 — 2026-10-14
+
+Phân tích saved ranks: lợi thế aggregate so với baseline tập trung ở 4
+seen-pair triples; cả ba seeds dưới baseline trên 16 unseen-pair triples.
+Self-loop top-1 lần lượt 36/34/39 trong 40 queries, đã đối chiếu score trực
+tiếp từ checkpoint. Chưa sửa candidate policy, không tuning/training lại,
+không thay input/gates. Chi tiết:
+[T01 error analysis](audit/legacy_t01_error_analysis_20261014.md).
+
+## Đánh giá legacy T01 101/20 được user chốt — 2026-10-14
+
+Đã lưu design/split hash trước khi train lại từ đầu trên 101 triples. Chấm
+20 held-out theo head/tail, 167 candidates, filtered ranking và average ties.
+MRR seeds 13/37/101 lần lượt 0.104897/0.084878/0.093864, baseline tần suất
+0.056464; Hits@1 đều 0. Kiểm lại độc lập 160 ranking rows từ saved artifacts
+đạt; 8 tests PASS, Ruff không lỗi lint. Chỉ là kết quả legacy, không tuning
+hoặc mở scientific gates. Chi tiết:
+[T01 evaluation](audit/legacy_t01_evaluation_20261014.md). Dừng sau báo cáo.
+
+## Kiểm tra khả năng chia T01 legacy — 2026-10-13
+
+Audit chỉ đọc cho thấy hash split 20% tạo 98 train/23 held-out, nhưng 20/23
+held-out có entity không xuất hiện trong train. Coverage-preserving witness
+theo hash cố định tạo 101 train/20 held-out, giữ đủ 167 entities/10 relations
+trong train; held-out chỉ phủ 7 relations và có 4 cặp entity đã có cạnh khác
+trong train. Chưa khóa split, chưa training mới/MRR. 4 tests PASS; báo cáo:
+[T01 split feasibility](audit/legacy_t01_split_feasibility_20261013.md).
+Production gates và các blocker v3 giữ nguyên.
+
+## Thử TransE legacy T01 theo phạm vi user chốt — 2026-10-13
+
+Đã chạy độc lập T01 canonical của bộ v3: 121 triples/167 entities/10 relations,
+TransE-L2 dimension 32, 50 epochs, seeds 13/37/101. Mỗi seed chạy hai lần,
+checkpoint byte-identical trong cùng môi trường; embeddings/loss hữu hạn,
+mapping/serialization/hash đã kiểm tra. Đây là thử legacy được user chốt,
+không phải M2 production hoặc scientific gate PASS. Không đổi loader guards,
+protocol, source lock hoặc dữ liệu. Gate A/G1/G2 và M2 production vẫn BLOCKED.
+9 tests mục tiêu PASS; chưa xác thực Python 3.10/3.11. Báo cáo và giới hạn:
+[legacy T01](audit/legacy_transe_t01_20261013.md). Dừng tại T01, không tự mở rộng.
+
 ## Kiểm tra trước commit remediation — 2026-10-13
 
 Kiểm tra working tree trên Python 3.12.10: `python -m pytest -q
