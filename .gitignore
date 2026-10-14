@@ -65,3 +65,4 @@ htmlcov/
 /data/locked_test/*
 !/data/locked_test/README.md
 !/data/locked_test/.gitkeep
+/.venv-m1/

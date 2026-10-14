@@ -603,10 +603,10 @@ def evaluate_m1_structure(repo_root: Path, run_id: str) -> dict[str, Any]:
 
 
 def evaluate_scientific_gate(repo_root: Path, run_id: str | None, gate: str) -> dict[str, Any]:
-    """Fail closed until a production evidence evaluator is available.
+    """Fail closed until the complete production certification path is available.
 
-    Existing structural checks and pytest results are deliberately not scientific
-    evidence. Do not accept an arbitrary JSON report claiming PASS in their place.
+    Recompute available components, but do not mistake component checks or
+    pytest results for the complete scientific certificate.
     """
     if gate not in {"G1", "G2"}:
         raise ValueError(f"Unsupported scientific gate: {gate}")
@@ -624,12 +624,47 @@ def evaluate_scientific_gate(repo_root: Path, run_id: str | None, gate: str) -> 
         if gate == "G1" else
         "Independent pilot gold, locked thresholds and their artifact-backed quality evaluator are required"
     )
-    checks.append(_check("SCIENTIFIC_EVALUATOR_UNAVAILABLE", "BLOCKED", detail, ""))
+    evidence_report = None
+    if manifest is not None and (get_run_dir(repo_root, run_id) / "inputs/acceptance_gate_inputs.json").is_file():
+        from .acceptance_gates import evaluate_quality_artifacts, evaluate_temporal_artifacts
+        from .contract_authority import audit_machine_contract
+        from .rebuild_artifacts import RebuildViolation
+        from .parity import ParityError
+
+        try:
+            require_gate_a(repo_root, run_id)
+            if manifest.get("scientific_locked") is not True or audit_machine_contract(repo_root)["status"] != "PASS":
+                raise ValueError("Frozen run and complete typed runtime contracts required")
+            gate_inputs = read_json(get_run_dir(repo_root, run_id) / "inputs/acceptance_gate_inputs.json")
+            if gate_inputs.get("run_manifest_sha256") != manifest["semantic_sha256"]:
+                raise ValueError("Scientific gate input manifest differs from run")
+            if gate == "G1":
+                evidence_report = evaluate_temporal_artifacts(repo_root, run_id, gate_inputs["G1"])
+            else:
+                evidence_report = evaluate_quality_artifacts(repo_root, gate_inputs["G2"], phase="main", run_manifest=manifest)
+                structure = evaluate_m1_structure(repo_root, run_id)
+                if structure["status"] != "PASS":
+                    checks.append(_check("STRUCTURAL_EVIDENCE_CHECKS", structure["status"],
+                                         "Structural/evidence conservation checks did not pass", "tables/"))
+            checks.append(_check("ARTIFACT_BACKED_EVALUATION", evidence_report["status"],
+                                 "Recomputed from exact artifact inputs", "inputs/acceptance_gate_inputs.json"))
+            # Component checks cannot open M2 before the complete certification
+            # path has been independently validated against migrated artifacts.
+            checks.append(_check("FINAL_CERTIFICATION_INCOMPLETE", "BLOCKED",
+                                 "Physical rebuild certification, final QA feasibility and migrated producer lineage are not activated",
+                                 "inputs/acceptance_gate_inputs.json"))
+        except (RebuildViolation, ParityError) as exc:
+            checks.append(_check("ARTIFACT_BACKED_EVALUATION", "FAIL", str(exc), "inputs/acceptance_gate_inputs.json"))
+        except Exception as exc:  # noqa: BLE001 - real dependencies must fail closed, never fall back to fixtures.
+            checks.append(_check("ARTIFACT_BACKED_EVALUATION", "BLOCKED", str(exc), "inputs/acceptance_gate_inputs.json"))
+    else:
+        checks.append(_check("SCIENTIFIC_EVALUATOR_UNAVAILABLE", "BLOCKED", detail, ""))
     semantic = {
-        "gate": gate, "scope": "scientific", "evaluator_version": "m1_gate_guard_v1",
-        "run_id": run_id, "status": "BLOCKED", "checks": checks,
-        "evaluated_count": 0,
+        "gate": gate, "scope": "scientific", "evaluator_version": "m1_acceptance_gate_v1",
+        "run_id": run_id, "status": "PASS" if checks and all(c["status"] == "PASS" for c in checks) else "FAIL" if any(c["status"] == "FAIL" for c in checks) else "BLOCKED", "checks": checks,
+        "evaluated_count": evidence_report.get("evaluated_count", 0) if evidence_report else 0,
         "run_manifest_semantic_sha256": manifest.get("semantic_sha256") if manifest else None,
+        "evidence_report": evidence_report,
     }
     result = {**semantic, "evaluated_at_real": utc_now_iso(), "semantic_sha256": sha256_json(semantic)}
     # A missing/unverified run must not be created by a verification command.

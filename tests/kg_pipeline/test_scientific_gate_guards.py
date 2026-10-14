@@ -36,6 +36,25 @@ def test_report_claiming_pass_cannot_replace_missing_evaluator(tmp_path):
     assert any(c["check_id"] == "SCIENTIFIC_EVALUATOR_UNAVAILABLE" for c in report["checks"])
 
 
+def test_component_quality_pass_cannot_open_final_scientific_gate(tmp_path, monkeypatch):
+    from kg_pipeline import acceptance_gates, contract_authority, gates
+    init_run(tmp_path, "fixture_components", mode="inventory")
+    run_manifest = {"semantic_sha256": "a" * 64, "scientific_locked": True}
+    monkeypatch.setattr(gates, "load_run_manifest", lambda *args: run_manifest)
+    monkeypatch.setattr(gates, "require_gate_a", lambda *args: {"status": "PASS"})
+    monkeypatch.setattr(gates, "evaluate_m1_structure", lambda *args: {"status": "PASS"})
+    monkeypatch.setattr(contract_authority, "audit_machine_contract", lambda *args: {"status": "PASS"})
+    monkeypatch.setattr(acceptance_gates, "evaluate_quality_artifacts", lambda *args, **kwargs: {
+        "status": "PASS", "evaluated_count": 50,
+    })
+    write_json_immutable(tmp_path / "runs/fixture_components/inputs/acceptance_gate_inputs.json", {
+        "run_manifest_sha256": "a" * 64, "G2": {},
+    })
+    report = evaluate_scientific_gate(tmp_path, "fixture_components", "G2")
+    assert report["status"] == "BLOCKED"
+    assert any(c["check_id"] == "FINAL_CERTIFICATION_INCOMPLETE" for c in report["checks"])
+
+
 def test_empty_quality_is_unavailable():
     report = evaluate_quality([], [])
     assert report["status"] == "BLOCKED"

@@ -26,7 +26,8 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def test_matching_retrieval_contract_round_trip():
     audit = audit_machine_contract(ROOT, ["retrievals"])
-    assert audit["status"] == "PASS"
+    assert audit["status"] == "BLOCKED"
+    assert audit["tables"][0]["physical_contract"]["status"] == "UNDECLARED"
     row = make_row(
         "retrievals", retrieval_id="r1", raw_blob_sha256="a" * 64,
         source_id="s", final_url="https://example.test/a",

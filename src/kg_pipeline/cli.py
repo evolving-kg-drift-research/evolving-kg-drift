@@ -24,6 +24,14 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--repo-root", type=Path, help="Repository root; defaults to the current repository")
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("audit-schema", help="Compare config/schema.yaml with PyArrow and dataclasses")
+    commands.add_parser("rebuild-readiness", help="Read-only M1 acceptance prerequisites and candidate contract inventory")
+    stage = commands.add_parser("run-stage", help="Preflight and run exactly one activated acceptance stage")
+    stage.add_argument("--run", required=True)
+    from .acceptance_runner import STAGES
+    stage.add_argument("--stage", required=True, choices=tuple(STAGES))
+    stage.add_argument("--phase", required=True, choices=("pilot", "main"))
+    stage.add_argument("--inputs", required=True, help="Workspace-relative stage input manifest")
+    stage.add_argument("--inputs-sha256", required=True)
     init = commands.add_parser("init-run", help="Create a new immutable run namespace")
     init.add_argument("--run", required=True)
     init.add_argument("--mode", required=True, choices=("inventory", "extraction", "adjudication", "snapshot", "kge", "drift"))
@@ -83,7 +91,16 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         repo_root = _root(args.repo_root)
-        if args.command == "audit-schema":
+        if args.command == "rebuild-readiness":
+            from .acceptance_runner import readiness
+            payload = readiness(repo_root)
+            exit_code = 0 if payload["status"] == "PASS" else 2
+        elif args.command == "run-stage":
+            from .acceptance_runner import run_one_stage
+            payload = run_one_stage(repo_root, args.run, args.stage, args.phase,
+                                    {"path": args.inputs, "sha256": args.inputs_sha256})
+            exit_code = 0 if payload["status"] == "PASS" else 2
+        elif args.command == "audit-schema":
             payload = audit_machine_contract(repo_root)
             exit_code = 0 if payload["status"] == "PASS" else 2
         elif args.command == "init-run":

@@ -1,17 +1,20 @@
 [build-system]
-requires = ["setuptools==84.0.0"]
+requires = ["setuptools==81.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "evolving-kg-pipeline"
 version = "0.1.0"
 description = "Immutable, evidence-first Data/KG pipeline tooling"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 dependencies = [
-  "beautifulsoup4==4.15.0",
-  "pyarrow==25.0.1",
+  "beautifulsoup4==4.14.3",
+  "pyarrow==23.0.0",
   "PyYAML==6.0.3",
-  "openai>=1.0.0",
+  "openai==1.109.1",
+  "requests==2.32.5",
+  "neo4j==5.28.2",
+  "tomli==2.2.1",
 ]
 
 [project.scripts]

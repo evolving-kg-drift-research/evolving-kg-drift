@@ -108,7 +108,7 @@ def audit_machine_contract(repo_root: Path, table_names: list[str] | None = None
         physical = _audit_physical_declaration(name, defined) if isinstance(defined, dict) else {
             "status": "UNDECLARED", "issues": ["MISSING_IN_CONFIG_SCHEMA"],
         }
-        if physical["status"] == "BLOCKED":
+        if physical["status"] != "PASS":
             blockers.append("PHYSICAL_CONTRACT_MISMATCH")
         dataclass_missing: list[str] = []
         if name == "fact_versions":
