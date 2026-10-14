@@ -1,0 +1,26 @@
+version: m2_alignment_stage_v1
+stage: alignment
+status: APPROVED_FOR_DEV_EXECUTION
+mode: external_package_dev_experiment
+scientific_certification: false
+approval:
+  date_local: '2026-10-14'
+  actor: user
+  instruction: 'Hãy làm bước này.'
+approved_config_path: configs/m2_external_dev_v1.yaml
+approved_config_sha256: 7d43c3f4260ee47bf12ce374b85cff21a5ac933a6d976b311d23ceb724766765
+backbone_run: outputs/m2_backbone/20261014T034042Z_65c464ba
+backbone_manifest_sha256: f4f8771a58cdf0f05ac6ca203c315ab364be6adcde8e9d08200324d729ec8354
+anchor_implementation_version: fixed_degree_joint_sample_then_split_v1
+anchor_allocation_details:
+  joint_sample_count: 167
+  sample_quotas: largest_remainder_by_exact_pretransition_degree
+  fit_quotas: largest_remainder_within_joint_sample
+  holdout_quotas: joint_sample_minus_fit
+  quota_tie: ascending_degree
+  entity_order: sha256_salt_transition_degree_entity_then_entity_id
+  same_split_for_all_nine_comparisons: true
+repetitions: 2
+stop_after_stage_report: true
+next_stage: empirical_null
+auto_execute_next_stage: false

@@ -1,0 +1,70 @@
+# Concrete review proposal after the authorized Dev pilot.
+# NOT ACTIVE: do not execute measurement from this file before user approval.
+version: m2_run_proposal_v1
+status: REVIEW_REQUIRED
+mode: external_package_dev_experiment
+scientific_certification: false
+pilot_run: outputs/m2_pilot/20261014T031822Z_9b722664
+input_preflight: outputs/m2_preflight/20261014T031739Z_71f4e280
+authorization_scope: User excluded M1 acceptance criteria for this external-package M2 work
+snapshots: [T01, T02, T03, T04, T05, T06, T07, T08, T09, T10]
+kge:
+  model: TransE
+  norm: 2
+  dimension: 64
+  seeds: [13, 37, 101]
+  epochs: 50
+  learning_rate: 0.01
+  margin: 1.0
+  normalize_entities: true
+  training: independent_from_scratch_per_snapshot_seed
+  repetitions: 2
+  validation_split_ratio_for_full_snapshot_training: 0.0
+alignment:
+  anchor_policy: persistent_canonical_pretransition_stratified
+  fit_count: 101
+  holdout_count: 66
+  allocation: proportional_exact_pretransition_degree_largest_remainder
+  allocation_tie: ascending_degree
+  split: deterministic_hash_disjoint
+  salt: m2-external-anchors-v1
+  same_snapshot_anchor_universe: same_persistent_transition_universe
+  conditioning_axis_for_both_endpoints: pretransition_degree
+  # Pilot used all 167 persistent entities; later transitions need a fixed-count
+  # stratified sample, implemented/tested before execution of alignment stage.
+  minimum_numerical_rank: 64
+  max_fit_holdout_gap: 1.0
+  max_holdout_residual: 2.0
+  max_orthogonality_error: 0.0001
+  invalid_alignment: unavailable_with_reason
+null:
+  endpoint_seed_pairs: [[13, 37], [13, 101], [37, 101]]
+  transition_observations_per_persistent_entity: 6
+  pairs_are_independent_statistical_units: false
+  degree_bin_edges: [3, 6]
+  conditioning: pretransition_degree
+  leave_target_out: remove_all_six_target_observations
+  min_reference_observations: 5
+  # Initial proposal preserves existing engineering defaults, not calibrated
+  # from drift/QA/H1 outcomes. User must approve; defaults are not protocol freeze.
+  sparse_bucket_merge: adjacent_more_observations_then_left_on_tie
+  degeneracy_mad_threshold: 0.000000000001
+  mad_epsilon: 0.0001
+  unavailable: null_with_reason_no_nan_or_inf
+drift:
+  raw_metric: one_minus_cosine_after_centered_alignment
+  temporal_aggregation: median_three_parallel_seeds
+  signed_excess: temporal_displacement_minus_LTO_null_median
+  SED_plus: max_zero_signed_excess_divided_by_1.4826_MAD_plus_epsilon
+  keep_signed_excess: true
+execution:
+  next_stage_only: backbone_training
+  stop_after_each_stage_report: true
+  auto_advance_to_M4: false
+  overwrite_existing_artifacts: false
+remaining_implementation_before_measurement:
+  - Fixed-count degree-stratified anchors shared by temporal and null paths
+  - Validate every same-snapshot alignment before accepting null observations
+  - Bind checkpoint/config/anchor/null/drift artifacts in complete manifests
+  - Use explicit unavailable values/reasons without NaN or fabricated signed excess
+  - Independent verification of full snapshot outputs

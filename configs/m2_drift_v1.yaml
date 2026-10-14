@@ -1,0 +1,23 @@
+version: m2_drift_stage_v1
+stage: longitudinal_drift
+status: APPROVED_FOR_DEV_EXECUTION
+mode: external_package_dev_experiment
+scientific_certification: false
+approval:
+  date_local: '2026-10-14'
+  actor: user
+  instruction: 'Hãy thực hiện bước tiếp theo.'
+approved_config_path: configs/m2_external_dev_v1.yaml
+approved_config_sha256: 7d43c3f4260ee47bf12ce374b85cff21a5ac933a6d976b311d23ceb724766765
+null_run: outputs/m2_null/20261014T042450Z_43e91590
+null_manifest_sha256: 7bdd6de62fc0f506661957e15909a9ecc43bdcfe935227425d22635436976b89
+null_verification_path: outputs/m2_null/20261014T042450Z_43e91590/independent_verification_20261014T042638Z_7d9e8c02.json
+null_verification_sha256: ac1f0b9131c4c9881282df2b67719ddb5d01706c785deba22580373e0c400daf
+component_version: saved_alignment_longitudinal_drift_v1
+centered_norm_floor: 0.000000000001
+undefined_centered_cosine: fatal
+invalid_alignment: fatal_no_calibrated_drift
+repetitions: 2
+stop_after_stage_report: true
+next_stage: M4_readiness
+auto_execute_next_stage: false

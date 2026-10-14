@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Báo cáo M2 — huấn luyện và representation drift</title>
+<style>
+:root{--ink:#1b3044;--muted:#5d7183;--line:#dce5ec;--paper:#fff;--teal:#176b88;--blue:#edf5f8}
+*{box-sizing:border-box}body{margin:0;background:#f3f6f9;color:var(--ink);font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{background:#102f46;color:white;padding:32px max(24px,calc((100vw - 1260px)/2));border-bottom:5px solid #56c2be}
+header .eyebrow{text-transform:uppercase;font-size:12px;letter-spacing:.18em;color:#a9dfdc}h1{font-size:clamp(27px,3.5vw,43px);line-height:1.2;margin:12px 0;max-width:940px}header p{color:#d5e5ef;margin:10px 0;max-width:950px}
+.badge{display:inline-block;background:#2c4b60;border:1px solid #87a3b7;border-radius:6px;padding:4px 10px;font-size:12px;margin-right:8px}
+.shell{max-width:1260px;margin:auto;padding:0 24px 40px}.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:24px 0}.kpi{border:1px solid var(--line);border-radius:10px;background:white;padding:18px}.kpi strong{font-size:29px;display:block}.kpi span{color:var(--muted);font-size:13px}
+nav{display:flex;gap:8px;position:sticky;top:0;background:#f3f6f9eF;padding:12px 0;z-index:10;backdrop-filter:blur(8px);border-bottom:1px solid var(--line);margin-bottom:20px}
+button,select,input{font:inherit;color:var(--ink);border:1px solid #c6d5df;border-radius:7px;padding:9px 12px;background:white}button{cursor:pointer}button:hover{border-color:var(--teal)}button[aria-selected="true"]{background:var(--teal);border-color:var(--teal);color:white}button:disabled{opacity:.4;cursor:default}input:focus,select:focus,button:focus-visible{outline:3px solid #acdbe5;outline-offset:2px}
+.panel[hidden]{display:none}.panel{min-height:500px}section,.card{background:white;border:1px solid var(--line);border-radius:12px;padding:25px 30px;margin-bottom:22px}h2{font-size:24px;line-height:1.4;margin:0 0 16px}h3{font-size:18px}p{max-width:110ch;margin:12px 0}figure{margin:25px 0;border:1px solid var(--line);border-radius:8px;overflow:hidden}figure img{display:block;width:100%;height:auto}figcaption{padding:14px 18px;background:#f6f9fb;color:var(--muted);font-size:13px;line-height:1.7}.table-wrap{overflow:auto;margin:20px 0}table{border-collapse:collapse;width:100%;font-size:13px}th{background:#edf4f8;position:sticky;top:0;text-align:left;font-weight:650}th,td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}td{font-variant-numeric:tabular-nums}td:first-child{overflow-wrap:anywhere}tr:hover td{background:#f5f9fb}
+.controls{display:flex;gap:14px;flex-wrap:wrap;align-items:end;margin:18px 0}.controls label{display:flex;flex-direction:column;font-size:13px;gap:5px}.controls input{min-width:230px}.note{border-left:4px solid #e5a24f;background:#fff7eb;padding:13px 18px;border-radius:0 6px 6px 0;font-size:14px}.subtle{color:var(--muted);font-size:13px}.plotbox{width:100%;overflow:auto;background:white;border:1px solid var(--line);border-radius:8px}.plotbox svg{width:100%;height:auto;min-width:650px;display:block}.chart-legend{display:flex;gap:20px;flex-wrap:wrap;font-size:13px;margin:10px 0}.dot{display:inline-block;width:12px;height:3px;vertical-align:middle;margin-right:5px}.pager{display:flex;align-items:center;gap:14px;margin-top:18px}.negative{color:#81515b}.positive{color:#176b88}.compact th,.compact td{padding:8px 10px;font-size:12px}.entity-name{max-width:280px;word-break:break-all}.pipeline{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:22px 0}.pipeline div{background:#e9f3f6;border-radius:7px;padding:12px 8px;text-align:center;font-size:13px;border:1px solid #c7e0e7}.pipeline b{display:block;font-size:15px}details{font-size:12px;color:var(--muted);margin:12px 0}summary{cursor:pointer}code{font-size:12px;word-break:break-all}footer{border-top:1px solid var(--line);margin-top:28px;padding:20px 0;font-size:13px;color:var(--muted)}a{color:#176b88}.linkbar{display:flex;gap:18px;flex-wrap:wrap}
+@media(max-width:760px){header{padding:24px}.shell{padding:0 14px 30px}.kpis{grid-template-columns:repeat(2,1fr)}section,.card{padding:20px 16px}nav{overflow:auto}nav button{white-space:nowrap}.pipeline{grid-template-columns:repeat(3,1fr)}.controls{gap:10px}h2{font-size:21px}.kpi strong{font-size:24px}}
+@media print{body{background:white;font-size:11pt}header{background:white;color:#123;padding:15px 0;border-bottom:2px solid #176b88}header p,header .eyebrow{color:#456}.shell{padding:0;max-width:none}.badge{border-color:#456;color:#123;background:white}.kpis{margin:14px 0}nav,.panel[hidden],.controls,.pager,.linkbar{display:none!important}section,.card{border:none;padding:8px 0;break-inside:auto}figure,table{break-inside:avoid}h2{break-after:avoid}figure img{max-height:21cm;object-fit:contain}footer{font-size:9pt}}
+</style>
+</head>
+<body>
+<header>
+<div class="eyebrow">Evolving Knowledge Graph · M2 · 14/10/2026</div>
+<h1>Huấn luyện, nhiễu retraining<br>và representation drift</h1>
+<p>Báo cáo toàn bộ quy trình đã thực hiện, biểu đồ từ artifact thật và log có thể tra cứu. Training và các phép đo giữ nguyên cấu hình đã duyệt.</p>
+<span class="badge">DEV · kiểm độc lập artifacts</span><span class="badge">M1 / G3 chưa chứng nhận</span>
+</header>
+<div class="shell">
+<div class="kpis"><div class="kpi"><strong>30</strong><span>Mô hình · 10 snapshots × 3 seeds</span></div><div class="kpi"><strong>1.500</strong><span>Loss theo epoch · 50 epoch/mô hình</span></div><div class="kpi"><strong>6.897</strong><span>Dòng drift thực thể × chuyển tiếp</span></div><div class="kpi"><strong>10</strong><span>Biểu đồ · PNG và SVG xuất riêng</span></div></div>
+<nav role="tablist" aria-label="Nội dung báo cáo"><button role="tab" aria-controls="report-panel" aria-selected="true" id="report-tab" data-panel="report-panel">Báo cáo quy trình</button><button role="tab" aria-controls="training-panel" aria-selected="false" id="training-tab" data-panel="training-panel">Log huấn luyện</button><button role="tab" aria-controls="drift-panel" aria-selected="false" id="drift-tab" data-panel="drift-panel">Tra cứu drift</button></nav>
+<main>
+<div id="report-panel" class="panel" role="tabpanel" aria-labelledby="report-tab">
+<div class="pipeline" aria-label="Quy trình"><div><b>Preflight</b>10 snapshots</div><div><b>Pilot</b>32 / 64 chiều</div><div><b>Backbone</b>30 × 2 repeats</div><div><b>Alignment</b>81 × 2 SVD</div><div><b>Null / LTO</b>41.382 noise rows</div><div><b>Drift</b>6.897 rows</div></div>
+__REPORT_CONTENT__
+</div>
+<div id="training-panel" class="panel" role="tabpanel" aria-labelledby="training-tab" hidden>
+<div class="card"><h2>Log loss từ checkpoints đã lưu</h2><p>Chọn snapshot và seed để xem đường loss thô, đọc từng epoch hoặc tải log đang chọn. Ba màu ứng với seeds 13, 37 và 101. Repeat 1 được hiển thị; repeat 2 đã kiểm exact byte replay.</p>
+<div class="note">Full-snapshot training không có validation loss. Loss này là margin-ranking objective; biểu đồ không đo độ chính xác QA hoặc drift theo epoch.</div>
+<div class="controls"><label>Snapshot<select id="train-snapshot" aria-label="Snapshot"></select></label><label>Seed<select id="train-seed" aria-label="Seed"><option value="all">Cả ba seeds</option><option>13</option><option>37</option><option>101</option></select></label><button id="download-training">Tải log đang chọn</button></div>
+<p id="training-summary" class="subtle" aria-live="polite"></p><div class="chart-legend" id="training-legend"></div><div class="plotbox" id="training-chart" role="img" aria-label="Loss huấn luyện theo epoch"></div>
+<details><summary>Nguồn checkpoint và hash</summary><div id="training-lineage"></div></details>
+<div class="table-wrap"><table id="training-table"><thead></thead><tbody></tbody></table></div></div>
+</div>
+<div id="drift-panel" class="panel" role="tabpanel" aria-labelledby="drift-tab" hidden>
+<div class="card"><h2>Tra cứu độ chuyển dịch theo thực thể</h2><p>δ_time là median displacement của ba seeds. Signed excess r giữ dấu âm; SED+ chuẩn hóa phần excess dương theo null LTO. Bộ lọc và sắp xếp chỉ phục vụ tra cứu, không thay đổi population đã đo.</p>
+<div class="note">T01→T02 high bucket: mỗi LTO chỉ có 1 reference entity và 6 correlated observations. r&gt;0 hoặc SED+ cao chưa phải kết quả kiểm định ý nghĩa thống kê.</div>
+<div class="controls"><label>Chuyển tiếp<select id="drift-transition" aria-label="Chuyển tiếp"><option value="all">Tất cả chuyển tiếp</option></select></label><label>Degree bucket<select id="drift-bucket" aria-label="Degree bucket"><option value="all">Tất cả buckets</option><option value="low">Low (&lt;3)</option><option value="medium">Medium (3–5)</option><option value="high">High (≥6)</option></select></label><label>Thực thể<input id="drift-entity" aria-label="Thực thể" placeholder="Nhập một phần entity ID" autocomplete="off"></label><label>Sắp xếp<select id="drift-sort" aria-label="Sắp xếp"><option value="entity">Entity ID tăng dần</option><option value="sed">SED+ giảm dần</option><option value="delta">δ_time giảm dần</option><option value="excess">Signed excess giảm dần</option></select></label><button id="download-drift">Tải log đang lọc</button></div>
+<p id="drift-summary" class="subtle" aria-live="polite"></p>
+<div class="table-wrap"><table class="compact" id="drift-table"><thead><tr><th>Transition / Entity</th><th>δ13</th><th>δ37</th><th>δ101</th><th>δ_time</th><th>Null median</th><th>r</th><th>SED+</th><th>Bucket / degree</th><th>LTO entities / obs.</th></tr></thead><tbody></tbody></table></div>
+<div class="pager"><button id="drift-prev">← Trước</button><span id="drift-page"></span><button id="drift-next">Sau →</button></div>
+</div>
+</div>
+</main>
+<footer><div class="linkbar"><a href="report.md">Báo cáo Markdown</a><a href="training_epoch_log.jsonl" download>Toàn bộ log epoch</a><a href="entity_drift_log.jsonl" download>Toàn bộ log drift</a><a href="analysis_summary.json">Dữ liệu biểu đồ</a><a href="experiment_manifest.json">Lineage và hashes</a></div><p>Biểu đồ là mô tả từ artifacts hiện có. M3 chưa thực thi; M4/QA/H1/WCB chưa chạy. Báo cáo HTML tự chứa dữ liệu và hình ảnh, có thể mở offline.</p></footer>
+</div>
+<script type="application/json" id="report-data">__REPORT_DATA__</script>
+<script>
+"use strict";
+const data = JSON.parse(document.getElementById("report-data").textContent);
+const palette = ["#176b88", "#bf642b", "#7759aa"];
+const seeds = [13, 37, 101];
+const $ = id => document.getElementById(id);
+const format = n => n === null ? "Không khả dụng" : n.toFixed(6);
+function option(select, value, label) {const opt = document.createElement("option");opt.value = value;opt.textContent = label;select.appendChild(opt);}
+function cell(row, text, cls) {const td = document.createElement("td");td.textContent = text;if (cls) td.className = cls;row.appendChild(td);return td;}
+function download(rows, name) {const blob = new Blob([rows.map(r => JSON.stringify(r)).join("\n") + "\n"], {type:"application/x-ndjson;charset=utf-8"});const url=URL.createObjectURL(blob);const link=document.createElement("a");link.href=url;link.download=name;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+document.querySelectorAll("nav button").forEach(button => button.addEventListener("click", () => {document.querySelectorAll("nav button").forEach(b=>b.setAttribute("aria-selected",String(b===button)));document.querySelectorAll(".panel").forEach(p=>p.hidden=p.id!==button.dataset.panel);document.querySelector("nav").scrollIntoView({block:"start"});}));
+[...new Set(data.models.map(m=>m.snapshot_id))].sort().forEach(s=>option($("train-snapshot"),s,s));
+data.transitions.forEach(t=>option($("drift-transition"),t,t.replace("->","→")));
+function trainingSelection(){return data.models.filter(m=>m.snapshot_id===$("train-snapshot").value && ($("train-seed").value==="all" || m.seed===Number($("train-seed").value)));}
+const svgNS="http://www.w3.org/2000/svg";
+function svgElement(tag, attrs, text){const el=document.createElementNS(svgNS,tag);Object.entries(attrs||{}).forEach(([k,v])=>el.setAttribute(k,String(v)));if(text!==undefined)el.textContent=text;return el;}
+const globalYmax=Math.ceil(Math.max(...data.models.flatMap(m=>m.epoch_losses))*10)/10;
+function renderTraining(){
+const models=trainingSelection();const first=models.map(m=>m.first_loss);const final=models.map(m=>m.final_loss);
+$("training-summary").textContent=`${$("train-snapshot").value} · ${models.length} mô hình · 50 epochs/mô hình · loss epoch 1: ${Math.min(...first).toFixed(6)}–${Math.max(...first).toFixed(6)} · loss epoch 50: ${Math.min(...final).toFixed(6)}–${Math.max(...final).toFixed(6)}`;
+const legend=$("training-legend");legend.replaceChildren();const lineage=$("training-lineage");lineage.replaceChildren();
+models.forEach(m=>{const span=document.createElement("span");const dot=document.createElement("span");dot.className="dot";dot.style.background=palette[seeds.indexOf(m.seed)];span.append(dot,document.createTextNode(`Seed ${m.seed}`));legend.appendChild(span);const p=document.createElement("p");p.textContent=`${m.snapshot_id} seed ${m.seed} · checkpoint SHA-256 ${m.checkpoint_sha256}`;lineage.appendChild(p);});
+const svg=svgElement("svg",{viewBox:"0 0 1000 380"});const left=75,right=965,top=25,bottom=315;const x=e=>left+(e-1)/49*(right-left);const y=v=>bottom-v/globalYmax*(bottom-top);
+for(let t=0;t<=globalYmax+.0001;t+=.2){svg.appendChild(svgElement("line",{x1:left,y1:y(t),x2:right,y2:y(t),stroke:"#e1e9ed"}));svg.appendChild(svgElement("text",{x:left-12,y:y(t)+4,"text-anchor":"end",fill:"#5d7183","font-size":12},t.toFixed(1)));}
+[1,10,20,30,40,50].forEach(e=>{svg.appendChild(svgElement("text",{x:x(e),y:bottom+25,"text-anchor":"middle",fill:"#5d7183","font-size":12},e));});
+svg.appendChild(svgElement("line",{x1:left,y1:top,x2:left,y2:bottom,stroke:"#789"}));svg.appendChild(svgElement("line",{x1:left,y1:bottom,x2:right,y2:bottom,stroke:"#789"}));
+svg.appendChild(svgElement("text",{x:(left+right)/2,y:bottom+50,"text-anchor":"middle",fill:"#1b3044","font-size":14},"Epoch"));svg.appendChild(svgElement("text",{x:20,y:180,transform:"rotate(-90 20 180)","text-anchor":"middle",fill:"#1b3044","font-size":14},"Training loss"));
+models.forEach(m=>{const poly=svgElement("polyline",{points:m.epoch_losses.map((v,i)=>`${x(i+1)},${y(v)}`).join(" "),fill:"none",stroke:palette[seeds.indexOf(m.seed)],"stroke-width":2});svg.appendChild(poly);m.epoch_losses.forEach((v,i)=>{const dot=svgElement("circle",{cx:x(i+1),cy:y(v),r:2.2,fill:palette[seeds.indexOf(m.seed)]});dot.appendChild(svgElement("title",{},`Seed ${m.seed} · epoch ${i+1}: ${v.toFixed(6)}`));svg.appendChild(dot);});});
+$("training-chart").replaceChildren(svg);const head=$("training-table").querySelector("thead");const body=$("training-table").querySelector("tbody");head.replaceChildren();body.replaceChildren();const hr=document.createElement("tr");["Epoch",...models.map(m=>`Loss seed ${m.seed}`)].forEach(t=>{const th=document.createElement("th");th.textContent=t;hr.appendChild(th);});head.appendChild(hr);
+for(let i=0;i<50;i++){const row=document.createElement("tr");cell(row,i+1);models.forEach(m=>cell(row,m.epoch_losses[i].toFixed(9)));body.appendChild(row);}
+}
+$("train-snapshot").addEventListener("change",renderTraining);$("train-seed").addEventListener("change",renderTraining);
+$("download-training").addEventListener("click",()=>download(trainingSelection().flatMap(m=>m.epoch_losses.map((v,i)=>({snapshot_id:m.snapshot_id,seed:m.seed,epoch:i+1,training_loss:v,checkpoint_sha256:m.checkpoint_sha256}))),`training_${$("train-snapshot").value}.jsonl`));
+let driftPage=0;const pageSize=20;let filtered=[];
+function filterDrift(){const transition=$("drift-transition").value,bucket=$("drift-bucket").value,entity=$("drift-entity").value.trim().toLocaleLowerCase();filtered=data.entities.filter(r=>(transition==="all"||r.transition_id===transition)&&(bucket==="all"||r.bucket_id===bucket)&&(!entity||r.entity_id.toLocaleLowerCase().includes(entity)));
+const key={sed:"SED_plus",delta:"delta_time",excess:"signed_excess"}[$("drift-sort").value];filtered.sort((a,b)=>key ? (b[key]-a[key] || a.entity_id.localeCompare(b.entity_id)) : (a.entity_id.localeCompare(b.entity_id)||a.transition_id.localeCompare(b.transition_id)));driftPage=0;renderDrift();}
+function renderDrift(){const body=$("drift-table").querySelector("tbody");body.replaceChildren();const pages=Math.max(1,Math.ceil(filtered.length/pageSize));driftPage=Math.min(driftPage,pages-1);const rows=filtered.slice(driftPage*pageSize,(driftPage+1)*pageSize);const positive=filtered.filter(r=>r.signed_excess>0).length;
+$("drift-summary").textContent=`${filtered.length.toLocaleString("vi-VN")} / 6.897 dòng khớp bộ lọc · ${positive.toLocaleString("vi-VN")} r>0 · thống kê mô tả, không phải p-value`;
+for(const r of rows){const row=document.createElement("tr");cell(row,`${r.transition_id.replace("->","→")} / ${r.entity_id}`,"entity-name");for(const k of ["delta_seed_13","delta_seed_37","delta_seed_101","delta_time","null_median","signed_excess","SED_plus"])cell(row,format(r[k]),k==="signed_excess"?(r[k]<0?"negative":"positive"):"");cell(row,`${r.bucket_id} / ${r.pretransition_degree}`);cell(row,`${r.reference_entity_count} / ${r.observation_count}`);body.appendChild(row);}
+if(!rows.length){const row=document.createElement("tr");const td=cell(row,"Không có thực thể khớp bộ lọc.");td.colSpan=10;body.appendChild(row);}$("drift-page").textContent=`Trang ${driftPage+1}/${pages}`;$("drift-prev").disabled=driftPage===0;$("drift-next").disabled=driftPage===pages-1;
+}
+["drift-transition","drift-bucket","drift-sort"].forEach(id=>$(id).addEventListener("change",filterDrift));$("drift-entity").addEventListener("input",filterDrift);$("drift-prev").addEventListener("click",()=>{driftPage--;renderDrift();});$("drift-next").addEventListener("click",()=>{driftPage++;renderDrift();});$("download-drift").addEventListener("click",()=>download(filtered,"entity_drift_selected.jsonl"));
+renderTraining();filterDrift();
+</script>
+</body>
+</html>

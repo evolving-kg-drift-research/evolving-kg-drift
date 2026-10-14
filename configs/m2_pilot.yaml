@@ -1,0 +1,32 @@
+# User authorized a validation/alignment pilot on 2026-10-14.
+# This is a bounded Dev design, not a protocol freeze or G3 certificate.
+version: m2_pilot_v1
+mode: external_package_dev_pilot
+scientific_certification: false
+snapshots: [T01, T02]
+validation_snapshot: T01
+dimensions: [32, 64]
+seeds: [13, 37, 101]
+model: TransE
+norm: 2
+epochs: 50
+learning_rate: 0.01
+margin: 1.0
+repetitions: 2
+validation:
+  target_fraction: 0.2
+  salt: m2-pilot-validation-v1
+  split: hash_order_greedy_preserve_training_entity_relation_coverage
+  candidates: all_training_entities
+  filter: all_T01_positives_only_at_evaluation
+  sides: [head, tail]
+  ties: exact_average_rank
+alignment:
+  fit_ratio: 0.6
+  split: exact_pretransition_degree_stratified_hash_disjoint
+  salt: m2-pilot-anchors-v1
+  # Preserve existing diagnostic limits; also require full rank for this pilot.
+  require_full_rank: true
+selection: all_nine_alignments_valid_then_mean_three_seed_validation_MRR_then_smaller_dimension
+stop_after: pilot_report_and_configuration_proposal
+# Null buckets, merge policy, and epsilon are deliberately not resolved here.

@@ -1,0 +1,24 @@
+version: m2_null_stage_v1
+stage: empirical_null
+status: APPROVED_FOR_DEV_EXECUTION
+mode: external_package_dev_experiment
+scientific_certification: false
+approval:
+  date_local: '2026-10-14'
+  actor: user
+  instruction: 'Hãy thực hiện bước tiếp theo'
+approved_config_path: configs/m2_external_dev_v1.yaml
+approved_config_sha256: 7d43c3f4260ee47bf12ce374b85cff21a5ac933a6d976b311d23ceb724766765
+alignment_run: outputs/m2_alignment/20261014T040001Z_96d9ccbc
+alignment_manifest_sha256: 920b78c4ec057ff95f3e6cd812394cf3cae43e275f286779bfeee583ca6403ea
+alignment_verification_path: outputs/m2_alignment/20261014T040001Z_96d9ccbc/independent_verification_20261014T040130Z_31179f1c.json
+alignment_verification_sha256: 549771cd9afbe0ef7b9e53d99acff787249005a2f61907bcb0d202abb4ab6a3f
+component_version: saved_alignment_empirical_null_v1
+centered_norm_floor: 0.000000000001
+undefined_centered_cosine: fatal
+reference_bucket_merging_stage: pooled_before_LTO
+no_target_specific_remerge: true
+repetitions: 2
+stop_after_stage_report: true
+next_stage: longitudinal_drift
+auto_execute_next_stage: false

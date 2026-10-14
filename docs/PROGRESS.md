@@ -1,5 +1,168 @@
 # Tiến độ pipeline
 
+## M2 — báo cáo toàn bộ quy trình và trực quan hóa — 2026-10-14
+
+Theo yêu cầu người dùng, đã viết lại báo cáo xuyên suốt preflight/pilot/
+backbone/alignment/null/LTO/drift và Dev handoff từ artifacts đã lưu.
+Run báo cáo `outputs/m2_report/20261014T061101Z_a624c271/`: HTML tự chứa,
+Markdown, 10 biểu đồ PNG/SVG, 1.500 epoch loss log rows và 6.897 drift log
+rows có đầy đủ ba seed values. Giao diện chọn snapshot/seed, lọc transition/
+bucket/entity, phân trang và tải log. Không train lại hoặc đổi phép đo.
+
+Independent report verifier kiểm 716 source hashes/32 artifact hashes,
+đối chiếu mọi exported log/HTML data/quantiles/support với checkpoint/Parquet
+PASS; 10 hình đã kiểm bố cục. Browser filters/downloads/navigation PASS,
+không console errors. Ruff/diff PASS. Full scientific regression 505 passed/
+10 skipped là kết quả của stage M2 trước, không chạy lại để viết báo cáo.
+[Báo cáo toàn bộ M2](audit/M2_FULL_WORKFLOW_REPORT_20261014.md).
+
+M2 Dev đã EXECUTED/VERIFIED; M3 chỉ scaffold, M4 chưa thực hiện. Report giữ
+M1/G3 uncertified, low-support T01 high bucket và giới hạn log (chỉ loss theo
+epoch, embeddings cuối training; không có embedding trajectories theo epoch).
+Giữ mọi historical reports/runs; các bản report draft trước được bảo toàn,
+run cuối ở trên là bản bàn giao, không auto-advance scientific stage.
+
+## M2 — longitudinal drift và Dev handoff — 2026-10-14
+
+User yêu cầu bước tiếp theo sau null/LTO verified; stage config
+`configs/m2_drift_v1.yaml` bind approved config/null manifest/receipt hashes.
+Saved cross-time Q/fit means cho 3 parallel seeds 13/37/101; median delta_time,
+signed r giữ âm và SED+ theo đúng LTO MAD/epsilon đã duyệt. Không re-align,
+retrain hoặc chọn lại population/anchors/buckets.
+
+Run `outputs/m2_drift/20261014T044648Z_ae9f0401/` hoàn tất 20.691 temporal
+observations và 6.897 entity×transition drift rows; 6.897/6.897 available,
+3.640 r>0 (mô tả, không significance/H1). 9/9 JSON replays exact bytes,
+2/2 deterministic Parquet files. Independent verifier recompute toàn bộ
+temporal/calibrated rows, kiểm 549 input/57 artifact hashes, 9 manifests và
+Dev handoff PASS. Full suite 505 passed/10 existing skipped; Ruff/diff PASS.
+[Báo cáo drift](audit/M2_DRIFT_REPORT_20261014.md).
+
+IMPLEMENTED/TESTED + EXECUTED/VERIFIED phạm vi M2 drift Dev trên artifacts
+thật; không scientific M1/G3 certification. M1 G1/G2/official handoff vẫn
+BLOCKED/uncertified. T01 high-bucket LTO chỉ 1 reference entity/6 correlated
+observations, giữ nguyên support counts và limitation. Dừng sau Stage Report;
+chưa M4/QA/MRR/H1. Next stage M4 readiness cần user yêu cầu tiếp.
+Không đổi upstream artifacts/locks/protocol, không đọc locked_test.
+
+## M2 — empirical null 6 cặp và Leave-Target-Out — 2026-10-14
+
+User yêu cầu bước tiếp theo sau alignment; stage config `configs/m2_null_v1.yaml`
+bind approved config/alignment manifest/independent receipt hashes. Saved Q và
+fit means dùng cho 6 endpoint seed pairs, pretransition-degree bins 3/6,
+pooled adjacent merge và LTO bỏ toàn bộ 6 target observations; không re-align.
+
+Run `outputs/m2_null/20261014T042450Z_43e91590/` hoàn tất 41.382 noise rows
+và 6.897 entity×transition LTO stats, 6.897/6.897 available theo approved
+guards, 9/9 null JSON replays exact bytes, 2 Parquet serializations deterministic.
+Không có sparse merge thực tế. T01 high bucket chỉ 1 reference entity mỗi LTO
+(6 correlated pair observations); lưu support counts, không tự đổi thresholds.
+
+Independent verifier recompute 41.382 noise/6.897 LTO values, kiểm 491 input/
+55 artifact hashes và 9 manifests PASS. Targeted 23 passed; full suite 479
+passed/10 skipped, Ruff/diff PASS, Python 3.11.9.
+[Báo cáo null/LTO](audit/M2_NULL_REPORT_20261014.md).
+
+IMPLEMENTED/TESTED + EXECUTED/VERIFIED trong phạm vi null Dev trên artifacts
+thật; không scientific G3/M1 certification. Dừng sau stage; chưa delta_time/
+signed excess/SED+ hoặc M4. Không sửa upstream artifacts/locks/protocol,
+không retrain backbone, không đọc locked_test.
+
+## M2 — fixed-anchor alignment cho 9 transitions — 2026-10-14
+
+User yêu cầu thực hiện alignment; stage config `configs/m2_alignment_v1.yaml`
+bind approved config/backbone hashes, không đổi inputs cũ. Đã lưu outcome-blind
+anchor plans trước SVD: persistent IDs, exact pretransition-degree quotas,
+fixed 101 fit/66 holdout, cùng split cho cả 9 comparisons của mỗi transition.
+
+Run `outputs/m2_alignment/20261014T040001Z_96d9ccbc/` hoàn tất 81 comparisons
+× 2 repeats = 162 SVD executions. 81/81 available, 9/9 transitions đạt approved
+diagnostics; mọi numerical rank 64, max holdout RMSE 1.404725, max gap 0.580387,
+max orthogonality 2.198345e-14. 81/81 replays byte-identical.
+
+Independent verifier reconstruct 9 anchor plans và recompute 81 SVD results,
+kiểm 219 input/269 artifact hashes và 81 manifests PASS. Full suite 462
+passed/10 skipped, targeted 23 passed, Ruff/diff PASS, Python 3.11.9.
+[Báo cáo alignment](audit/M2_ALIGNMENT_REPORT_20261014.md).
+
+IMPLEMENTED/TESTED + EXECUTED/VERIFIED trong phạm vi alignment Dev trên
+checkpoints thật; không scientific G3/M1 certification. Dừng sau stage;
+chưa empirical null/LTO/SED+ hoặc M4, không retrain backbone, không sửa locks/
+protocol/historical data hoặc mở locked_test.
+
+## Review toàn bộ Docs và hướng M1 — 2026-10-14
+
+Đọc/kiểm kê 94 Docs files lúc đầu, bổ sung ba Docs M2 mới thành 97 files
+(không tính report mới của lượt này);
+báo cáo [M1 direction review](audit/M1_DIRECTION_REVIEW_20261014.md) có 12
+findings và dependency/artifact roadmap. Giữ hướng rebuild chọn lọc, ưu tiên
+historical-proof eligibility trước pilot costs. Metadata v3: 5.271 retrieval
+clocks đều tháng 9 sau window; 1.930 archive rows trong window nối 1.840 raw
+hashes/1.770 bodies, chưa chứng nhận content-version proof/eligibility.
+Candidate contract không cho pending/reject có acceptance null; còn thiếu
+domains/per-stage contracts/ontology semantics và gold/coverage integration.
+47 targeted tests PASS; probes chỉ fixture/component scope. Không thay source,
+schema/protocol/lock/decision log hoặc historical data; không production M1,
+Gemini/Neo4j/training/certification. Checkout chung chuyển sang M2 workflow cùng
+HEAD trong khi review, work M2 giữ nguyên. Dev M2 không chứng nhận M1; final
+G1/G2 và official handoff vẫn BLOCKED. Không commit/push/merge trong lượt này.
+
+## M2 — chốt cấu hình và backbone toàn bộ snapshots — 2026-10-14
+
+User xác nhận thực hiện kế hoạch sau pilot; đã lưu approved Dev configuration
+`configs/m2_external_dev_v1.yaml` hash-bind proposal, giữ protocol/source lock.
+Stage backbone trên `codex/m2-drift-workflow` hoàn tất T01–T10, TransE-L2
+64 chiều/50 epochs/lr 0.01, seeds 13/37/101: 30 configurations × 2 repeats =
+60 training executions, 30/30 exact checkpoint byte replays.
+
+Run `outputs/m2_backbone/20261014T034042Z_65c464ba/`: independent verifier
+đạt 41 input/176 artifact hashes, 30 seed manifests, full mapping/config/git/
+snapshot/loss provenance; 6 T01/T02 checkpoints còn khớp exact bytes với pilot.
+Targeted tests 55 passed; full suite 444 passed/10 skipped, Ruff/diff PASS,
+Python 3.11.9. [Báo cáo backbone](audit/M2_BACKBONE_REPORT_20261014.md).
+
+IMPLEMENTED/TESTED + EXECUTED/VERIFIED trong phạm vi backbone **Dev trên data
+thật**; không production scientific certification/G3/M1 PASS. Dừng sau Stage
+Report theo kế hoạch; chưa execute fixed-count alignment 9 transitions,
+null/LTO/SED+ hoặc M4. Không sửa scientific protocol, input artifacts, gate
+status lịch sử; không đọc locked_test, không rerun acquisition.
+
+## M2 Dev pilot trên dữ liệu được user chỉ định — 2026-10-14
+
+Đã tạo `codex/m2-drift-workflow` từ `2860235`, giữ thay đổi M1 đang mở.
+User yêu cầu bỏ tiêu chí nghiệm thu M1 cho công việc M2 này và xác nhận pilot
+chọn dimension qua validation/alignment. Đã lưu
+[kế hoạch từng bước](M2_EXECUTION_PLAN.md) và
+[báo cáo pilot](audit/M2_PILOT_REPORT_20261014.md).
+
+Input preflight 10 snapshots/9 transitions đạt technical hash/count/structure
+checks. Pilot T01/T02: dimensions 32/64, seeds 13/37/101, 101 train/20 validation,
+18 configurations replay hai lần = 36 training executions. 18/18 checkpoint
+replays byte-identical; 240 rankings và 18 alignments được tính lại độc lập.
+Mean validation MRR 0.110916/0.122906; cả hai đạt 9/9 alignment checks, đề xuất
+64 chiều theo rule đã lưu trước training. Targeted suite 86 passed; full suite
+427 passed/10 skipped trên Python 3.11.9; Ruff/diff PASS.
+
+Đây là IMPLEMENTED/TESTED và EXECUTED/VERIFIED trong phạm vi **Dev pilot trên
+artifacts thật**, không chứng nhận M1/G3 hoặc full M2 measurement. Proposal
+`configs/m2_run_proposal.yaml` còn REVIEW_REQUIRED, không activate defaults
+null/epsilon hoặc đổi scientific protocol. Dừng sau pilot; chưa train T03–T10,
+chưa pooled null/LTO/SED+, chưa chạy M4, không sửa data/source lock/protocol.
+
+## Review toàn bộ các nhánh M1 sau đồng bộ remote — 2026-10-14
+
+Fetch/prune và remote-tip verification thành công; remote không có commit mới.
+Pull fast-forward-only từ legacy vào acceptance trả Already up to date, giữ
+HEAD `2860235` và ba commit local chưa push. Review 8 remote M1 branches và
+acceptance local bằng fixed code snapshots; full current regression **408
+passed, 10 skipped**, Ruff toàn repo PASS. Findings/report:
+[M1 all-branch review](audit/M1_ALL_BRANCH_REVIEW_20261014.md).
+Phát hiện mới BR-M1-001: quality component chưa bind nội dung gold được chấm
+với nội dung adjudication; fixture mismatch vẫn component PASS, final gates
+vẫn BLOCKED. Các nhánh pipeline cũ còn clock/mapping/evidence/quality/parity
+defects; không merge wholesale. Không production execution/certification,
+không sửa source code, protocol/source lock hoặc historical artifacts.
+
 ## M1 acceptance rebuild foundations — 2026-10-14
 
 Đã tạo `codex/m1-acceptance-rebuild` từ `684dc6b`, lưu
