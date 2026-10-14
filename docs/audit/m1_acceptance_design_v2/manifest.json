@@ -1,0 +1,20 @@
+{
+  "candidate_semantic_sha256": "d1124d381078d49b6baf30f6cf75ec1cfe2e448a6a521ba1726d826f367150cd",
+  "files_sha256": {
+    "boundaries.md": "071b126b325f8524afe455fcd7501d772473829188776c2d00b1027f81538db7",
+    "contract.md": "5f74b7d93e38e0e40a4e1501b2773fd645b37c55014c7307137d24eccdd0c538",
+    "contract_field_matrix_v2.yaml": "031d8acfc7da1a8bdd782dbab6b6af2c072d41141073a824edd708e91f54902c",
+    "identity.md": "e235c95147c43f353c06a3799922277e0d10f97d51fbe1f7a2bbb8f66f2d910d",
+    "quality.md": "53e409164d88924f5a199415a8922895f8348129488d601a8ed1b0d65dffd281",
+    "schema_1_1_candidate.yaml": "4d949d23b0bd7730a2bc8b949bf9b877f756607620fd4c5c17d41ae3ea32d2dd",
+    "support_revision.md": "afd0a08250682ce55cdf78c10e7f03e6d97c823eeccefdc2662ce2cc5629942c",
+    "temporal.md": "b2a31898f0f0a3e7606299e718507ea04d639fbe5b3f54460628ac12d965bd4a"
+  },
+  "package_version": "m1-acceptance-design-v2",
+  "previous_matrix_actual_sha256": "9cc5e6079fb5f3635cb6bf25593e7b9a3312a12465efe7b3b72c6250371de6c3",
+  "previous_matrix_binding_status": "MISMATCH_PRESERVED",
+  "previous_matrix_manifest_sha256": "716eaf74a1915fff4d39349b6071cd0a03cb7610ed8a3accb73ca151bbd2948c",
+  "runtime_apply_allowed": false,
+  "scope": "typed_contract_and_auxiliary_field_review",
+  "status": "REVIEW_REQUIRED"
+}

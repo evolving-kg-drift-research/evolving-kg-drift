@@ -1,0 +1,1229 @@
+adjudication_decisions:
+  columns:
+    LogicalFactID:
+      arrow_type: string
+      nullable: false
+    acceptance_basis:
+      arrow_type: string
+      nullable: false
+    accepted_into_kg_at:
+      arrow_type: string
+      nullable: false
+    adjudicated_at_real:
+      arrow_type: string
+      nullable: false
+    adjudication_rule_version:
+      arrow_type: string
+      nullable: false
+    candidate_claim_ids:
+      arrow_type: 'list<item: string>'
+      nullable: false
+    decision:
+      arrow_type: string
+      nullable: false
+    decision_id:
+      arrow_type: string
+      nullable: false
+    reviewer_provenance:
+      arrow_type: string
+      nullable: false
+    supporting_claim_ids:
+      arrow_type: 'list<item: string>'
+      nullable: false
+  domains:
+    accepted_into_kg_at: utc_timestamp
+    adjudicated_at_real: utc_timestamp
+    candidate_claim_ids: sorted_unique_ids
+    supporting_claim_ids: sorted_unique_ids
+  fields:
+  - decision_id
+  - LogicalFactID
+  - candidate_claim_ids
+  - supporting_claim_ids
+  - decision
+  - acceptance_basis
+  - accepted_into_kg_at
+  - adjudicated_at_real
+  - adjudication_rule_version
+  - reviewer_provenance
+  foreign_keys: {}
+  primary_key:
+  - decision_id
+  serializer:
+    LogicalFactID: logical_fact_id
+body_variants:
+  columns:
+    body_blob_relative_path:
+      arrow_type: string
+      nullable: false
+    body_text_sha256:
+      arrow_type: string
+      nullable: false
+    body_variant_id:
+      arrow_type: string
+      nullable: false
+    decoder:
+      arrow_type: string
+      nullable: false
+    extraction_status:
+      arrow_type: string
+      nullable: false
+    normalization_version:
+      arrow_type: string
+      nullable: false
+    parser_fingerprint_sha256:
+      arrow_type: string
+      nullable: false
+    parser_version:
+      arrow_type: string
+      nullable: false
+    quality_flags_json:
+      arrow_type: string
+      nullable: false
+    selector:
+      arrow_type: string
+      nullable: false
+    text_char_count:
+      arrow_type: int64
+      nullable: false
+  domains:
+    body_text_sha256: sha256
+    parser_fingerprint_sha256: sha256
+  fields:
+  - body_variant_id
+  - body_text_sha256
+  - body_blob_relative_path
+  - parser_version
+  - parser_fingerprint_sha256
+  - decoder
+  - selector
+  - text_char_count
+  - extraction_status
+  - quality_flags_json
+  - normalization_version
+  foreign_keys: {}
+  primary_key:
+  - body_variant_id
+canonical_entities:
+  columns:
+    canonical_entity_id:
+      arrow_type: string
+      nullable: false
+    entity_type:
+      arrow_type: string
+      nullable: false
+    identity_basis_ref:
+      arrow_type: string
+      nullable: false
+    identity_basis_sha256:
+      arrow_type: string
+      nullable: false
+    registry_version:
+      arrow_type: string
+      nullable: false
+  domains:
+    identity_basis_sha256: sha256
+  fields:
+  - canonical_entity_id
+  - entity_type
+  - registry_version
+  - identity_basis_ref
+  - identity_basis_sha256
+  foreign_keys: {}
+  primary_key:
+  - canonical_entity_id
+claim_evidence:
+  columns:
+    body_text_sha256:
+      arrow_type: string
+      nullable: false
+    body_variant_id:
+      arrow_type: string
+      nullable: false
+    claim_id:
+      arrow_type: string
+      nullable: false
+    evidence_span_end:
+      arrow_type: int64
+      nullable: false
+    evidence_span_start:
+      arrow_type: int64
+      nullable: false
+    evidence_text_hash:
+      arrow_type: string
+      nullable: false
+    normalization_version:
+      arrow_type: string
+      nullable: false
+    relation_review_ref:
+      arrow_type: string
+      nullable: true
+  domains:
+    body_text_sha256: sha256
+    evidence_text_hash: sha256
+  fields:
+  - claim_id
+  - body_variant_id
+  - body_text_sha256
+  - evidence_span_start
+  - evidence_span_end
+  - evidence_text_hash
+  - normalization_version
+  - relation_review_ref
+  foreign_keys:
+    body_variant_id:
+    - body_variants
+    - body_variant_id
+    claim_id:
+    - claims
+    - claim_id
+  primary_key:
+  - claim_id
+claim_provenance:
+  columns:
+    claim_id:
+      arrow_type: string
+      nullable: false
+    membership_id:
+      arrow_type: string
+      nullable: false
+    provenance_id:
+      arrow_type: string
+      nullable: false
+    publisher_source_id:
+      arrow_type: string
+      nullable: false
+    raw_blob_sha256:
+      arrow_type: string
+      nullable: false
+    retrieval_id:
+      arrow_type: string
+      nullable: false
+    source_url:
+      arrow_type: string
+      nullable: false
+    source_version_id:
+      arrow_type: string
+      nullable: false
+  domains:
+    raw_blob_sha256: sha256
+  fields:
+  - provenance_id
+  - claim_id
+  - membership_id
+  - source_version_id
+  - retrieval_id
+  - raw_blob_sha256
+  - publisher_source_id
+  - source_url
+  foreign_keys:
+    claim_id:
+    - claims
+    - claim_id
+    membership_id:
+    - document_memberships
+    - membership_id
+    publisher_source_id:
+    - source_registry
+    - source_id
+    retrieval_id:
+    - retrievals
+    - retrieval_id
+    source_version_id:
+    - source_versions
+    - source_version_id
+  primary_key:
+  - provenance_id
+claims:
+  columns:
+    claim_id:
+      arrow_type: string
+      nullable: false
+    evidence_observed_at:
+      arrow_type: string
+      nullable: false
+    evidence_span_end:
+      arrow_type: int64
+      nullable: false
+    evidence_span_start:
+      arrow_type: int64
+      nullable: false
+    evidence_text_hash:
+      arrow_type: string
+      nullable: false
+    evidence_time_basis:
+      arrow_type: string
+      nullable: false
+    evidence_time_confidence:
+      arrow_type: double
+      nullable: true
+    extraction_confidence:
+      arrow_type: double
+      nullable: true
+    extractor_version:
+      arrow_type: string
+      nullable: false
+    object_id:
+      arrow_type: string
+      nullable: true
+    object_value:
+      arrow_type: string
+      nullable: true
+    ontology_version:
+      arrow_type: string
+      nullable: false
+    raw_source_id:
+      arrow_type: string
+      nullable: false
+    relation_id:
+      arrow_type: string
+      nullable: false
+    scope:
+      arrow_type: string
+      nullable: false
+    subject_id:
+      arrow_type: string
+      nullable: false
+    valid_from:
+      arrow_type: string
+      nullable: false
+    valid_from_inferred:
+      arrow_type: bool
+      nullable: false
+    valid_to:
+      arrow_type: string
+      nullable: true
+  domains:
+    evidence_observed_at: utc_timestamp
+    evidence_text_hash: sha256
+    evidence_time_confidence: confidence
+    extraction_confidence: confidence
+    valid_from: utc_timestamp
+    valid_to: utc_timestamp
+  fields:
+  - claim_id
+  - raw_source_id
+  - subject_id
+  - relation_id
+  - object_id
+  - object_value
+  - scope
+  - evidence_span_start
+  - evidence_span_end
+  - evidence_text_hash
+  - valid_from
+  - valid_to
+  - evidence_observed_at
+  - evidence_time_basis
+  - evidence_time_confidence
+  - valid_from_inferred
+  - extractor_version
+  - ontology_version
+  - extraction_confidence
+  foreign_keys:
+    raw_source_id:
+    - raw_source_versions
+    - raw_source_id
+  primary_key:
+  - claim_id
+corpus_filtered:
+  columns:
+    document_cluster_id:
+      arrow_type: string
+      nullable: false
+    filter_decision:
+      arrow_type: string
+      nullable: false
+    filter_version:
+      arrow_type: string
+      nullable: false
+    reason_code:
+      arrow_type: string
+      nullable: false
+  domains: {}
+  fields:
+  - document_cluster_id
+  - filter_decision
+  - reason_code
+  - filter_version
+  foreign_keys: {}
+  primary_key:
+  - document_cluster_id
+document_clusters:
+  columns:
+    algorithm_version:
+      arrow_type: string
+      nullable: false
+    canonical_document_id:
+      arrow_type: string
+      nullable: false
+    dedup_method:
+      arrow_type: string
+      nullable: false
+    dedup_score:
+      arrow_type: double
+      nullable: true
+    document_cluster_id:
+      arrow_type: string
+      nullable: false
+    duplicate_cluster_id:
+      arrow_type: string
+      nullable: false
+    is_syndicated_copy:
+      arrow_type: bool
+      nullable: false
+    raw_source_id:
+      arrow_type: string
+      nullable: false
+    source_lineage_group_id:
+      arrow_type: string
+      nullable: false
+  domains: {}
+  fields:
+  - document_cluster_id
+  - raw_source_id
+  - duplicate_cluster_id
+  - canonical_document_id
+  - source_lineage_group_id
+  - is_syndicated_copy
+  - dedup_method
+  - dedup_score
+  - algorithm_version
+  foreign_keys:
+    raw_source_id:
+    - raw_source_versions
+    - raw_source_id
+  primary_key:
+  - document_cluster_id
+  - raw_source_id
+document_memberships:
+  columns:
+    body_variant_id:
+      arrow_type: string
+      nullable: false
+    exact_cluster_id:
+      arrow_type: string
+      nullable: false
+    membership_id:
+      arrow_type: string
+      nullable: false
+    membership_status:
+      arrow_type: string
+      nullable: false
+    raw_blob_sha256:
+      arrow_type: string
+      nullable: false
+    raw_candidate_id:
+      arrow_type: string
+      nullable: false
+    reason:
+      arrow_type: string
+      nullable: false
+    retrieval_ids_json:
+      arrow_type: string
+      nullable: false
+    source_provenance_status:
+      arrow_type: string
+      nullable: false
+    strict_input_eligible:
+      arrow_type: bool
+      nullable: false
+  domains:
+    raw_blob_sha256: sha256
+  fields:
+  - membership_id
+  - raw_blob_sha256
+  - raw_candidate_id
+  - body_variant_id
+  - exact_cluster_id
+  - retrieval_ids_json
+  - source_provenance_status
+  - strict_input_eligible
+  - membership_status
+  - reason
+  foreign_keys: {}
+  primary_key:
+  - membership_id
+entity_mapping_versions:
+  columns:
+    canonical_entity_id:
+      arrow_type: string
+      nullable: false
+    entity_map_version:
+      arrow_type: string
+      nullable: false
+    entity_mapping_id:
+      arrow_type: string
+      nullable: false
+    mapping_available_at:
+      arrow_type: string
+      nullable: false
+    mapping_basis:
+      arrow_type: string
+      nullable: false
+    mapping_confidence:
+      arrow_type: double
+      nullable: true
+    mention_id:
+      arrow_type: string
+      nullable: false
+    supersedes_mapping_id:
+      arrow_type: string
+      nullable: true
+  domains:
+    mapping_available_at: utc_timestamp
+    mapping_confidence: confidence
+  fields:
+  - entity_mapping_id
+  - mention_id
+  - canonical_entity_id
+  - mapping_available_at
+  - entity_map_version
+  - supersedes_mapping_id
+  - mapping_basis
+  - mapping_confidence
+  foreign_keys:
+    canonical_entity_id:
+    - canonical_entities
+    - canonical_entity_id
+    mention_id:
+    - entity_mentions
+    - mention_id
+    supersedes_mapping_id:
+    - entity_mapping_versions
+    - entity_mapping_id
+  primary_key:
+  - entity_mapping_id
+entity_mentions:
+  columns:
+    mention_id:
+      arrow_type: string
+      nullable: false
+    normalized_mention:
+      arrow_type: string
+      nullable: false
+    raw_form:
+      arrow_type: string
+      nullable: false
+    raw_source_id:
+      arrow_type: string
+      nullable: false
+    span_end:
+      arrow_type: int64
+      nullable: false
+    span_start:
+      arrow_type: int64
+      nullable: false
+  domains: {}
+  fields:
+  - mention_id
+  - raw_source_id
+  - span_start
+  - span_end
+  - raw_form
+  - normalized_mention
+  foreign_keys:
+    raw_source_id:
+    - raw_source_versions
+    - raw_source_id
+  primary_key:
+  - mention_id
+evidence_time_provenance:
+  columns:
+    basis:
+      arrow_type: string
+      nullable: false
+    body_sha256:
+      arrow_type: string
+      nullable: false
+    claim_id:
+      arrow_type: string
+      nullable: false
+    observed_at:
+      arrow_type: string
+      nullable: false
+    policy_sha256:
+      arrow_type: string
+      nullable: false
+    proof_path:
+      arrow_type: string
+      nullable: false
+    proof_sha256:
+      arrow_type: string
+      nullable: false
+  domains:
+    body_sha256: sha256
+    policy_sha256: sha256
+    proof_sha256: sha256
+  fields:
+  - claim_id
+  - proof_path
+  - proof_sha256
+  - observed_at
+  - body_sha256
+  - basis
+  - policy_sha256
+  foreign_keys:
+    claim_id:
+    - claims
+    - claim_id
+  primary_key:
+  - claim_id
+extraction_quarantine:
+  columns:
+    body_variant_id:
+      arrow_type: string
+      nullable: false
+    quarantine_id:
+      arrow_type: string
+      nullable: false
+    reason_code:
+      arrow_type: string
+      nullable: false
+    request_sha256:
+      arrow_type: string
+      nullable: true
+    response_ref:
+      arrow_type: string
+      nullable: true
+    response_sha256:
+      arrow_type: string
+      nullable: true
+  domains:
+    request_sha256: sha256
+    response_sha256: sha256
+  fields:
+  - quarantine_id
+  - body_variant_id
+  - request_sha256
+  - reason_code
+  - response_ref
+  - response_sha256
+  foreign_keys: {}
+  primary_key:
+  - quarantine_id
+fact_project_provenance:
+  columns:
+    FactVersionID:
+      arrow_type: string
+      nullable: false
+    decision_id:
+      arrow_type: string
+      nullable: false
+    ingested_at_real:
+      arrow_type: string
+      nullable: false
+  fields:
+  - FactVersionID
+  - ingested_at_real
+  - decision_id
+  foreign_keys:
+    FactVersionID:
+    - fact_versions
+    - FactVersionID
+    decision_id:
+    - adjudication_decisions
+    - decision_id
+  primary_key:
+  - FactVersionID
+fact_versions:
+  columns:
+    FactVersionID:
+      arrow_type: string
+      nullable: false
+    LogicalFactID:
+      arrow_type: string
+      nullable: false
+    accepted_into_kg_at:
+      arrow_type: string
+      nullable: false
+    adjudicated_at_real:
+      arrow_type: string
+      nullable: false
+    adjudication_rule_version:
+      arrow_type: string
+      nullable: false
+    adjudication_status:
+      arrow_type: string
+      nullable: false
+    confidence:
+      arrow_type: double
+      nullable: true
+    entity_map_version:
+      arrow_type: string
+      nullable: false
+    evidence_observed_at:
+      arrow_type: string
+      nullable: false
+    extractor_version:
+      arrow_type: string
+      nullable: false
+    object_id:
+      arrow_type: string
+      nullable: true
+    object_value:
+      arrow_type: string
+      nullable: true
+    ontology_version:
+      arrow_type: string
+      nullable: false
+    raw_source_id:
+      arrow_type: string
+      nullable: false
+    relation_id:
+      arrow_type: string
+      nullable: false
+    retrieved_at_real:
+      arrow_type: string
+      nullable: false
+    revision_type:
+      arrow_type: string
+      nullable: false
+    scope:
+      arrow_type: string
+      nullable: false
+    source_id:
+      arrow_type: string
+      nullable: false
+    subject_id:
+      arrow_type: string
+      nullable: false
+    supersedes_version_id:
+      arrow_type: string
+      nullable: true
+    supporting_claim_ids:
+      arrow_type: 'list<item: string>'
+      nullable: false
+    url:
+      arrow_type: string
+      nullable: false
+    valid_from:
+      arrow_type: string
+      nullable: false
+    valid_to:
+      arrow_type: string
+      nullable: true
+  domains:
+    accepted_into_kg_at: utc_timestamp
+    adjudicated_at_real: utc_timestamp
+    confidence: confidence
+    evidence_observed_at: utc_timestamp
+    retrieved_at_real: utc_timestamp
+    supporting_claim_ids: sorted_unique_ids
+    valid_from: utc_timestamp
+    valid_to: utc_timestamp
+  fields:
+  - FactVersionID
+  - LogicalFactID
+  - subject_id
+  - relation_id
+  - object_id
+  - object_value
+  - scope
+  - valid_from
+  - valid_to
+  - evidence_observed_at
+  - accepted_into_kg_at
+  - retrieved_at_real
+  - adjudicated_at_real
+  - supersedes_version_id
+  - revision_type
+  - source_id
+  - url
+  - raw_source_id
+  - supporting_claim_ids
+  - extractor_version
+  - entity_map_version
+  - ontology_version
+  - adjudication_rule_version
+  - confidence
+  - adjudication_status
+  foreign_keys:
+    raw_source_id:
+    - raw_source_versions
+    - raw_source_id
+    source_id:
+    - source_registry
+    - source_id
+    supersedes_version_id:
+    - fact_versions
+    - FactVersionID
+  primary_key:
+  - FactVersionID
+  serializer:
+    FactVersionID: fact_version_id
+    LogicalFactID: logical_fact_id
+    url: source_url
+mapping_decision_provenance:
+  columns:
+    availability_basis_ref:
+      arrow_type: string
+      nullable: false
+    availability_basis_sha256:
+      arrow_type: string
+      nullable: false
+    entity_mapping_id:
+      arrow_type: string
+      nullable: false
+    policy_sha256:
+      arrow_type: string
+      nullable: false
+    reviewed_at_real:
+      arrow_type: string
+      nullable: false
+    reviewer_id:
+      arrow_type: string
+      nullable: false
+  domains:
+    availability_basis_sha256: sha256
+    policy_sha256: sha256
+  fields:
+  - entity_mapping_id
+  - availability_basis_ref
+  - availability_basis_sha256
+  - reviewer_id
+  - reviewed_at_real
+  - policy_sha256
+  foreign_keys:
+    entity_mapping_id:
+    - entity_mapping_versions
+    - entity_mapping_id
+  primary_key:
+  - entity_mapping_id
+mention_occurrences:
+  columns:
+    body_text_sha256:
+      arrow_type: string
+      nullable: false
+    body_variant_id:
+      arrow_type: string
+      nullable: false
+    mention_id:
+      arrow_type: string
+      nullable: false
+    mention_rule_version:
+      arrow_type: string
+      nullable: false
+    normalization_version:
+      arrow_type: string
+      nullable: false
+    raw_form:
+      arrow_type: string
+      nullable: false
+    raw_source_id:
+      arrow_type: string
+      nullable: false
+    span_end:
+      arrow_type: int64
+      nullable: false
+    span_start:
+      arrow_type: int64
+      nullable: false
+  domains:
+    body_text_sha256: sha256
+  fields:
+  - mention_id
+  - body_variant_id
+  - raw_source_id
+  - body_text_sha256
+  - normalization_version
+  - span_start
+  - span_end
+  - raw_form
+  - mention_rule_version
+  foreign_keys:
+    body_variant_id:
+    - body_variants
+    - body_variant_id
+    raw_source_id:
+    - raw_source_versions
+    - raw_source_id
+  primary_key:
+  - mention_id
+raw_source_versions:
+  columns:
+    archive_or_revision_datetime:
+      arrow_type: string
+      nullable: true
+    content_hash_sha256:
+      arrow_type: string
+      nullable: false
+    published_at_declared:
+      arrow_type: string
+      nullable: true
+    raw_blob_path:
+      arrow_type: string
+      nullable: false
+    raw_source_id:
+      arrow_type: string
+      nullable: false
+    retrieved_at_real:
+      arrow_type: string
+      nullable: false
+    source_id:
+      arrow_type: string
+      nullable: false
+    source_version_relation:
+      arrow_type: string
+      nullable: false
+    updated_at_declared:
+      arrow_type: string
+      nullable: true
+    url:
+      arrow_type: string
+      nullable: false
+  domains:
+    content_hash_sha256: sha256
+    retrieved_at_real: utc_timestamp
+  fields:
+  - raw_source_id
+  - source_id
+  - url
+  - content_hash_sha256
+  - retrieved_at_real
+  - published_at_declared
+  - updated_at_declared
+  - archive_or_revision_datetime
+  - source_version_relation
+  - raw_blob_path
+  foreign_keys:
+    source_id:
+    - source_registry
+    - source_id
+  primary_key:
+  - raw_source_id
+retrievals:
+  columns:
+    archive_datetime:
+      arrow_type: string
+      nullable: true
+    evidence_file_sha256:
+      arrow_type: string
+      nullable: false
+    evidence_locator:
+      arrow_type: string
+      nullable: false
+    evidence_path:
+      arrow_type: string
+      nullable: false
+    evidence_record_sha256:
+      arrow_type: string
+      nullable: false
+    final_url:
+      arrow_type: string
+      nullable: false
+    provenance_status:
+      arrow_type: string
+      nullable: false
+    raw_blob_sha256:
+      arrow_type: string
+      nullable: false
+    recorded_event_at:
+      arrow_type: string
+      nullable: true
+    recorded_event_time_field:
+      arrow_type: string
+      nullable: true
+    requested_url:
+      arrow_type: string
+      nullable: false
+    retrieval_id:
+      arrow_type: string
+      nullable: false
+    retrieved_at_real:
+      arrow_type: string
+      nullable: false
+    source_id:
+      arrow_type: string
+      nullable: false
+    strict_source_input_eligible:
+      arrow_type: bool
+      nullable: false
+  domains:
+    evidence_file_sha256: sha256
+    evidence_record_sha256: sha256
+    raw_blob_sha256: sha256
+    retrieved_at_real: utc_timestamp
+  fields:
+  - retrieval_id
+  - raw_blob_sha256
+  - source_id
+  - requested_url
+  - final_url
+  - retrieved_at_real
+  - archive_datetime
+  - recorded_event_at
+  - recorded_event_time_field
+  - provenance_status
+  - strict_source_input_eligible
+  - evidence_path
+  - evidence_locator
+  - evidence_file_sha256
+  - evidence_record_sha256
+  foreign_keys: {}
+  primary_key:
+  - retrieval_id
+schema_version: 1.1.0
+snapshot_edge_support:
+  columns:
+    claim_id:
+      arrow_type: string
+      nullable: false
+    edge_id:
+      arrow_type: string
+      nullable: false
+    fact_version_id:
+      arrow_type: string
+      nullable: false
+    provenance_id:
+      arrow_type: string
+      nullable: false
+    raw_blob_sha256:
+      arrow_type: string
+      nullable: false
+    source_version_id:
+      arrow_type: string
+      nullable: false
+    support_id:
+      arrow_type: string
+      nullable: false
+  domains:
+    raw_blob_sha256: sha256
+  fields:
+  - support_id
+  - provenance_id
+  - edge_id
+  - fact_version_id
+  - claim_id
+  - source_version_id
+  - raw_blob_sha256
+  foreign_keys:
+    claim_id:
+    - claims
+    - claim_id
+    edge_id:
+    - snapshot_edges
+    - edge_id
+    fact_version_id:
+    - fact_versions
+    - FactVersionID
+    provenance_id:
+    - claim_provenance
+    - provenance_id
+    source_version_id:
+    - source_versions
+    - source_version_id
+  primary_key:
+  - support_id
+snapshot_edges:
+  columns:
+    edge_id:
+      arrow_type: string
+      nullable: false
+    object_id:
+      arrow_type: string
+      nullable: true
+    relation_id:
+      arrow_type: string
+      nullable: false
+    snapshot_id:
+      arrow_type: string
+      nullable: false
+    subject_id:
+      arrow_type: string
+      nullable: false
+  domains: {}
+  fields:
+  - edge_id
+  - subject_id
+  - relation_id
+  - object_id
+  - snapshot_id
+  foreign_keys: {}
+  primary_key:
+  - edge_id
+snapshot_exclusions:
+  columns:
+    detail:
+      arrow_type: string
+      nullable: false
+    exclusion_id:
+      arrow_type: string
+      nullable: false
+    fact_version_id:
+      arrow_type: string
+      nullable: false
+    field:
+      arrow_type: string
+      nullable: false
+    reason_code:
+      arrow_type: string
+      nullable: false
+    record_id:
+      arrow_type: string
+      nullable: false
+    severity:
+      arrow_type: string
+      nullable: false
+    stage:
+      arrow_type: string
+      nullable: false
+  domains: {}
+  fields:
+  - exclusion_id
+  - record_id
+  - fact_version_id
+  - reason_code
+  - severity
+  - stage
+  - field
+  - detail
+  foreign_keys: {}
+  primary_key:
+  - exclusion_id
+source_registry:
+  columns:
+    archive_availability:
+      arrow_type: string
+      nullable: true
+    domain:
+      arrow_type: string
+      nullable: false
+    enabled:
+      arrow_type: bool
+      nullable: false
+    name:
+      arrow_type: string
+      nullable: false
+    robots_legal_notes:
+      arrow_type: string
+      nullable: true
+    rss:
+      arrow_type: 'list<item: string>'
+      nullable: true
+    source_id:
+      arrow_type: string
+      nullable: false
+    source_type:
+      arrow_type: string
+      nullable: false
+    trust_notes:
+      arrow_type: string
+      nullable: true
+  domains: {}
+  fields:
+  - source_id
+  - name
+  - domain
+  - source_type
+  - rss
+  - enabled
+  - trust_notes
+  - archive_availability
+  - robots_legal_notes
+  foreign_keys: {}
+  primary_key:
+  - source_id
+source_support_events:
+  columns:
+    LogicalFactID:
+      arrow_type: string
+      nullable: false
+    available_at:
+      arrow_type: string
+      nullable: false
+    basis_ref:
+      arrow_type: string
+      nullable: false
+    basis_sha256:
+      arrow_type: string
+      nullable: false
+    claim_ids:
+      arrow_type: 'list<item: string>'
+      nullable: false
+    event_type:
+      arrow_type: string
+      nullable: false
+    independent_origin_ids:
+      arrow_type: 'list<item: string>'
+      nullable: false
+    reviewer_id:
+      arrow_type: string
+      nullable: false
+    support_event_id:
+      arrow_type: string
+      nullable: false
+  domains:
+    basis_sha256: sha256
+  fields:
+  - support_event_id
+  - LogicalFactID
+  - claim_ids
+  - independent_origin_ids
+  - available_at
+  - event_type
+  - reviewer_id
+  - basis_ref
+  - basis_sha256
+  foreign_keys: {}
+  primary_key:
+  - support_event_id
+source_versions:
+  columns:
+    archive_datetime:
+      arrow_type: string
+      nullable: true
+    canonical_or_final_url:
+      arrow_type: string
+      nullable: false
+    evidence_locator:
+      arrow_type: string
+      nullable: false
+    evidence_path:
+      arrow_type: string
+      nullable: false
+    raw_blob_sha256:
+      arrow_type: string
+      nullable: false
+    retrieval_id:
+      arrow_type: string
+      nullable: false
+    retrieved_at_real:
+      arrow_type: string
+      nullable: false
+    source_id:
+      arrow_type: string
+      nullable: false
+    source_version_id:
+      arrow_type: string
+      nullable: false
+    source_version_status:
+      arrow_type: string
+      nullable: false
+    strict_source_input_eligible:
+      arrow_type: bool
+      nullable: false
+  domains:
+    raw_blob_sha256: sha256
+    retrieved_at_real: utc_timestamp
+  fields:
+  - source_version_id
+  - raw_blob_sha256
+  - retrieval_id
+  - source_id
+  - canonical_or_final_url
+  - retrieved_at_real
+  - archive_datetime
+  - source_version_status
+  - strict_source_input_eligible
+  - evidence_path
+  - evidence_locator
+  foreign_keys:
+    retrieval_id:
+    - retrievals
+    - retrieval_id
+    source_id:
+    - source_registry
+    - source_id
+  primary_key:
+  - source_version_id

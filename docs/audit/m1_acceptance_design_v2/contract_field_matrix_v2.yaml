@@ -1,0 +1,1849 @@
+additional_contract_work:
+  cross_table_rules:
+  - Object entity or literal must match ontology; no automatic literal-to-entity conversion.
+  - Corpus/document cluster identities need explicit parent membership joins; no invented
+    scalar alias for a composite key.
+  - candidate/supporting_claim_ids reference every claims row; collection FK validation
+    must be explicit.
+  - Entity IDs reference the proposed entity registry; mapping availability has independent
+    evidence.
+  - SourceClaim/support events retain full provenance and append-only history.
+  required_new_tables:
+  - source_claims
+  - support_events
+  - entity_registry
+  - temporal_evidence
+  runtime_auxiliary_tables_to_register:
+  - coverage_ledger
+  - extracted_claims
+  - lineage_edges
+  - missing_coverage_ledger
+  - near_duplicate_candidates
+  - provenance_recovery_ledger
+  - raw_hash_audit
+  - raw_inventory
+  status: DRAFT_DESIGN_REQUIRES_REVIEW; not a loadable runtime schema
+proposal_id: C3-CONTRACT-01-FIELDS
+public_version_proposed: 1.1.0
+remaining_review:
+- source event and eligibility for every new field
+- auxiliary PK/FK and temporal proof contracts
+- exact candidate activation approval
+revision: 2
+runtime_apply_allowed: false
+source_schema_sha256: 48ad42f86088ae0e9ca8b8cbb158017bf8ec14e0d450fdeff523bf59e6902840
+status: REVIEW_REQUIRED
+supersedes_physical_sha256: 9cc5e6079fb5f3635cb6bf25593e7b9a3312a12465efe7b3b72c6250371de6c3
+tables:
+  adjudication_decisions:
+    fields:
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: decision_id
+      runtime_field: decision_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: LogicalFactID
+      runtime_field: logical_fact_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sorted_unique_ids
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: 'list<item: string>'
+      proposed_nullable: false
+      public_field: candidate_claim_ids
+      runtime_field: candidate_claim_ids
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sorted_unique_ids
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: 'list<item: string>'
+      proposed_nullable: false
+      public_field: supporting_claim_ids
+      runtime_field: supporting_claim_ids
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: decision
+      runtime_field: decision
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: acceptance_basis
+      runtime_field: acceptance_basis
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: utc_timestamp
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: accepted_into_kg_at
+      runtime_field: accepted_into_kg_at
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: utc_timestamp
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: adjudicated_at_real
+      runtime_field: adjudicated_at_real
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: adjudication_rule_version
+      runtime_field: adjudication_rule_version
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: reviewer_provenance
+      runtime_field: reviewer_provenance
+      source_event: explicit_producer_or_reviewer_artifact_required
+    foreign_keys: {}
+    primary_key:
+    - decision_id
+  body_variants:
+    fields:
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: body_variant_id
+      runtime_field: body_variant_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sha256
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: body_text_sha256
+      runtime_field: body_text_sha256
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: body_blob_relative_path
+      runtime_field: body_blob_relative_path
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: parser_version
+      runtime_field: parser_version
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sha256
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: parser_fingerprint_sha256
+      runtime_field: parser_fingerprint_sha256
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: decoder
+      runtime_field: decoder
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: selector
+      runtime_field: selector
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: int64
+      proposed_nullable: false
+      public_field: text_char_count
+      runtime_field: text_char_count
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: extraction_status
+      runtime_field: extraction_status
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: quality_flags_json
+      runtime_field: quality_flags_json
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: normalization_version
+      runtime_field: normalization_version
+      source_event: explicit_producer_or_reviewer_artifact_required
+    foreign_keys: {}
+    primary_key:
+    - body_variant_id
+  canonical_entities:
+    fields:
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: canonical_entity_id
+      runtime_field: canonical_entity_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: entity_type
+      runtime_field: entity_type
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: registry_version
+      runtime_field: registry_version
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: identity_basis_ref
+      runtime_field: identity_basis_ref
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sha256
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: identity_basis_sha256
+      runtime_field: identity_basis_sha256
+      source_event: explicit_producer_or_reviewer_artifact_required
+    foreign_keys: {}
+    primary_key:
+    - canonical_entity_id
+  claim_evidence:
+    fields:
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: claim_id
+      runtime_field: claim_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: body_variant_id
+      runtime_field: body_variant_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sha256
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: body_text_sha256
+      runtime_field: body_text_sha256
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: int64
+      proposed_nullable: false
+      public_field: evidence_span_start
+      runtime_field: evidence_span_start
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: int64
+      proposed_nullable: false
+      public_field: evidence_span_end
+      runtime_field: evidence_span_end
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sha256
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: evidence_text_hash
+      runtime_field: evidence_text_hash
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: normalization_version
+      runtime_field: normalization_version
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: true
+      public_field: relation_review_ref
+      runtime_field: relation_review_ref
+      source_event: explicit_producer_or_reviewer_artifact_required
+    foreign_keys:
+      body_variant_id:
+      - body_variants
+      - body_variant_id
+      claim_id:
+      - claims
+      - claim_id
+    primary_key:
+    - claim_id
+  claim_provenance:
+    fields:
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: provenance_id
+      runtime_field: provenance_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: claim_id
+      runtime_field: claim_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: membership_id
+      runtime_field: membership_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: source_version_id
+      runtime_field: source_version_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: retrieval_id
+      runtime_field: retrieval_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sha256
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: raw_blob_sha256
+      runtime_field: raw_blob_sha256
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: publisher_source_id
+      runtime_field: publisher_source_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: source_url
+      runtime_field: source_url
+      source_event: explicit_producer_or_reviewer_artifact_required
+    foreign_keys:
+      claim_id:
+      - claims
+      - claim_id
+      membership_id:
+      - document_memberships
+      - membership_id
+      publisher_source_id:
+      - source_registry
+      - source_id
+      retrieval_id:
+      - retrievals
+      - retrieval_id
+      source_version_id:
+      - source_versions
+      - source_version_id
+    primary_key:
+    - provenance_id
+  claims:
+    fields:
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: claim_id
+      runtime_field: claim_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: raw_source_id
+      runtime_field: raw_source_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: subject_id
+      runtime_field: subject_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: relation_id
+      runtime_field: relation_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: true
+      public_field: object_id
+      runtime_field: object_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: true
+      public_field: object_value
+      runtime_field: object_value
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: scope
+      runtime_field: scope
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: int64
+      proposed_nullable: false
+      public_field: evidence_span_start
+      runtime_field: evidence_span_start
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: int64
+      proposed_nullable: false
+      public_field: evidence_span_end
+      runtime_field: evidence_span_end
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sha256
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: evidence_text_hash
+      runtime_field: evidence_text_hash
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: utc_timestamp
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: valid_from
+      runtime_field: valid_from
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: utc_timestamp
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: true
+      public_field: valid_to
+      runtime_field: valid_to
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: utc_timestamp
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: evidence_observed_at
+      runtime_field: evidence_observed_at
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: evidence_time_basis
+      runtime_field: evidence_time_basis
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: confidence
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: double
+      proposed_nullable: true
+      public_field: evidence_time_confidence
+      runtime_field: evidence_time_confidence
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: bool
+      proposed_nullable: false
+      public_field: valid_from_inferred
+      runtime_field: valid_from_inferred
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: extractor_version
+      runtime_field: extractor_version
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: ontology_version
+      runtime_field: ontology_version
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: confidence
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: double
+      proposed_nullable: true
+      public_field: extraction_confidence
+      runtime_field: extraction_confidence
+      source_event: explicit_producer_or_reviewer_artifact_required
+    foreign_keys:
+      raw_source_id:
+      - raw_source_versions
+      - raw_source_id
+    primary_key:
+    - claim_id
+  corpus_filtered:
+    fields:
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: document_cluster_id
+      runtime_field: document_cluster_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: filter_decision
+      runtime_field: filter_decision
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: reason_code
+      runtime_field: reason_code
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: filter_version
+      runtime_field: filter_version
+      source_event: explicit_producer_or_reviewer_artifact_required
+    foreign_keys: {}
+    primary_key:
+    - document_cluster_id
+  document_clusters:
+    fields:
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: document_cluster_id
+      runtime_field: document_cluster_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: raw_source_id
+      runtime_field: raw_source_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: duplicate_cluster_id
+      runtime_field: duplicate_cluster_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: canonical_document_id
+      runtime_field: canonical_document_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: source_lineage_group_id
+      runtime_field: source_lineage_group_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: bool
+      proposed_nullable: false
+      public_field: is_syndicated_copy
+      runtime_field: is_syndicated_copy
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: dedup_method
+      runtime_field: dedup_method
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: double
+      proposed_nullable: true
+      public_field: dedup_score
+      runtime_field: dedup_score
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: algorithm_version
+      runtime_field: algorithm_version
+      source_event: explicit_producer_or_reviewer_artifact_required
+    foreign_keys:
+      raw_source_id:
+      - raw_source_versions
+      - raw_source_id
+    primary_key:
+    - document_cluster_id
+    - raw_source_id
+  document_memberships:
+    fields:
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: membership_id
+      runtime_field: membership_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sha256
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: raw_blob_sha256
+      runtime_field: raw_blob_sha256
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: raw_candidate_id
+      runtime_field: raw_candidate_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: body_variant_id
+      runtime_field: body_variant_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: exact_cluster_id
+      runtime_field: exact_cluster_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: retrieval_ids_json
+      runtime_field: retrieval_ids_json
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: source_provenance_status
+      runtime_field: source_provenance_status
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: bool
+      proposed_nullable: false
+      public_field: strict_input_eligible
+      runtime_field: strict_input_eligible
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: membership_status
+      runtime_field: membership_status
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: reason
+      runtime_field: reason
+      source_event: explicit_producer_or_reviewer_artifact_required
+    foreign_keys: {}
+    primary_key:
+    - membership_id
+  entity_mapping_versions:
+    fields:
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: entity_mapping_id
+      runtime_field: entity_mapping_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: mention_id
+      runtime_field: mention_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: canonical_entity_id
+      runtime_field: canonical_entity_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: utc_timestamp
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: mapping_available_at
+      runtime_field: mapping_available_at
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: entity_map_version
+      runtime_field: entity_map_version
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: true
+      public_field: supersedes_mapping_id
+      runtime_field: supersedes_mapping_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: mapping_basis
+      runtime_field: mapping_basis
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: confidence
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: double
+      proposed_nullable: true
+      public_field: mapping_confidence
+      runtime_field: mapping_confidence
+      source_event: explicit_producer_or_reviewer_artifact_required
+    foreign_keys:
+      canonical_entity_id:
+      - canonical_entities
+      - canonical_entity_id
+      mention_id:
+      - entity_mentions
+      - mention_id
+      supersedes_mapping_id:
+      - entity_mapping_versions
+      - entity_mapping_id
+    primary_key:
+    - entity_mapping_id
+  entity_mentions:
+    fields:
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: mention_id
+      runtime_field: mention_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: raw_source_id
+      runtime_field: raw_source_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: int64
+      proposed_nullable: false
+      public_field: span_start
+      runtime_field: span_start
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: int64
+      proposed_nullable: false
+      public_field: span_end
+      runtime_field: span_end
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: raw_form
+      runtime_field: raw_form
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: normalized_mention
+      runtime_field: normalized_mention
+      source_event: explicit_producer_or_reviewer_artifact_required
+    foreign_keys:
+      raw_source_id:
+      - raw_source_versions
+      - raw_source_id
+    primary_key:
+    - mention_id
+  evidence_time_provenance:
+    fields:
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: claim_id
+      runtime_field: claim_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: proof_path
+      runtime_field: proof_path
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sha256
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: proof_sha256
+      runtime_field: proof_sha256
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: observed_at
+      runtime_field: observed_at
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sha256
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: body_sha256
+      runtime_field: body_sha256
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: basis
+      runtime_field: basis
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sha256
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: policy_sha256
+      runtime_field: policy_sha256
+      source_event: explicit_producer_or_reviewer_artifact_required
+    foreign_keys:
+      claim_id:
+      - claims
+      - claim_id
+    primary_key:
+    - claim_id
+  extraction_quarantine:
+    fields:
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: quarantine_id
+      runtime_field: quarantine_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: body_variant_id
+      runtime_field: body_variant_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sha256
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: true
+      public_field: request_sha256
+      runtime_field: request_sha256
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: reason_code
+      runtime_field: reason_code
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: true
+      public_field: response_ref
+      runtime_field: response_ref
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sha256
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: true
+      public_field: response_sha256
+      runtime_field: response_sha256
+      source_event: explicit_producer_or_reviewer_artifact_required
+    foreign_keys: {}
+    primary_key:
+    - quarantine_id
+  fact_project_provenance:
+    fields:
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: FactVersionID
+      runtime_field: FactVersionID
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: ingested_at_real
+      runtime_field: ingested_at_real
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: decision_id
+      runtime_field: decision_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    foreign_keys:
+      FactVersionID:
+      - fact_versions
+      - FactVersionID
+      decision_id:
+      - adjudication_decisions
+      - decision_id
+    primary_key:
+    - FactVersionID
+  fact_versions:
+    fields:
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: FactVersionID
+      runtime_field: fact_version_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: LogicalFactID
+      runtime_field: logical_fact_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: subject_id
+      runtime_field: subject_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: relation_id
+      runtime_field: relation_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: true
+      public_field: object_id
+      runtime_field: object_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: true
+      public_field: object_value
+      runtime_field: object_value
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: scope
+      runtime_field: scope
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: utc_timestamp
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: valid_from
+      runtime_field: valid_from
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: utc_timestamp
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: true
+      public_field: valid_to
+      runtime_field: valid_to
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: utc_timestamp
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: evidence_observed_at
+      runtime_field: evidence_observed_at
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: utc_timestamp
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: accepted_into_kg_at
+      runtime_field: accepted_into_kg_at
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: utc_timestamp
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: retrieved_at_real
+      runtime_field: retrieved_at_real
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: utc_timestamp
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: adjudicated_at_real
+      runtime_field: adjudicated_at_real
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: true
+      public_field: supersedes_version_id
+      runtime_field: supersedes_version_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: revision_type
+      runtime_field: revision_type
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: source_id
+      runtime_field: source_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: url
+      runtime_field: source_url
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: raw_source_id
+      runtime_field: raw_source_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sorted_unique_ids
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: 'list<item: string>'
+      proposed_nullable: false
+      public_field: supporting_claim_ids
+      runtime_field: supporting_claim_ids
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: extractor_version
+      runtime_field: extractor_version
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: entity_map_version
+      runtime_field: entity_map_version
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: ontology_version
+      runtime_field: ontology_version
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: adjudication_rule_version
+      runtime_field: adjudication_rule_version
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: confidence
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: double
+      proposed_nullable: true
+      public_field: confidence
+      runtime_field: confidence
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: adjudication_status
+      runtime_field: adjudication_status
+      source_event: explicit_producer_or_reviewer_artifact_required
+    foreign_keys:
+      raw_source_id:
+      - raw_source_versions
+      - raw_source_id
+      source_id:
+      - source_registry
+      - source_id
+      supersedes_version_id:
+      - fact_versions
+      - FactVersionID
+    primary_key:
+    - FactVersionID
+  mapping_decision_provenance:
+    fields:
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: entity_mapping_id
+      runtime_field: entity_mapping_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: availability_basis_ref
+      runtime_field: availability_basis_ref
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sha256
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: availability_basis_sha256
+      runtime_field: availability_basis_sha256
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: reviewer_id
+      runtime_field: reviewer_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: reviewed_at_real
+      runtime_field: reviewed_at_real
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sha256
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: policy_sha256
+      runtime_field: policy_sha256
+      source_event: explicit_producer_or_reviewer_artifact_required
+    foreign_keys:
+      entity_mapping_id:
+      - entity_mapping_versions
+      - entity_mapping_id
+    primary_key:
+    - entity_mapping_id
+  mention_occurrences:
+    fields:
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: mention_id
+      runtime_field: mention_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: body_variant_id
+      runtime_field: body_variant_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: raw_source_id
+      runtime_field: raw_source_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sha256
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: body_text_sha256
+      runtime_field: body_text_sha256
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: normalization_version
+      runtime_field: normalization_version
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: int64
+      proposed_nullable: false
+      public_field: span_start
+      runtime_field: span_start
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: int64
+      proposed_nullable: false
+      public_field: span_end
+      runtime_field: span_end
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: raw_form
+      runtime_field: raw_form
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: mention_rule_version
+      runtime_field: mention_rule_version
+      source_event: explicit_producer_or_reviewer_artifact_required
+    foreign_keys:
+      body_variant_id:
+      - body_variants
+      - body_variant_id
+      raw_source_id:
+      - raw_source_versions
+      - raw_source_id
+    primary_key:
+    - mention_id
+  raw_source_versions:
+    fields:
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: raw_source_id
+      runtime_field: raw_source_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: source_id
+      runtime_field: source_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: url
+      runtime_field: url
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sha256
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: content_hash_sha256
+      runtime_field: content_hash_sha256
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: utc_timestamp
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: retrieved_at_real
+      runtime_field: retrieved_at_real
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: true
+      public_field: published_at_declared
+      runtime_field: published_at_declared
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: true
+      public_field: updated_at_declared
+      runtime_field: updated_at_declared
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: true
+      public_field: archive_or_revision_datetime
+      runtime_field: archive_or_revision_datetime
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: source_version_relation
+      runtime_field: source_version_relation
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: raw_blob_path
+      runtime_field: raw_blob_path
+      source_event: explicit_producer_or_reviewer_artifact_required
+    foreign_keys:
+      source_id:
+      - source_registry
+      - source_id
+    primary_key:
+    - raw_source_id
+  retrievals:
+    fields:
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: retrieval_id
+      runtime_field: retrieval_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sha256
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: raw_blob_sha256
+      runtime_field: raw_blob_sha256
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: source_id
+      runtime_field: source_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: requested_url
+      runtime_field: requested_url
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: final_url
+      runtime_field: final_url
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: utc_timestamp
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: retrieved_at_real
+      runtime_field: retrieved_at_real
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: true
+      public_field: archive_datetime
+      runtime_field: archive_datetime
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: true
+      public_field: recorded_event_at
+      runtime_field: recorded_event_at
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: true
+      public_field: recorded_event_time_field
+      runtime_field: recorded_event_time_field
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: provenance_status
+      runtime_field: provenance_status
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: bool
+      proposed_nullable: false
+      public_field: strict_source_input_eligible
+      runtime_field: strict_source_input_eligible
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: evidence_path
+      runtime_field: evidence_path
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: evidence_locator
+      runtime_field: evidence_locator
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sha256
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: evidence_file_sha256
+      runtime_field: evidence_file_sha256
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sha256
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: evidence_record_sha256
+      runtime_field: evidence_record_sha256
+      source_event: explicit_producer_or_reviewer_artifact_required
+    foreign_keys: {}
+    primary_key:
+    - retrieval_id
+  snapshot_edge_support:
+    fields:
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: support_id
+      runtime_field: support_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: provenance_id
+      runtime_field: provenance_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: edge_id
+      runtime_field: edge_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: fact_version_id
+      runtime_field: fact_version_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: claim_id
+      runtime_field: claim_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: source_version_id
+      runtime_field: source_version_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sha256
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: raw_blob_sha256
+      runtime_field: raw_blob_sha256
+      source_event: explicit_producer_or_reviewer_artifact_required
+    foreign_keys:
+      claim_id:
+      - claims
+      - claim_id
+      edge_id:
+      - snapshot_edges
+      - edge_id
+      fact_version_id:
+      - fact_versions
+      - FactVersionID
+      provenance_id:
+      - claim_provenance
+      - provenance_id
+      source_version_id:
+      - source_versions
+      - source_version_id
+    primary_key:
+    - support_id
+  snapshot_edges:
+    fields:
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: edge_id
+      runtime_field: edge_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: subject_id
+      runtime_field: subject_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: relation_id
+      runtime_field: relation_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: true
+      public_field: object_id
+      runtime_field: object_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: snapshot_id
+      runtime_field: snapshot_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    foreign_keys: {}
+    primary_key:
+    - edge_id
+  snapshot_exclusions:
+    fields:
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: exclusion_id
+      runtime_field: exclusion_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: record_id
+      runtime_field: record_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: fact_version_id
+      runtime_field: fact_version_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: reason_code
+      runtime_field: reason_code
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: severity
+      runtime_field: severity
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: stage
+      runtime_field: stage
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: field
+      runtime_field: field
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: detail
+      runtime_field: detail
+      source_event: explicit_producer_or_reviewer_artifact_required
+    foreign_keys: {}
+    primary_key:
+    - exclusion_id
+  source_registry:
+    fields:
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: source_id
+      runtime_field: source_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: name
+      runtime_field: name
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: domain
+      runtime_field: domain
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: source_type
+      runtime_field: source_type
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: 'list<item: string>'
+      proposed_nullable: true
+      public_field: rss
+      runtime_field: rss
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: bool
+      proposed_nullable: false
+      public_field: enabled
+      runtime_field: enabled
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: true
+      public_field: trust_notes
+      runtime_field: trust_notes
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: true
+      public_field: archive_availability
+      runtime_field: archive_availability
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: true
+      public_field: robots_legal_notes
+      runtime_field: robots_legal_notes
+      source_event: explicit_producer_or_reviewer_artifact_required
+    foreign_keys: {}
+    primary_key:
+    - source_id
+  source_support_events:
+    fields:
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: support_event_id
+      runtime_field: support_event_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: LogicalFactID
+      runtime_field: LogicalFactID
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: 'list<item: string>'
+      proposed_nullable: false
+      public_field: claim_ids
+      runtime_field: claim_ids
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: 'list<item: string>'
+      proposed_nullable: false
+      public_field: independent_origin_ids
+      runtime_field: independent_origin_ids
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: available_at
+      runtime_field: available_at
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: event_type
+      runtime_field: event_type
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: reviewer_id
+      runtime_field: reviewer_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: basis_ref
+      runtime_field: basis_ref
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sha256
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: basis_sha256
+      runtime_field: basis_sha256
+      source_event: explicit_producer_or_reviewer_artifact_required
+    foreign_keys: {}
+    primary_key:
+    - support_event_id
+  source_versions:
+    fields:
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: source_version_id
+      runtime_field: source_version_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: sha256
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: raw_blob_sha256
+      runtime_field: raw_blob_sha256
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: retrieval_id
+      runtime_field: retrieval_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: source_id
+      runtime_field: source_id
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: canonical_or_final_url
+      runtime_field: canonical_or_final_url
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: utc_timestamp
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: retrieved_at_real
+      runtime_field: retrieved_at_real
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: true
+      public_field: archive_datetime
+      runtime_field: archive_datetime
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: source_version_status
+      runtime_field: source_version_status
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: bool
+      proposed_nullable: false
+      public_field: strict_source_input_eligible
+      runtime_field: strict_source_input_eligible
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: evidence_path
+      runtime_field: evidence_path
+      source_event: explicit_producer_or_reviewer_artifact_required
+    - domain: typed_value
+      migration: NEW_RUN_ONLY
+      proposed_arrow_type: string
+      proposed_nullable: false
+      public_field: evidence_locator
+      runtime_field: evidence_locator
+      source_event: explicit_producer_or_reviewer_artifact_required
+    foreign_keys:
+      retrieval_id:
+      - retrievals
+      - retrieval_id
+      source_id:
+      - source_registry
+      - source_id
+    primary_key:
+    - source_version_id
