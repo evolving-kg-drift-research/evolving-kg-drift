@@ -1,5 +1,24 @@
 # Tiến độ pipeline
 
+## M1 acceptance rebuild foundations — 2026-10-14
+
+Đã tạo `codex/m1-acceptance-rebuild` từ `684dc6b`, lưu
+[kế hoạch](M1_REMEDIATION_PLAN.md) và [runbook](M1_ACCEPTANCE_RUNBOOK.md).
+Engineering mới: typed public-contract engine/candidate package 25 tables,
+exact artifact/decision guards, Gemini capture/replay/budget fixtures,
+independent quality metrics, temporal/boundary helpers và one-stage preflight.
+Public schema/locks/protocol chưa thay; production backends và final
+certification vẫn chưa activate. Component PASS không mở scientific gate.
+
+Bounded recovery audit đạt **5.168/5.168 referenced raw hashes**, 1,662 GB;
+35-commit source search không tìm exact execution-plan/patch originals.
+V3 113 files unchanged. Full suite **408 passed, 10 skipped** trong isolated
+Python 3.11; Ruff/dependency checks PASS. Python 3.10 package metadata compatible
+và CI matrix đã thêm, local 3.10 chưa chạy. Không gửi Gemini requests hoặc chạy
+production/Neo4j thật. Gate A/G1/G2 và M2 handoff vẫn BLOCKED.
+Chi tiết và phần engineering chưa hoàn tất:
+[implementation report](audit/M1_ACCEPTANCE_IMPLEMENTATION_20261014.md).
+
 ## Đóng gói audit/recovery và cleanup theo yêu cầu commit/push — 2026-10-14
 
 Nhánh đích: `codex/transe-legacy-exploration`. Commit audit/recovery:
