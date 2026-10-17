@@ -1,0 +1,20 @@
+{
+  "status": "APPROVED",
+  "baseline_id": "config_baseline_ticket_a_v1",
+  "decision_id": "approve_config_baseline_ticket_a_v1",
+  "files": {
+    "config/protocol.yaml": "8de31ee8fa6b68671195d0bb99c2801ce966cf40ef716f150670ff6e4bf9ce99",
+    "config/ontology.yaml": "9d3345a3f12e2c4641179710abf3904b1175a3181ea2d63987b022195b7c1262",
+    "config/schema.yaml": "6eb1a66ffdf19ff7b720e41d61eaab5aa25526fca569c022ccc93465ae71a6f2",
+    "config/sources.yaml": "c4316eb052346484d65b0386dc5335102bc6feeef8554776b3cbd180c0179b1f",
+    "config/corpus_scope.yaml": "270f602d47be902d196eba7351533b8e07f72c3753cf7940b5b0969dce25afee",
+    "config/filter_policy_v1.yaml": "4f82d794c2f6372e0c36c38933d1dc0198e4e5c6e510ca19374ebb8d72ee75b2",
+    "config/stage_4_3.yaml": "55493e845106c099a0f52d81df65ec4eae9d68d134a34748b46f1cab8101c9cb",
+    "config/snapshot_cutoffs.yaml": "12c81f3c6d0b5447a2c866fc0a0b6668a4cc69a518e2ad9656d67dd1d0247279",
+    "requirements.lock.txt": "066b3b80c84026d4aa495e6731c5069e61ab7ca8b6de18d70ff9ab848d506792",
+    "pyproject.toml": "fb8e2d1ada96d5a03ff2303cec5765c923f23d2c1a71abc2bc9d8f20f4c78248",
+    "configs/protocol_v1.yaml": "fafd8f347accdbc9f9c1a7a4d0553c297d8f34e5d9e0491d97af0eb9e7b6cf8b",
+    "configs/data.yaml": "9f85c14535c2f5a54487167d719a62c274edeb60efbcd0e3e395578d1d4a610d",
+    "data/manifests/sources.lock.json": "f472674e977e8595a4f16eeae0e2560621db68a682f83cba3cd213c870d854df"
+  }
+}
