@@ -1,5 +1,189 @@
 # Tiến độ pipeline
 
+## M4 Evaluation & Statistics (Stage 8 & Stage 9) EXECUTED/VERIFIED - 2026-10-28
+
+Đã hoàn thành Stage 8 (Recurring QA Panel Evaluation) và Stage 9 (Two-Way Fixed Effects Estimation):
+- QA Panel: 147 queries bền vững (121 1-hop + 26 2-hop) từ snapshot T01, theo dõi qua 9 transitions (1.323 quan sát).
+- Đánh giá Arm A (Frozen T01) vs Arm B (Updated Tt) trên 2 candidate universes: Seen-at-T1 và Open-World.
+- Kết nối đo lường trôi dạt SED+ từ M2 Parquet theo cơ chế median support entities.
+- Mô hình Two-Way Fixed Effects H1: beta_d = -0.00466 (SE = 0.00497, t = -0.9377), WCB p-value = 0.299 (999 draws).
+- Falsification test với D_pseudo: beta_pseudo = -0.0126, WCB p-value = 0.495 (PASS: không có hiệu ứng giả từ nhiễu).
+- Contrast H2: Delta MRR Seen-at-T1 = -0.1384 vs Open-World = -0.1654 (OOV gap = -0.0270).
+Artifacts: `outputs/m4_eval/20261027T193028Z_4bc9876e/` và `outputs/m4_stats/20261027T193028Z_4bc9876e/`.
+
+## M2 Data 3.1 - Stage Null v2 & Stage Drift v2 EXECUTED/VERIFIED - 2026-10-28
+
+- Phê duyệt AMEND-2026-001 (D-SOURCE), chốt D-COS = Affine, thu thập Pilot căn chỉnh 81 comparisons.
+- Chốt ngưỡng G3 (D-DIAG): rank_fraction=0.90, orth_err=1e-6, max_holdout_residual=1.50, max_gap=0.65.
+- Stage Null v2: 6.897 entity observations qua 9 transitions, 100% available sau LTO >= 50.
+- Stage Drift v2: 6.897 entity observations, 100% available, median positive drift rate = 47.6%, Max SED+ = 7.32.
+Artifacts: `outputs/m2_null_v2/20261027T190109Z_e6d40655/` và `outputs/m2_drift_v2/20261027T190838Z_ea66c2af/`.
+
+
+## M2 data 3.1 - pilot plan PREPARED, raw collector IMPLEMENTED/TESTED - 2026-10-21
+
+Candidate/inventory đủ30 checkpoint,81 comparisons (27 cross-time/54 same-snapshot),
+9 transitions và9 saved anchor plans fit101/holdout66. Run:
+`outputs/m2_alignment_pilot_plan/20261021T072021Z_e4934444/`.
+Rehash176 backbone +269 alignment artifacts; canonical3.1 khớp frozen inputs.
+Không chọn jobs theo outcomes/old availability, không train/refit/collection thật.
+
+Đã tách raw geometry khỏi gate settings; giữ spectrum/norms/signed+absolute gap,
+rank null nếu tolerance thiếu. Gate wrapper tiếp tục dùng explicit policy.
+20 cases mới; targeted158 passed, full **639 passed, 10 skipped**; Ruff/diff PASS.
+Sources: PDF khớp; hai MD originals vẫn thiếu. Kiểm18/26 encoding/newline variants
+không khớp baseline; package MDs là CRLF variants của Git, không là locked originals.
+Chưa resolve được originals trong các tệp đã lưu; không thay lock/protocol/ADR0007.
+
+[Hồ sơ pilot và giới hạn](audit/M2_ALIGNMENT_PILOT_PREPARATION_20261021.md).
+IMPLEMENTED/TESTED engineering; EXECUTED/VERIFIED chỉ inventory/source/hash scope.
+**Pilot thật chưa chạy, chưa scientific registration/G3.** Cần originals/amendment,
+anchor-frequency design và pilot decision rule; không cần residual/gap acceptance
+values để thu raw statistics. M1-PASS vẫn là tiền đề. Kết thúc preparation stage.
+
+## M2 data 3.1 - measurement v2 integration IMPLEMENTED/TESTED - 2026-10-21
+
+Đã thêm geometry/diagnostics v2, nối saved checkpoints/alignments vào entity-null
+v2 và calibration; runner tách stage null/drift, có input hash/sidecar/canonical
+checks và independent NumPy verifier. Config candidate mới để null các trường
+chưa đăng ký; không thay defaults/runner v1 hoặc scientific protocol.
+
+45 cases mới; targeted **138 passed**, full **619 passed, 10 skipped**; Ruff/diff
+PASS. File-backed fixture đã chạy hai stage riêng. Lỗi physical-vs-content hash
+trong implementation đầu được regression test phát hiện và sửa; giữ hai loại
+hash riêng. Invalid alignment không tạo SED+, không drop population; raw temporal
+được giữ khi chỉ null alignment lỗi.
+
+Preflight thực `outputs/m2_measurement_v2_readiness/20261021T064255Z_677b20b7/`
+trả BLOCKED/exit2 đúng thiết kế:15 reasons về sources/registration/plan. Không
+chạy measurement/pilot thật, không G3. M1-PASS vẫn là tiền đề người dùng.
+IMPLEMENTED/TESTED phần integration; EXECUTED/VERIFIED chỉ readiness/hash scope.
+[Báo cáo stage và giới hạn](audit/M2_MEASUREMENT_V2_INTEGRATION_20261021.md).
+Kết thúc stage; cần hoàn tất scientific registration trước activation.
+
+## M2 data 3.1 - candidate config và checkpoint reuse VERIFIED trong phạm vi kỹ thuật - 2026-10-21
+
+Đã review phần chuẩn bị và thêm cấu hình ứng viên v2 (chưa active), reuse
+inspector cùng20 regression cases. M1-PASS là tiền đề theo chỉ đạo người dùng.
+Run `outputs/m2_reuse_readiness/20261021T060328Z_96561ac8/` xác minh10 canonical
+snapshots khớp frozen training inputs,30/30 checkpoint configurations với
+60 saved checkpoint files/sidecars,30 per-seed manifests và176 artifact hashes.
+18 archived/current producer source files và runtime khớp;43 protected inputs
+giữ nguyên. Không có training mới; không chứng nhận Q/raw-distance reuse.
+
+Targeted37 passed; full suite **574 passed, 10 skipped**; Ruff/diff PASS.
+IMPLEMENTED/TESTED công cụ/config; EXECUTED/VERIFIED chỉ technical reuse trên
+real artifacts, không scientific measurement/G3. Candidate đề xuất affine cosine,
+entity-level median/LTO, support50 và normalized diagnostics; các choices chưa
+đăng ký vẫn ghi rõ, không freeze Dev defaults. Hai original source MD còn thiếu;
+Git blobs tìm được không đúng baseline hash nên không restore substitutes.
+
+[Báo cáo kết quả, bằng chứng và blockers](audit/M2_V3_1_CONFIG_AND_REUSE_20261021.md).
+Scientific runner chưa kích hoạt: còn source readiness, conditioning/merge và
+operating range cần registration. Giữ protocol/source lock/decision log, data
+và lịch sử runs; branch chưa đổi, chưa commit/push. Kết thúc stage inspection.
+
+## M2 data 3.1 - entity-level null v2 IMPLEMENTED/TESTED - 2026-10-21
+
+Theo yêu cầu tiếp tục, đã thực hiện phần A/B có định nghĩa rõ: thêm reducer
+median-six/entity rồi entity-level LTO, count contract/schema v2, calibration
+ba seed IDs, verifier NumPy độc lập và strict v2 Parquet guards. Giữ provenance
+sáu distances, kiểm missing/duplicate pairs và conflicting checkpoint/alignment
+hashes. V1 vẫn phục vụ historical Dev; chưa đổi default scientific runner.
+
+Targeted93 passed; full regression **554 passed, 10 skipped** trên Python3.11.9.
+Ruff toàn repo/diff PASS. Tests kiểm support49/50 chỉ là fixtures, không freeze
+ngưỡng. Chưa đổi cosine, merge policy, diagnostics, protocol/source lock hay
+historical artifacts. M1-PASS tiếp tục là tiền đề người dùng, không đánh giá lại.
+
+Chi tiết files/tests/diff/remaining scope:
+[implementation report](audit/M2_ENTITY_NULL_V2_IMPLEMENTATION_20261021.md).
+IMPLEMENTED/TESTED phần engine/schema/verifier; chưa EXECUTED/VERIFIED production,
+chưa G3. Cần chốt scientific choices trong hồ sơ giai đoạn1 trước runner activation
+và rerun null/drift data3.1. Branch chưa đổi, chưa commit/push.
+
+## M2 data 3.1 - hồ sơ hòa giải đặc tả - 2026-10-21
+
+Người dùng thống nhất ba nhóm A (đúng đặc tả), B (kiểm chứng), C (độ bền vững)
+và chỉ đạo lấy M1 đã PASS với data3.1 làm tiền đề M2. Đã lập
+[hồ sơ giai đoạn1](M2_SPEC_RECONCILIATION_V3_1.md): đối chiếu PDF/protocol/code,
+dự thảo ba count fields, danh sách consumers/verifiers phải sửa và impact/reuse plan.
+Giữ toàn bộ các báo cáo/gate lịch sử; không nghiệm thu lại M1 trong scope này.
+
+Run `outputs/m2_spec_reconciliation/20261021T050958Z_b8d8b9c9/` kiểm lại source
+hashes, 10 canonical snapshot hashes/mapping records và sáu numerical fixture probes.
+PDF khớp lock; hai MD trong package khác hash của baseline repository, hai originals
+ở root chưa có. Entity-level estimator là hướng đã thống nhất; cosine, support/
+conditioning/merge và diagnostics cần quyết định cụ thể, không tự freeze giá trị Dev.
+Đề cương đã nêu Q0.95 và m3/m5 pilot; phải ánh xạ từng yêu cầu thay vì gọi toàn bộ
+seed/quantile checks là tùy chọn mới hoặc tự thêm cả nhóm C vào G3.
+
+IMPLEMENTED hồ sơ/bằng chứng; TESTED/VERIFIED chỉ phạm vi sources, metadata và
+fixtures theo completion manifest. Chưa sửa production code, chưa rerun M2 stage,
+chưa xác nhận hòa giải hoàn tất hoặc cấp G3; không ghi decision/amendment giả.
+Nhánh vẫn `codex/m2-drift-workflow`; chưa commit/push. Dừng ở hồ sơ giai đoạn1
+theo AGENTS.md mục2.2/8.2, chờ giải quyết các lựa chọn khoa học trong hồ sơ.
+
+## M1 — review data theo tiêu chí v2 và kiểm tra certified handoff — 2026-10-14
+
+User yêu cầu đối chiếu bộ tiêu chí Downloads v2 với data hiện tại, chỉ pass M2
+nếu đủ điều kiện. Checkout thực tế `codex/m2-drift-workflow@abeb425`, dirty;
+giữ nguyên work M2 và lịch sử v3. Không checkout/reprocess/acquisition/API/DB
+write/train hoặc mở locked_test.
+
+Read-only audit toàn phạm vi v3, bốn-file package và audit/gates bundle:
+128 metadata files/43 Parquet được kiểm kê; 5.168/5.168 referenced raw và
+4.745/4.745 body hashes khớp; 5.271 strict receipts khớp hashes/raw/URLs/clock;
+38/38 sidecars v3 có sẵn đạt. 10 canonical snapshots unique và khớp legacy
+fact-clock graph sets; đây là structural checks, không scientific certification.
+
+FAIL thực tế: 1.788/1.803 fact span hashes và 1.849/1.865 claim span hashes
+không khớp exact slices; field contract drift còn 9/17 và physical declarations
+17/17 thiếu. Boundary indices chia timestamp groups ở T01/T02/T04/T05/T06,
+interval event counts T01–T07 lệch cutoff counts. Window hiện hành kết thúc
+31/08 nhưng T07–T10 và 952 facts observed trong tháng 9. Identity chưa được
+chứng nhận: tất cả facts ghi v1_mock/AUTO_ACCEPTED. Bundle có thêm source/
+config/freeze/window approvals khác active ledger; chưa đủ original bytes/
+hash/amendment/run bindings để giải quyết authority.
+
+Hai reports bundle trùng bytes reports v3; parity vẫn DB_READ_BACK_PERFORMED=false,
+chỉ CSV. Gói bốn file cũng là copy v3, không phải rebuild đã sửa lỗi. Gold/
+approved threshold annex/mapping decisions/accepted clock/producer manifest/
+real DB read-back/receiver evidence còn thiếu. G1/G2 thực gọi BLOCKED với
+evaluated_count=0; public M2 certified loader từ chối vì thiếu
+runs/production_v3/run_manifest.yaml.
+
+**Không nghiệm thu M1 hoặc bàn giao scientific M2.** M2 Dev runs riêng không
+thay đổi gates M1. [Review đủ 16 tiêu chí và 9 findings](audit/M1_CRITERIA_V2_DATA_REVIEW_20261014.md)
+ghi rõ FAIL/BLOCKED, phần kiểm được và dependency G1↔Stage 4.18 cần làm rõ.
+Evidence: outputs/m1_criteria_v2_review_20261014/; rehash 128 inputs/protected
+locks không đổi. Chỉ thêm audit/docs, không remediation production. Bước ưu
+tiên: authority/approval reconciliation và historical eligibility trước pilot/
+new run. Ruff toàn repo và git diff --check PASS; không thay production code.
+
+## M2 — rà soát tài liệu lý thuyết và scientific conformance — 2026-10-14
+
+User yêu cầu rà soát tính chính xác của tài liệu lý thuyết dựa trên commit
+`cc411c628ea561b5f0a76e185a6c31a79ec13710`; không yêu cầu sửa code.
+Đã đối chiếu raw attachment, code/config và PDF nguồn có hash khớp lock.
+PDF §3.2.4 (27)–(28) yêu cầu median-six per entity rồi entity-level LTO
+reference; Dev helper hiện pooling pairwise observations. Sai khác này
+CONFIRMED đối với nguồn PDF đang có, còn hai original source MD thiếu.
+
+PDF còn nêu sparse support dưới50 entity-level observations; Dev guard là
+5 pairwise observations. Inventory hiện có355 LTO rows dưới50 reference
+entities. Đã ghi thêm divergence diagnostic normalization và unresolved
+centered-vs-affine cosine registration; không tự quyết scientific semantics.
+Toy checks/evidence và [review chi tiết](audit/M2_THEORY_REVIEW_20261014.md)
+ghi8 findings, phần đúng và wording cần sửa. Không patch/rerun/overwrite
+outputs, không đổi source lock/protocol, không mở locked_test.
+
+Numerical/lineage verification của các Dev runs trước giữ đúng phạm vi;
+không chứng nhận source conformance hoặc G3. Lượt trước đã bỏ sót đối chiếu
+null estimator với nguồn scientific PDF. Scientific use tiếp tục chưa đủ
+điều kiện; source reconciliation và remediation cần được xử lý trước
+scientific downstream inference, trong task/stage được yêu cầu riêng.
+
 ## M2 — báo cáo toàn bộ quy trình và trực quan hóa — 2026-10-14
 
 Theo yêu cầu người dùng, đã viết lại báo cáo xuyên suốt preflight/pilot/

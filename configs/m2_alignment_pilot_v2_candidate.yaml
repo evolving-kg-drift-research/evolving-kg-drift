@@ -1,0 +1,33 @@
+# Preparation only; no pilot execution or scientific registration is granted here.
+version: m2_alignment_pilot_plan_v2
+status: CANDIDATE_FOR_REGISTRATION
+scientific_certification: false
+parent_config:
+  path: configs/m2_data_3_1_candidate_v2.yaml
+  sha256: 2d5d195434095618180d6007914f9645e2e5b1b6fde21a52b593e66aa2366cb6
+backbone_run: outputs/m2_backbone/20261014T034042Z_65c464ba
+backbone_manifest_sha256: f4f8771a58cdf0f05ac6ca203c315ab364be6adcde8e9d08200324d729ec8354
+alignment_run: outputs/m2_alignment/20261014T040001Z_96d9ccbc
+alignment_manifest_sha256: 920b78c4ec057ff95f3e6cd812394cf3cae43e275f286779bfeee583ca6403ea
+alignment_verification:
+  path: outputs/m2_alignment/20261014T040001Z_96d9ccbc/independent_verification_20261014T040130Z_31179f1c.json
+  sha256: 549771cd9afbe0ef7b9e53d99acff787249005a2f61907bcb0d202abb4ab6a3f
+snapshots: [T01, T02, T03, T04, T05, T06, T07, T08, T09, T10]
+seeds: [13, 37, 101]
+population_selection: all_registered_adjacent_transition_comparisons
+anchor_plan: reuse_exact_saved_plan_pending_scientific_registration
+collection:
+  component_version: saved_alignment_geometry_statistics_v2
+  rank_relative_tolerance: null
+  denominator_handling: exact_zero_ratio_null_preserve_numerator_and_denominator
+  gap_reporting: both_signed_and_absolute_descriptive_only
+  operating_range_rule: null
+  assign_gate_status: false
+  compute_cosine_noise_SED_QA_H1: false
+execution:
+  prepare_only: true
+  pilot_execution_allowed: false
+  training_allowed: false
+  overwrite_existing_artifacts: false
+  auto_execute_next_stage: false
+  stop_after_stage_report: true

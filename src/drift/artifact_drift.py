@@ -8,6 +8,7 @@ from kge.checkpoint import KGECheckpoint
 from kge.math_utils import l2_norm, one_minus_cosine
 
 from .null import compute_median
+from .artifact_null import validate_entity_reference
 
 ARTIFACT_DRIFT_VERSION = "saved_alignment_longitudinal_drift_v1"
 SEEDS = (13, 37, 101)
@@ -97,3 +98,25 @@ def calibrated_metrics(
         raise ValueError("Nonfinite calibrated drift")
     return {"delta_time": delta, "signed_excess": excess, "SED_plus": sed,
             "available": available, "unavailable_reason": reason}
+
+
+def calibrated_metrics_v2(
+    temporal: Mapping[int, float], reference: Mapping[str, Any], epsilon: float,
+    mad_floor: float, min_reference_entities: int,
+) -> dict[str, Any]:
+    """Calibrate three explicitly identified seeds against v2 entity-level units."""
+    if (set(temporal) != set(SEEDS) or any(type(seed) is not int for seed in temporal)
+            or any(type(v) not in (int, float) or not math.isfinite(v) or not 0 <= v <= 2
+                   for v in temporal.values())
+            or type(epsilon) not in (int, float) or not math.isfinite(epsilon) or epsilon <= 0):
+        raise ValueError("V2 drift requires exactly three identified seeds and an explicit positive epsilon")
+    validate_entity_reference(reference, min_reference_entities, mad_floor)
+    delta = float(compute_median([temporal[seed] for seed in SEEDS]))
+    excess = None if reference["median"] is None else delta - reference["median"]
+    sed = (max(0.0, excess) / (1.4826 * reference["mad"] + epsilon)
+           if reference["available"] else None)
+    if sed is not None and not math.isfinite(sed):
+        raise ValueError("Nonfinite v2 calibrated drift")
+    return {"drift_component_version": "entity_reference_longitudinal_drift_v2",
+            "delta_time": delta, "signed_excess": excess, "SED_plus": sed,
+            "available": reference["available"], "unavailable_reason": reference["unavailable_reason"]}

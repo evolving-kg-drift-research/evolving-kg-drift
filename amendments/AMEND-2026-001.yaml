@@ -1,0 +1,33 @@
+amendment_id: "AMEND-2026-001"
+date: "2026-10-28"
+author: "Duc-AnhTp"
+
+reason_type: "documented_data_error"
+failure_reason: "Initial sources.lock.json recorded hashes from an uncommitted draft / line-ending variance (CRLF vs LF) for Research Execution Plan v1.0 and Patch v1.1. The actual verified files in repository sources/ carry exact SHA-256 matching the data package and upstream handoff."
+
+affected_paths:
+  - "data/manifests/sources.lock.json"
+  - "configs/protocol_v1.yaml"
+  - "sources/Research_Execution_Plan_v1.0.md"
+  - "sources/Research_Execution_Plan_v1.1_Patch.md"
+
+evidence:
+  failing_test: "scripts/verify_w1.py"
+  reproduction_steps: "Run python scripts/verify_w1.py with original sources.lock.json."
+  old_artifact_hashes:
+    - role: "execution_plan"
+      path: "sources/Research_Execution_Plan_v1.0.md"
+      sha256: "c61d08fc6a5a63658e2b99c1245867b9221a3f84c04fa9d872bad8fbbb638b94"
+    - role: "patch"
+      path: "sources/Research_Execution_Plan_v1.1_Patch.md"
+      sha256: "3f1bc9fd9d3dca2bb47eadc59c0ec6266a12794612761ce6b7ffb204fccb31a5"
+
+change:
+  description: "Update sources.lock.json to match exact SHA-256 hashes of verified Markdown source files in sources/, authorized by user instruction."
+  new_tests:
+    - "scripts/verify_w1.py"
+  new_version: "sources.lock-v1.1"
+
+audit:
+  old_run_retained: true
+  previous_run_reference: "outputs/m2_spec_reconciliation/20261021T050958Z_b8d8b9c9/evidence.json"

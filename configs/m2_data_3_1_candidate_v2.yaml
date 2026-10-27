@@ -1,0 +1,88 @@
+# Candidate registration and reuse inspection only; not a production runner config.
+version: m2_data_3_1_candidate_v2
+status: CANDIDATE_NOT_ACTIVE
+scientific_certification: false
+scope: registration_and_checkpoint_reuse
+m1_basis: USER_INSTRUCTED_ASSUME_PASS_DATA_3_1
+package_root: data/evolving_kg_downstream_v3_1
+release_id: evolving_kg_downstream_v3.1
+snapshots: [T01, T02, T03, T04, T05, T06, T07, T08, T09, T10]
+bindings:
+  configs/protocol_v1.yaml: fafd8f347accdbc9f9c1a7a4d0553c297d8f34e5d9e0491d97af0eb9e7b6cf8b
+  data/manifests/sources.lock.json: 39468ef48f316460d1623eee762dd2ef955ab8a02800f1f554350e0d8f1ce38e
+  configs/m2_external_dev_v1.yaml: 7d43c3f4260ee47bf12ce374b85cff21a5ac933a6d976b311d23ceb724766765
+  outputs/m2_backbone/20261014T034042Z_65c464ba/experiment_manifest.json: f4f8771a58cdf0f05ac6ca203c315ab364be6adcde8e9d08200324d729ec8354
+  outputs/m2_backbone/20261014T034042Z_65c464ba/independent_verification_20261014T034333Z_cea99585.json: 785368d5c73a0f5f0b06a7f23b8f3b5871c63279f2bfa87b1e31019482741f68
+  data/evolving_kg_downstream_v3_1/release_manifest.json: 3106f3f13982d55d0ab035466f5e326ebf5df7bf743931e04287e74da70426d5
+source_baseline:
+  policy: preserve_original_hashes
+  lock_path: data/manifests/sources.lock.json
+  protocol_path: configs/protocol_v1.yaml
+  replacement_authorized: false
+backbone:
+  run: outputs/m2_backbone/20261014T034042Z_65c464ba
+  verification_receipt: outputs/m2_backbone/20261014T034042Z_65c464ba/independent_verification_20261014T034333Z_cea99585.json
+  legacy_package_root: data/KG_lan2/evolving_kg_downstream_v3
+kge:
+  model: TransE
+  norm: 2
+  dimension: 64
+  seeds: [13, 37, 101]
+  epochs: 50
+  learning_rate: 0.01
+  margin: 1.0
+  normalize_entities: true
+  # This field is preserved in checkpoint config hashes; updates are SGD per triple.
+  batch_size: 32
+  training: independent_from_scratch_per_snapshot_seed
+  training_split: full_snapshot
+measurement:
+  cosine_estimand: affine
+  source_formula: one_minus_cosine_of_x_minus_source_mean_times_Q_plus_target_mean_and_y
+  temporal_aggregation: median_three_parallel_seeds
+  noise_aggregation: median_six_per_entity_then_LTO_entity_reference
+  keep_signed_excess: true
+  standardization: positive_part_divided_by_1.4826_MAD_plus_epsilon
+  epsilon:
+    value: 0.0001
+    registration: carry_forward_dev_proposal_not_scientific_freeze
+  mad_threshold:
+    value: 0.000000000001
+    registration: carry_forward_dev_proposal_not_scientific_freeze
+reference:
+  minimum_entities_after_LTO: 50
+  bucket_group_minimum_for_all_LTO_targets: 51
+  sparse_policy: adjacent_merge_with_pre_registered_order
+  merge_plan_stage: structural_counts_before_LTO
+  target_specific_remerge: false
+  initial_degree_bin_edges: [3, 6]
+  degree_bin_registration: carry_forward_dev_proposal_not_scientific_freeze
+  conditioning_time: pretransition
+  frequency_definition: null
+  frequency_status: unresolved_source_definition_no_degree_substitution
+  merge_order: null
+  merge_order_status: requires_structural_policy_registration
+alignment:
+  fit: centered_orthogonal_procrustes
+  residual_statistic: relative_Frobenius_target_centered_by_fit_mean
+  orthogonality_statistic: Frobenius_Q_transpose_Q_minus_I_divided_by_dimension
+  minimum_rank_fraction: 0.90
+  maximum_normalized_orthogonality_error: 0.000001
+  fit_count: 101
+  holdout_count: 66
+  anchor_count_registration: carry_forward_dev_proposal_not_scientific_freeze
+  rank_relative_tolerance: 0.000001
+  rank_tolerance_registration: carry_forward_dev_proposal_not_scientific_freeze
+  maximum_relative_holdout_residual: 1.50
+  maximum_relative_fit_holdout_gap: 0.65
+  gap_statistic: absolute_holdout_minus_fit
+  operating_range_status: locked_by_user_decision_20261028
+execution:
+  stage: registration_and_reuse_inspection
+  training_allowed: false
+  measurement_allowed: false
+  scientific_execution_allowed: false
+  overwrite_existing_artifacts: false
+  stop_after_stage_report: true
+  auto_advance: false
+

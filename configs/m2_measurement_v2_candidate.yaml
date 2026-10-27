@@ -1,0 +1,30 @@
+# Engineering runner contract. This file authorizes no scientific execution.
+version: m2_measurement_runner_v2
+status: CANDIDATE_NOT_ACTIVE
+stage: 'null'
+scientific_certification: false
+parent_config:
+  path: configs/m2_data_3_1_candidate_v2.yaml
+  sha256: 2d5d195434095618180d6007914f9645e2e5b1b6fde21a52b593e66aa2366cb6
+settings:
+  cosine_estimand: affine
+  norm_floor: 0.000000000001
+  denominator_floor: 0.000000000001
+  rank_relative_tolerance: 0.000001
+  minimum_rank_fraction: 0.90
+  maximum_normalized_orthogonality_error: 0.000001
+  maximum_relative_holdout_residual: 1.50
+  maximum_relative_fit_holdout_gap: 0.65
+  gap_statistic: absolute_holdout_minus_fit
+  minimum_reference_entities: 50
+  mad_threshold: 0.000000000001
+  epsilon: 0.0001
+# The plan must bind actual canonical inputs, checkpoint/alignment files,
+# disjoint anchors and an outcome-blind external bucket assignment.
+input_plan: null
+null_stage: null
+execution:
+  measurement_allowed: false
+  overwrite_existing_artifacts: false
+  auto_execute_next_stage: false
+  stop_after_stage_report: true

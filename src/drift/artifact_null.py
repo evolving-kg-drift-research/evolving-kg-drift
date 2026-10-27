@@ -1,6 +1,8 @@
 """Strict empirical null from persisted valid alignments; no training or re-alignment."""
 from __future__ import annotations
 
+import hashlib
+import json
 import math
 from typing import Any, Mapping, Sequence
 
@@ -10,6 +12,8 @@ from kge.math_utils import l2_norm, one_minus_cosine
 from .null import compute_median
 
 ARTIFACT_NULL_VERSION = "saved_alignment_empirical_null_v1"
+ENTITY_NULL_VERSION = "saved_alignment_entity_null_v2"
+ENTITY_REFERENCE_VERSION = "entity_null_reference_v2"
 SEED_PAIRS = ((13, 37), (13, 101), (37, 101))
 PairKey = tuple[str, int, int]
 SavedAlignment = tuple[dict[str, Any], str]
@@ -163,3 +167,155 @@ def build_artifact_null(
             "entity_to_bucket": dict(sorted(assignments.items())), "bucket_merge_log": log,
             "bucket_statistics": bucket_stats, "lto_statistics": dict(sorted(lto.items())),
             "reference_bucket_merging_stage": "pooled_before_LTO", "no_target_specific_remerge": True}
+
+
+def _entity_null_hash(value: Any) -> str:
+    payload = json.dumps(value, sort_keys=True, ensure_ascii=False, allow_nan=False,
+                         separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def _finite_number(value: Any) -> bool:
+    return type(value) in (int, float) and math.isfinite(value)
+
+
+def validate_entity_reference(
+    reference: Mapping[str, Any], minimum: int, mad_threshold: float,
+) -> None:
+    """Validate v2 units and availability without inferring a scientific policy."""
+    required = {"reference_schema_version", "transition_id", "entity_id", "bucket_id", "reference_entity_ids",
+                "removed_target_raw_observation_count", "raw_noise_observation_count", "reference_entity_count",
+                "reference_sample_count", "minimum_reference_entities", "mad_threshold",
+                "median", "mad", "robust_scale", "available", "unavailable_reason"}
+    if (not required.issubset(reference) or "observation_count" in reference
+            or reference["reference_schema_version"] != ENTITY_REFERENCE_VERSION
+            or type(minimum) is not int or minimum <= 0
+            or not _finite_number(mad_threshold) or mad_threshold <= 0
+            or type(reference["minimum_reference_entities"]) is not int
+            or reference["minimum_reference_entities"] != minimum
+            or not _finite_number(reference["mad_threshold"]) or reference["mad_threshold"] != mad_threshold):
+        raise ValueError("Entity reference requires explicit v2 schema and matching support policy")
+    ids = reference["reference_entity_ids"]
+    if (not isinstance(ids, list) or any(not isinstance(e, str) or not e.strip() for e in ids)
+            or len(set(ids)) != len(ids) or ids != sorted(ids)
+            or any(not isinstance(reference[k], str) or not reference[k].strip()
+                   for k in ("entity_id", "transition_id", "bucket_id"))
+            or reference["entity_id"] in ids):
+        raise ValueError("Reference must contain distinct other entity IDs")
+    count = len(ids)
+    counts = {"reference_entity_count": count, "reference_sample_count": count,
+              "raw_noise_observation_count": 6 * count, "removed_target_raw_observation_count": 6}
+    if any(type(reference[k]) is not int or reference[k] != expected for k, expected in counts.items()):
+        raise ValueError("Raw distances and entity-level reference samples have incompatible units")
+    center, mad, scale = reference["median"], reference["mad"], reference["robust_scale"]
+    if count == 0:
+        if any(value is not None for value in (center, mad, scale)):
+            raise ValueError("Empty reference cannot have fabricated statistics")
+        reason = "LTO_EMPTY_REFERENCE"
+    else:
+        if (not all(_finite_number(v) for v in (center, mad, scale))
+                or not 0 <= center <= 2 or not 0 <= mad <= 2
+                or not math.isclose(scale, 1.4826 * mad, rel_tol=1e-12, abs_tol=1e-12)):
+            raise ValueError("Invalid entity-level median/MAD/scale")
+        reason = ("INSUFFICIENT_REFERENCE_ENTITIES" if count < minimum
+                  else "ZERO_MAD" if mad < mad_threshold else "")
+    if (type(reference["available"]) is not bool or reference["available"] != (not reason)
+            or reference["unavailable_reason"] != reason):
+        raise ValueError("Entity-level support and availability are inconsistent")
+
+
+def build_entity_level_null(
+    transition: str, observations: Sequence[Mapping[str, Any]],
+    entity_to_bucket: Mapping[str, str], config: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Reduce six raw rows/entity before LTO, with an explicitly supplied bucket plan.
+
+    This component neither chooses/merges buckets nor certifies the declared
+    cosine estimand. No scientific defaults or protocol activation occur here.
+    The v1 builder remains available only for its historical Dev consumers.
+    """
+    if (not isinstance(transition, str) or len(transition.split("->")) != 2
+            or not all(part.strip() for part in transition.split("->"))
+            or len(set(transition.split("->"))) != 2 or not observations
+            or set(config) != {"minimum_reference_entities", "mad_threshold", "cosine_estimand"}):
+        raise ValueError("Explicit transition, raw observations and v2 configuration are required")
+    minimum, tolerance = config["minimum_reference_entities"], config["mad_threshold"]
+    if (type(minimum) is not int or minimum <= 0 or not _finite_number(tolerance) or tolerance <= 0
+            or config["cosine_estimand"] not in ("centered", "affine")):
+        raise ValueError("Invalid explicit entity-level support or declared cosine parameters")
+    expected_pairs = {(sid, a, b) for sid in transition.split("->") for a, b in SEED_PAIRS}
+    hash_fields = {"alignment_sha256", "anchor_plan_hash", "source_checkpoint_sha256", "target_checkpoint_sha256"}
+    required = {"transition_id", "entity_id", "endpoint_snapshot", "source_seed", "target_seed",
+                "noise_displacement", *hash_fields}
+    grouped: dict[str, dict[tuple[str, int, int], dict[str, Any]]] = {}
+    comparison_lineage: dict[tuple[str, int, int], tuple[str, str]] = {}
+    checkpoint_lineage: dict[tuple[str, int], str] = {}
+    for raw in observations:
+        if (not required.issubset(raw) or set(raw) - required - {"pretransition_degree", "bucket_id"}
+                or raw["transition_id"] != transition or not isinstance(raw["entity_id"], str)
+                or not raw["entity_id"].strip() or type(raw["source_seed"]) is not int
+                or type(raw["target_seed"]) is not int or not isinstance(raw["endpoint_snapshot"], str)
+                or not _finite_number(raw["noise_displacement"]) or not 0 <= raw["noise_displacement"] <= 2):
+            raise ValueError("Invalid raw noise identity, distance or unregistered field")
+        if any(not isinstance(raw[field], str) or len(raw[field]) != 64
+               or any(c not in "0123456789abcdef" for c in raw[field]) for field in hash_fields):
+            raise ValueError("Raw noise provenance requires SHA-256 fingerprints")
+        entity = raw["entity_id"]
+        key = raw["endpoint_snapshot"], raw["source_seed"], raw["target_seed"]
+        pairs = grouped.setdefault(entity, {})
+        if key not in expected_pairs or key in pairs:
+            raise ValueError("Missing or duplicate registered endpoint/seed pair identity")
+        lineage = raw["alignment_sha256"], raw["anchor_plan_hash"]
+        if key in comparison_lineage and comparison_lineage[key] != lineage:
+            raise ValueError("One endpoint/seed comparison declares conflicting alignment lineage")
+        comparison_lineage[key] = lineage
+        for seed_field, hash_field in (("source_seed", "source_checkpoint_sha256"),
+                                       ("target_seed", "target_checkpoint_sha256")):
+            checkpoint_key = raw["endpoint_snapshot"], raw[seed_field]
+            fingerprint = raw[hash_field]
+            if checkpoint_key in checkpoint_lineage and checkpoint_lineage[checkpoint_key] != fingerprint:
+                raise ValueError("One endpoint/seed declares conflicting checkpoint lineage")
+            checkpoint_lineage[checkpoint_key] = fingerprint
+        if ("pretransition_degree" in raw
+                and (type(raw["pretransition_degree"]) is not int or raw["pretransition_degree"] < 0)):
+            raise ValueError("Invalid supplied pretransition degree")
+        if "bucket_id" in raw and raw["bucket_id"] != entity_to_bucket.get(entity):
+            raise ValueError("Raw bucket annotation disagrees with the supplied reference plan")
+        pairs[key] = dict(raw)
+    if (set(grouped) != set(entity_to_bucket)
+            or any(not isinstance(b, str) or not b.strip() for b in entity_to_bucket.values())
+            or any(set(pairs) != expected_pairs for pairs in grouped.values())):
+        raise ValueError("Bucket plan population and complete six-pair entity observations must agree")
+    canonical = [grouped[e][key] for e in sorted(grouped) for key in sorted(expected_pairs)]
+    entity_stats = {}
+    for entity in sorted(grouped):
+        rows = [grouped[entity][key] for key in sorted(expected_pairs)]
+        entity_stats[entity] = {"entity_id": entity,
+                                "noise_median": compute_median([r["noise_displacement"] for r in rows]),
+                                "raw_noise_observation_count": 6,
+                                "raw_observation_sha256s": [_entity_null_hash(r) for r in rows]}
+    lto = {}
+    for target, bucket in sorted(entity_to_bucket.items()):
+        ids = sorted(e for e, b in entity_to_bucket.items() if b == bucket and e != target)
+        samples = [entity_stats[e]["noise_median"] for e in ids]
+        center = compute_median(samples) if samples else None
+        mad = compute_median([abs(value - center) for value in samples]) if samples else None
+        reason = ("LTO_EMPTY_REFERENCE" if not ids else "INSUFFICIENT_REFERENCE_ENTITIES" if len(ids) < minimum
+                  else "ZERO_MAD" if mad < tolerance else "")
+        row = {"reference_schema_version": ENTITY_REFERENCE_VERSION, "transition_id": transition,
+               "entity_id": target, "bucket_id": bucket, "reference_entity_ids": ids,
+               "removed_target_raw_observation_count": 6, "raw_noise_observation_count": 6 * len(ids),
+               "reference_entity_count": len(ids), "reference_sample_count": len(ids),
+               "minimum_reference_entities": minimum, "mad_threshold": tolerance,
+               "median": center, "mad": mad, "robust_scale": None if mad is None else 1.4826 * mad,
+               "available": not reason, "unavailable_reason": reason}
+        validate_entity_reference(row, minimum, tolerance)
+        lto[target] = row
+    return {"component_version": ENTITY_NULL_VERSION, "transition_id": transition,
+            "reference_schema_version": ENTITY_REFERENCE_VERSION, "configuration": dict(config),
+            "configuration_sha256": _entity_null_hash(dict(config)),
+            "entity_to_bucket": dict(sorted(entity_to_bucket.items())),
+            "bucket_plan_sha256": _entity_null_hash(dict(entity_to_bucket)),
+            "raw_observations": canonical, "raw_observations_sha256": _entity_null_hash(canonical),
+            "entity_noise_statistics": entity_stats, "lto_statistics": lto,
+            "scientific_certification": False, "bucket_policy": "explicit_external_plan_no_automatic_merge"}

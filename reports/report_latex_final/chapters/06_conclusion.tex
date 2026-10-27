@@ -1,0 +1,51 @@
+\chapter{Kết luận và Hướng phát triển}
+\label{chap:conclusion}
+
+Chương này tổng kết toàn bộ các kết quả đạt được của đề tài, nêu bật những đóng góp khoa học chính, thẳng thắn chỉ ra các giới hạn nghiên cứu còn tồn tại, và định hình các hướng phát triển tiềm năng trong giai đoạn tiếp theo.
+
+\section{Tổng kết các kết quả và đóng góp của đề tài}
+\label{sec:summary_contributions}
+
+Đề tài \textit{"Định lượng độ trôi biểu diễn có hiệu chỉnh nhiễu cho suy luận đa bước trên đồ thị tri thức tiến hóa"} đã hoàn thành xuất sắc toàn bộ các mục tiêu nghiên cứu và nhiệm vụ kỹ thuật đặt ra theo đề cương và kế hoạch thực thi nghiên cứu khoa học:
+
+\begin{enumerate}
+    \item \textbf{Xây dựng thành công Khung đo lường hình học hiệu chuẩn nhiễu hoàn chỉnh:}
+    Bằng sự kết hợp chặt chẽ giữa phép căn chỉnh tối ưu Centered Orthogonal Procrustes SVD trên tập mỏ neo bền vững chia tách Fit/Holdout và việc mô hình hóa phân phối giả thuyết không thực nghiệm (Same-Snapshot Empirical Null) qua 6 cặp hạt giống cross-seed $\{13, 37, 101\}$ với kỹ thuật Leave-Target-Out (LTO), nghiên cứu đã đề xuất và kiểm chứng thành công chỉ số trôi dạt biểu diễn dư thừa chuẩn hóa $SED^+$. Khung đo lường đã triệt tiêu hiệu quả nhiễu ngẫu nhiên của bộ tối ưu hóa phi lồi và phân lập chính xác tín hiệu trôi dạt thực chất do đồ thị tiến hóa.
+
+    \item \textbf{Thiết lập Bảng đánh giá suy luận đa bước và Khung kinh tế lượng mẫu mực:}
+    Xây dựng thành công bộ dữ liệu bảng lặp lại gồm 147 câu hỏi phức tạp theo dõi cố định qua 10 snapshot thời gian (9 bước chuyển đổi, 1.323 quan sát). Áp dụng mô hình Two-Way Fixed Effects kiểm soát đồng thời các yếu tố cố định câu hỏi ($\alpha_i$) và thời gian ($\gamma_t$), kết hợp kỹ thuật suy diễn thống kê chuẩn xác Wild Cluster Bootstrap (WCB) với phân phối trọng số Webb 6 điểm để xử lý triệt để hiện tượng tự tương quan chuỗi và dị phương sai cụm.
+
+    \item \textbf{Phát hiện khoa học sâu sắc về bản chất của việc cập nhật KGE:}
+    \begin{itemize}
+        \item Khẳng định về mặt thống kê rằng: độ trôi biểu diễn thực chất $SED^+$ độc lập thống kê với sự biến động thứ hạng suy luận đa bước ($\hat{\beta}_d = -0{,}00466$, $p_{\text{WCB}} = 0{,}299$). Hiện tượng tương quan âm thường thấy trong thực tế chỉ là mối tương quan giả mạo do các yếu tố độ khó câu hỏi gây ra.
+        \item Phân rã định lượng cơ chế tác động của giả thuyết $H_2$, chứng minh rằng lợi ích cốt lõi của việc tái huấn luyện định kỳ KGE trong môi trường thực tế bắt nguồn từ việc \textbf{mở rộng độ bao phủ thực thể (coverage expansion)} giúp triệt tiêu hình phạt OOV churn, thay vì do sự tái tinh chỉnh tọa độ không gian vector của các thực thể đã biết.
+    \end{itemize}
+
+    \item \textbf{Đạt chuẩn mực liêm chính học thuật và Vượt qua kiểm định ngụy tạo:}
+    Công trình vượt qua kiểm định ngụy tạo với $p_{\text{WCB}} = 0{,}495$, bảo đảm không có hiệu ứng giả mạo dưới tác động của nhiễu tái huấn luyện thuần túy. Toàn bộ chuỗi cung ứng dữ liệu tuân thủ nghiêm ngặt 6 bất biến khoa học cốt lõi (không dùng thông tin tương lai, tách biệt 3 trục thời gian, bình đẳng Parquet--Neo4j $100\%$, tái lập tất định với mã băm SHA-256).
+\end{enumerate}
+
+\section{Các giới hạn của nghiên cứu (Limitations)}
+\label{sec:limitations}
+
+Mặc dù đạt được những kết quả có ý nghĩa phương pháp luận cao, đề tài thẳng thắn nhìn nhận các hạn chế trong phạm vi MVR hiện tại:
+\begin{enumerate}
+    \item \textbf{Giới hạn ở mô hình KGE cơ sở tịnh tiến (TransE-L2):} Nghiên cứu mới tập trung kiểm chứng trên kiến trúc TransE-L2 nhằm khai thác tính tường minh của hình học không gian Euclid và nghiệm giải tích Procrustes. Các kiến trúc biểu diễn phức tạp hơn như RotatE (phép quay trong không gian số phức $\mathbb{C}^d$), ComplEx, hay các mạng nơ-ron đồ thị (GNN) chưa được đưa vào khảo sát.
+    \item \textbf{Quy mô đồ thị thử nghiệm:} Do tuân thủ quy trình kiểm duyệt chứng cứ và trích xuất nguồn nghiêm ngặt, tập dữ liệu thực nghiệm gồm 10 snapshot với 1.389 thực thể và 1.205 cạnh. Mặc dù đủ quy mô và độ nhạy cho các mô hình kinh tế lượng dữ liệu bảng, quy mô này vẫn còn khiêm tốn so với các đồ thị tri thức công nghiệp (hàng triệu đỉnh).
+    \item \textbf{Rời rạc hóa thời gian theo Snapshot:} Dữ liệu tiến hóa được rời rạc hóa thành 10 mốc snapshot tĩnh định kỳ, chưa phản ánh dòng dữ liệu thời gian thực liên tục (Continuous-Time Dynamic Graphs).
+\end{enumerate}
+
+\section{Hướng phát triển trong tương lai (Future Directions)}
+\label{sec:future_work}
+
+Từ các kết quả và hạn chế nêu trên, nhóm nghiên cứu đề xuất ba hướng mở rộng giàu tiềm năng:
+\begin{enumerate}
+    \item \textbf{Mở rộng khung đo lường $SED^+$ sang không gian phi Euclid:}
+    Phát triển các biến thể của bài toán Procrustes trên không gian số phức (Unitary Procrustes Problem) cho mô hình RotatE và ComplEx, hoặc căn chỉnh đa tạp trên không gian Hyperbolic (Poincaré Embeddings) cho các đồ thị có cấu trúc phân cấp mạnh.
+
+    \item \textbf{Học thích ứng biểu diễn liên tục (Continual Knowledge Representation Learning):}
+    Ứng dụng các phát hiện về độ trôi biểu diễn để xây dựng các thuật toán học liên tục (Continual Learning / Lifelong Learning) cho KGE. Thay vì tái huấn luyện toàn bộ đồ thị từ đầu với chi phí tính toán lớn và sinh ra nhiễu ngẫu nhiên, hệ thống chỉ cập nhật có chọn lọc tọa độ cho các thực thể mới và các thực thể có quan hệ tô-pô biến động mạnh.
+
+    \item \textbf{Tích hợp vào kiến trúc lai ghép LLM-KG Reasoning:}
+    Áp dụng khung đo lường $SED^+$ để kiểm soát độ tin cậy và sự trôi dạt ngữ nghĩa của bộ nhớ tri thức trong các hệ thống suy luận kết hợp giữa Mô hình Ngôn ngữ Lớn (LLM) và Đồ thị tri thức (Knowledge-Augmented LLM / GraphRAG), nâng cao độ an toàn và khả năng giải thích cho các quyết định trí tuệ nhân tạo.
+\end{enumerate}

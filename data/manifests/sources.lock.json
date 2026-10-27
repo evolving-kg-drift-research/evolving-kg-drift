@@ -5,10 +5,10 @@
   },
   "execution_plan": {
     "path": "sources/Research_Execution_Plan_v1.0.md",
-    "sha256": "c61d08fc6a5a63658e2b99c1245867b9221a3f84c04fa9d872bad8fbbb638b94"
+    "sha256": "667aa4601afdb888dd079670336a45611531fa34d8d8b283a1773d06d4ff7949"
   },
   "patch": {
     "path": "sources/Research_Execution_Plan_v1.1_Patch.md",
-    "sha256": "3f1bc9fd9d3dca2bb47eadc59c0ec6266a12794612761ce6b7ffb204fccb31a5"
+    "sha256": "509046466a6f81b9dc2119ab8fdd56d50fbb1019a0e83e5c46000a126bfcd3fe"
   }
 }

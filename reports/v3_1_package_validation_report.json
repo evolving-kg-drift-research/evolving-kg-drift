@@ -1,0 +1,339 @@
+{
+  "schema_version": "downstream_package_validation_v1",
+  "release_id": "evolving_kg_downstream_v3.1",
+  "scope": "TransE input package and Stage 4.18 data handoff",
+  "status": "PASS",
+  "stage_4_18_status": "PASS",
+  "full_m1_acceptance": "NOT_CERTIFIED_BY_THIS_PACKAGE",
+  "full_m1_scope_note": "Ticket A candidate configuration hashes are preserved as historical metadata and not re-anchored; this release does not claim a full M1 re-certification.",
+  "checks": {
+    "canonical_snapshots": {
+      "status": "PASS",
+      "count": 10,
+      "rows": [
+        121,
+        247,
+        362,
+        483,
+        604,
+        724,
+        844,
+        964,
+        1084,
+        1205
+      ],
+      "final_edges": 1205,
+      "final_entities": 1389,
+      "relations_per_snapshot": 10,
+      "monotonic_unique_triples": true,
+      "temporal_violations": 0
+    },
+    "authoritative_sources": {
+      "status": "PASS",
+      "roles": 3,
+      "artifacts": [
+        {
+          "role": "proposal",
+          "path": "sources/huce_evolving_kg_modular_proposal(8).pdf",
+          "sha256": "d9e6d74b84fabdff880698eb6a5774bed8445897539b3713ba1e0594a446ea6f",
+          "bytes": 399801,
+          "matches_source_lock": true,
+          "matches_protocol": true
+        },
+        {
+          "role": "execution_plan",
+          "path": "sources/Research_Execution_Plan_v1.0.md",
+          "sha256": "667aa4601afdb888dd079670336a45611531fa34d8d8b283a1773d06d4ff7949",
+          "bytes": 13221,
+          "matches_source_lock": true,
+          "matches_protocol": true
+        },
+        {
+          "role": "patch",
+          "path": "sources/Research_Execution_Plan_v1.1_Patch.md",
+          "sha256": "509046466a6f81b9dc2119ab8fdd56d50fbb1019a0e83e5c46000a126bfcd3fe",
+          "bytes": 798,
+          "matches_source_lock": true,
+          "matches_protocol": true
+        }
+      ]
+    },
+    "body_cas": {
+      "status": "PASS",
+      "count": 4745,
+      "bytes": 17472140,
+      "all_text_hashes_match": true,
+      "source_root": "runs/corpus_production_v1"
+    },
+    "raw_blob_references": {
+      "status": "PASS",
+      "count": 5168,
+      "bytes": 1662329089,
+      "all_hashes_match_in_workspace": true,
+      "embedded_in_release": false
+    }
+  },
+  "stage_4_18": {
+    "status": "PASS",
+    "exact_readback_parity": true,
+    "snapshot_hashes_recorded": true,
+    "downstream_config_references_frozen_hashes": true,
+    "snapshots": [
+      {
+        "snapshot_id": "T01",
+        "cutoff": "2025-06-01T01:05:48+00:00",
+        "parquet_path": "snapshots/snapshot_T01_canonical.parquet",
+        "rows": 121,
+        "entities": 167,
+        "relations": {
+          "acquired_by": 2,
+          "based_on": 3,
+          "integrated_into": 12,
+          "invested_in": 2,
+          "is_CEO_of": 6,
+          "partners_with": 16,
+          "released_by": 26,
+          "succeeded_by": 4,
+          "version_of": 10,
+          "works_at": 40
+        },
+        "parquet_sha256": "42ded6c58c7cb3ac27b07a964cd9a0bff802afcf43bf09f70c920cf13abcda5e",
+        "semantic_sha256": "6132a5b9b2537b220eae4348610d39610e588541c8c1ea75c8bfe8564ff38c27",
+        "edge_set_sha256": "08ff407ded7a17111031c5e8970c35b18df4121ca2fd32d8f102f300296591b2",
+        "node_set_sha256": "4e92c034c49a38352220fe1c356164ab8f1a0f669fe8558e850ffc28462d2cc8",
+        "no_future_evidence": true,
+        "strict_temporal_validity": true
+      },
+      {
+        "snapshot_id": "T02",
+        "cutoff": "2025-09-16T20:09:42+00:00",
+        "parquet_path": "snapshots/snapshot_T02_canonical.parquet",
+        "rows": 247,
+        "entities": 343,
+        "relations": {
+          "acquired_by": 4,
+          "based_on": 8,
+          "integrated_into": 29,
+          "invested_in": 7,
+          "is_CEO_of": 18,
+          "partners_with": 31,
+          "released_by": 51,
+          "succeeded_by": 4,
+          "version_of": 18,
+          "works_at": 77
+        },
+        "parquet_sha256": "846e82d490935db53c6eabadc0b87f19c3ca53a2a1475c11eb4e75febcaeddd9",
+        "semantic_sha256": "dcf5ca630e2a2bb8959e9e16ec808d1448bada01e3ff019e1fba3afda3ba1b73",
+        "edge_set_sha256": "4cf98787dea703ccdbe5db00f55e2d6ecbbb9ccde44415495d0d700c3e644cd0",
+        "node_set_sha256": "f2a1c4f431a888fe29cd510cdf232a3c78de29f8c225ab167de1aa71ede1a453",
+        "no_future_evidence": true,
+        "strict_temporal_validity": true
+      },
+      {
+        "snapshot_id": "T03",
+        "cutoff": "2025-12-18T07:29:02+00:00",
+        "parquet_path": "snapshots/snapshot_T03_canonical.parquet",
+        "rows": 362,
+        "entities": 503,
+        "relations": {
+          "acquired_by": 4,
+          "based_on": 11,
+          "integrated_into": 39,
+          "invested_in": 10,
+          "is_CEO_of": 30,
+          "partners_with": 34,
+          "released_by": 72,
+          "succeeded_by": 5,
+          "version_of": 21,
+          "works_at": 136
+        },
+        "parquet_sha256": "25a1620774f3c4c2e3d192b2acc41ccc5bb12f8d5b30432b592b93d2ede2006c",
+        "semantic_sha256": "bb3f1526fda6a08c50aee5130e11a717c99eacaeada84690d8695ee1dc149979",
+        "edge_set_sha256": "fae8b7828d53444155c1bb327dea1bcbc9dbecfe672d425be99c5acf30329372",
+        "node_set_sha256": "c2cf2c2a535ed569cff7a5c7cdffdbbf201c68d772457fb76e866eefcb017d79",
+        "no_future_evidence": true,
+        "strict_temporal_validity": true
+      },
+      {
+        "snapshot_id": "T04",
+        "cutoff": "2026-02-27T05:54:13+00:00",
+        "parquet_path": "snapshots/snapshot_T04_canonical.parquet",
+        "rows": 483,
+        "entities": 646,
+        "relations": {
+          "acquired_by": 7,
+          "based_on": 14,
+          "integrated_into": 45,
+          "invested_in": 13,
+          "is_CEO_of": 37,
+          "partners_with": 59,
+          "released_by": 100,
+          "succeeded_by": 8,
+          "version_of": 26,
+          "works_at": 174
+        },
+        "parquet_sha256": "8e656696f5a1a38ccb6285d4539c29443e1006f485c94e44dba189666bfe9d7d",
+        "semantic_sha256": "34aaa0061a90f447d5df96c5bf99c9125721d7008dd12619e1fa8178e1e0f3ec",
+        "edge_set_sha256": "fb5e0355f5810de6c25c72fafc35a9a8863c3b7635e50ee2e2f70db4607b12ca",
+        "node_set_sha256": "f0db6d8350091ac2bd28617b82c50611cf345a0b4f0a2fb69de7005e24e06f14",
+        "no_future_evidence": true,
+        "strict_temporal_validity": true
+      },
+      {
+        "snapshot_id": "T05",
+        "cutoff": "2026-05-26T03:11:12+00:00",
+        "parquet_path": "snapshots/snapshot_T05_canonical.parquet",
+        "rows": 604,
+        "entities": 787,
+        "relations": {
+          "acquired_by": 7,
+          "based_on": 17,
+          "integrated_into": 48,
+          "invested_in": 26,
+          "is_CEO_of": 55,
+          "partners_with": 75,
+          "released_by": 118,
+          "succeeded_by": 12,
+          "version_of": 31,
+          "works_at": 215
+        },
+        "parquet_sha256": "56bb2687adafcb692458306db07b0ed464a870878ba889c082559077786bbab8",
+        "semantic_sha256": "00f563525c3e3776e947ddca924ece024c0896c78f73e0be30b192ff808ed590",
+        "edge_set_sha256": "a01e1f55d0f5623c91b1d3428e93b9b74b1c6cb95507a891ad57c773909b6de3",
+        "node_set_sha256": "362b9be39945d38d1bac1dee8c23fddc45d88acbaf6e5d5cc43d727569e916ca",
+        "no_future_evidence": true,
+        "strict_temporal_validity": true
+      },
+      {
+        "snapshot_id": "T06",
+        "cutoff": "2026-08-11T04:23:59+00:00",
+        "parquet_path": "snapshots/snapshot_T06_canonical.parquet",
+        "rows": 724,
+        "entities": 936,
+        "relations": {
+          "acquired_by": 9,
+          "based_on": 20,
+          "integrated_into": 49,
+          "invested_in": 29,
+          "is_CEO_of": 67,
+          "partners_with": 93,
+          "released_by": 151,
+          "succeeded_by": 12,
+          "version_of": 36,
+          "works_at": 258
+        },
+        "parquet_sha256": "1137a0cdec26366d6d27443a6273fb9ed2ec7390d077919cb6bc858d51758672",
+        "semantic_sha256": "fd10e2bd2aff097aca82c9a43f82fd828ec5899d0c9f1ec2fa74fe217eb28545",
+        "edge_set_sha256": "a86e7df07d46df95937c6501add31b8e9b1dca1ecb064f188efa1afbdff693a2",
+        "node_set_sha256": "3e656fe21e457b3cb0fe07959c08230fee3ad02be3fb4154d45ac9e033b0d54e",
+        "no_future_evidence": true,
+        "strict_temporal_validity": true
+      },
+      {
+        "snapshot_id": "T07",
+        "cutoff": "2026-09-06T18:04:24+00:00",
+        "parquet_path": "snapshots/snapshot_T07_canonical.parquet",
+        "rows": 844,
+        "entities": 1057,
+        "relations": {
+          "acquired_by": 10,
+          "based_on": 23,
+          "integrated_into": 65,
+          "invested_in": 34,
+          "is_CEO_of": 70,
+          "partners_with": 110,
+          "released_by": 193,
+          "succeeded_by": 13,
+          "version_of": 39,
+          "works_at": 287
+        },
+        "parquet_sha256": "6c2a8faee155e5d0ab77fc0f1d2139f63ec2b9757f28e858d9c85dd9c1836c77",
+        "semantic_sha256": "927fee488060a6aba097e465864ba2e08bea36541cfd497d7d89053d77c05d22",
+        "edge_set_sha256": "fac6ae7ff8cc9fc1da2338640a15d04a74860d47f4282d51a11fbedf41191413",
+        "node_set_sha256": "fb2bfad9929ff7e1c8cd25cd505dd8301e25ed4ff05686cc017255a95af84061",
+        "no_future_evidence": true,
+        "strict_temporal_validity": true
+      },
+      {
+        "snapshot_id": "T08",
+        "cutoff": "2026-09-07T01:55:05+00:00",
+        "parquet_path": "snapshots/snapshot_T08_canonical.parquet",
+        "rows": 964,
+        "entities": 1176,
+        "relations": {
+          "acquired_by": 10,
+          "based_on": 33,
+          "integrated_into": 72,
+          "invested_in": 41,
+          "is_CEO_of": 82,
+          "partners_with": 124,
+          "released_by": 227,
+          "succeeded_by": 13,
+          "version_of": 44,
+          "works_at": 318
+        },
+        "parquet_sha256": "b39b6d5bef2ae5383f2c3930ab507b624f3c81a87a673f8b199d31c040baeea0",
+        "semantic_sha256": "9bded9a3a8935c9b69c3beee919838046752ee5ef92c084aaee2aaaf064a7a6f",
+        "edge_set_sha256": "765fdd7ec1d0b917209982d034a586591f8f82559ae316f30e046b1eedf85808",
+        "node_set_sha256": "e6e0f319df241ed83aea79e9a73fc156f50bbf2b2f840a82cc6da0b8da5aa299",
+        "no_future_evidence": true,
+        "strict_temporal_validity": true
+      },
+      {
+        "snapshot_id": "T09",
+        "cutoff": "2026-09-07T02:03:22+00:00",
+        "parquet_path": "snapshots/snapshot_T09_canonical.parquet",
+        "rows": 1084,
+        "entities": 1282,
+        "relations": {
+          "acquired_by": 13,
+          "based_on": 36,
+          "integrated_into": 85,
+          "invested_in": 45,
+          "is_CEO_of": 89,
+          "partners_with": 137,
+          "released_by": 272,
+          "succeeded_by": 16,
+          "version_of": 48,
+          "works_at": 343
+        },
+        "parquet_sha256": "87a8f186275448f519edd8dd7abf55a0f4925f443c21c821f3ae8d44c9e66590",
+        "semantic_sha256": "932eb6916a7d8c9bc5e3825cca68e75726281b1bc26508e6d6120dad3cc10dc5",
+        "edge_set_sha256": "044df7a353e9d155ecf9dd2c65f20675a4bcbc14445c0b6cd807669c5bf9f1d8",
+        "node_set_sha256": "f4962696bf15d90f86034b684c558db5712103d9b75cc1d0830cf2b210a5a95a",
+        "no_future_evidence": true,
+        "strict_temporal_validity": true
+      },
+      {
+        "snapshot_id": "T10",
+        "cutoff": "2026-09-07T02:13:25+00:00",
+        "parquet_path": "snapshots/snapshot_T10_canonical.parquet",
+        "rows": 1205,
+        "entities": 1389,
+        "relations": {
+          "acquired_by": 14,
+          "based_on": 38,
+          "integrated_into": 95,
+          "invested_in": 50,
+          "is_CEO_of": 96,
+          "partners_with": 157,
+          "released_by": 308,
+          "succeeded_by": 20,
+          "version_of": 52,
+          "works_at": 375
+        },
+        "parquet_sha256": "e056acad01c7e50d435f0a715a2f0c0aaa095f8e10505a3caa739dc52720c801",
+        "semantic_sha256": "7608e6efe440258f743c79ee9d089a78616064f655ac21094bb02ae605c11ea8",
+        "edge_set_sha256": "87a9f4e3f8d6bcd51df2485b3a8f7f94f9dd77eb8cde5c074adcb1c2af682016",
+        "node_set_sha256": "ac83be79261a0cedbfdd6dbb11af4c7ccfc5c9356d71dcc8e57f24e2fef5e9f8",
+        "no_future_evidence": true,
+        "strict_temporal_validity": true
+      }
+    ]
+  },
+  "not_run": [
+    "TransE training",
+    "M2 drift workflow",
+    "historical Stage 4.3 acquisition"
+  ]
+}

@@ -37,8 +37,17 @@ htmlcov/
 # Pipeline outputs and local execution artifacts
 /runs/
 /logs/
-/reports/
 /outputs/
+
+# LaTeX intermediate build artifacts
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.blg
+*.bbl
 
 # External data packages and generated data artifacts
 /data/raw/
@@ -46,6 +55,8 @@ htmlcov/
 /data/stage_4_3_runs/
 /data/stage_4_4_runs/
 /data/stage_4_4/
+/data/evolving_kg_downstream_v3_1/
+/data/m1_audit_and_gates_bundle/
 /data/**/*.parquet
 /data/**/*.jsonl
 /data/**/*.tar
@@ -57,6 +68,11 @@ htmlcov/
 
 # Preserved audit backup; keep it on disk without staging it by accident.
 /docs/audit/m1_implementation_20261004/preexisting.patch
+
+# Claude & agent working directories
+/.agents/
+/plan_context/
+/.pytest-tmp/
 
 # Small metadata under data/manifests/ remains opt-in and must be staged explicitly.
 # Do not add generated data artifacts by default.

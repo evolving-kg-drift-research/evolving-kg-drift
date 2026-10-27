@@ -1,0 +1,129 @@
+{
+  "source_repo": "D:\\H\u1ecdc t\u1eadp k\u00ec 1\\H\u1ecdc m\u00e1y n\u00e2ng cao Nguy\u1ec5n \u0110\u00ecnh Qu\u00fd\\evolving-ai-kg",
+  "dest_repo": "D:\\H\u1ecdc t\u1eadp k\u00ec 1\\H\u1ecdc m\u00e1y n\u00e2ng cao Nguy\u1ec5n \u0110\u00ecnh Qu\u00fd\\PJ_B1\\evolving-kg-drift",
+  "total_files": 5700,
+  "total_bytes": 2167416651,
+  "all_verified": true,
+  "files_sample": [
+    {
+      "relative_path": "data/raw/articles.json",
+      "size_bytes": 0,
+      "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "verified": true
+    },
+    {
+      "relative_path": "data/raw/articles_ai.json",
+      "size_bytes": 0,
+      "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "verified": true
+    },
+    {
+      "relative_path": "data/raw/rss_index.json",
+      "size_bytes": 0,
+      "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "verified": true
+    },
+    {
+      "relative_path": "data/raw/stage_4_4/blobs/sha256/00/000b165159960b76ec542bdab7647634ad56a30ebe868fd7a2d735fe9583ff97.bin",
+      "size_bytes": 464496,
+      "sha256": "000B165159960B76EC542BDAB7647634AD56A30EBE868FD7A2D735FE9583FF97",
+      "verified": true
+    },
+    {
+      "relative_path": "data/raw/stage_4_4/blobs/sha256/00/000f522a5e115a9860db47f74a3656fecb1891059d27f1131348842b755d96fc.bin",
+      "size_bytes": 468615,
+      "sha256": "000F522A5E115A9860DB47F74A3656FECB1891059D27F1131348842B755D96FC",
+      "verified": true
+    },
+    {
+      "relative_path": "data/raw/stage_4_4/blobs/sha256/00/00158935dad1d9bdfc6451c56c4fbeb2472086b2b68f336583810285f56da9f1.bin",
+      "size_bytes": 260954,
+      "sha256": "00158935DAD1D9BDFC6451C56C4FBEB2472086B2B68F336583810285F56DA9F1",
+      "verified": true
+    },
+    {
+      "relative_path": "data/raw/stage_4_4/blobs/sha256/00/001952932aad13b2f6b456ecdb63ac7bf6ef812dfc54766f749db29674546884.bin",
+      "size_bytes": 464620,
+      "sha256": "001952932AAD13B2F6B456ECDB63AC7BF6EF812DFC54766F749DB29674546884",
+      "verified": true
+    },
+    {
+      "relative_path": "data/raw/stage_4_4/blobs/sha256/00/001d5b62a808c921dd1a2106529fad84ce1e71756df03d6aeb2469b5e9bb3a0d.bin",
+      "size_bytes": 464602,
+      "sha256": "001D5B62A808C921DD1A2106529FAD84CE1E71756DF03D6AEB2469B5E9BB3A0D",
+      "verified": true
+    },
+    {
+      "relative_path": "data/raw/stage_4_4/blobs/sha256/00/001f8db4007296d6d49b398bcc53d6c26d46f4cdd64b3089c0b0c30e7fa09c9c.bin",
+      "size_bytes": 268289,
+      "sha256": "001F8DB4007296D6D49B398BCC53D6C26D46F4CDD64B3089C0B0C30E7FA09C9C",
+      "verified": true
+    },
+    {
+      "relative_path": "data/raw/stage_4_4/blobs/sha256/00/001fcf1bcb463f18ad083619b34e0794d3b938b74afa1d181320b81c97ff0c64.bin",
+      "size_bytes": 239911,
+      "sha256": "001FCF1BCB463F18AD083619B34E0794D3B938B74AFA1D181320B81C97FF0C64",
+      "verified": true
+    },
+    {
+      "relative_path": "data/raw/stage_4_4/blobs/sha256/00/0022c3f868f4d01cabcd97d61dae6b971680a3a62794066d02bd1d23c01b4de4.bin",
+      "size_bytes": 290584,
+      "sha256": "0022C3F868F4D01CABCD97D61DAE6B971680A3A62794066D02BD1D23C01B4DE4",
+      "verified": true
+    },
+    {
+      "relative_path": "data/raw/stage_4_4/blobs/sha256/00/003fcd39e6ecb49986767256782c3d4beeabe899762d7ab779e9caf5a4e02db6.bin",
+      "size_bytes": 466458,
+      "sha256": "003FCD39E6ECB49986767256782C3D4BEEABE899762D7AB779E9CAF5A4E02DB6",
+      "verified": true
+    },
+    {
+      "relative_path": "data/raw/stage_4_4/blobs/sha256/00/00415bd63068cd6c28983fbe130db3f4bfba5f4e6fe57db7dec3d18d50c7a9f6.bin",
+      "size_bytes": 462896,
+      "sha256": "00415BD63068CD6C28983FBE130DB3F4BFBA5F4E6FE57DB7DEC3D18D50C7A9F6",
+      "verified": true
+    },
+    {
+      "relative_path": "data/raw/stage_4_4/blobs/sha256/00/0061702ba0ff0c65fe6f01bf8c943b51ecb88e876d942acb08342c172d0e6f8d.bin",
+      "size_bytes": 466215,
+      "sha256": "0061702BA0FF0C65FE6F01BF8C943B51ECB88E876D942ACB08342C172D0E6F8D",
+      "verified": true
+    },
+    {
+      "relative_path": "data/raw/stage_4_4/blobs/sha256/00/007c83982dbf56316e37287ff15bf903f46f59e698b14f7c64233574737b339b.bin",
+      "size_bytes": 269367,
+      "sha256": "007C83982DBF56316E37287FF15BF903F46F59E698B14F7C64233574737B339B",
+      "verified": true
+    },
+    {
+      "relative_path": "data/raw/stage_4_4/blobs/sha256/00/00850cf66b66ed16de52c16b664d833634b42fcc8036b9aafeaec6b6137163dd.bin",
+      "size_bytes": 4642,
+      "sha256": "00850CF66B66ED16DE52C16B664D833634B42FCC8036B9AAFEAEC6B6137163DD",
+      "verified": true
+    },
+    {
+      "relative_path": "data/raw/stage_4_4/blobs/sha256/00/00982494b6ad8bac4aba1d35c7b05494eb3e913767023f8891cf75f1007adbd8.bin",
+      "size_bytes": 457657,
+      "sha256": "00982494B6AD8BAC4ABA1D35C7B05494EB3E913767023F8891CF75F1007ADBD8",
+      "verified": true
+    },
+    {
+      "relative_path": "data/raw/stage_4_4/blobs/sha256/00/00a7d799fdd298bc6f11cce1a1a973dcca4026345ef15178b9c6a630b727ace7.bin",
+      "size_bytes": 458420,
+      "sha256": "00A7D799FDD298BC6F11CCE1A1A973DCCA4026345EF15178B9C6A630B727ACE7",
+      "verified": true
+    },
+    {
+      "relative_path": "data/raw/stage_4_4/blobs/sha256/00/00c1dd65226708fee8590580649d758d2261bf75a6c524bd6a22d067c438533d.bin",
+      "size_bytes": 462821,
+      "sha256": "00C1DD65226708FEE8590580649D758D2261BF75A6C524BD6A22D067C438533D",
+      "verified": true
+    },
+    {
+      "relative_path": "data/raw/stage_4_4/blobs/sha256/00/00c55ce50b5a24749347e705966ef48a410444a66b1cbda3ac56ba121c8f6651.bin",
+      "size_bytes": 465363,
+      "sha256": "00C55CE50B5A24749347E705966EF48A410444A66B1CBDA3AC56BA121C8F6651",
+      "verified": true
+    }
+  ]
+}

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import platform
 import sys
 import time
@@ -22,7 +23,7 @@ from scripts.inspect_m2_inputs import (  # noqa: E402
     PACKAGE, encode, inspect_package, provenance, safe_file, sha, validate_manifest, write_json,
 )
 from drift.artifact_null import (  # noqa: E402
-    ARTIFACT_NULL_VERSION, SEED_PAIRS, build_artifact_null, saved_noise_observations,
+    ARTIFACT_NULL_VERSION, SEED_PAIRS, build_artifact_null, saved_noise_observations, validate_entity_reference,
 )
 from kge.checkpoint import KGECheckpoint  # noqa: E402
 
@@ -44,8 +45,47 @@ LTO_SCHEMA = pa.schema([
     pa.field("unavailable_reason", pa.string(), False), pa.field("null_artifact_sha256", pa.string(), False),
 ], metadata={b"artifact_schema": b"saved_null_lto_v1"})
 
+# Separate v2 wire contract; the historical v1 stage is not switched to it.
+LTO_SCHEMA_V2 = pa.schema([
+    *[pa.field(name, pa.string(), False) for name in
+      ("reference_schema_version", "transition_id", "entity_id", "bucket_id")],
+    pa.field("reference_entity_ids", pa.list_(pa.field("item", pa.string(), False)), False),
+    *[pa.field(name, pa.int64(), False) for name in
+      ("removed_target_raw_observation_count", "raw_noise_observation_count", "reference_entity_count",
+       "reference_sample_count", "minimum_reference_entities")],
+    pa.field("mad_threshold", pa.float64(), False),
+    *[pa.field(name, pa.float64()) for name in ("median", "mad", "robust_scale")],
+    pa.field("available", pa.bool_(), False), pa.field("unavailable_reason", pa.string(), False),
+    pa.field("null_artifact_sha256", pa.string(), False),
+], metadata={b"artifact_schema": b"entity_null_reference_v2"})
+
 
 def parquet_bytes(rows: list[dict[str, Any]], schema: pa.Schema) -> bytes:
+    tag = (schema.metadata or {}).get(b"artifact_schema")
+    if tag in (b"entity_null_reference_v2", b"entity_reference_longitudinal_drift_v2"):
+        for row in rows:
+            if set(row) != set(schema.names):
+                raise ValueError("V2 Parquet must not drop unregistered fields or fill missing fields")
+            validate_entity_reference(row, row["minimum_reference_entities"], row["mad_threshold"])
+            digest = row["null_artifact_sha256"]
+            if (not isinstance(digest, str) or len(digest) != 64
+                    or any(c not in "0123456789abcdef" for c in digest)):
+                raise ValueError("V2 Parquet requires null-artifact lineage")
+            if tag == b"entity_reference_longitudinal_drift_v2":
+                if (row["drift_component_version"] != "entity_reference_longitudinal_drift_v2"
+                        or type(row["delta_time"]) not in (int, float)
+                        or not math.isfinite(row["delta_time"]) or not 0 <= row["delta_time"] <= 2):
+                    raise ValueError("Invalid v2 temporal displacement")
+                expected = None if row["median"] is None else row["delta_time"] - row["median"]
+                excess = row["signed_excess"]
+                if ((expected is None and excess is not None)
+                        or (expected is not None and (type(excess) not in (int, float)
+                            or not math.isfinite(excess) or not math.isclose(excess, expected, abs_tol=1e-12)))):
+                    raise ValueError("Invalid v2 signed excess")
+                sed = row["SED_plus"]
+                if ((not row["available"] and sed is not None)
+                        or (row["available"] and (type(sed) not in (int, float) or not math.isfinite(sed) or sed < 0))):
+                    raise ValueError("Invalid v2 SED availability")
     table = pa.Table.from_pylist(rows, schema=schema)
     if any(table.schema.field(i).nullable is False and table.column(i).null_count for i in range(table.num_columns)):
         raise ValueError("Null in required analysis artifact field")

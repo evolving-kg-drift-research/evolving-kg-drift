@@ -1,0 +1,12 @@
+{
+  "manifest_version": "1.0",
+  "protocol_version": "0.1.0",
+  "data_contract_version": "0.1.0",
+  "ontology_version": null,
+  "extractor_version": null,
+  "entity_map_version": null,
+  "adjudication_rule_version": null,
+  "snapshot_builder_version": null,
+  "created_at_real": "2026-09-15T16:09:55.222682+00:00",
+  "protocol_sha256": "8de31ee8fa6b68671195d0bb99c2801ce966cf40ef716f150670ff6e4bf9ce99"
+}

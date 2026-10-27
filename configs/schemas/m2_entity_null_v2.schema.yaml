@@ -1,0 +1,40 @@
+# Engineering output contract; does not freeze a scientific policy or activate a stage.
+schema_version: entity_null_reference_v2
+component_version: saved_alignment_entity_null_v2
+scientific_certification: false
+configuration_required:
+  - minimum_reference_entities
+  - mad_threshold
+  - cosine_estimand
+configuration_defaults: null
+bucket_policy: explicit_external_plan_no_automatic_merge
+reference_fields:
+  reference_schema_version: nonempty_string
+  transition_id: nonempty_string
+  entity_id: nonempty_string
+  bucket_id: nonempty_string
+  reference_entity_ids: sorted_distinct_other_entity_ids
+  removed_target_raw_observation_count: integer_exactly_six
+  raw_noise_observation_count: integer_six_times_reference_entity_count
+  reference_entity_count: integer_distinct_reference_entity_count
+  reference_sample_count: integer_equal_to_reference_entity_count
+  minimum_reference_entities: explicit_positive_integer
+  mad_threshold: explicit_positive_finite_number
+  median: nullable_finite_number
+  mad: nullable_nonnegative_finite_number
+  robust_scale: nullable_one_point_4826_times_mad
+  available: boolean
+  unavailable_reason: string
+forbidden_legacy_fields:
+  - observation_count
+availability_reasons:
+  - LTO_EMPTY_REFERENCE
+  - INSUFFICIENT_REFERENCE_ENTITIES
+  - ZERO_MAD
+lineage:
+  raw_observations: preserve_six_endpoint_seed_pair_rows_per_entity
+  entity_noise_statistics: median_and_six_raw_row_sha256s
+  reference_entity_ids: target_excluded
+  configuration_sha256: canonical_json
+  bucket_plan_sha256: canonical_json
+  raw_observations_sha256: canonical_sorted_json_rows

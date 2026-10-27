@@ -1,0 +1,34 @@
+# Descriptive collection contract, deliberately separate from G3 operating ranges.
+schema_version: saved_alignment_geometry_statistics_v2
+required:
+  - statistics_version
+  - source_snapshot
+  - target_snapshot
+  - source_seed
+  - target_seed
+  - singular_values
+  - relative_singular_values
+  - rank_relative_tolerance
+  - numerical_rank
+  - rank_fraction
+  - relative_fit_residual
+  - relative_holdout_residual
+  - fit_error_norm
+  - holdout_error_norm
+  - fit_target_norm
+  - holdout_target_norm
+  - signed_holdout_minus_fit
+  - absolute_holdout_minus_fit
+  - raw_orthogonality_error
+  - normalized_orthogonality_error
+  - undefined_statistics
+missing_rank_tolerance: rank_and_rank_fraction_null_preserve_spectrum
+zero_target_norm: relative_residual_null_preserve_error_and_target_norms
+holdout_centering: use_fit_means
+operating_ranges_required: false
+forbidden_fields:
+  - available
+  - G3_pass
+  - SED_plus
+  - maximum_relative_holdout_residual
+  - maximum_relative_fit_holdout_gap

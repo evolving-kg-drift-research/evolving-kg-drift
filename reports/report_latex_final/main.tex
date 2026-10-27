@@ -1,0 +1,277 @@
+\documentclass[12pt,a4paper,oneside]{report}
+
+% ----------------------------------------------------------------------
+% GÓI NGÔN NGỮ VÀ BẢNG MÃ TIẾNG VIỆT
+% ----------------------------------------------------------------------
+\usepackage[utf8]{vietnam}
+
+% ----------------------------------------------------------------------
+% CẤU HÌNH ĐỊNH DẠNG TRANG & LỀ (CHUẨN BÁO CÁO NGHIỆM THU ĐH XÂY DỰNG HÀ NỘI)
+% ----------------------------------------------------------------------
+\usepackage{geometry}
+\geometry{
+    a4paper,
+    top=25mm,
+    bottom=25mm,
+    left=30mm,
+    right=20mm
+}
+
+% ----------------------------------------------------------------------
+% CÁC GÓI TOÁN HỌC VÀ KÝ HIỆU
+% ----------------------------------------------------------------------
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{bm}
+
+% Định lý, bổ đề, định nghĩa
+\theoremstyle{definition}
+\newtheorem{definition}{Định nghĩa}[chapter]
+\newtheorem{assumption}{Giả định}[chapter]
+\newtheorem{axiom}{Tiên đề}[chapter]
+\newtheorem{example}{Ví dụ}[chapter]
+\newtheorem{hypothesis}{Giả thuyết}[chapter]
+\newtheorem{criterion}{Tiêu chuẩn}[chapter]
+\theoremstyle{plain}
+\newtheorem{theorem}{Định lý}[chapter]
+\newtheorem{lemma}{Bổ đề}[chapter]
+\newtheorem{property}{Tính chất}[chapter]
+\theoremstyle{remark}
+\newtheorem{remark}{Nhận xét}[chapter]
+
+% Gói thuật toán
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\floatname{algorithm}{Thuật toán}
+\renewcommand{\algorithmicrequire}{\textbf{Đầu vào:}}
+\renewcommand{\algorithmicensure}{\textbf{Đầu ra:}}
+
+% ----------------------------------------------------------------------
+% ĐỒ HỌA, BẢNG BIỂU VÀ MÀU SẮC
+% ----------------------------------------------------------------------
+\usepackage{graphicx}
+\graphicspath{{figures/}{reports/report_latex_final/figures/}}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{xcolor}
+\definecolor{huceblue}{RGB}{0, 51, 102}
+\definecolor{darkslate}{RGB}{30, 41, 59}
+\definecolor{linkblue}{RGB}{37, 99, 235}
+\definecolor{citegreen}{RGB}{5, 150, 105}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows.meta,positioning}
+
+% ----------------------------------------------------------------------
+% VI TĂNG CƯỜNG KIỂU CHỮ VÀ DÒNG
+% ----------------------------------------------------------------------
+\usepackage{microtype}
+\usepackage{setspace}
+\onehalfspacing % Giãn dòng 1.5 tiêu chuẩn học thuật
+
+\usepackage{caption}
+\usepackage{subcaption}
+\captionsetup{
+    font=small,
+    labelfont={bf,color=darkslate},
+    labelsep=period,
+    justification=centering
+}
+
+% ----------------------------------------------------------------------
+% LIÊN KẾT HYPERREF VÀ ĐIỀU HƯỚNG
+% ----------------------------------------------------------------------
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=huceblue,
+    citecolor=citegreen,
+    urlcolor=linkblue,
+    plainpages=false,
+    pdfpagelabels=true,
+    pdftitle={Định lượng độ trôi biểu diễn có hiệu chỉnh nhiễu cho suy luận đa bước trên đồ thị tri thức tiến hóa},
+    pdfauthor={Nhóm sinh viên thực hiện - HUCE},
+    pdfkeywords={Knowledge Graph, Representation Drift, Orthogonal Procrustes, Two-Way Fixed Effects, TransE}
+}
+
+% ----------------------------------------------------------------------
+% HEADER & FOOTER
+% ----------------------------------------------------------------------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{gray}Báo cáo Nghiệm thu: Đồ thị tri thức tiến hóa \& Trôi dạt biểu diễn}
+\fancyhead[R]{\small\color{gray}HUCE - 2026}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\setlength{\headheight}{15pt}
+
+% Phân vùng tài liệu cho report documentclass
+\makeatletter
+\newif\if@mainmatter
+\@mainmattertrue
+\newcommand{\frontmatter}{%
+    \cleardoublepage
+    \@mainmatterfalse
+    \pagenumbering{roman}
+}
+\newcommand{\mainmatter}{%
+    \cleardoublepage
+    \@mainmattertrue
+    \pagenumbering{arabic}
+}
+\newcommand{\backmatter}{%
+    \if@openright
+        \cleardoublepage
+    \else
+        \clearpage
+    \fi
+    \@mainmatterfalse
+}
+\makeatother
+
+% ======================================================================
+% BẮT ĐẦU TÀI LIỆU
+% ======================================================================
+\begin{document}
+
+% ----------------------------------------------------------------------
+% TRANG TIÊU ĐỀ CHÍNH THỨC (TITLE PAGE)
+% ----------------------------------------------------------------------
+\pagenumbering{Alph}
+\begin{titlepage}
+    \centering
+    \begin{minipage}{0.9\textwidth}
+        \centering
+        \textbf{\large TRƯỜNG ĐẠI HỌC XÂY DỰNG HÀ NỘI (HUCE)}\\[0.2cm]
+        \textbf{\large KHOA CÔNG NGHỆ THÔNG TIN}\\[0.1cm]
+        \textbf{\large BỘ MÔN KHOA HỌC MÁY TÍNH}\\[0.3cm]
+        \rule{0.8\textwidth}{1.2pt}\\[1.8cm]
+
+        \textbf{\Large BÁO CÁO TỔNG KẾT NGHIỆM THU ĐỀ TÀI}\\[0.3cm]
+        \textbf{\large NGHIÊN CỨU KHOA HỌC VÀ PHÁT TRIỂN CÔNG NGHỆ}\\[1.5cm]
+
+        {\color{huceblue}\huge \bfseries ĐỊNH LƯỢNG ĐỘ TRÔI BIỂU DIỄN CÓ HIỆU CHỈNH NHIỄU CHO SUY LUẬN ĐA BƯỚC TRÊN ĐỒ THỊ TRI THỨC TIẾN HÓA\par}
+        \vspace{0.8cm}
+
+        {\large \textit{Tên tiếng Anh:}\\[0.15cm]
+        \textbf{Noise-Calibrated Representation Drift Quantification for Multi-Hop Reasoning on Evolving Knowledge Graphs}\par}
+        \vspace{1.8cm}
+    \end{minipage}
+
+    \vfill
+
+    \begin{minipage}{0.95\textwidth}
+        \large
+        \begin{tabular}{@{}ll@{}}
+            \textbf{Tác giả:} & Nhóm sinh viên thực hiện \\
+            \textbf{Người hướng dẫn:} & ThS. Nguyễn Đình Quý \\
+            \textbf{Đơn vị công tác:} & Bộ môn Khoa học Máy tính - Khoa CNTT \\
+            \textbf{Năm thực hiện:} & 2026
+        \end{tabular}
+    \end{minipage}
+
+    \vfill
+    {\large \textbf{Hà Nội, Năm 2026}}
+\end{titlepage}
+
+% ----------------------------------------------------------------------
+% PHẦN ĐẦU (FRONT MATTER)
+% ----------------------------------------------------------------------
+\frontmatter
+
+% Tóm tắt báo cáo
+\chapter*{Tóm tắt nghiên cứu}
+\addcontentsline{toc}{chapter}{Tóm tắt nghiên cứu}
+
+Báo cáo tổng kết nghiệm thu này trình bày toàn diện công trình nghiên cứu: \textit{"Định lượng độ trôi biểu diễn có hiệu chỉnh nhiễu cho suy luận đa bước trên đồ thị tri thức tiến hóa"} (Noise-Calibrated Representation Drift Quantification for Multi-Hop Reasoning on Evolving Knowledge Graphs). Trong bối cảnh tri thức thế giới vận động liên tục, đồ thị tri thức (Knowledge Graph - KG) liên tục thu nhận các sự kiện, chỉnh sửa và bãi bỏ các quan hệ cũ. Khi các mô hình nhúng đồ thị tri thức (Knowledge Graph Embeddings - KGE) được tái huấn luyện định kỳ, không gian biểu diễn vector của các thực thể bị dịch chuyển. Tuy nhiên, thách thức cốt lõi nằm ở chỗ: sự dịch chuyển này là tổ hợp phi tuyến đan xen của hai thành phần: (1) \textbf{Trôi dạt biểu diễn thực chất (Genuine Representation Drift)} do cấu trúc quan hệ thay đổi, và (2) \textbf{Nhiễu ngẫu nhiên do tái huấn luyện (Retraining Stochastic Noise)} phát sinh từ khởi tạo trọng số ngẫu nhiên và tối ưu hóa phi lồi.
+
+Nghiên cứu xây dựng một khung đo lường chuẩn hóa hình học khép kín: (i) Căn chỉnh không gian nhúng bằng phương pháp Centered Orthogonal Procrustes SVD trên tập thực thể mỏ neo bền vững; (ii) Thiết lập phân phối giả thuyết không thực nghiệm (Same-Snapshot Empirical Null) thông qua tái huấn luyện đa seed cố định (13, 37, 101) và kỹ thuật Leave-Target-Out (LTO); (iii) Đo lường độ trôi dạt dư thừa chuẩn hóa ($SED^+$). Tiếp đó, nghiên cứu tiến hành đánh giá thực nghiệm tác động của $SED^+$ lên tác vụ suy luận đa bước (Multi-Hop Question Answering) thông qua thiết kế bảng dữ liệu lặp lại (Recurring QA Panel) gồm 147 câu hỏi trải dài trên 10 snapshot (9 bước chuyển đổi thời gian, 1.323 quan sát). Mô hình kinh tế lượng Two-Way Fixed Effects (TWFE) kết hợp Wild Cluster Bootstrap (WCB) được áp dụng để kiểm định giả thuyết khoa học $H_1$, cùng kiểm định ngụy tạo (Falsification Test) bằng trôi dạt giả cùng thời điểm ($D^{pseudo}$).
+
+Kết quả thực nghiệm xác nhận:
+\begin{enumerate}
+    \item Khung đo lường phân lập thành công tín hiệu trôi dạt thực chất khỏi nhiễu nền ngẫu nhiên với tỷ lệ trôi dạt dương đạt từ $42{,}1\%$ đến $53{,}6\%$ trên các bước chuyển đổi thời gian.
+    \item Kiểm định ngụy tạo khẳng định nhiễu ngẫu nhiên thuần túy không tạo ra hiệu ứng trôi dạt giả mạo ($\beta_{pseudo} = -0{,}01261$, $p_{\text{WCB}} = 0{,}495$).
+    \item Khi kiểm soát chặt chẽ các yếu tố cố định câu hỏi và thời gian, trôi dạt biểu diễn thực chất $SED^+$ độc lập thống kê với sự biến động thứ hạng suy luận đa bước ($\beta_d = -0{,}00466$, sai số chuẩn cụm $0{,}00497$, $p_{\text{WCB}} = 0{,}299$).
+    \item Phân tích đối chiếu chỉ ra rằng ưu thế vượt trội của mô hình KGE cập nhật trong môi trường thế giới mở chủ yếu bắt nguồn từ \textbf{độ mở rộng bao phủ thực thể (coverage expansion)} giúp triệt tiêu hình phạt OOV, thay vì do sự tái tinh chỉnh tọa độ biểu diễn vector của các thực thể đã biết từ trước.
+\end{enumerate}
+
+\paragraph{Từ khóa:} Đồ thị tri thức tiến hóa, Nhúng đồ thị tri thức, Trôi dạt biểu diễn, Centered Procrustes SVD, Hiệu chỉnh nhiễu ngẫu nhiên, Suy luận đa bước, Two-Way Fixed Effects, Wild Cluster Bootstrap.
+
+\clearpage
+
+% Mục lục
+\tableofcontents
+\clearpage
+
+% Danh mục hình vẽ
+\listoffigures
+\clearpage
+
+% Danh mục bảng biểu
+\listoftables
+\clearpage
+
+% Danh mục ký hiệu và từ viết tắt
+\chapter*{Danh mục ký hiệu và từ viết tắt}
+\addcontentsline{toc}{chapter}{Danh mục ký hiệu và từ viết tắt}
+
+\begin{table}[h!]
+\centering
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Ký hiệu / Viết tắt} & \textbf{Ý nghĩa định nghĩa} \\
+\midrule
+\textbf{KG} & Knowledge Graph (Đồ thị tri thức) \\
+\textbf{EKG} & Evolving Knowledge Graph (Đồ thị tri thức tiến hóa) \\
+\textbf{KGE} & Knowledge Graph Embedding (Nhúng đồ thị tri thức) \\
+\textbf{TransE-L2} & Translating Embeddings mô hình hóa với chuẩn khoảng cách $L_2$ \\
+\textbf{SVD} & Singular Value Decomposition (Phân tích giá trị kỳ dị) \\
+\textbf{LTO} & Leave-Target-Out (Kỹ thuật loại trừ thực thể mục tiêu khi tính nền nhiễu) \\
+\textbf{MAD} & Median Absolute Deviation (Độ lệch tuyệt đối trung vị) \\
+\textbf{SED}$^+$ & Standardized Excess Drift (Độ trôi dạt dư thừa chuẩn hóa dương) \\
+\textbf{QA} & Question Answering (Hỏi đáp suy luận) \\
+\textbf{MRR} & Mean Reciprocal Rank (Thứ hạng nghịch đảo trung bình) \\
+\textbf{RR} & Reciprocal Rank (Thứ hạng nghịch đảo của câu trả lời chính xác) \\
+\textbf{OOV} & Out-Of-Vocabulary (Thực thể nằm ngoài tập từ vựng/biểu diễn đã biết) \\
+\textbf{TWFE} & Two-Way Fixed Effects (Mô hình hồi quy tác động cố định hai chiều) \\
+\textbf{WCB} & Wild Cluster Bootstrap (Phương pháp tái lấy mẫu cụm hoang dã) \\
+\textbf{MVR} & Minimum Defensible Research (Phạm vi nghiên cứu tối thiểu có thể bảo vệ) \\
+\textbf{INV-01 -- INV-06} & Các bất biến khoa học cốt lõi (Hard Scientific Invariants) \\
+$\delta_{\text{time}}(e)$ & Khoảng cách trôi dạt biểu diễn thô theo thời gian của thực thể $e$ \\
+$\delta_{\text{noise}}(e)$ & Khoảng cách dịch chuyển biểu diễn do nhiễu tái huấn luyện ngẫu nhiên \\
+$Q$ & Ma trận trực giao tối ưu thu được từ bài toán Orthogonal Procrustes \\
+$\beta_d$ & Hệ số tác động của trôi dạt biểu diễn lên thứ hạng suy luận trong mô hình TWFE \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\clearpage
+
+% ----------------------------------------------------------------------
+% THÂN BÁO CÁO (MAIN MATTER)
+% ----------------------------------------------------------------------
+\mainmatter
+
+\include{chapters/01_introduction}
+\include{chapters/02_theoretical_foundations}
+\include{chapters/03_system_architecture}
+\include{chapters/04_empirical_results}
+\include{chapters/05_discussion_and_defense}
+\include{chapters/06_conclusion}
+
+% ----------------------------------------------------------------------
+% PHẦN CUỐI (BACK MATTER)
+% ----------------------------------------------------------------------
+\backmatter
+
+\addcontentsline{toc}{chapter}{Tài liệu tham khảo}
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

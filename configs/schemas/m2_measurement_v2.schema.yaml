@@ -1,0 +1,64 @@
+# Separate JSON stage contract; not the historical flat Parquet drift schema.
+schema_version: m2_measurement_stage_v2
+scientific_certification: false
+configuration_defaults: null
+settings_required:
+  - cosine_estimand
+  - norm_floor
+  - denominator_floor
+  - rank_relative_tolerance
+  - minimum_rank_fraction
+  - maximum_normalized_orthogonality_error
+  - maximum_relative_holdout_residual
+  - maximum_relative_fit_holdout_gap
+  - gap_statistic
+  - minimum_reference_entities
+  - mad_threshold
+  - epsilon
+common_required:
+  - component_version
+  - stage
+  - transition_id
+  - scientific_certification
+  - configuration
+  - configuration_sha256
+  - anchor_plan_sha256
+  - bucket_plan_sha256
+  - checkpoint_hashes
+  - alignment_hashes
+  - alignment_content_hashes
+  - diagnostics
+  - alignment_available
+  - entity_results
+stages:
+  'null':
+    component_version: saved_checkpoint_null_stage_v2
+    additional_required: [null_artifact]
+  drift:
+    component_version: saved_checkpoint_drift_stage_v2
+    additional_required: [null_stage_sha256, temporal_observations]
+    row_version: saved_checkpoint_drift_row_v2
+    calibration_component_version: entity_reference_longitudinal_drift_v2
+    temporal_alignment_unavailable:
+      calibration_component_version: null
+      delta_time: null
+      signed_excess: null
+      SED_plus: null
+    null_alignment_unavailable_with_valid_temporal:
+      calibration_component_version: null
+      delta_time: computed_three_parallel_seed_median
+      signed_excess: null
+      SED_plus: null
+lineage:
+  alignment_hashes: physical_input_file_bytes
+  alignment_content_hashes: canonical_decoded_JSON_values
+  checkpoint_hashes: physical_input_file_bytes_verified_by_loader
+  anchor_plan_sha256: canonical_decoded_JSON_values
+  bucket_plan_sha256: canonical_decoded_JSON_values
+  population: exact_persistent_entities_all_seeds_with_no_silent_drop
+activation:
+  original_sources: exact_lock_and_protocol_hashes
+  authoritative_registration: configs/protocol_v1.yaml_drift.measurement_v2
+  operating_ranges: explicit_no_RMSE_threshold_reuse
+  bucket_selection: external_outcome_blind_frozen_plan
+  automatic_next_stage: false

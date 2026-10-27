@@ -20,7 +20,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from scripts.inspect_m2_inputs import (  # noqa: E402
     PACKAGE, encode, inspect_package, provenance, safe_file, sha, validate_manifest, write_json,
 )
-from scripts.run_m2_null import parquet_bytes  # noqa: E402
+from scripts.run_m2_null import LTO_SCHEMA_V2, parquet_bytes  # noqa: E402
 from drift.artifact_drift import ARTIFACT_DRIFT_VERSION, calibrated_metrics, saved_temporal_observations  # noqa: E402
 from drift.null import compute_median  # noqa: E402
 from kge.checkpoint import KGECheckpoint  # noqa: E402
@@ -41,6 +41,13 @@ DRIFT_SCHEMA = pa.schema([
     pa.field("observation_count", pa.int64(), False), pa.field("available", pa.bool_(), False),
     pa.field("unavailable_reason", pa.string(), False), pa.field("null_artifact_sha256", pa.string(), False),
 ], metadata={b"artifact_schema": b"saved_entity_drift_v1"})
+
+DRIFT_SCHEMA_V2 = pa.schema([
+    *LTO_SCHEMA_V2,
+    pa.field("drift_component_version", pa.string(), False),
+    pa.field("delta_time", pa.float64(), False),
+    pa.field("signed_excess", pa.float64()), pa.field("SED_plus", pa.float64()),
+], metadata={b"artifact_schema": b"entity_reference_longitudinal_drift_v2"})
 
 
 def run() -> Path:
