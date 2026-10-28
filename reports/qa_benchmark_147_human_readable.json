@@ -2,7 +2,10 @@
   {
     "query_id": "q_1hop_0000",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Reimagine\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "integrated_into"
+    ],
+    "natural_language_question": "Tính năng/thành phần công nghệ \"Reimagine\" được tích hợp trực tiếp vào sản phẩm/hệ thống nào?",
     "head_entity_name": "Reimagine",
     "head_entity_id": "ent_01764e46",
     "intermediate_entity_name": null,
@@ -16,7 +19,10 @@
   {
     "query_id": "q_1hop_0001",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Newton MessagePad\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Sản phẩm/thiết bị \"Newton MessagePad\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "Newton MessagePad",
     "head_entity_id": "ent_04b05907",
     "intermediate_entity_name": null,
@@ -30,7 +36,10 @@
   {
     "query_id": "q_1hop_0002",
     "hops": 1,
-    "natural_language_question": "Thực thể \"màn hình ôtô thông minh Android AI ADAS Utour\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Sản phẩm/thiết bị \"màn hình ôtô thông minh Android AI ADAS Utour\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "màn hình ôtô thông minh Android AI ADAS Utour",
     "head_entity_id": "ent_0863f993",
     "intermediate_entity_name": null,
@@ -44,7 +53,10 @@
   {
     "query_id": "q_1hop_0003",
     "hops": 1,
-    "natural_language_question": "Thực thể \"macOS 15.4\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "version_of"
+    ],
+    "natural_language_question": "Hệ điều hành/phiên bản \"macOS 15.4\" là một biến thể cấu hình trực thuộc dòng sản phẩm/hệ điều hành nào?",
     "head_entity_name": "macOS 15.4",
     "head_entity_id": "ent_094cdf4d",
     "intermediate_entity_name": null,
@@ -58,7 +70,10 @@
   {
     "query_id": "q_1hop_0004",
     "hops": 1,
-    "natural_language_question": "Thực thể \"NIC\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "partners_with"
+    ],
+    "natural_language_question": "Tổ chức/doanh nghiệp \"NIC\" thiết lập quan hệ hợp tác chiến lược với đơn vị nào?",
     "head_entity_name": "NIC",
     "head_entity_id": "ent_0e1733ef",
     "intermediate_entity_name": null,
@@ -72,7 +87,10 @@
   {
     "query_id": "q_1hop_0005",
     "hops": 1,
-    "natural_language_question": "Thực thể \"NIC\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "partners_with"
+    ],
+    "natural_language_question": "Tổ chức/doanh nghiệp \"NIC\" thiết lập quan hệ hợp tác chiến lược với đơn vị nào?",
     "head_entity_name": "NIC",
     "head_entity_id": "ent_0e1733ef",
     "intermediate_entity_name": null,
@@ -86,7 +104,10 @@
   {
     "query_id": "q_1hop_0006",
     "hops": 1,
-    "natural_language_question": "Thực thể \"iOS 18.4\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "version_of"
+    ],
+    "natural_language_question": "Hệ điều hành/phiên bản \"iOS 18.4\" là một biến thể cấu hình trực thuộc dòng sản phẩm/hệ điều hành nào?",
     "head_entity_name": "iOS 18.4",
     "head_entity_id": "ent_0ebc7901",
     "intermediate_entity_name": null,
@@ -100,7 +121,10 @@
   {
     "query_id": "q_1hop_0007",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Nomi\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "integrated_into"
+    ],
+    "natural_language_question": "Tính năng/thành phần công nghệ \"Nomi\" được tích hợp trực tiếp vào sản phẩm/hệ thống nào?",
     "head_entity_name": "Nomi",
     "head_entity_id": "ent_0f937e60",
     "intermediate_entity_name": null,
@@ -114,7 +138,10 @@
   {
     "query_id": "q_1hop_0008",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Nomi\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "integrated_into"
+    ],
+    "natural_language_question": "Tính năng/thành phần công nghệ \"Nomi\" được tích hợp trực tiếp vào sản phẩm/hệ thống nào?",
     "head_entity_name": "Nomi",
     "head_entity_id": "ent_0f937e60",
     "intermediate_entity_name": null,
@@ -128,7 +155,10 @@
   {
     "query_id": "q_1hop_0009",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Super Vietnam 2025 PitchFest\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "version_of"
+    ],
+    "natural_language_question": "Sự kiện/chương trình \"Super Vietnam 2025 PitchFest\" là phiên bản kế tiếp trực thuộc chuỗi sự kiện nào?",
     "head_entity_name": "Super Vietnam 2025 PitchFest",
     "head_entity_id": "ent_1238ddea",
     "intermediate_entity_name": null,
@@ -142,7 +172,10 @@
   {
     "query_id": "q_1hop_0010",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Redmi Note 14 Pro+ 5G\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "version_of"
+    ],
+    "natural_language_question": "Thiết bị/phiên bản \"Redmi Note 14 Pro+ 5G\" là một biến thể cấu hình trực thuộc dòng sản phẩm nào?",
     "head_entity_name": "Redmi Note 14 Pro+ 5G",
     "head_entity_id": "ent_125c584c",
     "intermediate_entity_name": null,
@@ -156,7 +189,10 @@
   {
     "query_id": "q_1hop_0011",
     "hops": 1,
-    "natural_language_question": "Thực thể \"S25 Edge\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "version_of"
+    ],
+    "natural_language_question": "Thiết bị/phiên bản \"S25 Edge\" là một biến thể cấu hình trực thuộc dòng sản phẩm nào?",
     "head_entity_name": "S25 Edge",
     "head_entity_id": "ent_142b1a72",
     "intermediate_entity_name": null,
@@ -170,7 +206,10 @@
   {
     "query_id": "q_1hop_0012",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Guemmy Kim\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Guemmy Kim\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Guemmy Kim",
     "head_entity_id": "ent_21a7ec98",
     "intermediate_entity_name": null,
@@ -184,7 +223,10 @@
   {
     "query_id": "q_1hop_0013",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Young Liu\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "is_CEO_of"
+    ],
+    "natural_language_question": "Nhân vật \"Young Liu\" đang giữ cương vị Giám đốc điều hành (CEO) của tổ chức/doanh nghiệp nào?",
     "head_entity_name": "Young Liu",
     "head_entity_id": "ent_22bf461a",
     "intermediate_entity_name": null,
@@ -198,7 +240,10 @@
   {
     "query_id": "q_1hop_0014",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Young Liu\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Young Liu\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Young Liu",
     "head_entity_id": "ent_22bf461a",
     "intermediate_entity_name": null,
@@ -212,7 +257,10 @@
   {
     "query_id": "q_1hop_0015",
     "hops": 1,
-    "natural_language_question": "Thực thể \"iPhone 16e\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "version_of"
+    ],
+    "natural_language_question": "Thiết bị/phiên bản \"iPhone 16e\" là một biến thể cấu hình trực thuộc dòng sản phẩm nào?",
     "head_entity_name": "iPhone 16e",
     "head_entity_id": "ent_2364aee3",
     "intermediate_entity_name": null,
@@ -226,7 +274,10 @@
   {
     "query_id": "q_1hop_0016",
     "hops": 1,
-    "natural_language_question": "Thực thể \"IQ 4S\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Sản phẩm/thiết bị \"IQ 4S\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "IQ 4S",
     "head_entity_id": "ent_24114640",
     "intermediate_entity_name": null,
@@ -240,7 +291,10 @@
   {
     "query_id": "q_1hop_0017",
     "hops": 1,
-    "natural_language_question": "Thực thể \"IQ 4S\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Sản phẩm/thiết bị \"IQ 4S\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "IQ 4S",
     "head_entity_id": "ent_24114640",
     "intermediate_entity_name": null,
@@ -254,7 +308,10 @@
   {
     "query_id": "q_1hop_0018",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Starlink\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Sản phẩm/công nghệ/mô hình \"Starlink\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "Starlink",
     "head_entity_id": "ent_2412f769",
     "intermediate_entity_name": null,
@@ -268,7 +325,10 @@
   {
     "query_id": "q_1hop_0019",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Digital Nervous System\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Sản phẩm/công nghệ/mô hình \"Digital Nervous System\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "Digital Nervous System",
     "head_entity_id": "ent_24277f8f",
     "intermediate_entity_name": null,
@@ -282,7 +342,10 @@
   {
     "query_id": "q_1hop_0020",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Brad Smith\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Brad Smith\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Brad Smith",
     "head_entity_id": "ent_24f6f01e",
     "intermediate_entity_name": null,
@@ -296,7 +359,10 @@
   {
     "query_id": "q_1hop_0021",
     "hops": 1,
-    "natural_language_question": "Thực thể \"DeepSeek-Reasoner\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Mô hình/hệ thống AI \"DeepSeek-Reasoner\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "DeepSeek-Reasoner",
     "head_entity_id": "ent_2524619d",
     "intermediate_entity_name": null,
@@ -310,7 +376,10 @@
   {
     "query_id": "q_1hop_0022",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Motorola Mobility\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "acquired_by"
+    ],
+    "natural_language_question": "Doanh nghiệp/thực thể \"Motorola Mobility\" đã được sáp nhập hoặc mua lại bởi nhân vật/tổ chức nào?",
     "head_entity_name": "Motorola Mobility",
     "head_entity_id": "ent_25f82707",
     "intermediate_entity_name": null,
@@ -324,7 +393,10 @@
   {
     "query_id": "q_1hop_0023",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Bespoke AI\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Sản phẩm/công nghệ/mô hình \"Bespoke AI\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "Bespoke AI",
     "head_entity_id": "ent_2c9408aa",
     "intermediate_entity_name": null,
@@ -338,7 +410,10 @@
   {
     "query_id": "q_1hop_0024",
     "hops": 1,
-    "natural_language_question": "Thực thể \"o1-Pro\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Mô hình/hệ thống AI \"o1-Pro\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "o1-Pro",
     "head_entity_id": "ent_2e2bb3b4",
     "intermediate_entity_name": null,
@@ -352,7 +427,10 @@
   {
     "query_id": "q_1hop_0025",
     "hops": 1,
-    "natural_language_question": "Thực thể \"o1-Pro\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "version_of"
+    ],
+    "natural_language_question": "Mô hình/phiên bản \"o1-Pro\" là một biến thể cấu hình trực thuộc dòng sản phẩm/mô hình nào?",
     "head_entity_name": "o1-Pro",
     "head_entity_id": "ent_2e2bb3b4",
     "intermediate_entity_name": null,
@@ -366,7 +444,10 @@
   {
     "query_id": "q_1hop_0026",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Juan Lavista Ferres\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Juan Lavista Ferres\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Juan Lavista Ferres",
     "head_entity_id": "ent_2e31c063",
     "intermediate_entity_name": null,
@@ -380,7 +461,10 @@
   {
     "query_id": "q_1hop_0027",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Auto Frame\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "integrated_into"
+    ],
+    "natural_language_question": "Tính năng/thành phần công nghệ \"Auto Frame\" được tích hợp trực tiếp vào sản phẩm/hệ thống nào?",
     "head_entity_name": "Auto Frame",
     "head_entity_id": "ent_31c92511",
     "intermediate_entity_name": null,
@@ -394,7 +478,10 @@
   {
     "query_id": "q_1hop_0028",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Vũ Quốc Huy\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Vũ Quốc Huy\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Vũ Quốc Huy",
     "head_entity_id": "ent_330d5d63",
     "intermediate_entity_name": null,
@@ -408,7 +495,10 @@
   {
     "query_id": "q_1hop_0029",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Vũ Quốc Huy\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Vũ Quốc Huy\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Vũ Quốc Huy",
     "head_entity_id": "ent_330d5d63",
     "intermediate_entity_name": null,
@@ -422,7 +512,10 @@
   {
     "query_id": "q_1hop_0030",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Mark Zuckerberg\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "is_CEO_of"
+    ],
+    "natural_language_question": "Nhân vật \"Mark Zuckerberg\" đang giữ cương vị Giám đốc điều hành (CEO) của tổ chức/doanh nghiệp nào?",
     "head_entity_name": "Mark Zuckerberg",
     "head_entity_id": "ent_3957d14a",
     "intermediate_entity_name": null,
@@ -436,7 +529,10 @@
   {
     "query_id": "q_1hop_0031",
     "hops": 1,
-    "natural_language_question": "Thực thể \"MedCapNet\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "integrated_into"
+    ],
+    "natural_language_question": "Tính năng/thành phần công nghệ \"MedCapNet\" được tích hợp trực tiếp vào sản phẩm/hệ thống nào?",
     "head_entity_name": "MedCapNet",
     "head_entity_id": "ent_3d06168c",
     "intermediate_entity_name": null,
@@ -450,7 +546,10 @@
   {
     "query_id": "q_1hop_0032",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Lance Ulanoff\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Lance Ulanoff\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Lance Ulanoff",
     "head_entity_id": "ent_41b76e2b",
     "intermediate_entity_name": null,
@@ -464,7 +563,10 @@
   {
     "query_id": "q_1hop_0033",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Camera AI\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Sản phẩm/thiết bị \"Camera AI\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "Camera AI",
     "head_entity_id": "ent_44deb682",
     "intermediate_entity_name": null,
@@ -478,7 +580,10 @@
   {
     "query_id": "q_1hop_0034",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Molly Montgomery\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Molly Montgomery\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Molly Montgomery",
     "head_entity_id": "ent_4542c150",
     "intermediate_entity_name": null,
@@ -492,7 +597,10 @@
   {
     "query_id": "q_1hop_0035",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Sam Altman\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "is_CEO_of"
+    ],
+    "natural_language_question": "Nhân vật \"Sam Altman\" đang giữ cương vị Giám đốc điều hành (CEO) của tổ chức/doanh nghiệp nào?",
     "head_entity_name": "Sam Altman",
     "head_entity_id": "ent_46b09b21",
     "intermediate_entity_name": null,
@@ -506,7 +614,10 @@
   {
     "query_id": "q_1hop_0036",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Sam Altman\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Sam Altman\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Sam Altman",
     "head_entity_id": "ent_46b09b21",
     "intermediate_entity_name": null,
@@ -520,7 +631,10 @@
   {
     "query_id": "q_1hop_0037",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Galaxy S25 Edge\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Sản phẩm/thiết bị \"Galaxy S25 Edge\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "Galaxy S25 Edge",
     "head_entity_id": "ent_4cef6bf4",
     "intermediate_entity_name": null,
@@ -534,7 +648,10 @@
   {
     "query_id": "q_1hop_0038",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Musk\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Musk\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Musk",
     "head_entity_id": "ent_4db16eb9",
     "intermediate_entity_name": null,
@@ -548,7 +665,10 @@
   {
     "query_id": "q_1hop_0039",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Jared Spataro\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Jared Spataro\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Jared Spataro",
     "head_entity_id": "ent_5ac3e44c",
     "intermediate_entity_name": null,
@@ -562,7 +682,10 @@
   {
     "query_id": "q_1hop_0040",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Viktor Luthman\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "is_CEO_of"
+    ],
+    "natural_language_question": "Nhân vật \"Viktor Luthman\" đang giữ cương vị Giám đốc điều hành (CEO) của tổ chức/doanh nghiệp nào?",
     "head_entity_name": "Viktor Luthman",
     "head_entity_id": "ent_5c5199f5",
     "intermediate_entity_name": null,
@@ -576,7 +699,10 @@
   {
     "query_id": "q_1hop_0041",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Boston Dynamics\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "partners_with"
+    ],
+    "natural_language_question": "Tổ chức/doanh nghiệp \"Boston Dynamics\" thiết lập quan hệ hợp tác chiến lược với đơn vị nào?",
     "head_entity_name": "Boston Dynamics",
     "head_entity_id": "ent_5ecc0298",
     "intermediate_entity_name": null,
@@ -590,7 +716,10 @@
   {
     "query_id": "q_1hop_0042",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Boston Dynamics\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "partners_with"
+    ],
+    "natural_language_question": "Tổ chức/doanh nghiệp \"Boston Dynamics\" thiết lập quan hệ hợp tác chiến lược với đơn vị nào?",
     "head_entity_name": "Boston Dynamics",
     "head_entity_id": "ent_5ecc0298",
     "intermediate_entity_name": null,
@@ -604,7 +733,10 @@
   {
     "query_id": "q_1hop_0043",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Boston Dynamics\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "partners_with"
+    ],
+    "natural_language_question": "Tổ chức/doanh nghiệp \"Boston Dynamics\" thiết lập quan hệ hợp tác chiến lược với đơn vị nào?",
     "head_entity_name": "Boston Dynamics",
     "head_entity_id": "ent_5ecc0298",
     "intermediate_entity_name": null,
@@ -618,7 +750,10 @@
   {
     "query_id": "q_1hop_0044",
     "hops": 1,
-    "natural_language_question": "Thực thể \"ChatGPT\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Mô hình/hệ thống AI \"ChatGPT\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "ChatGPT",
     "head_entity_id": "ent_60965168",
     "intermediate_entity_name": null,
@@ -632,7 +767,10 @@
   {
     "query_id": "q_1hop_0045",
     "hops": 1,
-    "natural_language_question": "Thực thể \"iPhone 16\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "succeeded_by"
+    ],
+    "natural_language_question": "Thiết bị/sản phẩm \"iPhone 16\" được kế nhiệm hoặc thay thế bởi dòng thiết bị nào?",
     "head_entity_name": "iPhone 16",
     "head_entity_id": "ent_61d1260a",
     "intermediate_entity_name": null,
@@ -646,7 +784,10 @@
   {
     "query_id": "q_1hop_0046",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Bình dân học vụ số\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "based_on"
+    ],
+    "natural_language_question": "Sản phẩm/công nghệ \"Bình dân học vụ số\" được phát triển dựa trên nền tảng kỹ thuật nào?",
     "head_entity_name": "Bình dân học vụ số",
     "head_entity_id": "ent_65b131e3",
     "intermediate_entity_name": null,
@@ -660,7 +801,10 @@
   {
     "query_id": "q_1hop_0047",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Nguyễn Hoàng Hiệp\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Nguyễn Hoàng Hiệp\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Nguyễn Hoàng Hiệp",
     "head_entity_id": "ent_6648cd21",
     "intermediate_entity_name": null,
@@ -674,7 +818,10 @@
   {
     "query_id": "q_1hop_0048",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Orochi Network\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "partners_with"
+    ],
+    "natural_language_question": "Tổ chức/doanh nghiệp \"Orochi Network\" thiết lập quan hệ hợp tác chiến lược với đơn vị nào?",
     "head_entity_name": "Orochi Network",
     "head_entity_id": "ent_689410a0",
     "intermediate_entity_name": null,
@@ -688,7 +835,10 @@
   {
     "query_id": "q_1hop_0049",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Orochi Network\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "partners_with"
+    ],
+    "natural_language_question": "Tổ chức/doanh nghiệp \"Orochi Network\" thiết lập quan hệ hợp tác chiến lược với đơn vị nào?",
     "head_entity_name": "Orochi Network",
     "head_entity_id": "ent_689410a0",
     "intermediate_entity_name": null,
@@ -702,7 +852,10 @@
   {
     "query_id": "q_1hop_0050",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Nguyễn Văn Long\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Nguyễn Văn Long\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Nguyễn Văn Long",
     "head_entity_id": "ent_68ccdd10",
     "intermediate_entity_name": null,
@@ -716,7 +869,10 @@
   {
     "query_id": "q_1hop_0051",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Nguyễn Trung Chính\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Nguyễn Trung Chính\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Nguyễn Trung Chính",
     "head_entity_id": "ent_6adde04f",
     "intermediate_entity_name": null,
@@ -730,7 +886,10 @@
   {
     "query_id": "q_1hop_0052",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Images in ChatGPT\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "based_on"
+    ],
+    "natural_language_question": "Sản phẩm/công nghệ \"Images in ChatGPT\" được phát triển dựa trên nền tảng kỹ thuật nào?",
     "head_entity_name": "Images in ChatGPT",
     "head_entity_id": "ent_6b0f56dd",
     "intermediate_entity_name": null,
@@ -744,7 +903,10 @@
   {
     "query_id": "q_1hop_0053",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Images in ChatGPT\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "integrated_into"
+    ],
+    "natural_language_question": "Tính năng/thành phần công nghệ \"Images in ChatGPT\" được tích hợp trực tiếp vào sản phẩm/hệ thống nào?",
     "head_entity_name": "Images in ChatGPT",
     "head_entity_id": "ent_6b0f56dd",
     "intermediate_entity_name": null,
@@ -758,7 +920,10 @@
   {
     "query_id": "q_1hop_0054",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Images in ChatGPT\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Mô hình/hệ thống AI \"Images in ChatGPT\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "Images in ChatGPT",
     "head_entity_id": "ent_6b0f56dd",
     "intermediate_entity_name": null,
@@ -772,7 +937,10 @@
   {
     "query_id": "q_1hop_0055",
     "hops": 1,
-    "natural_language_question": "Thực thể \"iPhone 15\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "succeeded_by"
+    ],
+    "natural_language_question": "Thiết bị/sản phẩm \"iPhone 15\" được kế nhiệm hoặc thay thế bởi dòng thiết bị nào?",
     "head_entity_name": "iPhone 15",
     "head_entity_id": "ent_72954355",
     "intermediate_entity_name": null,
@@ -786,7 +954,10 @@
   {
     "query_id": "q_1hop_0056",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Twitter\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "acquired_by"
+    ],
+    "natural_language_question": "Doanh nghiệp/thực thể \"Twitter\" đã được sáp nhập hoặc mua lại bởi nhân vật/tổ chức nào?",
     "head_entity_name": "Twitter",
     "head_entity_id": "ent_7352f353",
     "intermediate_entity_name": null,
@@ -800,7 +971,10 @@
   {
     "query_id": "q_1hop_0057",
     "hops": 1,
-    "natural_language_question": "Thực thể \"GuidedDCNet\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "integrated_into"
+    ],
+    "natural_language_question": "Tính năng/thành phần công nghệ \"GuidedDCNet\" được tích hợp trực tiếp vào sản phẩm/hệ thống nào?",
     "head_entity_name": "GuidedDCNet",
     "head_entity_id": "ent_76883655",
     "intermediate_entity_name": null,
@@ -814,7 +988,10 @@
   {
     "query_id": "q_1hop_0058",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Công ty Cổ phần ITR VN\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "partners_with"
+    ],
+    "natural_language_question": "Tổ chức/doanh nghiệp \"Công ty Cổ phần ITR VN\" thiết lập quan hệ hợp tác chiến lược với đơn vị nào?",
     "head_entity_name": "Công ty Cổ phần ITR VN",
     "head_entity_id": "ent_7696cf27",
     "intermediate_entity_name": null,
@@ -828,7 +1005,10 @@
   {
     "query_id": "q_1hop_0059",
     "hops": 1,
-    "natural_language_question": "Thực thể \"OpenAI\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "partners_with"
+    ],
+    "natural_language_question": "Tổ chức/doanh nghiệp \"OpenAI\" thiết lập quan hệ hợp tác chiến lược với đơn vị nào?",
     "head_entity_name": "OpenAI",
     "head_entity_id": "ent_7d3194f7",
     "intermediate_entity_name": null,
@@ -842,7 +1022,10 @@
   {
     "query_id": "q_1hop_0060",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Foxconn\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "partners_with"
+    ],
+    "natural_language_question": "Tổ chức/doanh nghiệp \"Foxconn\" thiết lập quan hệ hợp tác chiến lược với đơn vị nào?",
     "head_entity_name": "Foxconn",
     "head_entity_id": "ent_81b73d52",
     "intermediate_entity_name": null,
@@ -856,7 +1039,10 @@
   {
     "query_id": "q_1hop_0061",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Siri\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Sản phẩm/công nghệ/mô hình \"Siri\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "Siri",
     "head_entity_id": "ent_81ed3413",
     "intermediate_entity_name": null,
@@ -870,7 +1056,10 @@
   {
     "query_id": "q_1hop_0062",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Jacqueline Roy\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Jacqueline Roy\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Jacqueline Roy",
     "head_entity_id": "ent_82f209de",
     "intermediate_entity_name": null,
@@ -884,7 +1073,10 @@
   {
     "query_id": "q_1hop_0063",
     "hops": 1,
-    "natural_language_question": "Thực thể \"R1\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Mô hình/hệ thống AI \"R1\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "R1",
     "head_entity_id": "ent_82f3e9c6",
     "intermediate_entity_name": null,
@@ -898,7 +1090,10 @@
   {
     "query_id": "q_1hop_0064",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Blackwell Ultra GB300\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "version_of"
+    ],
+    "natural_language_question": "Thiết bị/phiên bản \"Blackwell Ultra GB300\" là một biến thể cấu hình trực thuộc dòng sản phẩm nào?",
     "head_entity_name": "Blackwell Ultra GB300",
     "head_entity_id": "ent_835a28a6",
     "intermediate_entity_name": null,
@@ -912,7 +1107,10 @@
   {
     "query_id": "q_1hop_0065",
     "hops": 1,
-    "natural_language_question": "Thực thể \"TCL BreezeIN Pro\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Sản phẩm/thiết bị \"TCL BreezeIN Pro\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "TCL BreezeIN Pro",
     "head_entity_id": "ent_9114feb5",
     "intermediate_entity_name": null,
@@ -926,7 +1124,10 @@
   {
     "query_id": "q_1hop_0066",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Hu Baishan\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Hu Baishan\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Hu Baishan",
     "head_entity_id": "ent_921d7ae5",
     "intermediate_entity_name": null,
@@ -940,7 +1141,10 @@
   {
     "query_id": "q_1hop_0067",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Chris Ainsley\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Chris Ainsley\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Chris Ainsley",
     "head_entity_id": "ent_923e0bb2",
     "intermediate_entity_name": null,
@@ -954,7 +1158,10 @@
   {
     "query_id": "q_1hop_0068",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Lê Quang Huy\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Lê Quang Huy\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Lê Quang Huy",
     "head_entity_id": "ent_95f17b01",
     "intermediate_entity_name": null,
@@ -968,7 +1175,10 @@
   {
     "query_id": "q_1hop_0069",
     "hops": 1,
-    "natural_language_question": "Thực thể \"GuidedSegDiff\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "integrated_into"
+    ],
+    "natural_language_question": "Tính năng/thành phần công nghệ \"GuidedSegDiff\" được tích hợp trực tiếp vào sản phẩm/hệ thống nào?",
     "head_entity_name": "GuidedSegDiff",
     "head_entity_id": "ent_96302e3f",
     "intermediate_entity_name": null,
@@ -982,7 +1192,10 @@
   {
     "query_id": "q_1hop_0070",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Sumitomo Corporation\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "partners_with"
+    ],
+    "natural_language_question": "Tổ chức/doanh nghiệp \"Sumitomo Corporation\" thiết lập quan hệ hợp tác chiến lược với đơn vị nào?",
     "head_entity_name": "Sumitomo Corporation",
     "head_entity_id": "ent_9a9e4e51",
     "intermediate_entity_name": null,
@@ -996,7 +1209,10 @@
   {
     "query_id": "q_1hop_0071",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Robert Jarolim\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Chuyên gia/nhà nghiên cứu \"Robert Jarolim\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Robert Jarolim",
     "head_entity_id": "ent_9ac93706",
     "intermediate_entity_name": null,
@@ -1010,7 +1226,10 @@
   {
     "query_id": "q_1hop_0072",
     "hops": 1,
-    "natural_language_question": "Thực thể \"TCL\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "partners_with"
+    ],
+    "natural_language_question": "Tổ chức/doanh nghiệp \"TCL\" thiết lập quan hệ hợp tác chiến lược với đơn vị nào?",
     "head_entity_name": "TCL",
     "head_entity_id": "ent_9daf09c8",
     "intermediate_entity_name": null,
@@ -1024,7 +1243,10 @@
   {
     "query_id": "q_1hop_0073",
     "hops": 1,
-    "natural_language_question": "Thực thể \"TCL\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "partners_with"
+    ],
+    "natural_language_question": "Tổ chức/doanh nghiệp \"TCL\" thiết lập quan hệ hợp tác chiến lược với đơn vị nào?",
     "head_entity_name": "TCL",
     "head_entity_id": "ent_9daf09c8",
     "intermediate_entity_name": null,
@@ -1038,7 +1260,10 @@
   {
     "query_id": "q_1hop_0074",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Microsoft\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "invested_in"
+    ],
+    "natural_language_question": "Tổ chức \"Microsoft\" đã thực hiện khoản rót vốn đầu tư chiến lược vào đơn vị nào?",
     "head_entity_name": "Microsoft",
     "head_entity_id": "ent_9fbf261b",
     "intermediate_entity_name": null,
@@ -1052,7 +1277,10 @@
   {
     "query_id": "q_1hop_0075",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Microsoft\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "partners_with"
+    ],
+    "natural_language_question": "Tổ chức/doanh nghiệp \"Microsoft\" thiết lập quan hệ hợp tác chiến lược với đơn vị nào?",
     "head_entity_name": "Microsoft",
     "head_entity_id": "ent_9fbf261b",
     "intermediate_entity_name": null,
@@ -1066,7 +1294,10 @@
   {
     "query_id": "q_1hop_0076",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Thomas Andersson\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Thomas Andersson\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Thomas Andersson",
     "head_entity_id": "ent_a0c2284e",
     "intermediate_entity_name": null,
@@ -1080,7 +1311,10 @@
   {
     "query_id": "q_1hop_0077",
     "hops": 1,
-    "natural_language_question": "Thực thể \"GPT-4o\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Mô hình/hệ thống AI \"GPT-4o\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "GPT-4o",
     "head_entity_id": "ent_a2a69af7",
     "intermediate_entity_name": null,
@@ -1094,7 +1328,10 @@
   {
     "query_id": "q_1hop_0078",
     "hops": 1,
-    "natural_language_question": "Thực thể \"TS Phan Hoàng Vũ\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Chuyên gia/nhà nghiên cứu \"TS Phan Hoàng Vũ\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "TS Phan Hoàng Vũ",
     "head_entity_id": "ent_a41bf171",
     "intermediate_entity_name": null,
@@ -1108,7 +1345,10 @@
   {
     "query_id": "q_1hop_0079",
     "hops": 1,
-    "natural_language_question": "Thực thể \"TS Phan Hoàng Vũ\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Chuyên gia/nhà nghiên cứu \"TS Phan Hoàng Vũ\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "TS Phan Hoàng Vũ",
     "head_entity_id": "ent_a41bf171",
     "intermediate_entity_name": null,
@@ -1122,7 +1362,10 @@
   {
     "query_id": "q_1hop_0080",
     "hops": 1,
-    "natural_language_question": "Thực thể \"TS Lê Bá Chung\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Chuyên gia/nhà nghiên cứu \"TS Lê Bá Chung\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "TS Lê Bá Chung",
     "head_entity_id": "ent_a950c096",
     "intermediate_entity_name": null,
@@ -1136,7 +1379,10 @@
   {
     "query_id": "q_1hop_0081",
     "hops": 1,
-    "natural_language_question": "Thực thể \"TS Lê Bá Chung\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Chuyên gia/nhà nghiên cứu \"TS Lê Bá Chung\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "TS Lê Bá Chung",
     "head_entity_id": "ent_a950c096",
     "intermediate_entity_name": null,
@@ -1150,7 +1396,10 @@
   {
     "query_id": "q_1hop_0082",
     "hops": 1,
-    "natural_language_question": "Thực thể \"TS Lê Bá Chung\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Chuyên gia/nhà nghiên cứu \"TS Lê Bá Chung\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "TS Lê Bá Chung",
     "head_entity_id": "ent_a950c096",
     "intermediate_entity_name": null,
@@ -1164,7 +1413,10 @@
   {
     "query_id": "q_1hop_0083",
     "hops": 1,
-    "natural_language_question": "Thực thể \"PitchFest 2024\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "succeeded_by"
+    ],
+    "natural_language_question": "Sự kiện/chương trình \"PitchFest 2024\" được kế nhiệm hoặc thay thế bởi sự kiện/chương trình nào?",
     "head_entity_name": "PitchFest 2024",
     "head_entity_id": "ent_a98655c8",
     "intermediate_entity_name": null,
@@ -1178,7 +1430,10 @@
   {
     "query_id": "q_1hop_0084",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Nvidia Cosmos\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "integrated_into"
+    ],
+    "natural_language_question": "Tính năng/thành phần công nghệ \"Nvidia Cosmos\" được tích hợp trực tiếp vào sản phẩm/hệ thống nào?",
     "head_entity_name": "Nvidia Cosmos",
     "head_entity_id": "ent_aaccbdc2",
     "intermediate_entity_name": null,
@@ -1192,7 +1447,10 @@
   {
     "query_id": "q_1hop_0085",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Lê Viết Quốc\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Chuyên gia/nhà nghiên cứu \"Lê Viết Quốc\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Lê Viết Quốc",
     "head_entity_id": "ent_abd7b650",
     "intermediate_entity_name": null,
@@ -1206,7 +1464,10 @@
   {
     "query_id": "q_1hop_0086",
     "hops": 1,
-    "natural_language_question": "Thực thể \"DeepSeek-Chat\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Mô hình/hệ thống AI \"DeepSeek-Chat\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "DeepSeek-Chat",
     "head_entity_id": "ent_b45bfc6e",
     "intermediate_entity_name": null,
@@ -1220,7 +1481,10 @@
   {
     "query_id": "q_1hop_0087",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Lương Tam Quang\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Lương Tam Quang\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Lương Tam Quang",
     "head_entity_id": "ent_bf65fd7a",
     "intermediate_entity_name": null,
@@ -1234,7 +1498,10 @@
   {
     "query_id": "q_1hop_0088",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Nguyễn Ngọc Cương\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Nguyễn Ngọc Cương\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Nguyễn Ngọc Cương",
     "head_entity_id": "ent_c045022f",
     "intermediate_entity_name": null,
@@ -1248,7 +1515,10 @@
   {
     "query_id": "q_1hop_0089",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Nguyễn Ngọc Cương\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Nguyễn Ngọc Cương\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Nguyễn Ngọc Cương",
     "head_entity_id": "ent_c045022f",
     "intermediate_entity_name": null,
@@ -1262,7 +1532,10 @@
   {
     "query_id": "q_1hop_0090",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Gemma 3\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Mô hình/hệ thống AI \"Gemma 3\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "Gemma 3",
     "head_entity_id": "ent_c6b79ebf",
     "intermediate_entity_name": null,
@@ -1276,7 +1549,10 @@
   {
     "query_id": "q_1hop_0091",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Digital Nervous System (Hệ thần kinh Kỹ thuật số)\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "integrated_into"
+    ],
+    "natural_language_question": "Tính năng/thành phần công nghệ \"Digital Nervous System (Hệ thần kinh Kỹ thuật số)\" được tích hợp trực tiếp vào sản phẩm/hệ thống nào?",
     "head_entity_name": "Digital Nervous System (Hệ thần kinh Kỹ thuật số)",
     "head_entity_id": "ent_c724c49f",
     "intermediate_entity_name": null,
@@ -1290,7 +1566,10 @@
   {
     "query_id": "q_1hop_0092",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Robert Sternberg\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Chuyên gia/nhà nghiên cứu \"Robert Sternberg\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Robert Sternberg",
     "head_entity_id": "ent_c77977a5",
     "intermediate_entity_name": null,
@@ -1304,7 +1583,10 @@
   {
     "query_id": "q_1hop_0093",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Rappaport\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "is_CEO_of"
+    ],
+    "natural_language_question": "Nhân vật \"Rappaport\" đang giữ cương vị Giám đốc điều hành (CEO) của tổ chức/doanh nghiệp nào?",
     "head_entity_name": "Rappaport",
     "head_entity_id": "ent_c7ed46bf",
     "intermediate_entity_name": null,
@@ -1318,7 +1600,10 @@
   {
     "query_id": "q_1hop_0094",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Stefania Druga\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Chuyên gia/nhà nghiên cứu \"Stefania Druga\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Stefania Druga",
     "head_entity_id": "ent_c894b614",
     "intermediate_entity_name": null,
@@ -1332,7 +1617,10 @@
   {
     "query_id": "q_1hop_0095",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Phạm Tiến Huy\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Phạm Tiến Huy\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Phạm Tiến Huy",
     "head_entity_id": "ent_cd6a3c17",
     "intermediate_entity_name": null,
@@ -1346,7 +1634,10 @@
   {
     "query_id": "q_1hop_0096",
     "hops": 1,
-    "natural_language_question": "Thực thể \"FPT Online\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "partners_with"
+    ],
+    "natural_language_question": "Tổ chức/doanh nghiệp \"FPT Online\" thiết lập quan hệ hợp tác chiến lược với đơn vị nào?",
     "head_entity_name": "FPT Online",
     "head_entity_id": "ent_cfb7a61f",
     "intermediate_entity_name": null,
@@ -1360,7 +1651,10 @@
   {
     "query_id": "q_1hop_0097",
     "hops": 1,
-    "natural_language_question": "Thực thể \"TS Dương Quang Lỗi\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Chuyên gia/nhà nghiên cứu \"TS Dương Quang Lỗi\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "TS Dương Quang Lỗi",
     "head_entity_id": "ent_d1279e55",
     "intermediate_entity_name": null,
@@ -1374,7 +1668,10 @@
   {
     "query_id": "q_1hop_0098",
     "hops": 1,
-    "natural_language_question": "Thực thể \"SBI Holdings\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "partners_with"
+    ],
+    "natural_language_question": "Tổ chức/doanh nghiệp \"SBI Holdings\" thiết lập quan hệ hợp tác chiến lược với đơn vị nào?",
     "head_entity_name": "SBI Holdings",
     "head_entity_id": "ent_d3d4f3a6",
     "intermediate_entity_name": null,
@@ -1388,7 +1685,10 @@
   {
     "query_id": "q_1hop_0099",
     "hops": 1,
-    "natural_language_question": "Thực thể \"iPadOS 18.4\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "version_of"
+    ],
+    "natural_language_question": "Hệ điều hành/phiên bản \"iPadOS 18.4\" là một biến thể cấu hình trực thuộc dòng sản phẩm/hệ điều hành nào?",
     "head_entity_name": "iPadOS 18.4",
     "head_entity_id": "ent_d64f0cc6",
     "intermediate_entity_name": null,
@@ -1402,7 +1702,10 @@
   {
     "query_id": "q_1hop_0100",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Jeong Seung Moon\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Jeong Seung Moon\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Jeong Seung Moon",
     "head_entity_id": "ent_d974c442",
     "intermediate_entity_name": null,
@@ -1416,7 +1719,10 @@
   {
     "query_id": "q_1hop_0101",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Play 4\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Sản phẩm/thiết bị \"Play 4\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "Play 4",
     "head_entity_id": "ent_dd63f923",
     "intermediate_entity_name": null,
@@ -1430,7 +1736,10 @@
   {
     "query_id": "q_1hop_0102",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Play 4\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Sản phẩm/thiết bị \"Play 4\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "Play 4",
     "head_entity_id": "ent_dd63f923",
     "intermediate_entity_name": null,
@@ -1444,7 +1753,10 @@
   {
     "query_id": "q_1hop_0103",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Arm\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "based_on"
+    ],
+    "natural_language_question": "Sản phẩm/công nghệ \"Arm\" được phát triển dựa trên nền tảng kỹ thuật nào?",
     "head_entity_name": "Arm",
     "head_entity_id": "ent_ddf7ff5e",
     "intermediate_entity_name": null,
@@ -1458,7 +1770,10 @@
   {
     "query_id": "q_1hop_0104",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Jeanne Davoult\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Jeanne Davoult\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Jeanne Davoult",
     "head_entity_id": "ent_de8bdc71",
     "intermediate_entity_name": null,
@@ -1472,7 +1787,10 @@
   {
     "query_id": "q_1hop_0105",
     "hops": 1,
-    "natural_language_question": "Thực thể \"iPhone SE 3\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "succeeded_by"
+    ],
+    "natural_language_question": "Thiết bị/sản phẩm \"iPhone SE 3\" được kế nhiệm hoặc thay thế bởi dòng thiết bị nào?",
     "head_entity_name": "iPhone SE 3",
     "head_entity_id": "ent_defeb3f3",
     "intermediate_entity_name": null,
@@ -1486,7 +1804,10 @@
   {
     "query_id": "q_1hop_0106",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Amazon Web Services (AWS)\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "invested_in"
+    ],
+    "natural_language_question": "Tổ chức \"Amazon Web Services (AWS)\" đã thực hiện khoản rót vốn đầu tư chiến lược vào đơn vị nào?",
     "head_entity_name": "Amazon Web Services (AWS)",
     "head_entity_id": "ent_dfe6c6b3",
     "intermediate_entity_name": null,
@@ -1500,7 +1821,10 @@
   {
     "query_id": "q_1hop_0107",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Peter Teng\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Peter Teng\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Peter Teng",
     "head_entity_id": "ent_dff3ca9e",
     "intermediate_entity_name": null,
@@ -1514,7 +1838,10 @@
   {
     "query_id": "q_1hop_0108",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Gemini 2.5 Pro\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Mô hình/hệ thống AI \"Gemini 2.5 Pro\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "Gemini 2.5 Pro",
     "head_entity_id": "ent_e2c3d029",
     "intermediate_entity_name": null,
@@ -1528,7 +1855,10 @@
   {
     "query_id": "q_1hop_0109",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Gemini 2.5 Pro\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "version_of"
+    ],
+    "natural_language_question": "Mô hình/phiên bản \"Gemini 2.5 Pro\" là một biến thể cấu hình trực thuộc dòng sản phẩm/mô hình nào?",
     "head_entity_name": "Gemini 2.5 Pro",
     "head_entity_id": "ent_e2c3d029",
     "intermediate_entity_name": null,
@@ -1542,7 +1872,10 @@
   {
     "query_id": "q_1hop_0110",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Apple Intelligence\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Sản phẩm/công nghệ/mô hình \"Apple Intelligence\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "Apple Intelligence",
     "head_entity_id": "ent_e7098389",
     "intermediate_entity_name": null,
@@ -1556,7 +1889,10 @@
   {
     "query_id": "q_1hop_0111",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Nguyễn Lạc Huy\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Nguyễn Lạc Huy\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Nguyễn Lạc Huy",
     "head_entity_id": "ent_e7118ded",
     "intermediate_entity_name": null,
@@ -1570,7 +1906,10 @@
   {
     "query_id": "q_1hop_0112",
     "hops": 1,
-    "natural_language_question": "Thực thể \"AI Agents\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Mô hình/hệ thống AI \"AI Agents\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "AI Agents",
     "head_entity_id": "ent_e748f875",
     "intermediate_entity_name": null,
@@ -1584,7 +1923,10 @@
   {
     "query_id": "q_1hop_0113",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Erik Garcell\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Erik Garcell\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Erik Garcell",
     "head_entity_id": "ent_e7faa590",
     "intermediate_entity_name": null,
@@ -1598,7 +1940,10 @@
   {
     "query_id": "q_1hop_0114",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Jensen Huang\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "is_CEO_of"
+    ],
+    "natural_language_question": "Nhân vật \"Jensen Huang\" đang giữ cương vị Giám đốc điều hành (CEO) của tổ chức/doanh nghiệp nào?",
     "head_entity_name": "Jensen Huang",
     "head_entity_id": "ent_ecd7b976",
     "intermediate_entity_name": null,
@@ -1612,7 +1957,10 @@
   {
     "query_id": "q_1hop_0115",
     "hops": 1,
-    "natural_language_question": "Thực thể \"BrainMedQwen\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "integrated_into"
+    ],
+    "natural_language_question": "Tính năng/thành phần công nghệ \"BrainMedQwen\" được tích hợp trực tiếp vào sản phẩm/hệ thống nào?",
     "head_entity_name": "BrainMedQwen",
     "head_entity_id": "ent_ef90749e",
     "intermediate_entity_name": null,
@@ -1626,7 +1974,10 @@
   {
     "query_id": "q_1hop_0116",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Claudio Cerasa\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Claudio Cerasa\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Claudio Cerasa",
     "head_entity_id": "ent_f1d2fbfd",
     "intermediate_entity_name": null,
@@ -1640,7 +1991,10 @@
   {
     "query_id": "q_1hop_0117",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Tianmushan No. 1\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Sản phẩm/thiết bị \"Tianmushan No. 1\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "Tianmushan No. 1",
     "head_entity_id": "ent_f5f3b070",
     "intermediate_entity_name": null,
@@ -1654,7 +2008,10 @@
   {
     "query_id": "q_1hop_0118",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Vivo Vision\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "released_by"
+    ],
+    "natural_language_question": "Sản phẩm/công nghệ/mô hình \"Vivo Vision\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "Vivo Vision",
     "head_entity_id": "ent_fa0c55cf",
     "intermediate_entity_name": null,
@@ -1668,7 +2025,10 @@
   {
     "query_id": "q_1hop_0119",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Trần Thế Minh\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "works_at"
+    ],
+    "natural_language_question": "Nhân sự/chuyên gia \"Trần Thế Minh\" đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Trần Thế Minh",
     "head_entity_id": "ent_fa543dd0",
     "intermediate_entity_name": null,
@@ -1682,7 +2042,10 @@
   {
     "query_id": "q_1hop_0120",
     "hops": 1,
-    "natural_language_question": "Thực thể \"Galaxy Ring\" có mối liên kết tri thức trực tiếp với thực thể nào?",
+    "relation_path": [
+      "integrated_into"
+    ],
+    "natural_language_question": "Thiết bị/thành phần công nghệ \"Galaxy Ring\" được tích hợp trực tiếp vào sản phẩm/hệ thống nào?",
     "head_entity_name": "Galaxy Ring",
     "head_entity_id": "ent_fb28118a",
     "intermediate_entity_name": null,
@@ -1696,7 +2059,11 @@
   {
     "query_id": "q_2hop_0121",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"Nomi\", qua mắt xích trung gian \"GPT-4o\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "integrated_into",
+      "released_by"
+    ],
+    "natural_language_question": "Sản phẩm/hệ thống tích hợp thành phần công nghệ \"Nomi\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "Nomi",
     "head_entity_id": "ent_0f937e60",
     "intermediate_entity_name": "GPT-4o",
@@ -1711,7 +2078,11 @@
   {
     "query_id": "q_2hop_0122",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"Young Liu\", qua mắt xích trung gian \"Foxconn\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "is_CEO_of",
+      "partners_with"
+    ],
+    "natural_language_question": "Tổ chức/doanh nghiệp do nhân vật \"Young Liu\" giữ cương vị CEO đã thiết lập quan hệ hợp tác chiến lược với đơn vị nào?",
     "head_entity_name": "Young Liu",
     "head_entity_id": "ent_22bf461a",
     "intermediate_entity_name": "Foxconn",
@@ -1726,7 +2097,11 @@
   {
     "query_id": "q_2hop_0123",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"Young Liu\", qua mắt xích trung gian \"Foxconn\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "works_at",
+      "partners_with"
+    ],
+    "natural_language_question": "Cơ quan/tổ chức nơi nhân sự/chuyên gia \"Young Liu\" đang công tác đã thiết lập quan hệ hợp tác chiến lược với đơn vị nào?",
     "head_entity_name": "Young Liu",
     "head_entity_id": "ent_22bf461a",
     "intermediate_entity_name": "Foxconn",
@@ -1741,7 +2116,11 @@
   {
     "query_id": "q_2hop_0124",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"iPhone 16e\", qua mắt xích trung gian \"iPhone 16\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "version_of",
+      "succeeded_by"
+    ],
+    "natural_language_question": "Dòng sản phẩm mà thiết bị/phiên bản \"iPhone 16e\" trực thuộc được kế nhiệm hoặc thay thế bởi dòng thiết bị nào?",
     "head_entity_name": "iPhone 16e",
     "head_entity_id": "ent_2364aee3",
     "intermediate_entity_name": "iPhone 16",
@@ -1756,7 +2135,11 @@
   {
     "query_id": "q_2hop_0125",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"Brad Smith\", qua mắt xích trung gian \"Microsoft\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "works_at",
+      "invested_in"
+    ],
+    "natural_language_question": "Cơ quan/tổ chức nơi chuyên gia/nhân sự \"Brad Smith\" đang công tác đã thực hiện khoản rót vốn đầu tư chiến lược vào đơn vị nào?",
     "head_entity_name": "Brad Smith",
     "head_entity_id": "ent_24f6f01e",
     "intermediate_entity_name": "Microsoft",
@@ -1771,7 +2154,11 @@
   {
     "query_id": "q_2hop_0126",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"Brad Smith\", qua mắt xích trung gian \"Microsoft\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "works_at",
+      "partners_with"
+    ],
+    "natural_language_question": "Cơ quan/tổ chức nơi nhân sự/chuyên gia \"Brad Smith\" đang công tác đã thiết lập quan hệ hợp tác chiến lược với đơn vị nào?",
     "head_entity_name": "Brad Smith",
     "head_entity_id": "ent_24f6f01e",
     "intermediate_entity_name": "Microsoft",
@@ -1786,7 +2173,11 @@
   {
     "query_id": "q_2hop_0127",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"o1-Pro\", qua mắt xích trung gian \"OpenAI\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "released_by",
+      "partners_with"
+    ],
+    "natural_language_question": "Đơn vị nghiên cứu và phát hành sản phẩm/công nghệ \"o1-Pro\" đã thiết lập quan hệ hợp tác chiến lược với tổ chức nào?",
     "head_entity_name": "o1-Pro",
     "head_entity_id": "ent_2e2bb3b4",
     "intermediate_entity_name": "OpenAI",
@@ -1801,7 +2192,11 @@
   {
     "query_id": "q_2hop_0128",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"Juan Lavista Ferres\", qua mắt xích trung gian \"Microsoft\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "works_at",
+      "invested_in"
+    ],
+    "natural_language_question": "Cơ quan/tổ chức nơi chuyên gia/nhân sự \"Juan Lavista Ferres\" đang công tác đã thực hiện khoản rót vốn đầu tư chiến lược vào đơn vị nào?",
     "head_entity_name": "Juan Lavista Ferres",
     "head_entity_id": "ent_2e31c063",
     "intermediate_entity_name": "Microsoft",
@@ -1816,7 +2211,11 @@
   {
     "query_id": "q_2hop_0129",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"Juan Lavista Ferres\", qua mắt xích trung gian \"Microsoft\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "works_at",
+      "partners_with"
+    ],
+    "natural_language_question": "Cơ quan/tổ chức nơi nhân sự/chuyên gia \"Juan Lavista Ferres\" đang công tác đã thiết lập quan hệ hợp tác chiến lược với đơn vị nào?",
     "head_entity_name": "Juan Lavista Ferres",
     "head_entity_id": "ent_2e31c063",
     "intermediate_entity_name": "Microsoft",
@@ -1831,7 +2230,11 @@
   {
     "query_id": "q_2hop_0130",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"Vũ Quốc Huy\", qua mắt xích trung gian \"NIC\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "works_at",
+      "partners_with"
+    ],
+    "natural_language_question": "Cơ quan/tổ chức nơi nhân sự/chuyên gia \"Vũ Quốc Huy\" đang công tác đã thiết lập quan hệ hợp tác chiến lược với đơn vị nào?",
     "head_entity_name": "Vũ Quốc Huy",
     "head_entity_id": "ent_330d5d63",
     "intermediate_entity_name": "NIC",
@@ -1846,7 +2249,11 @@
   {
     "query_id": "q_2hop_0131",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"Vũ Quốc Huy\", qua mắt xích trung gian \"NIC\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "works_at",
+      "partners_with"
+    ],
+    "natural_language_question": "Cơ quan/tổ chức nơi nhân sự/chuyên gia \"Vũ Quốc Huy\" đang công tác đã thiết lập quan hệ hợp tác chiến lược với đơn vị nào?",
     "head_entity_name": "Vũ Quốc Huy",
     "head_entity_id": "ent_330d5d63",
     "intermediate_entity_name": "NIC",
@@ -1861,7 +2268,11 @@
   {
     "query_id": "q_2hop_0132",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"Sam Altman\", qua mắt xích trung gian \"OpenAI\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "is_CEO_of",
+      "partners_with"
+    ],
+    "natural_language_question": "Tổ chức/doanh nghiệp do nhân vật \"Sam Altman\" giữ cương vị CEO đã thiết lập quan hệ hợp tác chiến lược với đơn vị nào?",
     "head_entity_name": "Sam Altman",
     "head_entity_id": "ent_46b09b21",
     "intermediate_entity_name": "OpenAI",
@@ -1876,7 +2287,11 @@
   {
     "query_id": "q_2hop_0133",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"Sam Altman\", qua mắt xích trung gian \"OpenAI\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "works_at",
+      "partners_with"
+    ],
+    "natural_language_question": "Cơ quan/tổ chức nơi nhân sự/chuyên gia \"Sam Altman\" đang công tác đã thiết lập quan hệ hợp tác chiến lược với đơn vị nào?",
     "head_entity_name": "Sam Altman",
     "head_entity_id": "ent_46b09b21",
     "intermediate_entity_name": "OpenAI",
@@ -1891,7 +2306,11 @@
   {
     "query_id": "q_2hop_0134",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"Jared Spataro\", qua mắt xích trung gian \"Microsoft\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "works_at",
+      "invested_in"
+    ],
+    "natural_language_question": "Cơ quan/tổ chức nơi chuyên gia/nhân sự \"Jared Spataro\" đang công tác đã thực hiện khoản rót vốn đầu tư chiến lược vào đơn vị nào?",
     "head_entity_name": "Jared Spataro",
     "head_entity_id": "ent_5ac3e44c",
     "intermediate_entity_name": "Microsoft",
@@ -1906,7 +2325,11 @@
   {
     "query_id": "q_2hop_0135",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"Jared Spataro\", qua mắt xích trung gian \"Microsoft\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "works_at",
+      "partners_with"
+    ],
+    "natural_language_question": "Cơ quan/tổ chức nơi nhân sự/chuyên gia \"Jared Spataro\" đang công tác đã thiết lập quan hệ hợp tác chiến lược với đơn vị nào?",
     "head_entity_name": "Jared Spataro",
     "head_entity_id": "ent_5ac3e44c",
     "intermediate_entity_name": "Microsoft",
@@ -1921,7 +2344,11 @@
   {
     "query_id": "q_2hop_0136",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"ChatGPT\", qua mắt xích trung gian \"OpenAI\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "released_by",
+      "partners_with"
+    ],
+    "natural_language_question": "Đơn vị nghiên cứu và phát hành sản phẩm/công nghệ \"ChatGPT\" đã thiết lập quan hệ hợp tác chiến lược với tổ chức nào?",
     "head_entity_name": "ChatGPT",
     "head_entity_id": "ent_60965168",
     "intermediate_entity_name": "OpenAI",
@@ -1936,7 +2363,11 @@
   {
     "query_id": "q_2hop_0137",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"Orochi Network\", qua mắt xích trung gian \"FPT Online\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "partners_with",
+      "partners_with"
+    ],
+    "natural_language_question": "Đối tác chiến lược của đơn vị/tổ chức đang hợp tác cùng \"Orochi Network\" là tổ chức nào?",
     "head_entity_name": "Orochi Network",
     "head_entity_id": "ent_689410a0",
     "intermediate_entity_name": "FPT Online",
@@ -1951,7 +2382,11 @@
   {
     "query_id": "q_2hop_0138",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"Images in ChatGPT\", qua mắt xích trung gian \"GPT-4o\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "based_on",
+      "released_by"
+    ],
+    "natural_language_question": "Đơn vị nào nghiên cứu và phát hành nền tảng kỹ thuật làm cơ sở phát triển của sản phẩm/công nghệ \"Images in ChatGPT\"?",
     "head_entity_name": "Images in ChatGPT",
     "head_entity_id": "ent_6b0f56dd",
     "intermediate_entity_name": "GPT-4o",
@@ -1966,7 +2401,11 @@
   {
     "query_id": "q_2hop_0139",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"Images in ChatGPT\", qua mắt xích trung gian \"ChatGPT\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "integrated_into",
+      "released_by"
+    ],
+    "natural_language_question": "Sản phẩm/hệ thống tích hợp thành phần công nghệ \"Images in ChatGPT\" do đơn vị hoặc tổ chức nào nghiên cứu và phát hành?",
     "head_entity_name": "Images in ChatGPT",
     "head_entity_id": "ent_6b0f56dd",
     "intermediate_entity_name": "ChatGPT",
@@ -1981,7 +2420,11 @@
   {
     "query_id": "q_2hop_0140",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"Images in ChatGPT\", qua mắt xích trung gian \"OpenAI\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "released_by",
+      "partners_with"
+    ],
+    "natural_language_question": "Đơn vị nghiên cứu và phát hành sản phẩm/công nghệ \"Images in ChatGPT\" đã thiết lập quan hệ hợp tác chiến lược với tổ chức nào?",
     "head_entity_name": "Images in ChatGPT",
     "head_entity_id": "ent_6b0f56dd",
     "intermediate_entity_name": "OpenAI",
@@ -1996,7 +2439,11 @@
   {
     "query_id": "q_2hop_0141",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"Twitter\", qua mắt xích trung gian \"Musk\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "acquired_by",
+      "works_at"
+    ],
+    "natural_language_question": "Nhân vật/thực thể đã mua lại doanh nghiệp \"Twitter\" hiện đang làm việc hoặc công tác tại cơ quan/tổ chức nào?",
     "head_entity_name": "Twitter",
     "head_entity_id": "ent_7352f353",
     "intermediate_entity_name": "Musk",
@@ -2011,7 +2458,11 @@
   {
     "query_id": "q_2hop_0142",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"TCL BreezeIN Pro\", qua mắt xích trung gian \"TCL\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "released_by",
+      "partners_with"
+    ],
+    "natural_language_question": "Đơn vị nghiên cứu và phát hành sản phẩm/công nghệ \"TCL BreezeIN Pro\" đã thiết lập quan hệ hợp tác chiến lược với tổ chức nào?",
     "head_entity_name": "TCL BreezeIN Pro",
     "head_entity_id": "ent_9114feb5",
     "intermediate_entity_name": "TCL",
@@ -2026,7 +2477,11 @@
   {
     "query_id": "q_2hop_0143",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"TCL BreezeIN Pro\", qua mắt xích trung gian \"TCL\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "released_by",
+      "partners_with"
+    ],
+    "natural_language_question": "Đơn vị nghiên cứu và phát hành sản phẩm/công nghệ \"TCL BreezeIN Pro\" đã thiết lập quan hệ hợp tác chiến lược với tổ chức nào?",
     "head_entity_name": "TCL BreezeIN Pro",
     "head_entity_id": "ent_9114feb5",
     "intermediate_entity_name": "TCL",
@@ -2041,7 +2496,11 @@
   {
     "query_id": "q_2hop_0144",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"Microsoft\", qua mắt xích trung gian \"OpenAI\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "invested_in",
+      "partners_with"
+    ],
+    "natural_language_question": "Đơn vị nhận khoản rót vốn đầu tư chiến lược từ tổ chức \"Microsoft\" đã thiết lập quan hệ hợp tác chiến lược với tổ chức nào?",
     "head_entity_name": "Microsoft",
     "head_entity_id": "ent_9fbf261b",
     "intermediate_entity_name": "OpenAI",
@@ -2056,7 +2515,11 @@
   {
     "query_id": "q_2hop_0145",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"GPT-4o\", qua mắt xích trung gian \"OpenAI\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "released_by",
+      "partners_with"
+    ],
+    "natural_language_question": "Đơn vị nghiên cứu và phát hành sản phẩm/công nghệ \"GPT-4o\" đã thiết lập quan hệ hợp tác chiến lược với tổ chức nào?",
     "head_entity_name": "GPT-4o",
     "head_entity_id": "ent_a2a69af7",
     "intermediate_entity_name": "OpenAI",
@@ -2071,7 +2534,11 @@
   {
     "query_id": "q_2hop_0146",
     "hops": 2,
-    "natural_language_question": "Bắt đầu từ \"iPhone SE 3\", qua mắt xích trung gian \"iPhone 16e\", thực thể đích cần suy luận tới là gì?",
+    "relation_path": [
+      "succeeded_by",
+      "version_of"
+    ],
+    "natural_language_question": "Thiết bị kế nhiệm dòng sản phẩm \"iPhone SE 3\" là một biến thể cấu hình trực thuộc dòng sản phẩm nào?",
     "head_entity_name": "iPhone SE 3",
     "head_entity_id": "ent_defeb3f3",
     "intermediate_entity_name": "iPhone 16e",

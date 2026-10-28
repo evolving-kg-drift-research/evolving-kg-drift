@@ -11,7 +11,7 @@ Chương này trình bày toàn bộ kết quả thực nghiệm chi tiết và 
     \item Thống kê mô tả 10 snapshot canonical và kiểm định Parquet--Neo4j Parity (Bảng~\ref{tab:snapshots_statistics});
     \item Chẩn đoán hình học căn chỉnh Procrustes và kiểm định cổng Gate G3 qua 81 phép so sánh (Bảng~\ref{tab:gate_g3_diagnostics});
     \item Kết quả đo lường trôi dạt biểu diễn M2 trên 6.897 quan sát thực thể (Bảng~\ref{tab:m2_drift_summary});
-    \item Động thái suy luận đa bước của Hội đồng QA định kỳ trên hai không gian ứng viên (Bảng~\ref{tab:qa_panel_dynamics});
+    \item Động thái suy luận đa bước của Hội đồng QA định kỳ trên hai không gian ứng viên (Bảng~\ref{tab:qa_panel_dynamics}) kèm cấu trúc chuẩn hóa ẩn mắt xích (Bảng~\ref{tab:sample_latent_bridge_qa});
     \item Kết quả ước lượng kinh tế lượng Two-Way Fixed Effects cho Giả thuyết $H_1$, $H_2$ và kiểm định phủ định (Bảng~\ref{tab:twfe_econometric_results}).
 \end{enumerate}
 
@@ -179,6 +179,48 @@ Từ Bảng~\ref{tab:qa_panel_dynamics} và Hình~\ref{fig:longitudinal_qa_mrr},
     \item \textbf{Suy giảm sâu hơn trên Open-World:} Trên không gian mở, Arm B giảm từ $0.6023$ xuống $0.4171$. Mức chênh lệch trung bình $-0.0270$ phản ánh chi phí phạt OOV do thực thể mới gây nhiễu không gian xếp hạng.
 \end{itemize}
 
+\subsection{Chuẩn Ẩn Mắt xích (Latent Bridge Entity) và Hội đồng Đa chặng}
+\label{subsec:latent_bridge_qa}
+
+Để lượng hóa chuẩn xác tác động của trôi dạt biểu diễn KGE lên năng lực suy luận đa bước (multi-hop reasoning), cấu trúc hội đồng 147 câu hỏi được chuẩn hóa nghiêm ngặt theo các tiêu chuẩn benchmark quốc tế (tiêu biểu như HotpotQA~\cite{yang2018hotpotqa} và MetaQA~\cite{zhang2018variational}):
+\begin{enumerate}
+    \item \textbf{Cơ cấu câu hỏi và phân tầng ngữ nghĩa:} Hội đồng bao gồm 121 câu hỏi 1-hop phủ đều 10 loại quan hệ chính tắc và 26 câu hỏi hợp thành 2-hop. Đối với toàn bộ 121 câu hỏi 1-hop, hệ thống áp dụng prompt câu hỏi dữ kiện chuyên biệt theo loại thực thể (chuyên gia/nhà khoa học, thiết bị phần cứng, hệ điều hành, mô hình AI, tổ chức doanh nghiệp) nhằm phản ánh tự nhiên văn phong tiếng Việt chuyên ngành.
+    \item \textbf{Chuẩn Ẩn Mắt xích (Latent Bridge Entity):} Trong các câu hỏi suy luận 2-hop, tên của thực thể trung gian ($e_{\text{bridge}}$) tuyệt đối \textbf{không} được xuất hiện trong câu hỏi ngôn ngữ tự nhiên. Nếu câu hỏi để lộ thực thể trung gian (ví dụ dạng ngây thơ: \textit{``Từ A, qua thực thể B, thực thể đích là gì?''}), bài toán suy luận đa chặng sẽ bị suy biến hoàn toàn (collapse) thành phép tra cứu 1-hop tầm thường từ $B \to C$, làm mất đi giá trị đo lường năng lực suy luận hợp thành của vector nhúng.
+    \item \textbf{Cơ chế suy luận vector tiềm ẩn:} Bằng cách ẩn hoàn toàn $e_{\text{bridge}}$ và hợp nhất ngữ nghĩa hai quan hệ $(r_1 \circ r_2)$ bắt đầu từ thực thể đầu $e_{\text{head}}$, câu hỏi đòi hỏi hàm chấm điểm KGE (như TransE-L2) phải xâu chuỗi vector dịch chuyển trong không gian nhúng liên tục $\mathbb{R}^d$:
+    \begin{equation}
+        \mathbf{e}_{\text{head}} + \mathbf{r}_1 + \mathbf{r}_2 \approx \mathbf{e}_{\text{gold}}
+    \end{equation}
+    thông qua tọa độ tiềm ẩn của mắt xích trung gian $e_{\text{bridge}}$ mà không nhận bất kỳ gợi ý tường minh nào từ văn bản truy vấn.
+\end{enumerate}
+
+Bảng~\ref{tab:sample_latent_bridge_qa} trình bày 6 câu hỏi suy luận 2-hop tiêu biểu được trích xuất từ tập benchmark 147 câu hỏi, minh chứng tính chất ẩn mắt xích hoàn toàn và tính đa dạng ngữ nghĩa công nghệ thực tế.
+
+\begin{table}[htbp]
+\centering
+\caption{Bảng 5: Minh họa các câu hỏi suy luận đa chặng 2-hop theo chuẩn Ẩn Mắt xích (Latent Bridge Entity).}
+\label{tab:sample_latent_bridge_qa}
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lllp{4.2cm}lp{7.5cm}@{}}
+\toprule
+\textbf{Mã Query} & \textbf{Thực thể Đầu ($h$)} & \textbf{Mắt xích Ẩn ($e_{\text{bridge}}$)} & \textbf{Chuỗi Quan hệ ($r_1 \to r_2$)} & \textbf{Đích ($g$)} & \textbf{Câu hỏi Ngôn ngữ Tự nhiên (Ẩn Mắt xích)} \\
+\midrule
+\texttt{q\_2hop\_0121} & Nomi & \textit{[GPT-4o]} & \texttt{integrated\_into} $\to$ \texttt{released\_by} & OpenAI & Sản phẩm/hệ thống tích hợp thành phần công nghệ ``Nomi'' do đơn vị hoặc tổ chức nào nghiên cứu và phát hành? \\
+\addlinespace
+\texttt{q\_2hop\_0122} & Young Liu & \textit{[Foxconn]} & \texttt{is\_CEO\_of} $\to$ \texttt{partners\_with} & Nvidia & Tổ chức/doanh nghiệp do nhân vật ``Young Liu'' giữ cương vị CEO đã thiết lập quan hệ hợp tác chiến lược với đơn vị nào? \\
+\addlinespace
+\texttt{q\_2hop\_0125} & Brad Smith & \textit{[Microsoft]} & \texttt{works\_at} $\to$ \texttt{invested\_in} & OpenAI & Cơ quan/tổ chức nơi chuyên gia/nhân sự ``Brad Smith'' đang công tác đã thực hiện khoản rót vốn đầu tư chiến lược vào đơn vị nào? \\
+\addlinespace
+\texttt{q\_2hop\_0138} & Images in ChatGPT & \textit{[GPT-4o]} & \texttt{based\_on} $\to$ \texttt{released\_by} & OpenAI & Đơn vị nào nghiên cứu và phát hành nền tảng kỹ thuật làm cơ sở phát triển của sản phẩm/công nghệ ``Images in ChatGPT''? \\
+\addlinespace
+\texttt{q\_2hop\_0141} & Twitter & \textit{[Musk]} & \texttt{acquired\_by} $\to$ \texttt{works\_at} & SpaceX & Nhân vật/thực thể đã mua lại doanh nghiệp ``Twitter'' hiện đang làm việc hoặc công tác tại cơ quan/tổ chức nào? \\
+\addlinespace
+\texttt{q\_2hop\_0146} & iPhone SE 3 & \textit{[iPhone 16e]} & \texttt{succeeded\_by} $\to$ \texttt{version\_of} & iPhone 16 & Thiết bị kế nhiệm dòng sản phẩm ``iPhone SE 3'' là một biến thể cấu hình trực thuộc dòng sản phẩm nào? \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
 % ==============================================================================
 \section{Kết quả Kinh tế lượng Two-Way Fixed Effects (H1, H2, Falsification)}
 \label{sec:econometric_estimations}
@@ -191,7 +233,7 @@ Kiểm định suy diễn thống kê áp dụng phương pháp Wild Cluster Boo
 
 \begin{table}[htbp]
 \centering
-\caption{Bảng 5: Bảng kết quả kinh tế lượng Two-Way Fixed Effects (H1, H2, Falsification).}
+\caption{Bảng 6: Bảng kết quả kinh tế lượng Two-Way Fixed Effects (H1, H2, Falsification).}
 \label{tab:twfe_econometric_results}
 \small
 \resizebox{\textwidth}{!}{%
