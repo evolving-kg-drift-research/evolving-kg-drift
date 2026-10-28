@@ -196,9 +196,9 @@ Nghiên cứu xây dựng một khung đo lường chuẩn hóa hình học khé
 Kết quả thực nghiệm xác nhận:
 \begin{enumerate}
     \item Khung đo lường phân lập thành công tín hiệu trôi dạt thực chất khỏi nhiễu nền ngẫu nhiên với tỷ lệ trôi dạt dương đạt từ $42{,}1\%$ đến $53{,}6\%$ trên các bước chuyển đổi thời gian.
-    \item Kiểm định ngụy tạo khẳng định nhiễu ngẫu nhiên thuần túy không tạo ra hiệu ứng trôi dạt giả mạo ($\beta_{pseudo} = -0{,}01261$, $p_{\text{WCB}} = 0{,}495$).
-    \item Khi kiểm soát chặt chẽ các yếu tố cố định câu hỏi và thời gian, trôi dạt biểu diễn thực chất $SED^+$ độc lập thống kê với sự biến động thứ hạng suy luận đa bước ($\beta_d = -0{,}00466$, sai số chuẩn cụm $0{,}00497$, $p_{\text{WCB}} = 0{,}299$).
-    \item Phân tích đối chiếu chỉ ra rằng ưu thế vượt trội của mô hình KGE cập nhật trong môi trường thế giới mở chủ yếu bắt nguồn từ \textbf{độ mở rộng bao phủ thực thể (coverage expansion)} giúp triệt tiêu hình phạt OOV, thay vì do sự tái tinh chỉnh tọa độ biểu diễn vector của các thực thể đã biết từ trước.
+    \item Kiểm định ngụy tạo khẳng định nhiễu ngẫu nhiên thuần túy không tạo ra hiệu ứng trôi dạt giả mạo ($\beta_{pseudo} = -0{,}01144$, $p_{\text{WCB}} = 0{,}381$).
+    \item Khi kiểm soát chặt chẽ các yếu tố cố định câu hỏi và thời gian, trôi dạt biểu diễn thực chất $SED^+$ độc lập thống kê với sự biến động thứ hạng suy luận đa bước ($\beta_d = -0{,}00366$, sai số chuẩn cụm $0{,}00717$, $p_{\text{WCB}} = 0{,}574$; và $\beta_d = -0{,}00466$, $p_{\text{WCB}} = 0{,}299$).
+    \item Phân tích đối chiếu chỉ ra rằng trên tập câu hỏi Seen-at-T1 cố định, việc tái huấn luyện định kỳ làm suy thoái thứ hạng nội tại do xáo trộn không gian nhúng ($\Delta \text{MRR}_{\text{Seen-at-T1}} = -0{,}1384$) và tiếp tục sụt giảm thêm trong không gian mở do các thực thể mới đóng vai trò là các phần tử gây nhiễu ngữ nghĩa (semantic distractors, $\text{Bias Gap}_{\text{OOV}} = -0{,}0270$).
 \end{enumerate}
 
 \paragraph{Từ khóa:} Đồ thị tri thức tiến hóa, Nhúng đồ thị tri thức, Trôi dạt biểu diễn, Centered Procrustes SVD, Hiệu chỉnh nhiễu ngẫu nhiên, Suy luận đa bước, Two-Way Fixed Effects, Wild Cluster Bootstrap.

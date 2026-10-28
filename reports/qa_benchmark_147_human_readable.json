@@ -9,7 +9,8 @@
     "gold_answer_name": "Google Photos",
     "gold_answer_id": "ent_7cedb349",
     "support_entities_names": [
-      "Reimagine"
+      "Reimagine",
+      "Google Photos"
     ]
   },
   {
@@ -22,7 +23,8 @@
     "gold_answer_name": "Apple",
     "gold_answer_id": "ent_3a7bd3e2",
     "support_entities_names": [
-      "Newton MessagePad"
+      "Newton MessagePad",
+      "Apple"
     ]
   },
   {
@@ -35,7 +37,8 @@
     "gold_answer_name": "Tmas Việt Nam",
     "gold_answer_id": "ent_98d8df69",
     "support_entities_names": [
-      "màn hình ôtô thông minh Android AI ADAS Utour"
+      "màn hình ôtô thông minh Android AI ADAS Utour",
+      "Tmas Việt Nam"
     ]
   },
   {
@@ -48,7 +51,8 @@
     "gold_answer_name": "macOS",
     "gold_answer_id": "ent_a0c0485e",
     "support_entities_names": [
-      "macOS 15.4"
+      "macOS 15.4",
+      "macOS"
     ]
   },
   {
@@ -61,7 +65,8 @@
     "gold_answer_name": "Alchip Technologies",
     "gold_answer_id": "ent_4d6f2011",
     "support_entities_names": [
-      "NIC"
+      "NIC",
+      "Alchip Technologies"
     ]
   },
   {
@@ -74,7 +79,8 @@
     "gold_answer_name": "FPT",
     "gold_answer_id": "ent_976619b1",
     "support_entities_names": [
-      "NIC"
+      "NIC",
+      "FPT"
     ]
   },
   {
@@ -87,7 +93,8 @@
     "gold_answer_name": "iOS",
     "gold_answer_id": "ent_48ee0460",
     "support_entities_names": [
-      "iOS 18.4"
+      "iOS 18.4",
+      "iOS"
     ]
   },
   {
@@ -100,7 +107,8 @@
     "gold_answer_name": "Gemini",
     "gold_answer_id": "ent_5d724362",
     "support_entities_names": [
-      "Nomi"
+      "Nomi",
+      "Gemini"
     ]
   },
   {
@@ -113,7 +121,8 @@
     "gold_answer_name": "GPT-4o",
     "gold_answer_id": "ent_a2a69af7",
     "support_entities_names": [
-      "Nomi"
+      "Nomi",
+      "GPT-4o"
     ]
   },
   {
@@ -126,7 +135,8 @@
     "gold_answer_name": "PitchFest 2024",
     "gold_answer_id": "ent_a98655c8",
     "support_entities_names": [
-      "Super Vietnam 2025 PitchFest"
+      "Super Vietnam 2025 PitchFest",
+      "PitchFest 2024"
     ]
   },
   {
@@ -139,7 +149,8 @@
     "gold_answer_name": "Redmi Note 14",
     "gold_answer_id": "ent_13c67426",
     "support_entities_names": [
-      "Redmi Note 14 Pro+ 5G"
+      "Redmi Note 14 Pro+ 5G",
+      "Redmi Note 14"
     ]
   },
   {
@@ -152,7 +163,8 @@
     "gold_answer_name": "Galaxy S25",
     "gold_answer_id": "ent_b6ec2a7f",
     "support_entities_names": [
-      "S25 Edge"
+      "S25 Edge",
+      "Galaxy S25"
     ]
   },
   {
@@ -165,7 +177,8 @@
     "gold_answer_name": "Android",
     "gold_answer_id": "ent_f60ed56a",
     "support_entities_names": [
-      "Guemmy Kim"
+      "Guemmy Kim",
+      "Android"
     ]
   },
   {
@@ -178,7 +191,8 @@
     "gold_answer_name": "Foxconn",
     "gold_answer_id": "ent_81b73d52",
     "support_entities_names": [
-      "Young Liu"
+      "Young Liu",
+      "Foxconn"
     ]
   },
   {
@@ -191,7 +205,8 @@
     "gold_answer_name": "Foxconn",
     "gold_answer_id": "ent_81b73d52",
     "support_entities_names": [
-      "Young Liu"
+      "Young Liu",
+      "Foxconn"
     ]
   },
   {
@@ -204,7 +219,8 @@
     "gold_answer_name": "iPhone 16",
     "gold_answer_id": "ent_61d1260a",
     "support_entities_names": [
-      "iPhone 16e"
+      "iPhone 16e",
+      "iPhone 16"
     ]
   },
   {
@@ -217,7 +233,8 @@
     "gold_answer_name": "FPT Camera",
     "gold_answer_id": "ent_2a1a9964",
     "support_entities_names": [
-      "IQ 4S"
+      "IQ 4S",
+      "FPT Camera"
     ]
   },
   {
@@ -230,7 +247,8 @@
     "gold_answer_name": "FPT",
     "gold_answer_id": "ent_976619b1",
     "support_entities_names": [
-      "IQ 4S"
+      "IQ 4S",
+      "FPT"
     ]
   },
   {
@@ -243,7 +261,8 @@
     "gold_answer_name": "SpaceX",
     "gold_answer_id": "ent_e78bdeba",
     "support_entities_names": [
-      "Starlink"
+      "Starlink",
+      "SpaceX"
     ]
   },
   {
@@ -256,7 +275,8 @@
     "gold_answer_name": "IntuiCell",
     "gold_answer_id": "ent_588bc446",
     "support_entities_names": [
-      "Digital Nervous System"
+      "Digital Nervous System",
+      "IntuiCell"
     ]
   },
   {
@@ -269,7 +289,8 @@
     "gold_answer_name": "Microsoft",
     "gold_answer_id": "ent_9fbf261b",
     "support_entities_names": [
-      "Brad Smith"
+      "Brad Smith",
+      "Microsoft"
     ]
   },
   {
@@ -282,7 +303,8 @@
     "gold_answer_name": "DeepSeek",
     "gold_answer_id": "ent_6f7ac182",
     "support_entities_names": [
-      "DeepSeek-Reasoner"
+      "DeepSeek-Reasoner",
+      "DeepSeek"
     ]
   },
   {
@@ -295,7 +317,8 @@
     "gold_answer_name": "Google",
     "gold_answer_id": "ent_bbdefa29",
     "support_entities_names": [
-      "Motorola Mobility"
+      "Motorola Mobility",
+      "Google"
     ]
   },
   {
@@ -308,7 +331,8 @@
     "gold_answer_name": "Samsung",
     "gold_answer_id": "ent_968e2d5b",
     "support_entities_names": [
-      "Bespoke AI"
+      "Bespoke AI",
+      "Samsung"
     ]
   },
   {
@@ -321,7 +345,8 @@
     "gold_answer_name": "OpenAI",
     "gold_answer_id": "ent_7d3194f7",
     "support_entities_names": [
-      "o1-Pro"
+      "o1-Pro",
+      "OpenAI"
     ]
   },
   {
@@ -334,7 +359,8 @@
     "gold_answer_name": "o1",
     "gold_answer_id": "ent_2352da72",
     "support_entities_names": [
-      "o1-Pro"
+      "o1-Pro",
+      "o1"
     ]
   },
   {
@@ -347,7 +373,8 @@
     "gold_answer_name": "Microsoft",
     "gold_answer_id": "ent_9fbf261b",
     "support_entities_names": [
-      "Juan Lavista Ferres"
+      "Juan Lavista Ferres",
+      "Microsoft"
     ]
   },
   {
@@ -360,7 +387,8 @@
     "gold_answer_name": "Google Photos",
     "gold_answer_id": "ent_7cedb349",
     "support_entities_names": [
-      "Auto Frame"
+      "Auto Frame",
+      "Google Photos"
     ]
   },
   {
@@ -373,7 +401,8 @@
     "gold_answer_name": "NIC",
     "gold_answer_id": "ent_0e1733ef",
     "support_entities_names": [
-      "Vũ Quốc Huy"
+      "Vũ Quốc Huy",
+      "NIC"
     ]
   },
   {
@@ -386,7 +415,8 @@
     "gold_answer_name": "Trung tâm Đổi mới sáng tạo Quốc gia (NIC)",
     "gold_answer_id": "ent_fd9a006d",
     "support_entities_names": [
-      "Vũ Quốc Huy"
+      "Vũ Quốc Huy",
+      "Trung tâm Đổi mới sáng tạo Quốc gia (NIC)"
     ]
   },
   {
@@ -399,7 +429,8 @@
     "gold_answer_name": "Meta",
     "gold_answer_id": "ent_ea3bd73e",
     "support_entities_names": [
-      "Mark Zuckerberg"
+      "Mark Zuckerberg",
+      "Meta"
     ]
   },
   {
@@ -412,7 +443,8 @@
     "gold_answer_name": "MedCapSys",
     "gold_answer_id": "ent_64089cf4",
     "support_entities_names": [
-      "MedCapNet"
+      "MedCapNet",
+      "MedCapSys"
     ]
   },
   {
@@ -425,7 +457,8 @@
     "gold_answer_name": "TechRadar",
     "gold_answer_id": "ent_af6abad7",
     "support_entities_names": [
-      "Lance Ulanoff"
+      "Lance Ulanoff",
+      "TechRadar"
     ]
   },
   {
@@ -438,7 +471,8 @@
     "gold_answer_name": "MobiFone",
     "gold_answer_id": "ent_ee4a777c",
     "support_entities_names": [
-      "Camera AI"
+      "Camera AI",
+      "MobiFone"
     ]
   },
   {
@@ -451,7 +485,8 @@
     "gold_answer_name": "Meta",
     "gold_answer_id": "ent_ea3bd73e",
     "support_entities_names": [
-      "Molly Montgomery"
+      "Molly Montgomery",
+      "Meta"
     ]
   },
   {
@@ -464,7 +499,8 @@
     "gold_answer_name": "OpenAI",
     "gold_answer_id": "ent_7d3194f7",
     "support_entities_names": [
-      "Sam Altman"
+      "Sam Altman",
+      "OpenAI"
     ]
   },
   {
@@ -477,7 +513,8 @@
     "gold_answer_name": "OpenAI",
     "gold_answer_id": "ent_7d3194f7",
     "support_entities_names": [
-      "Sam Altman"
+      "Sam Altman",
+      "OpenAI"
     ]
   },
   {
@@ -490,7 +527,8 @@
     "gold_answer_name": "Samsung",
     "gold_answer_id": "ent_968e2d5b",
     "support_entities_names": [
-      "Galaxy S25 Edge"
+      "Galaxy S25 Edge",
+      "Samsung"
     ]
   },
   {
@@ -503,7 +541,8 @@
     "gold_answer_name": "SpaceX",
     "gold_answer_id": "ent_e78bdeba",
     "support_entities_names": [
-      "Musk"
+      "Musk",
+      "SpaceX"
     ]
   },
   {
@@ -516,7 +555,8 @@
     "gold_answer_name": "Microsoft",
     "gold_answer_id": "ent_9fbf261b",
     "support_entities_names": [
-      "Jared Spataro"
+      "Jared Spataro",
+      "Microsoft"
     ]
   },
   {
@@ -529,7 +569,8 @@
     "gold_answer_name": "IntuiCell",
     "gold_answer_id": "ent_588bc446",
     "support_entities_names": [
-      "Viktor Luthman"
+      "Viktor Luthman",
+      "IntuiCell"
     ]
   },
   {
@@ -542,7 +583,8 @@
     "gold_answer_name": "Canon",
     "gold_answer_id": "ent_7a535665",
     "support_entities_names": [
-      "Boston Dynamics"
+      "Boston Dynamics",
+      "Canon"
     ]
   },
   {
@@ -555,7 +597,8 @@
     "gold_answer_name": "Nvidia",
     "gold_answer_id": "ent_8d4321d9",
     "support_entities_names": [
-      "Boston Dynamics"
+      "Boston Dynamics",
+      "Nvidia"
     ]
   },
   {
@@ -568,7 +611,8 @@
     "gold_answer_name": "WPP",
     "gold_answer_id": "ent_cae047d3",
     "support_entities_names": [
-      "Boston Dynamics"
+      "Boston Dynamics",
+      "WPP"
     ]
   },
   {
@@ -581,7 +625,8 @@
     "gold_answer_name": "OpenAI",
     "gold_answer_id": "ent_7d3194f7",
     "support_entities_names": [
-      "ChatGPT"
+      "ChatGPT",
+      "OpenAI"
     ]
   },
   {
@@ -594,7 +639,8 @@
     "gold_answer_name": "iPhone 15",
     "gold_answer_id": "ent_72954355",
     "support_entities_names": [
-      "iPhone 16"
+      "iPhone 16",
+      "iPhone 15"
     ]
   },
   {
@@ -607,7 +653,8 @@
     "gold_answer_name": "Bình dân học vụ",
     "gold_answer_id": "ent_f5fb3798",
     "support_entities_names": [
-      "Bình dân học vụ số"
+      "Bình dân học vụ số",
+      "Bình dân học vụ"
     ]
   },
   {
@@ -620,7 +667,8 @@
     "gold_answer_name": "AI Hay",
     "gold_answer_id": "ent_46725f28",
     "support_entities_names": [
-      "Nguyễn Hoàng Hiệp"
+      "Nguyễn Hoàng Hiệp",
+      "AI Hay"
     ]
   },
   {
@@ -633,7 +681,8 @@
     "gold_answer_name": "FPT Online",
     "gold_answer_id": "ent_cfb7a61f",
     "support_entities_names": [
-      "Orochi Network"
+      "Orochi Network",
+      "FPT Online"
     ]
   },
   {
@@ -646,7 +695,8 @@
     "gold_answer_name": "DSAC",
     "gold_answer_id": "ent_fe9207d9",
     "support_entities_names": [
-      "Orochi Network"
+      "Orochi Network",
+      "DSAC"
     ]
   },
   {
@@ -659,7 +709,8 @@
     "gold_answer_name": "Công an",
     "gold_answer_id": "ent_a8a91f23",
     "support_entities_names": [
-      "Nguyễn Văn Long"
+      "Nguyễn Văn Long",
+      "Công an"
     ]
   },
   {
@@ -672,7 +723,8 @@
     "gold_answer_name": "CMC",
     "gold_answer_id": "ent_81e5538a",
     "support_entities_names": [
-      "Nguyễn Trung Chính"
+      "Nguyễn Trung Chính",
+      "CMC"
     ]
   },
   {
@@ -685,7 +737,8 @@
     "gold_answer_name": "GPT-4o",
     "gold_answer_id": "ent_a2a69af7",
     "support_entities_names": [
-      "Images in ChatGPT"
+      "Images in ChatGPT",
+      "GPT-4o"
     ]
   },
   {
@@ -698,7 +751,8 @@
     "gold_answer_name": "ChatGPT",
     "gold_answer_id": "ent_60965168",
     "support_entities_names": [
-      "Images in ChatGPT"
+      "Images in ChatGPT",
+      "ChatGPT"
     ]
   },
   {
@@ -711,7 +765,8 @@
     "gold_answer_name": "OpenAI",
     "gold_answer_id": "ent_7d3194f7",
     "support_entities_names": [
-      "Images in ChatGPT"
+      "Images in ChatGPT",
+      "OpenAI"
     ]
   },
   {
@@ -724,7 +779,8 @@
     "gold_answer_name": "iPhone 16",
     "gold_answer_id": "ent_61d1260a",
     "support_entities_names": [
-      "iPhone 15"
+      "iPhone 15",
+      "iPhone 16"
     ]
   },
   {
@@ -737,7 +793,8 @@
     "gold_answer_name": "Musk",
     "gold_answer_id": "ent_4db16eb9",
     "support_entities_names": [
-      "Twitter"
+      "Twitter",
+      "Musk"
     ]
   },
   {
@@ -750,7 +807,8 @@
     "gold_answer_name": "MedCapSys",
     "gold_answer_id": "ent_64089cf4",
     "support_entities_names": [
-      "GuidedDCNet"
+      "GuidedDCNet",
+      "MedCapSys"
     ]
   },
   {
@@ -763,7 +821,8 @@
     "gold_answer_name": "Mjn-neuro",
     "gold_answer_id": "ent_bf81d148",
     "support_entities_names": [
-      "Công ty Cổ phần ITR VN"
+      "Công ty Cổ phần ITR VN",
+      "Mjn-neuro"
     ]
   },
   {
@@ -776,7 +835,8 @@
     "gold_answer_name": "MIT Media Lab",
     "gold_answer_id": "ent_273d08bd",
     "support_entities_names": [
-      "OpenAI"
+      "OpenAI",
+      "MIT Media Lab"
     ]
   },
   {
@@ -789,7 +849,8 @@
     "gold_answer_name": "Nvidia",
     "gold_answer_id": "ent_8d4321d9",
     "support_entities_names": [
-      "Foxconn"
+      "Foxconn",
+      "Nvidia"
     ]
   },
   {
@@ -802,7 +863,8 @@
     "gold_answer_name": "Apple",
     "gold_answer_id": "ent_3a7bd3e2",
     "support_entities_names": [
-      "Siri"
+      "Siri",
+      "Apple"
     ]
   },
   {
@@ -815,7 +877,8 @@
     "gold_answer_name": "Apple",
     "gold_answer_id": "ent_3a7bd3e2",
     "support_entities_names": [
-      "Jacqueline Roy"
+      "Jacqueline Roy",
+      "Apple"
     ]
   },
   {
@@ -828,7 +891,8 @@
     "gold_answer_name": "DeepSeek",
     "gold_answer_id": "ent_6f7ac182",
     "support_entities_names": [
-      "R1"
+      "R1",
+      "DeepSeek"
     ]
   },
   {
@@ -841,7 +905,8 @@
     "gold_answer_name": "Blackwell",
     "gold_answer_id": "ent_374eebfb",
     "support_entities_names": [
-      "Blackwell Ultra GB300"
+      "Blackwell Ultra GB300",
+      "Blackwell"
     ]
   },
   {
@@ -854,7 +919,8 @@
     "gold_answer_name": "TCL",
     "gold_answer_id": "ent_9daf09c8",
     "support_entities_names": [
-      "TCL BreezeIN Pro"
+      "TCL BreezeIN Pro",
+      "TCL"
     ]
   },
   {
@@ -867,7 +933,8 @@
     "gold_answer_name": "Vivo",
     "gold_answer_id": "ent_69337578",
     "support_entities_names": [
-      "Hu Baishan"
+      "Hu Baishan",
+      "Vivo"
     ]
   },
   {
@@ -880,7 +947,8 @@
     "gold_answer_name": "Santander",
     "gold_answer_id": "ent_138df632",
     "support_entities_names": [
-      "Chris Ainsley"
+      "Chris Ainsley",
+      "Santander"
     ]
   },
   {
@@ -893,7 +961,8 @@
     "gold_answer_name": "Ủy ban Khoa học, Công nghệ và Môi trường",
     "gold_answer_id": "ent_962f047c",
     "support_entities_names": [
-      "Lê Quang Huy"
+      "Lê Quang Huy",
+      "Ủy ban Khoa học, Công nghệ và Môi trường"
     ]
   },
   {
@@ -906,7 +975,8 @@
     "gold_answer_name": "MedCapSys",
     "gold_answer_id": "ent_64089cf4",
     "support_entities_names": [
-      "GuidedSegDiff"
+      "GuidedSegDiff",
+      "MedCapSys"
     ]
   },
   {
@@ -919,7 +989,8 @@
     "gold_answer_name": "FPT",
     "gold_answer_id": "ent_976619b1",
     "support_entities_names": [
-      "Sumitomo Corporation"
+      "Sumitomo Corporation",
+      "FPT"
     ]
   },
   {
@@ -932,7 +1003,8 @@
     "gold_answer_name": "Đại học Graz",
     "gold_answer_id": "ent_549f7f7a",
     "support_entities_names": [
-      "Robert Jarolim"
+      "Robert Jarolim",
+      "Đại học Graz"
     ]
   },
   {
@@ -945,7 +1017,8 @@
     "gold_answer_name": "Paralympic",
     "gold_answer_id": "ent_44bcab5e",
     "support_entities_names": [
-      "TCL"
+      "TCL",
+      "Paralympic"
     ]
   },
   {
@@ -958,7 +1031,8 @@
     "gold_answer_name": "Olympic",
     "gold_answer_id": "ent_d417a32d",
     "support_entities_names": [
-      "TCL"
+      "TCL",
+      "Olympic"
     ]
   },
   {
@@ -971,7 +1045,8 @@
     "gold_answer_name": "OpenAI",
     "gold_answer_id": "ent_7d3194f7",
     "support_entities_names": [
-      "Microsoft"
+      "Microsoft",
+      "OpenAI"
     ]
   },
   {
@@ -984,7 +1059,8 @@
     "gold_answer_name": "Planet Labs",
     "gold_answer_id": "ent_93849eaa",
     "support_entities_names": [
-      "Microsoft"
+      "Microsoft",
+      "Planet Labs"
     ]
   },
   {
@@ -997,7 +1073,8 @@
     "gold_answer_name": "STIQ",
     "gold_answer_id": "ent_fd9c867e",
     "support_entities_names": [
-      "Thomas Andersson"
+      "Thomas Andersson",
+      "STIQ"
     ]
   },
   {
@@ -1010,7 +1087,8 @@
     "gold_answer_name": "OpenAI",
     "gold_answer_id": "ent_7d3194f7",
     "support_entities_names": [
-      "GPT-4o"
+      "GPT-4o",
+      "OpenAI"
     ]
   },
   {
@@ -1023,7 +1101,8 @@
     "gold_answer_name": "Viện Công nghệ Liên bang Thụy Sĩ ở Lausanne (EPFL)",
     "gold_answer_id": "ent_6402eab9",
     "support_entities_names": [
-      "TS Phan Hoàng Vũ"
+      "TS Phan Hoàng Vũ",
+      "Viện Công nghệ Liên bang Thụy Sĩ ở Lausanne (EPFL)"
     ]
   },
   {
@@ -1036,7 +1115,8 @@
     "gold_answer_name": "EPFL",
     "gold_answer_id": "ent_8758902c",
     "support_entities_names": [
-      "TS Phan Hoàng Vũ"
+      "TS Phan Hoàng Vũ",
+      "EPFL"
     ]
   },
   {
@@ -1049,7 +1129,8 @@
     "gold_answer_name": "Học viện Kỹ thuật quân sự",
     "gold_answer_id": "ent_27bf8be1",
     "support_entities_names": [
-      "TS Lê Bá Chung"
+      "TS Lê Bá Chung",
+      "Học viện Kỹ thuật quân sự"
     ]
   },
   {
@@ -1062,7 +1143,8 @@
     "gold_answer_name": "Phòng thí nghiệm Bộ môn Cơ điện tử và Chế tạo máy đặc biệt",
     "gold_answer_id": "ent_7fef3cb6",
     "support_entities_names": [
-      "TS Lê Bá Chung"
+      "TS Lê Bá Chung",
+      "Phòng thí nghiệm Bộ môn Cơ điện tử và Chế tạo máy đặc biệt"
     ]
   },
   {
@@ -1075,7 +1157,8 @@
     "gold_answer_name": "Khoa Hàng không vũ trụ",
     "gold_answer_id": "ent_bbfe6859",
     "support_entities_names": [
-      "TS Lê Bá Chung"
+      "TS Lê Bá Chung",
+      "Khoa Hàng không vũ trụ"
     ]
   },
   {
@@ -1088,7 +1171,8 @@
     "gold_answer_name": "Super Vietnam 2025 PitchFest",
     "gold_answer_id": "ent_1238ddea",
     "support_entities_names": [
-      "PitchFest 2024"
+      "PitchFest 2024",
+      "Super Vietnam 2025 PitchFest"
     ]
   },
   {
@@ -1101,7 +1185,8 @@
     "gold_answer_name": "Atlas",
     "gold_answer_id": "ent_7c826025",
     "support_entities_names": [
-      "Nvidia Cosmos"
+      "Nvidia Cosmos",
+      "Atlas"
     ]
   },
   {
@@ -1114,7 +1199,8 @@
     "gold_answer_name": "Google Brain",
     "gold_answer_id": "ent_c6b205e3",
     "support_entities_names": [
-      "Lê Viết Quốc"
+      "Lê Viết Quốc",
+      "Google Brain"
     ]
   },
   {
@@ -1127,7 +1213,8 @@
     "gold_answer_name": "DeepSeek",
     "gold_answer_id": "ent_6f7ac182",
     "support_entities_names": [
-      "DeepSeek-Chat"
+      "DeepSeek-Chat",
+      "DeepSeek"
     ]
   },
   {
@@ -1140,7 +1227,8 @@
     "gold_answer_name": "Bộ Công an",
     "gold_answer_id": "ent_8c1af4d4",
     "support_entities_names": [
-      "Lương Tam Quang"
+      "Lương Tam Quang",
+      "Bộ Công an"
     ]
   },
   {
@@ -1153,7 +1241,8 @@
     "gold_answer_name": "Hiệp hội Dữ liệu quốc gia",
     "gold_answer_id": "ent_4179a2ac",
     "support_entities_names": [
-      "Nguyễn Ngọc Cương"
+      "Nguyễn Ngọc Cương",
+      "Hiệp hội Dữ liệu quốc gia"
     ]
   },
   {
@@ -1166,7 +1255,8 @@
     "gold_answer_name": "Trung tâm Dữ liệu Quốc gia",
     "gold_answer_id": "ent_f14f4937",
     "support_entities_names": [
-      "Nguyễn Ngọc Cương"
+      "Nguyễn Ngọc Cương",
+      "Trung tâm Dữ liệu Quốc gia"
     ]
   },
   {
@@ -1179,7 +1269,8 @@
     "gold_answer_name": "Google",
     "gold_answer_id": "ent_bbdefa29",
     "support_entities_names": [
-      "Gemma 3"
+      "Gemma 3",
+      "Google"
     ]
   },
   {
@@ -1192,7 +1283,8 @@
     "gold_answer_name": "Luna",
     "gold_answer_id": "ent_970ec274",
     "support_entities_names": [
-      "Digital Nervous System (Hệ thần kinh Kỹ thuật số)"
+      "Digital Nervous System (Hệ thần kinh Kỹ thuật số)",
+      "Luna"
     ]
   },
   {
@@ -1205,7 +1297,8 @@
     "gold_answer_name": "Đại học Cornell",
     "gold_answer_id": "ent_16fc06bc",
     "support_entities_names": [
-      "Robert Sternberg"
+      "Robert Sternberg",
+      "Đại học Cornell"
     ]
   },
   {
@@ -1218,7 +1311,8 @@
     "gold_answer_name": "Wiz",
     "gold_answer_id": "ent_5b92e3c7",
     "support_entities_names": [
-      "Rappaport"
+      "Rappaport",
+      "Wiz"
     ]
   },
   {
@@ -1231,7 +1325,8 @@
     "gold_answer_name": "Google DeepMind",
     "gold_answer_id": "ent_2b6e51be",
     "support_entities_names": [
-      "Stefania Druga"
+      "Stefania Druga",
+      "Google DeepMind"
     ]
   },
   {
@@ -1244,7 +1339,8 @@
     "gold_answer_name": "ADT Global",
     "gold_answer_id": "ent_0f829461",
     "support_entities_names": [
-      "Phạm Tiến Huy"
+      "Phạm Tiến Huy",
+      "ADT Global"
     ]
   },
   {
@@ -1257,7 +1353,8 @@
     "gold_answer_name": "DSAC",
     "gold_answer_id": "ent_fe9207d9",
     "support_entities_names": [
-      "FPT Online"
+      "FPT Online",
+      "DSAC"
     ]
   },
   {
@@ -1270,7 +1367,8 @@
     "gold_answer_name": "TSMC",
     "gold_answer_id": "ent_17b7a45d",
     "support_entities_names": [
-      "TS Dương Quang Lỗi"
+      "TS Dương Quang Lỗi",
+      "TSMC"
     ]
   },
   {
@@ -1283,7 +1381,8 @@
     "gold_answer_name": "FPT",
     "gold_answer_id": "ent_976619b1",
     "support_entities_names": [
-      "SBI Holdings"
+      "SBI Holdings",
+      "FPT"
     ]
   },
   {
@@ -1296,7 +1395,8 @@
     "gold_answer_name": "iPadOS",
     "gold_answer_id": "ent_b33e13c3",
     "support_entities_names": [
-      "iPadOS 18.4"
+      "iPadOS 18.4",
+      "iPadOS"
     ]
   },
   {
@@ -1309,7 +1409,8 @@
     "gold_answer_name": "Samsung",
     "gold_answer_id": "ent_968e2d5b",
     "support_entities_names": [
-      "Jeong Seung Moon"
+      "Jeong Seung Moon",
+      "Samsung"
     ]
   },
   {
@@ -1322,7 +1423,8 @@
     "gold_answer_name": "FPT Camera",
     "gold_answer_id": "ent_2a1a9964",
     "support_entities_names": [
-      "Play 4"
+      "Play 4",
+      "FPT Camera"
     ]
   },
   {
@@ -1335,7 +1437,8 @@
     "gold_answer_name": "FPT",
     "gold_answer_id": "ent_976619b1",
     "support_entities_names": [
-      "Play 4"
+      "Play 4",
+      "FPT"
     ]
   },
   {
@@ -1348,7 +1451,8 @@
     "gold_answer_name": "RISC",
     "gold_answer_id": "ent_bec252ae",
     "support_entities_names": [
-      "Arm"
+      "Arm",
+      "RISC"
     ]
   },
   {
@@ -1361,7 +1465,8 @@
     "gold_answer_name": "Cơ quan Hàng không vũ trụ Đức DLR",
     "gold_answer_id": "ent_cfdadc89",
     "support_entities_names": [
-      "Jeanne Davoult"
+      "Jeanne Davoult",
+      "Cơ quan Hàng không vũ trụ Đức DLR"
     ]
   },
   {
@@ -1374,7 +1479,8 @@
     "gold_answer_name": "iPhone 16e",
     "gold_answer_id": "ent_2364aee3",
     "support_entities_names": [
-      "iPhone SE 3"
+      "iPhone SE 3",
+      "iPhone 16e"
     ]
   },
   {
@@ -1387,7 +1493,8 @@
     "gold_answer_name": "AI Hay",
     "gold_answer_id": "ent_46725f28",
     "support_entities_names": [
-      "Amazon Web Services (AWS)"
+      "Amazon Web Services (AWS)",
+      "AI Hay"
     ]
   },
   {
@@ -1400,7 +1507,8 @@
     "gold_answer_name": "Alchip Technologies",
     "gold_answer_id": "ent_4d6f2011",
     "support_entities_names": [
-      "Peter Teng"
+      "Peter Teng",
+      "Alchip Technologies"
     ]
   },
   {
@@ -1413,7 +1521,8 @@
     "gold_answer_name": "Google",
     "gold_answer_id": "ent_bbdefa29",
     "support_entities_names": [
-      "Gemini 2.5 Pro"
+      "Gemini 2.5 Pro",
+      "Google"
     ]
   },
   {
@@ -1426,7 +1535,8 @@
     "gold_answer_name": "Gemini",
     "gold_answer_id": "ent_5d724362",
     "support_entities_names": [
-      "Gemini 2.5 Pro"
+      "Gemini 2.5 Pro",
+      "Gemini"
     ]
   },
   {
@@ -1439,7 +1549,8 @@
     "gold_answer_name": "Apple",
     "gold_answer_id": "ent_3a7bd3e2",
     "support_entities_names": [
-      "Apple Intelligence"
+      "Apple Intelligence",
+      "Apple"
     ]
   },
   {
@@ -1452,7 +1563,8 @@
     "gold_answer_name": "CellPhoneS",
     "gold_answer_id": "ent_554cc8a3",
     "support_entities_names": [
-      "Nguyễn Lạc Huy"
+      "Nguyễn Lạc Huy",
+      "CellPhoneS"
     ]
   },
   {
@@ -1465,7 +1577,8 @@
     "gold_answer_name": "FPT",
     "gold_answer_id": "ent_976619b1",
     "support_entities_names": [
-      "AI Agents"
+      "AI Agents",
+      "FPT"
     ]
   },
   {
@@ -1478,7 +1591,8 @@
     "gold_answer_name": "Classiq Technologies",
     "gold_answer_id": "ent_442ab8ac",
     "support_entities_names": [
-      "Erik Garcell"
+      "Erik Garcell",
+      "Classiq Technologies"
     ]
   },
   {
@@ -1491,7 +1605,8 @@
     "gold_answer_name": "Nvidia",
     "gold_answer_id": "ent_8d4321d9",
     "support_entities_names": [
-      "Jensen Huang"
+      "Jensen Huang",
+      "Nvidia"
     ]
   },
   {
@@ -1504,7 +1619,8 @@
     "gold_answer_name": "MedCapSys",
     "gold_answer_id": "ent_64089cf4",
     "support_entities_names": [
-      "BrainMedQwen"
+      "BrainMedQwen",
+      "MedCapSys"
     ]
   },
   {
@@ -1517,7 +1633,8 @@
     "gold_answer_name": "Il Foglio",
     "gold_answer_id": "ent_b9d7882f",
     "support_entities_names": [
-      "Claudio Cerasa"
+      "Claudio Cerasa",
+      "Il Foglio"
     ]
   },
   {
@@ -1530,7 +1647,8 @@
     "gold_answer_name": "Phòng thí nghiệm Tianmushan",
     "gold_answer_id": "ent_646659f5",
     "support_entities_names": [
-      "Tianmushan No. 1"
+      "Tianmushan No. 1",
+      "Phòng thí nghiệm Tianmushan"
     ]
   },
   {
@@ -1543,7 +1661,8 @@
     "gold_answer_name": "Vivo",
     "gold_answer_id": "ent_69337578",
     "support_entities_names": [
-      "Vivo Vision"
+      "Vivo Vision",
+      "Vivo"
     ]
   },
   {
@@ -1556,7 +1675,8 @@
     "gold_answer_name": "Tmas Việt Nam",
     "gold_answer_id": "ent_98d8df69",
     "support_entities_names": [
-      "Trần Thế Minh"
+      "Trần Thế Minh",
+      "Tmas Việt Nam"
     ]
   },
   {
@@ -1569,7 +1689,8 @@
     "gold_answer_name": "Galaxy AI",
     "gold_answer_id": "ent_1ed9223e",
     "support_entities_names": [
-      "Galaxy Ring"
+      "Galaxy Ring",
+      "Galaxy AI"
     ]
   },
   {
@@ -1583,7 +1704,8 @@
     "gold_answer_id": "ent_7d3194f7",
     "support_entities_names": [
       "Nomi",
-      "GPT-4o"
+      "GPT-4o",
+      "OpenAI"
     ]
   },
   {
@@ -1597,7 +1719,8 @@
     "gold_answer_id": "ent_8d4321d9",
     "support_entities_names": [
       "Young Liu",
-      "Foxconn"
+      "Foxconn",
+      "Nvidia"
     ]
   },
   {
@@ -1611,7 +1734,8 @@
     "gold_answer_id": "ent_8d4321d9",
     "support_entities_names": [
       "Young Liu",
-      "Foxconn"
+      "Foxconn",
+      "Nvidia"
     ]
   },
   {
@@ -1625,7 +1749,8 @@
     "gold_answer_id": "ent_72954355",
     "support_entities_names": [
       "iPhone 16e",
-      "iPhone 16"
+      "iPhone 16",
+      "iPhone 15"
     ]
   },
   {
@@ -1639,7 +1764,8 @@
     "gold_answer_id": "ent_7d3194f7",
     "support_entities_names": [
       "Brad Smith",
-      "Microsoft"
+      "Microsoft",
+      "OpenAI"
     ]
   },
   {
@@ -1653,7 +1779,8 @@
     "gold_answer_id": "ent_93849eaa",
     "support_entities_names": [
       "Brad Smith",
-      "Microsoft"
+      "Microsoft",
+      "Planet Labs"
     ]
   },
   {
@@ -1667,7 +1794,8 @@
     "gold_answer_id": "ent_273d08bd",
     "support_entities_names": [
       "o1-Pro",
-      "OpenAI"
+      "OpenAI",
+      "MIT Media Lab"
     ]
   },
   {
@@ -1681,7 +1809,8 @@
     "gold_answer_id": "ent_7d3194f7",
     "support_entities_names": [
       "Juan Lavista Ferres",
-      "Microsoft"
+      "Microsoft",
+      "OpenAI"
     ]
   },
   {
@@ -1695,7 +1824,8 @@
     "gold_answer_id": "ent_93849eaa",
     "support_entities_names": [
       "Juan Lavista Ferres",
-      "Microsoft"
+      "Microsoft",
+      "Planet Labs"
     ]
   },
   {
@@ -1709,7 +1839,8 @@
     "gold_answer_id": "ent_4d6f2011",
     "support_entities_names": [
       "Vũ Quốc Huy",
-      "NIC"
+      "NIC",
+      "Alchip Technologies"
     ]
   },
   {
@@ -1723,7 +1854,8 @@
     "gold_answer_id": "ent_976619b1",
     "support_entities_names": [
       "Vũ Quốc Huy",
-      "NIC"
+      "NIC",
+      "FPT"
     ]
   },
   {
@@ -1737,7 +1869,8 @@
     "gold_answer_id": "ent_273d08bd",
     "support_entities_names": [
       "Sam Altman",
-      "OpenAI"
+      "OpenAI",
+      "MIT Media Lab"
     ]
   },
   {
@@ -1751,7 +1884,8 @@
     "gold_answer_id": "ent_273d08bd",
     "support_entities_names": [
       "Sam Altman",
-      "OpenAI"
+      "OpenAI",
+      "MIT Media Lab"
     ]
   },
   {
@@ -1765,7 +1899,8 @@
     "gold_answer_id": "ent_7d3194f7",
     "support_entities_names": [
       "Jared Spataro",
-      "Microsoft"
+      "Microsoft",
+      "OpenAI"
     ]
   },
   {
@@ -1779,7 +1914,8 @@
     "gold_answer_id": "ent_93849eaa",
     "support_entities_names": [
       "Jared Spataro",
-      "Microsoft"
+      "Microsoft",
+      "Planet Labs"
     ]
   },
   {
@@ -1793,7 +1929,8 @@
     "gold_answer_id": "ent_273d08bd",
     "support_entities_names": [
       "ChatGPT",
-      "OpenAI"
+      "OpenAI",
+      "MIT Media Lab"
     ]
   },
   {
@@ -1807,7 +1944,8 @@
     "gold_answer_id": "ent_fe9207d9",
     "support_entities_names": [
       "Orochi Network",
-      "FPT Online"
+      "FPT Online",
+      "DSAC"
     ]
   },
   {
@@ -1821,7 +1959,8 @@
     "gold_answer_id": "ent_7d3194f7",
     "support_entities_names": [
       "Images in ChatGPT",
-      "GPT-4o"
+      "GPT-4o",
+      "OpenAI"
     ]
   },
   {
@@ -1835,7 +1974,8 @@
     "gold_answer_id": "ent_7d3194f7",
     "support_entities_names": [
       "Images in ChatGPT",
-      "ChatGPT"
+      "ChatGPT",
+      "OpenAI"
     ]
   },
   {
@@ -1849,7 +1989,8 @@
     "gold_answer_id": "ent_273d08bd",
     "support_entities_names": [
       "Images in ChatGPT",
-      "OpenAI"
+      "OpenAI",
+      "MIT Media Lab"
     ]
   },
   {
@@ -1863,7 +2004,8 @@
     "gold_answer_id": "ent_e78bdeba",
     "support_entities_names": [
       "Twitter",
-      "Musk"
+      "Musk",
+      "SpaceX"
     ]
   },
   {
@@ -1877,7 +2019,8 @@
     "gold_answer_id": "ent_44bcab5e",
     "support_entities_names": [
       "TCL BreezeIN Pro",
-      "TCL"
+      "TCL",
+      "Paralympic"
     ]
   },
   {
@@ -1891,7 +2034,8 @@
     "gold_answer_id": "ent_d417a32d",
     "support_entities_names": [
       "TCL BreezeIN Pro",
-      "TCL"
+      "TCL",
+      "Olympic"
     ]
   },
   {
@@ -1905,7 +2049,8 @@
     "gold_answer_id": "ent_273d08bd",
     "support_entities_names": [
       "Microsoft",
-      "OpenAI"
+      "OpenAI",
+      "MIT Media Lab"
     ]
   },
   {
@@ -1919,7 +2064,8 @@
     "gold_answer_id": "ent_273d08bd",
     "support_entities_names": [
       "GPT-4o",
-      "OpenAI"
+      "OpenAI",
+      "MIT Media Lab"
     ]
   },
   {
@@ -1933,7 +2079,8 @@
     "gold_answer_id": "ent_61d1260a",
     "support_entities_names": [
       "iPhone SE 3",
-      "iPhone 16e"
+      "iPhone 16e",
+      "iPhone 16"
     ]
   }
 ]

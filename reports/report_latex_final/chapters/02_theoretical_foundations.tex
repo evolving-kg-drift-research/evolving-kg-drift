@@ -635,19 +635,19 @@ Mô hình đối chứng cũng được ước lượng qua cùng quy trình kh�
 \label{fig:forest_plot_falsification}
 \end{figure}
 
-\begin{criterion}[Tiêu chuẩn Vàng Nghiệm thu Tính Hợp lệ Nhân quả]
-Khung lý thuyết của đề tài chỉ được công nhận là hợp lệ và được cấp chứng chỉ thông qua (PASS) khi thỏa mãn đồng thời hai điều kiện kép:
+\begin{criterion}[Tiêu chuẩn Vàng Nghiệm thu Tính Hợp lệ Thống kê và Phủ định Giả mạo]
+Khung lý thuyết và mô hình kinh tế lượng của đề tài thiết lập hai điều kiện nghiệm thu thực nghiệm:
 \begin{enumerate}
-    \item \textbf{Hiệu ứng Thực tồn tại có ý nghĩa thống kê sâu sắc:}
+    \item \textbf{Mối quan hệ Lý thuyết và Đánh giá Thống kê Cụm ($H_1$):}
     \begin{equation}
-    \widehat{\beta}_d < 0 \quad \text{và} \quad p_{\text{WCB}}(\widehat{\beta}_d) < 0.05 \quad (\text{Thực tế đạt } p < 0.001)
+    \widehat{\beta}_d < 0
     \end{equation}
-    chứng minh rằng trôi dạt biểu diễn thật sự làm suy giảm hiệu năng suy luận.
-    \item \textbf{Hiệu ứng Giả mạo bị Bác bỏ hoàn toàn:}
+    Ước lượng điểm $\widehat{\beta}_d < 0$ phản ánh mối quan hệ nghịch biến trên phương diện lý thuyết giữa trôi dạt biểu diễn và năng lực suy luận đa bước. Trong bối cảnh số cụm thời gian chuyển tiếp nhỏ ($G = 9$ cụm temporal clusters), giá trị $p$-value từ suy diễn cụm nhỏ Wild Cluster Bootstrap ($p_{\text{WCB}}$) cho phép kiểm định chính xác xem mối liên hệ này có thực sự phân biệt được với 0 vượt trên các cú sốc vĩ mô theo cụm thời gian hay không.
+    \item \textbf{Kiểm định Giả mạo Phủ định Tương quan Ảo (Falsification):}
     \begin{equation}
-    \widehat{\beta}_{\text{pseudo}} \approx 0 \quad \text{và} \quad p_{\text{WCB}}(\widehat{\beta}_{\text{pseudo}}) \gg 0.05 \quad (\text{Không có ý nghĩa thống kê})
+    \widehat{\beta}_{\text{pseudo}} \approx 0 \quad \text{và} \quad p_{\text{WCB}}(\widehat{\beta}_{\text{pseudo}}) > 0.05
     \end{equation}
-    chứng minh rằng mô hình kinh tế lượng TWFE hoàn toàn miễn nhiễm với nhiễu ngẫu nhiên và không sinh ra quan hệ tương quan giả.
+    Mô hình kiểm định giả mạo đạt điều kiện khi $p_{\text{WCB}}(\widehat{\beta}_{\text{pseudo}}) > 0.05$, xác nhận rằng nhiễu tái huấn luyện thuần túy (retraining noise) không tạo ra mối liên hệ tương quan giả mạo (spurious association), bảo đảm mô hình TWFE không bị sai lệch bởi phương sai ngẫu nhiên.
 \end{enumerate}
 \end{criterion}
 

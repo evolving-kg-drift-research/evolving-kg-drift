@@ -160,7 +160,7 @@ def wild_cluster_bootstrap(
     G = len(unique_clusters)
 
     x_tilde = fit_result["x_tilde"]
-    residuals = fit_result["residuals"]
+    y_tilde = fit_result["y_tilde"]
     t_stat_orig = abs(fit_result["t_stat"][0])
     XtX_inv = fit_result["XtX_inv"]
     K = x_tilde.shape[1]
@@ -181,8 +181,8 @@ def wild_cluster_bootstrap(
         for i, g in enumerate(unique_clusters):
             v[time_indices == g] = v_g[i]
 
-        # Under H0: beta = 0, y_star = v * residuals
-        y_star = v * residuals
+        # Under restricted WCR for H0: beta = 0, the restricted residual is y_tilde
+        y_star = v * y_tilde
 
         # OLS estimate under bootstrap draw
         beta_star = XtX_inv @ (x_tilde.T @ y_star)

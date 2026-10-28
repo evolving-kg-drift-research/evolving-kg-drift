@@ -17,12 +17,12 @@ Chương này tổng kết toàn bộ các kết quả đạt được của đ�
 
     \item \textbf{Phát hiện khoa học sâu sắc về bản chất của việc cập nhật KGE:}
     \begin{itemize}
-        \item Khẳng định về mặt thống kê rằng: độ trôi biểu diễn thực chất $SED^+$ độc lập thống kê với sự biến động thứ hạng suy luận đa bước ($\hat{\beta}_d = -0{,}00466$, $p_{\text{WCB}} = 0{,}299$). Hiện tượng tương quan âm thường thấy trong thực tế chỉ là mối tương quan giả mạo do các yếu tố độ khó câu hỏi gây ra.
-        \item Phân rã định lượng cơ chế tác động của giả thuyết $H_2$, chứng minh rằng lợi ích cốt lõi của việc tái huấn luyện định kỳ KGE trong môi trường thực tế bắt nguồn từ việc \textbf{mở rộng độ bao phủ thực thể (coverage expansion)} giúp triệt tiêu hình phạt OOV churn, thay vì do sự tái tinh chỉnh tọa độ không gian vector của các thực thể đã biết.
+        \item Khẳng định về mặt thống kê rằng: độ trôi biểu diễn thực chất $SED^+$ độc lập thống kê với sự biến động thứ hạng suy luận đa bước ($\hat{\beta}_d = -0{,}00366$, $p_{\text{WCB}} = 0{,}574$; và $\hat{\beta}_d = -0{,}00466$, $p_{\text{WCB}} = 0{,}299$). Hiện tượng tương quan âm thường thấy trong thực tế chỉ là mối tương quan giả mạo do các yếu tố độ khó câu hỏi gây ra và phép thử chịu giới hạn năng lực thống kê do số cụm thời gian nhỏ ($G = 9$).
+        \item Phân rã định lượng cơ chế tác động của giả thuyết $H_2$, chỉ rõ rằng trên tập câu hỏi Seen-at-T1 cố định, việc tái huấn luyện liên tục gây suy giảm thứ hạng nội tại ($\Delta \text{MRR}_{\text{Seen-at-T1}} = -0{,}1384$) và tiếp tục bị khuếch đại sụt giảm trên không gian thế giới mở do các thực thể mới đóng vai trò là phần tử gây nhiễu ngữ nghĩa (semantic distractors, $\text{Bias Gap}_{\text{OOV}} = -0{,}0270$).
     \end{itemize}
 
     \item \textbf{Đạt chuẩn mực liêm chính học thuật và Vượt qua kiểm định ngụy tạo:}
-    Công trình vượt qua kiểm định ngụy tạo với $p_{\text{WCB}} = 0{,}495$, bảo đảm không có hiệu ứng giả mạo dưới tác động của nhiễu tái huấn luyện thuần túy. Toàn bộ chuỗi cung ứng dữ liệu tuân thủ nghiêm ngặt 6 bất biến khoa học cốt lõi (không dùng thông tin tương lai, tách biệt 3 trục thời gian, bình đẳng Parquet--Neo4j $100\%$, tái lập tất định với mã băm SHA-256).
+    Công trình vượt qua kiểm định ngụy tạo với $p_{\text{WCB}} = 0{,}381$ (và $0{,}495$ ở lần chạy trước), bảo đảm không có hiệu ứng giả mạo dưới tác động của nhiễu tái huấn luyện thuần túy. Toàn bộ chuỗi cung ứng dữ liệu tuân thủ nghiêm ngặt 6 bất biến khoa học cốt lõi (không dùng thông tin tương lai, tách biệt 3 trục thời gian, bình đẳng Parquet--Neo4j $100\%$, tái lập tất định với mã băm SHA-256).
 \end{enumerate}
 
 \section{Các giới hạn của nghiên cứu (Limitations)}

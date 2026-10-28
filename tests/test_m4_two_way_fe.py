@@ -61,3 +61,28 @@ def test_fit_two_way_fe_recovers_known_beta() -> None:
 
     p_val = wild_cluster_bootstrap(res, t_idx, n_draws=199, seed=42)
     assert p_val < 0.05
+
+
+def test_wild_cluster_bootstrap_uses_restricted_y_tilde() -> None:
+    # Under H0 (true_beta = 0), restricted WCR draws y_star = v * y_tilde.
+    # Corrupting unrestricted residuals should not affect restricted bootstrap.
+    N = 15
+    T = 6
+    q_idx = np.repeat(np.arange(N), T)
+    t_idx = np.tile(np.arange(T), N)
+
+    rng = np.random.default_rng(123)
+    x = rng.standard_normal(N * T)
+    y = rng.standard_normal(N * T)  # Pure noise, beta = 0
+
+    res = fit_two_way_fe(y, x, q_idx, t_idx)
+    p_val_original = wild_cluster_bootstrap(res, t_idx, n_draws=99, seed=42)
+
+    # Corrupt unrestricted residuals
+    res_corrupted = dict(res)
+    res_corrupted["residuals"] = np.full_like(res["residuals"], 99999.0)
+    p_val_after = wild_cluster_bootstrap(res_corrupted, t_idx, n_draws=99, seed=42)
+
+    # Must be bit-identical because restricted WCR uses y_tilde under H0, not residuals
+    assert p_val_original == p_val_after
+

@@ -6,10 +6,10 @@
 - QA Panel: 147 queries bền vững (121 1-hop + 26 2-hop) từ snapshot T01, theo dõi qua 9 transitions (1.323 quan sát).
 - Đánh giá Arm A (Frozen T01) vs Arm B (Updated Tt) trên 2 candidate universes: Seen-at-T1 và Open-World.
 - Kết nối đo lường trôi dạt SED+ từ M2 Parquet theo cơ chế median support entities.
-- Mô hình Two-Way Fixed Effects H1: beta_d = -0.00466 (SE = 0.00497, t = -0.9377), WCB p-value = 0.299 (999 draws).
-- Falsification test với D_pseudo: beta_pseudo = -0.0126, WCB p-value = 0.495 (PASS: không có hiệu ứng giả từ nhiễu).
+- Mô hình Two-Way Fixed Effects H1: beta_d = -0.003665 (SE = 0.007168, t = -0.5113), WCB p-value = 0.574 (999 draws).
+- Falsification test với D_pseudo: beta_pseudo = -0.012246 (SE = 0.014866, t = -0.8238), WCB p-value = 0.438 (PASS: không có hiệu ứng giả từ nhiễu).
 - Contrast H2: Delta MRR Seen-at-T1 = -0.1384 vs Open-World = -0.1654 (OOV gap = -0.0270).
-Artifacts: `outputs/m4_eval/20261027T193028Z_4bc9876e/` và `outputs/m4_stats/20261027T193028Z_4bc9876e/`.
+Artifacts: `outputs/m4_eval/20261028T065503Z_740d4fcc/` và `outputs/m4_stats/20261028T065503Z_740d4fcc/`.
 
 ## M2 Data 3.1 - Stage Null v2 & Stage Drift v2 EXECUTED/VERIFIED - 2026-10-28
 

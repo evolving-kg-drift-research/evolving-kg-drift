@@ -101,6 +101,7 @@ def run_m4_pipeline() -> tuple[Path, Path]:
 
     panel_records = []
     print(f"\n[INFO] Evaluating QA panel across {len(transitions)} transitions...")
+    rng = np.random.default_rng(101)
 
     for t_idx, trans in enumerate(transitions):
         _, nxt = trans.split("->")
@@ -142,7 +143,7 @@ def run_m4_pipeline() -> tuple[Path, Path]:
             # Uses median null noise without true temporal movement
             valid_mads = [m for m in null_mads if m is not None and math.isfinite(m) and m > 1e-12]
             mad_val = float(np.median(valid_mads)) if valid_mads else 0.05
-            pseudo_drift = max(0.0, float(np.random.normal(0, mad_val))) / (1.4826 * mad_val + 1e-4)
+            pseudo_drift = max(0.0, float(rng.normal(0, mad_val))) / (1.4826 * mad_val + 1e-4)
 
             record = {
                 "query_idx": q_idx,

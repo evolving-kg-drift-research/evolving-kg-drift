@@ -199,9 +199,9 @@ Kiểm định suy diễn thống kê áp dụng phương pháp Wild Cluster Boo
 \toprule
 \textbf{Mô hình Ước lượng} & \textbf{Hệ số Hồi quy} & \textbf{Sai số Cụm (SE)} & \textbf{Thống kê $t$} & \textbf{$p$-value WCB} & \textbf{Kết luận Khoa học} \\
 \midrule
-\textbf{Model $H_1$ (Chính)} & $\beta_d = -0.00466$ & $0.00497$ & $-0.9377$ & $0.2990$ & Inconclusive ($p > 0.05$) \\
+\textbf{Model $H_1$ (Chính)} & $\beta_d = -0.00366$ & $0.00717$ & $-0.5113$ & $0.5740$ & Inconclusive ($p > 0.05$) \\
 \addlinespace
-\textbf{Model Falsification} & $\beta_{\text{pseudo}} = -0.01260$ & $0.01727$ & $-0.7297$ & $0.4950$ & PASS (Không spurious) \\
+\textbf{Model Falsification} & $\beta_{\text{pseudo}} = -0.01144$ & $0.01263$ & $-0.9054$ & $0.3810$ & PASS (Không spurious) \\
 \addlinespace
 \textbf{Model $H_2$ (Đối chiếu)} & $\Delta \text{MRR}_{\text{T1}} = -0.1384$ & -- & -- & -- & Suy thoái cấu trúc nội tại \\
 & $\Delta \text{MRR}_{\text{Open}} = -0.1654$ & -- & -- & -- & Khuếch đại bởi OOV \\
@@ -220,7 +220,7 @@ Kiểm định suy diễn thống kê áp dụng phương pháp Wild Cluster Boo
 
 Ba kết luận khoa học cốt lõi rút ra từ Bảng~\ref{tab:twfe_econometric_results} và Hình~\ref{fig:forest_plot_twfe}:
 \begin{enumerate}
-    \item \textbf{Giả thuyết $H_1$ (Inconclusive):} Hệ số ước lượng mang dấu âm $\beta_d = -0.00466$ phù hợp với trực giác rằng trôi dạt biểu diễn làm giảm chất lượng suy luận. Tuy nhiên, với $SE = 0.00497$ và $p_{\text{WCB}} = 0.2990 > 0.05$, tác động này chưa đạt mức ý nghĩa thống kê $5\%$. Hệ thống kết luận trung thực là \textbf{INCONCLUSIVE}.
-    \item \textbf{Kiểm định Phủ định Falsification (PASS):} Hệ số nhiễu thuần $\beta_{\text{pseudo}} = -0.01260$ với $p_{\text{WCB}} = 0.4950 \gg 0.05$. Điều này chứng minh quy trình đo lường không sinh ra tương quan giả tạo từ nhiễu ngẫu nhiên.
+    \item \textbf{Giả thuyết $H_1$ (Inconclusive):} Hệ số ước lượng mang dấu âm $\beta_d = -0.00366$ phù hợp với trực giác rằng trôi dạt biểu diễn làm giảm chất lượng suy luận. Tuy nhiên, với $SE = 0.00717$ và $p_{\text{WCB}} = 0.5740 > 0.05$, tác động này chưa đạt mức ý nghĩa thống kê $5\%$. Hệ thống kết luận trung thực là \textbf{INCONCLUSIVE}.
+    \item \textbf{Kiểm định Phủ định Falsification (PASS):} Hệ số nhiễu thuần $\beta_{\text{pseudo}} = -0.01144$ với $p_{\text{WCB}} = 0.3810 \gg 0.05$. Điều này chứng minh quy trình đo lường không sinh ra tương quan giả tạo từ nhiễu ngẫu nhiên.
     \item \textbf{Phân tích Tương phản $H_2$:} Mức sụt giảm hiệu năng nội tại ($\Delta \text{MRR}_{\text{Seen-at-T1}} = -0.1384$) chiếm tới $83.7\%$ tổng mức sụt giảm trong thế giới mở ($-0.1654$), với khoảng lệch OOV bias gap đạt $-0.0270$.
 \end{enumerate}

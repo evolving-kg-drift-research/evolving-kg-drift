@@ -29,7 +29,7 @@ def build_recurring_qa_panel(
             "head_entity": h,
             "relation_path": [r],
             "gold_entity": t,
-            "support_entities": [h],
+            "support_entities": [h, t],
         })
         query_idx += 1
 
@@ -50,7 +50,7 @@ def build_recurring_qa_panel(
                             "head_entity": h,
                             "relation_path": [r1, r2],
                             "gold_entity": t,
-                            "support_entities": [h, m],
+                            "support_entities": [h, m, t],
                         })
                         query_idx += 1
 
@@ -96,8 +96,15 @@ def evaluate_query(
     candidates: list[str],
 ) -> tuple[float, float]:
     """Evaluate a single query on a checkpoint within a candidate universe."""
-    h = query["head_entity"]
     gold = query["gold_entity"]
+    if gold not in candidates:
+        return float("inf"), 0.0
+
+    # Under protocol rule frozen_OOV_gold_RR: 0, return (inf, 0.0) if gold not in checkpoint
+    if gold not in checkpoint.entity_embeddings:
+        return float("inf"), 0.0
+
+    h = query["head_entity"]
     relations = query["relation_path"]
 
     # Check if head and relations exist in checkpoint
@@ -107,17 +114,19 @@ def evaluate_query(
         if r not in checkpoint.relation_embeddings:
             return float("inf"), 0.0
 
-    # Filter candidates present in checkpoint
-    admissible_candidates = [c for c in candidates if c in checkpoint.entity_embeddings]
-    if gold not in admissible_candidates:
-        return float("inf"), 0.0
-
     head_vec = np.asarray(checkpoint.entity_embeddings[h], dtype=float)
     rel_vecs = [np.asarray(checkpoint.relation_embeddings[r], dtype=float) for r in relations]
-    cand_vecs = np.asarray([checkpoint.entity_embeddings[c] for c in admissible_candidates], dtype=float)
 
-    scores = score_query_transe(head_vec, rel_vecs, cand_vecs)
-    return rank_candidates(gold, admissible_candidates, scores)
+    # Preserve all candidates in ranking denominator:
+    # finite score for seen candidates, -np.inf for unseen candidates
+    scores = np.full(len(candidates), -np.inf, dtype=float)
+    seen_indices = [i for i, c in enumerate(candidates) if c in checkpoint.entity_embeddings]
+    if seen_indices:
+        cand_vecs = np.asarray([checkpoint.entity_embeddings[candidates[i]] for i in seen_indices], dtype=float)
+        seen_scores = score_query_transe(head_vec, rel_vecs, cand_vecs)
+        scores[seen_indices] = seen_scores
+
+    return rank_candidates(gold, candidates, scores)
 
 
 def evaluate_query_three_seeds(

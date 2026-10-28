@@ -23,7 +23,10 @@ for _, row in df_claims.iterrows():
         eid = f"ent_{sha256_text(o_m.lower())[:8]}"
         mapping[eid] = o_m
 
-eval_df = pd.read_parquet(ROOT / "outputs/m4_eval/20261027T193028Z_4bc9876e/recurring_qa_panel_evaluation.parquet")
+eval_matches = sorted(ROOT.glob("outputs/m4_eval/*/recurring_qa_panel_evaluation.parquet"))
+if not eval_matches:
+    raise FileNotFoundError("No recurring_qa_panel_evaluation.parquet found in outputs/m4_eval/")
+eval_df = pd.read_parquet(eval_matches[-1])
 queries = eval_df.drop_duplicates(subset=["query_id"])
 
 benchmark = []
@@ -35,13 +38,14 @@ for _, q in queries.iterrows():
     hops = int(q["hops"])
 
     if hops == 1:
-        support_names = [h_name]
+        support_names = [h_name, g_name]
         nl_prompt = f"Thực thể \"{h_name}\" có mối liên kết tri thức trực tiếp với thực thể nào?"
         m_name = None
     else:
-        m_id = q["support_entities"][1]
+        support = q["support_entities"]
+        m_id = support[1] if len(support) > 1 else "unknown"
         m_name = mapping.get(m_id, m_id)
-        support_names = [h_name, m_name]
+        support_names = [h_name, m_name, g_name]
         nl_prompt = f"Bắt đầu từ \"{h_name}\", qua mắt xích trung gian \"{m_name}\", thực thể đích cần suy luận tới là gì?"
 
     benchmark.append({

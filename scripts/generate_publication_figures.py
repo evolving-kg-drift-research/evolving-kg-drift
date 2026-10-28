@@ -12,11 +12,21 @@ import pyarrow.parquet as pq
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-DRIFT_PARQUET = ROOT / "outputs/m2_drift_v2/20261027T190838Z_ea66c2af/all_transitions_entity_drift_v2.parquet"
-EVAL_PARQUET = ROOT / "outputs/m4_eval/20261027T193028Z_4bc9876e/recurring_qa_panel_evaluation.parquet"
-STATS_JSON = ROOT / "outputs/m4_stats/20261027T193028Z_4bc9876e/h1_h2_econometric_results.json"
+
+def resolve_latest_path(pattern: str) -> Path:
+    matches = sorted(ROOT.glob(pattern))
+    if not matches:
+        raise FileNotFoundError(f"No files matching pattern: {pattern}")
+    return matches[-1]
+
+
+DRIFT_PARQUET = resolve_latest_path("outputs/m2_drift_v2/*/all_transitions_entity_drift_v2.parquet")
+EVAL_PARQUET = resolve_latest_path("outputs/m4_eval/*/recurring_qa_panel_evaluation.parquet")
+STATS_JSON = resolve_latest_path("outputs/m4_stats/*/h1_h2_econometric_results.json")
 FIG_DIR = ROOT / "reports/figures"
 FIG_DIR.mkdir(parents=True, exist_ok=True)
+LATEX_FIG_DIR = ROOT / "reports/report_latex_final/figures"
+LATEX_FIG_DIR.mkdir(parents=True, exist_ok=True)
 
 # Dataviz validated style tokens
 CLR_PRIMARY = "#1e293b"      # Dark slate text/lines
@@ -89,12 +99,11 @@ def plot_figure_1_drift_distribution() -> None:
     ax2.legend(loc="lower left", framealpha=0.9)
 
     fig.tight_layout()
-    png_path = FIG_DIR / "fig1_m2_representation_drift_sed_plus.png"
-    svg_path = FIG_DIR / "fig1_m2_representation_drift_sed_plus.svg"
-    fig.savefig(png_path, bbox_inches="tight")
-    fig.savefig(svg_path, bbox_inches="tight")
+    for target_dir in [FIG_DIR, LATEX_FIG_DIR]:
+        fig.savefig(target_dir / "fig1_m2_representation_drift_sed_plus.png", bbox_inches="tight")
+        fig.savefig(target_dir / "fig1_m2_representation_drift_sed_plus.svg", bbox_inches="tight")
     plt.close(fig)
-    print(f"[SAVED] Figure 1: {png_path}")
+    print(f"[SAVED] Figure 1 in {FIG_DIR} and {LATEX_FIG_DIR}")
 
 
 def plot_figure_2_longitudinal_qa_mrr() -> None:
@@ -131,12 +140,11 @@ def plot_figure_2_longitudinal_qa_mrr() -> None:
     ax.legend(loc="lower left", framealpha=0.92)
 
     fig.tight_layout()
-    png_path = FIG_DIR / "fig2_m4_longitudinal_qa_mrr_dynamics.png"
-    svg_path = FIG_DIR / "fig2_m4_longitudinal_qa_mrr_dynamics.svg"
-    fig.savefig(png_path, bbox_inches="tight")
-    fig.savefig(svg_path, bbox_inches="tight")
+    for target_dir in [FIG_DIR, LATEX_FIG_DIR]:
+        fig.savefig(target_dir / "fig2_m4_longitudinal_qa_mrr_dynamics.png", bbox_inches="tight")
+        fig.savefig(target_dir / "fig2_m4_longitudinal_qa_mrr_dynamics.svg", bbox_inches="tight")
     plt.close(fig)
-    print(f"[SAVED] Figure 2: {png_path}")
+    print(f"[SAVED] Figure 2 in {FIG_DIR} and {LATEX_FIG_DIR}")
 
 
 def plot_figure_3_twfe_forest_plot() -> None:
@@ -185,12 +193,11 @@ def plot_figure_3_twfe_forest_plot() -> None:
     ax.legend(loc="upper right", framealpha=0.9)
 
     fig.tight_layout()
-    png_path = FIG_DIR / "fig3_m4_twfe_h1_falsification_forest_plot.png"
-    svg_path = FIG_DIR / "fig3_m4_twfe_h1_falsification_forest_plot.svg"
-    fig.savefig(png_path, bbox_inches="tight")
-    fig.savefig(svg_path, bbox_inches="tight")
+    for target_dir in [FIG_DIR, LATEX_FIG_DIR]:
+        fig.savefig(target_dir / "fig3_m4_twfe_h1_falsification_forest_plot.png", bbox_inches="tight")
+        fig.savefig(target_dir / "fig3_m4_twfe_h1_falsification_forest_plot.svg", bbox_inches="tight")
     plt.close(fig)
-    print(f"[SAVED] Figure 3: {png_path}")
+    print(f"[SAVED] Figure 3 in {FIG_DIR} and {LATEX_FIG_DIR}")
 
 
 def generate_interactive_dashboard() -> None:
@@ -358,9 +365,9 @@ def generate_interactive_dashboard() -> None:
 </body>
 </html>
 """
-    dashboard_path = FIG_DIR / "dashboard.html"
-    dashboard_path.write_text(html, encoding="utf-8")
-    print(f"[SAVED] Dashboard: {dashboard_path}")
+    for target_dir in [FIG_DIR, LATEX_FIG_DIR]:
+        (target_dir / "dashboard.html").write_text(html, encoding="utf-8")
+    print(f"[SAVED] Dashboard in {FIG_DIR} and {LATEX_FIG_DIR}")
 
 
 def main() -> None:

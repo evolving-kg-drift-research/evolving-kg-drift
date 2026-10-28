@@ -1,148 +1,148 @@
 ﻿query_id,hops,natural_language_question,head_entity_name,head_entity_id,intermediate_entity_name,gold_answer_name,gold_answer_id,support_entities_names
-q_1hop_0000,1,"Thực thể ""Reimagine"" có mối liên kết tri thức trực tiếp với thực thể nào?",Reimagine,ent_01764e46,,Google Photos,ent_7cedb349,['Reimagine']
-q_1hop_0001,1,"Thực thể ""Newton MessagePad"" có mối liên kết tri thức trực tiếp với thực thể nào?",Newton MessagePad,ent_04b05907,,Apple,ent_3a7bd3e2,['Newton MessagePad']
-q_1hop_0002,1,"Thực thể ""màn hình ôtô thông minh Android AI ADAS Utour"" có mối liên kết tri thức trực tiếp với thực thể nào?",màn hình ôtô thông minh Android AI ADAS Utour,ent_0863f993,,Tmas Việt Nam,ent_98d8df69,['màn hình ôtô thông minh Android AI ADAS Utour']
-q_1hop_0003,1,"Thực thể ""macOS 15.4"" có mối liên kết tri thức trực tiếp với thực thể nào?",macOS 15.4,ent_094cdf4d,,macOS,ent_a0c0485e,['macOS 15.4']
-q_1hop_0004,1,"Thực thể ""NIC"" có mối liên kết tri thức trực tiếp với thực thể nào?",NIC,ent_0e1733ef,,Alchip Technologies,ent_4d6f2011,['NIC']
-q_1hop_0005,1,"Thực thể ""NIC"" có mối liên kết tri thức trực tiếp với thực thể nào?",NIC,ent_0e1733ef,,FPT,ent_976619b1,['NIC']
-q_1hop_0006,1,"Thực thể ""iOS 18.4"" có mối liên kết tri thức trực tiếp với thực thể nào?",iOS 18.4,ent_0ebc7901,,iOS,ent_48ee0460,['iOS 18.4']
-q_1hop_0007,1,"Thực thể ""Nomi"" có mối liên kết tri thức trực tiếp với thực thể nào?",Nomi,ent_0f937e60,,Gemini,ent_5d724362,['Nomi']
-q_1hop_0008,1,"Thực thể ""Nomi"" có mối liên kết tri thức trực tiếp với thực thể nào?",Nomi,ent_0f937e60,,GPT-4o,ent_a2a69af7,['Nomi']
-q_1hop_0009,1,"Thực thể ""Super Vietnam 2025 PitchFest"" có mối liên kết tri thức trực tiếp với thực thể nào?",Super Vietnam 2025 PitchFest,ent_1238ddea,,PitchFest 2024,ent_a98655c8,['Super Vietnam 2025 PitchFest']
-q_1hop_0010,1,"Thực thể ""Redmi Note 14 Pro+ 5G"" có mối liên kết tri thức trực tiếp với thực thể nào?",Redmi Note 14 Pro+ 5G,ent_125c584c,,Redmi Note 14,ent_13c67426,['Redmi Note 14 Pro+ 5G']
-q_1hop_0011,1,"Thực thể ""S25 Edge"" có mối liên kết tri thức trực tiếp với thực thể nào?",S25 Edge,ent_142b1a72,,Galaxy S25,ent_b6ec2a7f,['S25 Edge']
-q_1hop_0012,1,"Thực thể ""Guemmy Kim"" có mối liên kết tri thức trực tiếp với thực thể nào?",Guemmy Kim,ent_21a7ec98,,Android,ent_f60ed56a,['Guemmy Kim']
-q_1hop_0013,1,"Thực thể ""Young Liu"" có mối liên kết tri thức trực tiếp với thực thể nào?",Young Liu,ent_22bf461a,,Foxconn,ent_81b73d52,['Young Liu']
-q_1hop_0014,1,"Thực thể ""Young Liu"" có mối liên kết tri thức trực tiếp với thực thể nào?",Young Liu,ent_22bf461a,,Foxconn,ent_81b73d52,['Young Liu']
-q_1hop_0015,1,"Thực thể ""iPhone 16e"" có mối liên kết tri thức trực tiếp với thực thể nào?",iPhone 16e,ent_2364aee3,,iPhone 16,ent_61d1260a,['iPhone 16e']
-q_1hop_0016,1,"Thực thể ""IQ 4S"" có mối liên kết tri thức trực tiếp với thực thể nào?",IQ 4S,ent_24114640,,FPT Camera,ent_2a1a9964,['IQ 4S']
-q_1hop_0017,1,"Thực thể ""IQ 4S"" có mối liên kết tri thức trực tiếp với thực thể nào?",IQ 4S,ent_24114640,,FPT,ent_976619b1,['IQ 4S']
-q_1hop_0018,1,"Thực thể ""Starlink"" có mối liên kết tri thức trực tiếp với thực thể nào?",Starlink,ent_2412f769,,SpaceX,ent_e78bdeba,['Starlink']
-q_1hop_0019,1,"Thực thể ""Digital Nervous System"" có mối liên kết tri thức trực tiếp với thực thể nào?",Digital Nervous System,ent_24277f8f,,IntuiCell,ent_588bc446,['Digital Nervous System']
-q_1hop_0020,1,"Thực thể ""Brad Smith"" có mối liên kết tri thức trực tiếp với thực thể nào?",Brad Smith,ent_24f6f01e,,Microsoft,ent_9fbf261b,['Brad Smith']
-q_1hop_0021,1,"Thực thể ""DeepSeek-Reasoner"" có mối liên kết tri thức trực tiếp với thực thể nào?",DeepSeek-Reasoner,ent_2524619d,,DeepSeek,ent_6f7ac182,['DeepSeek-Reasoner']
-q_1hop_0022,1,"Thực thể ""Motorola Mobility"" có mối liên kết tri thức trực tiếp với thực thể nào?",Motorola Mobility,ent_25f82707,,Google,ent_bbdefa29,['Motorola Mobility']
-q_1hop_0023,1,"Thực thể ""Bespoke AI"" có mối liên kết tri thức trực tiếp với thực thể nào?",Bespoke AI,ent_2c9408aa,,Samsung,ent_968e2d5b,['Bespoke AI']
-q_1hop_0024,1,"Thực thể ""o1-Pro"" có mối liên kết tri thức trực tiếp với thực thể nào?",o1-Pro,ent_2e2bb3b4,,OpenAI,ent_7d3194f7,['o1-Pro']
-q_1hop_0025,1,"Thực thể ""o1-Pro"" có mối liên kết tri thức trực tiếp với thực thể nào?",o1-Pro,ent_2e2bb3b4,,o1,ent_2352da72,['o1-Pro']
-q_1hop_0026,1,"Thực thể ""Juan Lavista Ferres"" có mối liên kết tri thức trực tiếp với thực thể nào?",Juan Lavista Ferres,ent_2e31c063,,Microsoft,ent_9fbf261b,['Juan Lavista Ferres']
-q_1hop_0027,1,"Thực thể ""Auto Frame"" có mối liên kết tri thức trực tiếp với thực thể nào?",Auto Frame,ent_31c92511,,Google Photos,ent_7cedb349,['Auto Frame']
-q_1hop_0028,1,"Thực thể ""Vũ Quốc Huy"" có mối liên kết tri thức trực tiếp với thực thể nào?",Vũ Quốc Huy,ent_330d5d63,,NIC,ent_0e1733ef,['Vũ Quốc Huy']
-q_1hop_0029,1,"Thực thể ""Vũ Quốc Huy"" có mối liên kết tri thức trực tiếp với thực thể nào?",Vũ Quốc Huy,ent_330d5d63,,Trung tâm Đổi mới sáng tạo Quốc gia (NIC),ent_fd9a006d,['Vũ Quốc Huy']
-q_1hop_0030,1,"Thực thể ""Mark Zuckerberg"" có mối liên kết tri thức trực tiếp với thực thể nào?",Mark Zuckerberg,ent_3957d14a,,Meta,ent_ea3bd73e,['Mark Zuckerberg']
-q_1hop_0031,1,"Thực thể ""MedCapNet"" có mối liên kết tri thức trực tiếp với thực thể nào?",MedCapNet,ent_3d06168c,,MedCapSys,ent_64089cf4,['MedCapNet']
-q_1hop_0032,1,"Thực thể ""Lance Ulanoff"" có mối liên kết tri thức trực tiếp với thực thể nào?",Lance Ulanoff,ent_41b76e2b,,TechRadar,ent_af6abad7,['Lance Ulanoff']
-q_1hop_0033,1,"Thực thể ""Camera AI"" có mối liên kết tri thức trực tiếp với thực thể nào?",Camera AI,ent_44deb682,,MobiFone,ent_ee4a777c,['Camera AI']
-q_1hop_0034,1,"Thực thể ""Molly Montgomery"" có mối liên kết tri thức trực tiếp với thực thể nào?",Molly Montgomery,ent_4542c150,,Meta,ent_ea3bd73e,['Molly Montgomery']
-q_1hop_0035,1,"Thực thể ""Sam Altman"" có mối liên kết tri thức trực tiếp với thực thể nào?",Sam Altman,ent_46b09b21,,OpenAI,ent_7d3194f7,['Sam Altman']
-q_1hop_0036,1,"Thực thể ""Sam Altman"" có mối liên kết tri thức trực tiếp với thực thể nào?",Sam Altman,ent_46b09b21,,OpenAI,ent_7d3194f7,['Sam Altman']
-q_1hop_0037,1,"Thực thể ""Galaxy S25 Edge"" có mối liên kết tri thức trực tiếp với thực thể nào?",Galaxy S25 Edge,ent_4cef6bf4,,Samsung,ent_968e2d5b,['Galaxy S25 Edge']
-q_1hop_0038,1,"Thực thể ""Musk"" có mối liên kết tri thức trực tiếp với thực thể nào?",Musk,ent_4db16eb9,,SpaceX,ent_e78bdeba,['Musk']
-q_1hop_0039,1,"Thực thể ""Jared Spataro"" có mối liên kết tri thức trực tiếp với thực thể nào?",Jared Spataro,ent_5ac3e44c,,Microsoft,ent_9fbf261b,['Jared Spataro']
-q_1hop_0040,1,"Thực thể ""Viktor Luthman"" có mối liên kết tri thức trực tiếp với thực thể nào?",Viktor Luthman,ent_5c5199f5,,IntuiCell,ent_588bc446,['Viktor Luthman']
-q_1hop_0041,1,"Thực thể ""Boston Dynamics"" có mối liên kết tri thức trực tiếp với thực thể nào?",Boston Dynamics,ent_5ecc0298,,Canon,ent_7a535665,['Boston Dynamics']
-q_1hop_0042,1,"Thực thể ""Boston Dynamics"" có mối liên kết tri thức trực tiếp với thực thể nào?",Boston Dynamics,ent_5ecc0298,,Nvidia,ent_8d4321d9,['Boston Dynamics']
-q_1hop_0043,1,"Thực thể ""Boston Dynamics"" có mối liên kết tri thức trực tiếp với thực thể nào?",Boston Dynamics,ent_5ecc0298,,WPP,ent_cae047d3,['Boston Dynamics']
-q_1hop_0044,1,"Thực thể ""ChatGPT"" có mối liên kết tri thức trực tiếp với thực thể nào?",ChatGPT,ent_60965168,,OpenAI,ent_7d3194f7,['ChatGPT']
-q_1hop_0045,1,"Thực thể ""iPhone 16"" có mối liên kết tri thức trực tiếp với thực thể nào?",iPhone 16,ent_61d1260a,,iPhone 15,ent_72954355,['iPhone 16']
-q_1hop_0046,1,"Thực thể ""Bình dân học vụ số"" có mối liên kết tri thức trực tiếp với thực thể nào?",Bình dân học vụ số,ent_65b131e3,,Bình dân học vụ,ent_f5fb3798,['Bình dân học vụ số']
-q_1hop_0047,1,"Thực thể ""Nguyễn Hoàng Hiệp"" có mối liên kết tri thức trực tiếp với thực thể nào?",Nguyễn Hoàng Hiệp,ent_6648cd21,,AI Hay,ent_46725f28,['Nguyễn Hoàng Hiệp']
-q_1hop_0048,1,"Thực thể ""Orochi Network"" có mối liên kết tri thức trực tiếp với thực thể nào?",Orochi Network,ent_689410a0,,FPT Online,ent_cfb7a61f,['Orochi Network']
-q_1hop_0049,1,"Thực thể ""Orochi Network"" có mối liên kết tri thức trực tiếp với thực thể nào?",Orochi Network,ent_689410a0,,DSAC,ent_fe9207d9,['Orochi Network']
-q_1hop_0050,1,"Thực thể ""Nguyễn Văn Long"" có mối liên kết tri thức trực tiếp với thực thể nào?",Nguyễn Văn Long,ent_68ccdd10,,Công an,ent_a8a91f23,['Nguyễn Văn Long']
-q_1hop_0051,1,"Thực thể ""Nguyễn Trung Chính"" có mối liên kết tri thức trực tiếp với thực thể nào?",Nguyễn Trung Chính,ent_6adde04f,,CMC,ent_81e5538a,['Nguyễn Trung Chính']
-q_1hop_0052,1,"Thực thể ""Images in ChatGPT"" có mối liên kết tri thức trực tiếp với thực thể nào?",Images in ChatGPT,ent_6b0f56dd,,GPT-4o,ent_a2a69af7,['Images in ChatGPT']
-q_1hop_0053,1,"Thực thể ""Images in ChatGPT"" có mối liên kết tri thức trực tiếp với thực thể nào?",Images in ChatGPT,ent_6b0f56dd,,ChatGPT,ent_60965168,['Images in ChatGPT']
-q_1hop_0054,1,"Thực thể ""Images in ChatGPT"" có mối liên kết tri thức trực tiếp với thực thể nào?",Images in ChatGPT,ent_6b0f56dd,,OpenAI,ent_7d3194f7,['Images in ChatGPT']
-q_1hop_0055,1,"Thực thể ""iPhone 15"" có mối liên kết tri thức trực tiếp với thực thể nào?",iPhone 15,ent_72954355,,iPhone 16,ent_61d1260a,['iPhone 15']
-q_1hop_0056,1,"Thực thể ""Twitter"" có mối liên kết tri thức trực tiếp với thực thể nào?",Twitter,ent_7352f353,,Musk,ent_4db16eb9,['Twitter']
-q_1hop_0057,1,"Thực thể ""GuidedDCNet"" có mối liên kết tri thức trực tiếp với thực thể nào?",GuidedDCNet,ent_76883655,,MedCapSys,ent_64089cf4,['GuidedDCNet']
-q_1hop_0058,1,"Thực thể ""Công ty Cổ phần ITR VN"" có mối liên kết tri thức trực tiếp với thực thể nào?",Công ty Cổ phần ITR VN,ent_7696cf27,,Mjn-neuro,ent_bf81d148,['Công ty Cổ phần ITR VN']
-q_1hop_0059,1,"Thực thể ""OpenAI"" có mối liên kết tri thức trực tiếp với thực thể nào?",OpenAI,ent_7d3194f7,,MIT Media Lab,ent_273d08bd,['OpenAI']
-q_1hop_0060,1,"Thực thể ""Foxconn"" có mối liên kết tri thức trực tiếp với thực thể nào?",Foxconn,ent_81b73d52,,Nvidia,ent_8d4321d9,['Foxconn']
-q_1hop_0061,1,"Thực thể ""Siri"" có mối liên kết tri thức trực tiếp với thực thể nào?",Siri,ent_81ed3413,,Apple,ent_3a7bd3e2,['Siri']
-q_1hop_0062,1,"Thực thể ""Jacqueline Roy"" có mối liên kết tri thức trực tiếp với thực thể nào?",Jacqueline Roy,ent_82f209de,,Apple,ent_3a7bd3e2,['Jacqueline Roy']
-q_1hop_0063,1,"Thực thể ""R1"" có mối liên kết tri thức trực tiếp với thực thể nào?",R1,ent_82f3e9c6,,DeepSeek,ent_6f7ac182,['R1']
-q_1hop_0064,1,"Thực thể ""Blackwell Ultra GB300"" có mối liên kết tri thức trực tiếp với thực thể nào?",Blackwell Ultra GB300,ent_835a28a6,,Blackwell,ent_374eebfb,['Blackwell Ultra GB300']
-q_1hop_0065,1,"Thực thể ""TCL BreezeIN Pro"" có mối liên kết tri thức trực tiếp với thực thể nào?",TCL BreezeIN Pro,ent_9114feb5,,TCL,ent_9daf09c8,['TCL BreezeIN Pro']
-q_1hop_0066,1,"Thực thể ""Hu Baishan"" có mối liên kết tri thức trực tiếp với thực thể nào?",Hu Baishan,ent_921d7ae5,,Vivo,ent_69337578,['Hu Baishan']
-q_1hop_0067,1,"Thực thể ""Chris Ainsley"" có mối liên kết tri thức trực tiếp với thực thể nào?",Chris Ainsley,ent_923e0bb2,,Santander,ent_138df632,['Chris Ainsley']
-q_1hop_0068,1,"Thực thể ""Lê Quang Huy"" có mối liên kết tri thức trực tiếp với thực thể nào?",Lê Quang Huy,ent_95f17b01,,"Ủy ban Khoa học, Công nghệ và Môi trường",ent_962f047c,['Lê Quang Huy']
-q_1hop_0069,1,"Thực thể ""GuidedSegDiff"" có mối liên kết tri thức trực tiếp với thực thể nào?",GuidedSegDiff,ent_96302e3f,,MedCapSys,ent_64089cf4,['GuidedSegDiff']
-q_1hop_0070,1,"Thực thể ""Sumitomo Corporation"" có mối liên kết tri thức trực tiếp với thực thể nào?",Sumitomo Corporation,ent_9a9e4e51,,FPT,ent_976619b1,['Sumitomo Corporation']
-q_1hop_0071,1,"Thực thể ""Robert Jarolim"" có mối liên kết tri thức trực tiếp với thực thể nào?",Robert Jarolim,ent_9ac93706,,Đại học Graz,ent_549f7f7a,['Robert Jarolim']
-q_1hop_0072,1,"Thực thể ""TCL"" có mối liên kết tri thức trực tiếp với thực thể nào?",TCL,ent_9daf09c8,,Paralympic,ent_44bcab5e,['TCL']
-q_1hop_0073,1,"Thực thể ""TCL"" có mối liên kết tri thức trực tiếp với thực thể nào?",TCL,ent_9daf09c8,,Olympic,ent_d417a32d,['TCL']
-q_1hop_0074,1,"Thực thể ""Microsoft"" có mối liên kết tri thức trực tiếp với thực thể nào?",Microsoft,ent_9fbf261b,,OpenAI,ent_7d3194f7,['Microsoft']
-q_1hop_0075,1,"Thực thể ""Microsoft"" có mối liên kết tri thức trực tiếp với thực thể nào?",Microsoft,ent_9fbf261b,,Planet Labs,ent_93849eaa,['Microsoft']
-q_1hop_0076,1,"Thực thể ""Thomas Andersson"" có mối liên kết tri thức trực tiếp với thực thể nào?",Thomas Andersson,ent_a0c2284e,,STIQ,ent_fd9c867e,['Thomas Andersson']
-q_1hop_0077,1,"Thực thể ""GPT-4o"" có mối liên kết tri thức trực tiếp với thực thể nào?",GPT-4o,ent_a2a69af7,,OpenAI,ent_7d3194f7,['GPT-4o']
-q_1hop_0078,1,"Thực thể ""TS Phan Hoàng Vũ"" có mối liên kết tri thức trực tiếp với thực thể nào?",TS Phan Hoàng Vũ,ent_a41bf171,,Viện Công nghệ Liên bang Thụy Sĩ ở Lausanne (EPFL),ent_6402eab9,['TS Phan Hoàng Vũ']
-q_1hop_0079,1,"Thực thể ""TS Phan Hoàng Vũ"" có mối liên kết tri thức trực tiếp với thực thể nào?",TS Phan Hoàng Vũ,ent_a41bf171,,EPFL,ent_8758902c,['TS Phan Hoàng Vũ']
-q_1hop_0080,1,"Thực thể ""TS Lê Bá Chung"" có mối liên kết tri thức trực tiếp với thực thể nào?",TS Lê Bá Chung,ent_a950c096,,Học viện Kỹ thuật quân sự,ent_27bf8be1,['TS Lê Bá Chung']
-q_1hop_0081,1,"Thực thể ""TS Lê Bá Chung"" có mối liên kết tri thức trực tiếp với thực thể nào?",TS Lê Bá Chung,ent_a950c096,,Phòng thí nghiệm Bộ môn Cơ điện tử và Chế tạo máy đặc biệt,ent_7fef3cb6,['TS Lê Bá Chung']
-q_1hop_0082,1,"Thực thể ""TS Lê Bá Chung"" có mối liên kết tri thức trực tiếp với thực thể nào?",TS Lê Bá Chung,ent_a950c096,,Khoa Hàng không vũ trụ,ent_bbfe6859,['TS Lê Bá Chung']
-q_1hop_0083,1,"Thực thể ""PitchFest 2024"" có mối liên kết tri thức trực tiếp với thực thể nào?",PitchFest 2024,ent_a98655c8,,Super Vietnam 2025 PitchFest,ent_1238ddea,['PitchFest 2024']
-q_1hop_0084,1,"Thực thể ""Nvidia Cosmos"" có mối liên kết tri thức trực tiếp với thực thể nào?",Nvidia Cosmos,ent_aaccbdc2,,Atlas,ent_7c826025,['Nvidia Cosmos']
-q_1hop_0085,1,"Thực thể ""Lê Viết Quốc"" có mối liên kết tri thức trực tiếp với thực thể nào?",Lê Viết Quốc,ent_abd7b650,,Google Brain,ent_c6b205e3,['Lê Viết Quốc']
-q_1hop_0086,1,"Thực thể ""DeepSeek-Chat"" có mối liên kết tri thức trực tiếp với thực thể nào?",DeepSeek-Chat,ent_b45bfc6e,,DeepSeek,ent_6f7ac182,['DeepSeek-Chat']
-q_1hop_0087,1,"Thực thể ""Lương Tam Quang"" có mối liên kết tri thức trực tiếp với thực thể nào?",Lương Tam Quang,ent_bf65fd7a,,Bộ Công an,ent_8c1af4d4,['Lương Tam Quang']
-q_1hop_0088,1,"Thực thể ""Nguyễn Ngọc Cương"" có mối liên kết tri thức trực tiếp với thực thể nào?",Nguyễn Ngọc Cương,ent_c045022f,,Hiệp hội Dữ liệu quốc gia,ent_4179a2ac,['Nguyễn Ngọc Cương']
-q_1hop_0089,1,"Thực thể ""Nguyễn Ngọc Cương"" có mối liên kết tri thức trực tiếp với thực thể nào?",Nguyễn Ngọc Cương,ent_c045022f,,Trung tâm Dữ liệu Quốc gia,ent_f14f4937,['Nguyễn Ngọc Cương']
-q_1hop_0090,1,"Thực thể ""Gemma 3"" có mối liên kết tri thức trực tiếp với thực thể nào?",Gemma 3,ent_c6b79ebf,,Google,ent_bbdefa29,['Gemma 3']
-q_1hop_0091,1,"Thực thể ""Digital Nervous System (Hệ thần kinh Kỹ thuật số)"" có mối liên kết tri thức trực tiếp với thực thể nào?",Digital Nervous System (Hệ thần kinh Kỹ thuật số),ent_c724c49f,,Luna,ent_970ec274,['Digital Nervous System (Hệ thần kinh Kỹ thuật số)']
-q_1hop_0092,1,"Thực thể ""Robert Sternberg"" có mối liên kết tri thức trực tiếp với thực thể nào?",Robert Sternberg,ent_c77977a5,,Đại học Cornell,ent_16fc06bc,['Robert Sternberg']
-q_1hop_0093,1,"Thực thể ""Rappaport"" có mối liên kết tri thức trực tiếp với thực thể nào?",Rappaport,ent_c7ed46bf,,Wiz,ent_5b92e3c7,['Rappaport']
-q_1hop_0094,1,"Thực thể ""Stefania Druga"" có mối liên kết tri thức trực tiếp với thực thể nào?",Stefania Druga,ent_c894b614,,Google DeepMind,ent_2b6e51be,['Stefania Druga']
-q_1hop_0095,1,"Thực thể ""Phạm Tiến Huy"" có mối liên kết tri thức trực tiếp với thực thể nào?",Phạm Tiến Huy,ent_cd6a3c17,,ADT Global,ent_0f829461,['Phạm Tiến Huy']
-q_1hop_0096,1,"Thực thể ""FPT Online"" có mối liên kết tri thức trực tiếp với thực thể nào?",FPT Online,ent_cfb7a61f,,DSAC,ent_fe9207d9,['FPT Online']
-q_1hop_0097,1,"Thực thể ""TS Dương Quang Lỗi"" có mối liên kết tri thức trực tiếp với thực thể nào?",TS Dương Quang Lỗi,ent_d1279e55,,TSMC,ent_17b7a45d,['TS Dương Quang Lỗi']
-q_1hop_0098,1,"Thực thể ""SBI Holdings"" có mối liên kết tri thức trực tiếp với thực thể nào?",SBI Holdings,ent_d3d4f3a6,,FPT,ent_976619b1,['SBI Holdings']
-q_1hop_0099,1,"Thực thể ""iPadOS 18.4"" có mối liên kết tri thức trực tiếp với thực thể nào?",iPadOS 18.4,ent_d64f0cc6,,iPadOS,ent_b33e13c3,['iPadOS 18.4']
-q_1hop_0100,1,"Thực thể ""Jeong Seung Moon"" có mối liên kết tri thức trực tiếp với thực thể nào?",Jeong Seung Moon,ent_d974c442,,Samsung,ent_968e2d5b,['Jeong Seung Moon']
-q_1hop_0101,1,"Thực thể ""Play 4"" có mối liên kết tri thức trực tiếp với thực thể nào?",Play 4,ent_dd63f923,,FPT Camera,ent_2a1a9964,['Play 4']
-q_1hop_0102,1,"Thực thể ""Play 4"" có mối liên kết tri thức trực tiếp với thực thể nào?",Play 4,ent_dd63f923,,FPT,ent_976619b1,['Play 4']
-q_1hop_0103,1,"Thực thể ""Arm"" có mối liên kết tri thức trực tiếp với thực thể nào?",Arm,ent_ddf7ff5e,,RISC,ent_bec252ae,['Arm']
-q_1hop_0104,1,"Thực thể ""Jeanne Davoult"" có mối liên kết tri thức trực tiếp với thực thể nào?",Jeanne Davoult,ent_de8bdc71,,Cơ quan Hàng không vũ trụ Đức DLR,ent_cfdadc89,['Jeanne Davoult']
-q_1hop_0105,1,"Thực thể ""iPhone SE 3"" có mối liên kết tri thức trực tiếp với thực thể nào?",iPhone SE 3,ent_defeb3f3,,iPhone 16e,ent_2364aee3,['iPhone SE 3']
-q_1hop_0106,1,"Thực thể ""Amazon Web Services (AWS)"" có mối liên kết tri thức trực tiếp với thực thể nào?",Amazon Web Services (AWS),ent_dfe6c6b3,,AI Hay,ent_46725f28,['Amazon Web Services (AWS)']
-q_1hop_0107,1,"Thực thể ""Peter Teng"" có mối liên kết tri thức trực tiếp với thực thể nào?",Peter Teng,ent_dff3ca9e,,Alchip Technologies,ent_4d6f2011,['Peter Teng']
-q_1hop_0108,1,"Thực thể ""Gemini 2.5 Pro"" có mối liên kết tri thức trực tiếp với thực thể nào?",Gemini 2.5 Pro,ent_e2c3d029,,Google,ent_bbdefa29,['Gemini 2.5 Pro']
-q_1hop_0109,1,"Thực thể ""Gemini 2.5 Pro"" có mối liên kết tri thức trực tiếp với thực thể nào?",Gemini 2.5 Pro,ent_e2c3d029,,Gemini,ent_5d724362,['Gemini 2.5 Pro']
-q_1hop_0110,1,"Thực thể ""Apple Intelligence"" có mối liên kết tri thức trực tiếp với thực thể nào?",Apple Intelligence,ent_e7098389,,Apple,ent_3a7bd3e2,['Apple Intelligence']
-q_1hop_0111,1,"Thực thể ""Nguyễn Lạc Huy"" có mối liên kết tri thức trực tiếp với thực thể nào?",Nguyễn Lạc Huy,ent_e7118ded,,CellPhoneS,ent_554cc8a3,['Nguyễn Lạc Huy']
-q_1hop_0112,1,"Thực thể ""AI Agents"" có mối liên kết tri thức trực tiếp với thực thể nào?",AI Agents,ent_e748f875,,FPT,ent_976619b1,['AI Agents']
-q_1hop_0113,1,"Thực thể ""Erik Garcell"" có mối liên kết tri thức trực tiếp với thực thể nào?",Erik Garcell,ent_e7faa590,,Classiq Technologies,ent_442ab8ac,['Erik Garcell']
-q_1hop_0114,1,"Thực thể ""Jensen Huang"" có mối liên kết tri thức trực tiếp với thực thể nào?",Jensen Huang,ent_ecd7b976,,Nvidia,ent_8d4321d9,['Jensen Huang']
-q_1hop_0115,1,"Thực thể ""BrainMedQwen"" có mối liên kết tri thức trực tiếp với thực thể nào?",BrainMedQwen,ent_ef90749e,,MedCapSys,ent_64089cf4,['BrainMedQwen']
-q_1hop_0116,1,"Thực thể ""Claudio Cerasa"" có mối liên kết tri thức trực tiếp với thực thể nào?",Claudio Cerasa,ent_f1d2fbfd,,Il Foglio,ent_b9d7882f,['Claudio Cerasa']
-q_1hop_0117,1,"Thực thể ""Tianmushan No. 1"" có mối liên kết tri thức trực tiếp với thực thể nào?",Tianmushan No. 1,ent_f5f3b070,,Phòng thí nghiệm Tianmushan,ent_646659f5,['Tianmushan No. 1']
-q_1hop_0118,1,"Thực thể ""Vivo Vision"" có mối liên kết tri thức trực tiếp với thực thể nào?",Vivo Vision,ent_fa0c55cf,,Vivo,ent_69337578,['Vivo Vision']
-q_1hop_0119,1,"Thực thể ""Trần Thế Minh"" có mối liên kết tri thức trực tiếp với thực thể nào?",Trần Thế Minh,ent_fa543dd0,,Tmas Việt Nam,ent_98d8df69,['Trần Thế Minh']
-q_1hop_0120,1,"Thực thể ""Galaxy Ring"" có mối liên kết tri thức trực tiếp với thực thể nào?",Galaxy Ring,ent_fb28118a,,Galaxy AI,ent_1ed9223e,['Galaxy Ring']
-q_2hop_0121,2,"Bắt đầu từ ""Nomi"", qua mắt xích trung gian ""GPT-4o"", thực thể đích cần suy luận tới là gì?",Nomi,ent_0f937e60,GPT-4o,OpenAI,ent_7d3194f7,"['Nomi', 'GPT-4o']"
-q_2hop_0122,2,"Bắt đầu từ ""Young Liu"", qua mắt xích trung gian ""Foxconn"", thực thể đích cần suy luận tới là gì?",Young Liu,ent_22bf461a,Foxconn,Nvidia,ent_8d4321d9,"['Young Liu', 'Foxconn']"
-q_2hop_0123,2,"Bắt đầu từ ""Young Liu"", qua mắt xích trung gian ""Foxconn"", thực thể đích cần suy luận tới là gì?",Young Liu,ent_22bf461a,Foxconn,Nvidia,ent_8d4321d9,"['Young Liu', 'Foxconn']"
-q_2hop_0124,2,"Bắt đầu từ ""iPhone 16e"", qua mắt xích trung gian ""iPhone 16"", thực thể đích cần suy luận tới là gì?",iPhone 16e,ent_2364aee3,iPhone 16,iPhone 15,ent_72954355,"['iPhone 16e', 'iPhone 16']"
-q_2hop_0125,2,"Bắt đầu từ ""Brad Smith"", qua mắt xích trung gian ""Microsoft"", thực thể đích cần suy luận tới là gì?",Brad Smith,ent_24f6f01e,Microsoft,OpenAI,ent_7d3194f7,"['Brad Smith', 'Microsoft']"
-q_2hop_0126,2,"Bắt đầu từ ""Brad Smith"", qua mắt xích trung gian ""Microsoft"", thực thể đích cần suy luận tới là gì?",Brad Smith,ent_24f6f01e,Microsoft,Planet Labs,ent_93849eaa,"['Brad Smith', 'Microsoft']"
-q_2hop_0127,2,"Bắt đầu từ ""o1-Pro"", qua mắt xích trung gian ""OpenAI"", thực thể đích cần suy luận tới là gì?",o1-Pro,ent_2e2bb3b4,OpenAI,MIT Media Lab,ent_273d08bd,"['o1-Pro', 'OpenAI']"
-q_2hop_0128,2,"Bắt đầu từ ""Juan Lavista Ferres"", qua mắt xích trung gian ""Microsoft"", thực thể đích cần suy luận tới là gì?",Juan Lavista Ferres,ent_2e31c063,Microsoft,OpenAI,ent_7d3194f7,"['Juan Lavista Ferres', 'Microsoft']"
-q_2hop_0129,2,"Bắt đầu từ ""Juan Lavista Ferres"", qua mắt xích trung gian ""Microsoft"", thực thể đích cần suy luận tới là gì?",Juan Lavista Ferres,ent_2e31c063,Microsoft,Planet Labs,ent_93849eaa,"['Juan Lavista Ferres', 'Microsoft']"
-q_2hop_0130,2,"Bắt đầu từ ""Vũ Quốc Huy"", qua mắt xích trung gian ""NIC"", thực thể đích cần suy luận tới là gì?",Vũ Quốc Huy,ent_330d5d63,NIC,Alchip Technologies,ent_4d6f2011,"['Vũ Quốc Huy', 'NIC']"
-q_2hop_0131,2,"Bắt đầu từ ""Vũ Quốc Huy"", qua mắt xích trung gian ""NIC"", thực thể đích cần suy luận tới là gì?",Vũ Quốc Huy,ent_330d5d63,NIC,FPT,ent_976619b1,"['Vũ Quốc Huy', 'NIC']"
-q_2hop_0132,2,"Bắt đầu từ ""Sam Altman"", qua mắt xích trung gian ""OpenAI"", thực thể đích cần suy luận tới là gì?",Sam Altman,ent_46b09b21,OpenAI,MIT Media Lab,ent_273d08bd,"['Sam Altman', 'OpenAI']"
-q_2hop_0133,2,"Bắt đầu từ ""Sam Altman"", qua mắt xích trung gian ""OpenAI"", thực thể đích cần suy luận tới là gì?",Sam Altman,ent_46b09b21,OpenAI,MIT Media Lab,ent_273d08bd,"['Sam Altman', 'OpenAI']"
-q_2hop_0134,2,"Bắt đầu từ ""Jared Spataro"", qua mắt xích trung gian ""Microsoft"", thực thể đích cần suy luận tới là gì?",Jared Spataro,ent_5ac3e44c,Microsoft,OpenAI,ent_7d3194f7,"['Jared Spataro', 'Microsoft']"
-q_2hop_0135,2,"Bắt đầu từ ""Jared Spataro"", qua mắt xích trung gian ""Microsoft"", thực thể đích cần suy luận tới là gì?",Jared Spataro,ent_5ac3e44c,Microsoft,Planet Labs,ent_93849eaa,"['Jared Spataro', 'Microsoft']"
-q_2hop_0136,2,"Bắt đầu từ ""ChatGPT"", qua mắt xích trung gian ""OpenAI"", thực thể đích cần suy luận tới là gì?",ChatGPT,ent_60965168,OpenAI,MIT Media Lab,ent_273d08bd,"['ChatGPT', 'OpenAI']"
-q_2hop_0137,2,"Bắt đầu từ ""Orochi Network"", qua mắt xích trung gian ""FPT Online"", thực thể đích cần suy luận tới là gì?",Orochi Network,ent_689410a0,FPT Online,DSAC,ent_fe9207d9,"['Orochi Network', 'FPT Online']"
-q_2hop_0138,2,"Bắt đầu từ ""Images in ChatGPT"", qua mắt xích trung gian ""GPT-4o"", thực thể đích cần suy luận tới là gì?",Images in ChatGPT,ent_6b0f56dd,GPT-4o,OpenAI,ent_7d3194f7,"['Images in ChatGPT', 'GPT-4o']"
-q_2hop_0139,2,"Bắt đầu từ ""Images in ChatGPT"", qua mắt xích trung gian ""ChatGPT"", thực thể đích cần suy luận tới là gì?",Images in ChatGPT,ent_6b0f56dd,ChatGPT,OpenAI,ent_7d3194f7,"['Images in ChatGPT', 'ChatGPT']"
-q_2hop_0140,2,"Bắt đầu từ ""Images in ChatGPT"", qua mắt xích trung gian ""OpenAI"", thực thể đích cần suy luận tới là gì?",Images in ChatGPT,ent_6b0f56dd,OpenAI,MIT Media Lab,ent_273d08bd,"['Images in ChatGPT', 'OpenAI']"
-q_2hop_0141,2,"Bắt đầu từ ""Twitter"", qua mắt xích trung gian ""Musk"", thực thể đích cần suy luận tới là gì?",Twitter,ent_7352f353,Musk,SpaceX,ent_e78bdeba,"['Twitter', 'Musk']"
-q_2hop_0142,2,"Bắt đầu từ ""TCL BreezeIN Pro"", qua mắt xích trung gian ""TCL"", thực thể đích cần suy luận tới là gì?",TCL BreezeIN Pro,ent_9114feb5,TCL,Paralympic,ent_44bcab5e,"['TCL BreezeIN Pro', 'TCL']"
-q_2hop_0143,2,"Bắt đầu từ ""TCL BreezeIN Pro"", qua mắt xích trung gian ""TCL"", thực thể đích cần suy luận tới là gì?",TCL BreezeIN Pro,ent_9114feb5,TCL,Olympic,ent_d417a32d,"['TCL BreezeIN Pro', 'TCL']"
-q_2hop_0144,2,"Bắt đầu từ ""Microsoft"", qua mắt xích trung gian ""OpenAI"", thực thể đích cần suy luận tới là gì?",Microsoft,ent_9fbf261b,OpenAI,MIT Media Lab,ent_273d08bd,"['Microsoft', 'OpenAI']"
-q_2hop_0145,2,"Bắt đầu từ ""GPT-4o"", qua mắt xích trung gian ""OpenAI"", thực thể đích cần suy luận tới là gì?",GPT-4o,ent_a2a69af7,OpenAI,MIT Media Lab,ent_273d08bd,"['GPT-4o', 'OpenAI']"
-q_2hop_0146,2,"Bắt đầu từ ""iPhone SE 3"", qua mắt xích trung gian ""iPhone 16e"", thực thể đích cần suy luận tới là gì?",iPhone SE 3,ent_defeb3f3,iPhone 16e,iPhone 16,ent_61d1260a,"['iPhone SE 3', 'iPhone 16e']"
+q_1hop_0000,1,"Thực thể ""Reimagine"" có mối liên kết tri thức trực tiếp với thực thể nào?",Reimagine,ent_01764e46,,Google Photos,ent_7cedb349,"['Reimagine', 'Google Photos']"
+q_1hop_0001,1,"Thực thể ""Newton MessagePad"" có mối liên kết tri thức trực tiếp với thực thể nào?",Newton MessagePad,ent_04b05907,,Apple,ent_3a7bd3e2,"['Newton MessagePad', 'Apple']"
+q_1hop_0002,1,"Thực thể ""màn hình ôtô thông minh Android AI ADAS Utour"" có mối liên kết tri thức trực tiếp với thực thể nào?",màn hình ôtô thông minh Android AI ADAS Utour,ent_0863f993,,Tmas Việt Nam,ent_98d8df69,"['màn hình ôtô thông minh Android AI ADAS Utour', 'Tmas Việt Nam']"
+q_1hop_0003,1,"Thực thể ""macOS 15.4"" có mối liên kết tri thức trực tiếp với thực thể nào?",macOS 15.4,ent_094cdf4d,,macOS,ent_a0c0485e,"['macOS 15.4', 'macOS']"
+q_1hop_0004,1,"Thực thể ""NIC"" có mối liên kết tri thức trực tiếp với thực thể nào?",NIC,ent_0e1733ef,,Alchip Technologies,ent_4d6f2011,"['NIC', 'Alchip Technologies']"
+q_1hop_0005,1,"Thực thể ""NIC"" có mối liên kết tri thức trực tiếp với thực thể nào?",NIC,ent_0e1733ef,,FPT,ent_976619b1,"['NIC', 'FPT']"
+q_1hop_0006,1,"Thực thể ""iOS 18.4"" có mối liên kết tri thức trực tiếp với thực thể nào?",iOS 18.4,ent_0ebc7901,,iOS,ent_48ee0460,"['iOS 18.4', 'iOS']"
+q_1hop_0007,1,"Thực thể ""Nomi"" có mối liên kết tri thức trực tiếp với thực thể nào?",Nomi,ent_0f937e60,,Gemini,ent_5d724362,"['Nomi', 'Gemini']"
+q_1hop_0008,1,"Thực thể ""Nomi"" có mối liên kết tri thức trực tiếp với thực thể nào?",Nomi,ent_0f937e60,,GPT-4o,ent_a2a69af7,"['Nomi', 'GPT-4o']"
+q_1hop_0009,1,"Thực thể ""Super Vietnam 2025 PitchFest"" có mối liên kết tri thức trực tiếp với thực thể nào?",Super Vietnam 2025 PitchFest,ent_1238ddea,,PitchFest 2024,ent_a98655c8,"['Super Vietnam 2025 PitchFest', 'PitchFest 2024']"
+q_1hop_0010,1,"Thực thể ""Redmi Note 14 Pro+ 5G"" có mối liên kết tri thức trực tiếp với thực thể nào?",Redmi Note 14 Pro+ 5G,ent_125c584c,,Redmi Note 14,ent_13c67426,"['Redmi Note 14 Pro+ 5G', 'Redmi Note 14']"
+q_1hop_0011,1,"Thực thể ""S25 Edge"" có mối liên kết tri thức trực tiếp với thực thể nào?",S25 Edge,ent_142b1a72,,Galaxy S25,ent_b6ec2a7f,"['S25 Edge', 'Galaxy S25']"
+q_1hop_0012,1,"Thực thể ""Guemmy Kim"" có mối liên kết tri thức trực tiếp với thực thể nào?",Guemmy Kim,ent_21a7ec98,,Android,ent_f60ed56a,"['Guemmy Kim', 'Android']"
+q_1hop_0013,1,"Thực thể ""Young Liu"" có mối liên kết tri thức trực tiếp với thực thể nào?",Young Liu,ent_22bf461a,,Foxconn,ent_81b73d52,"['Young Liu', 'Foxconn']"
+q_1hop_0014,1,"Thực thể ""Young Liu"" có mối liên kết tri thức trực tiếp với thực thể nào?",Young Liu,ent_22bf461a,,Foxconn,ent_81b73d52,"['Young Liu', 'Foxconn']"
+q_1hop_0015,1,"Thực thể ""iPhone 16e"" có mối liên kết tri thức trực tiếp với thực thể nào?",iPhone 16e,ent_2364aee3,,iPhone 16,ent_61d1260a,"['iPhone 16e', 'iPhone 16']"
+q_1hop_0016,1,"Thực thể ""IQ 4S"" có mối liên kết tri thức trực tiếp với thực thể nào?",IQ 4S,ent_24114640,,FPT Camera,ent_2a1a9964,"['IQ 4S', 'FPT Camera']"
+q_1hop_0017,1,"Thực thể ""IQ 4S"" có mối liên kết tri thức trực tiếp với thực thể nào?",IQ 4S,ent_24114640,,FPT,ent_976619b1,"['IQ 4S', 'FPT']"
+q_1hop_0018,1,"Thực thể ""Starlink"" có mối liên kết tri thức trực tiếp với thực thể nào?",Starlink,ent_2412f769,,SpaceX,ent_e78bdeba,"['Starlink', 'SpaceX']"
+q_1hop_0019,1,"Thực thể ""Digital Nervous System"" có mối liên kết tri thức trực tiếp với thực thể nào?",Digital Nervous System,ent_24277f8f,,IntuiCell,ent_588bc446,"['Digital Nervous System', 'IntuiCell']"
+q_1hop_0020,1,"Thực thể ""Brad Smith"" có mối liên kết tri thức trực tiếp với thực thể nào?",Brad Smith,ent_24f6f01e,,Microsoft,ent_9fbf261b,"['Brad Smith', 'Microsoft']"
+q_1hop_0021,1,"Thực thể ""DeepSeek-Reasoner"" có mối liên kết tri thức trực tiếp với thực thể nào?",DeepSeek-Reasoner,ent_2524619d,,DeepSeek,ent_6f7ac182,"['DeepSeek-Reasoner', 'DeepSeek']"
+q_1hop_0022,1,"Thực thể ""Motorola Mobility"" có mối liên kết tri thức trực tiếp với thực thể nào?",Motorola Mobility,ent_25f82707,,Google,ent_bbdefa29,"['Motorola Mobility', 'Google']"
+q_1hop_0023,1,"Thực thể ""Bespoke AI"" có mối liên kết tri thức trực tiếp với thực thể nào?",Bespoke AI,ent_2c9408aa,,Samsung,ent_968e2d5b,"['Bespoke AI', 'Samsung']"
+q_1hop_0024,1,"Thực thể ""o1-Pro"" có mối liên kết tri thức trực tiếp với thực thể nào?",o1-Pro,ent_2e2bb3b4,,OpenAI,ent_7d3194f7,"['o1-Pro', 'OpenAI']"
+q_1hop_0025,1,"Thực thể ""o1-Pro"" có mối liên kết tri thức trực tiếp với thực thể nào?",o1-Pro,ent_2e2bb3b4,,o1,ent_2352da72,"['o1-Pro', 'o1']"
+q_1hop_0026,1,"Thực thể ""Juan Lavista Ferres"" có mối liên kết tri thức trực tiếp với thực thể nào?",Juan Lavista Ferres,ent_2e31c063,,Microsoft,ent_9fbf261b,"['Juan Lavista Ferres', 'Microsoft']"
+q_1hop_0027,1,"Thực thể ""Auto Frame"" có mối liên kết tri thức trực tiếp với thực thể nào?",Auto Frame,ent_31c92511,,Google Photos,ent_7cedb349,"['Auto Frame', 'Google Photos']"
+q_1hop_0028,1,"Thực thể ""Vũ Quốc Huy"" có mối liên kết tri thức trực tiếp với thực thể nào?",Vũ Quốc Huy,ent_330d5d63,,NIC,ent_0e1733ef,"['Vũ Quốc Huy', 'NIC']"
+q_1hop_0029,1,"Thực thể ""Vũ Quốc Huy"" có mối liên kết tri thức trực tiếp với thực thể nào?",Vũ Quốc Huy,ent_330d5d63,,Trung tâm Đổi mới sáng tạo Quốc gia (NIC),ent_fd9a006d,"['Vũ Quốc Huy', 'Trung tâm Đổi mới sáng tạo Quốc gia (NIC)']"
+q_1hop_0030,1,"Thực thể ""Mark Zuckerberg"" có mối liên kết tri thức trực tiếp với thực thể nào?",Mark Zuckerberg,ent_3957d14a,,Meta,ent_ea3bd73e,"['Mark Zuckerberg', 'Meta']"
+q_1hop_0031,1,"Thực thể ""MedCapNet"" có mối liên kết tri thức trực tiếp với thực thể nào?",MedCapNet,ent_3d06168c,,MedCapSys,ent_64089cf4,"['MedCapNet', 'MedCapSys']"
+q_1hop_0032,1,"Thực thể ""Lance Ulanoff"" có mối liên kết tri thức trực tiếp với thực thể nào?",Lance Ulanoff,ent_41b76e2b,,TechRadar,ent_af6abad7,"['Lance Ulanoff', 'TechRadar']"
+q_1hop_0033,1,"Thực thể ""Camera AI"" có mối liên kết tri thức trực tiếp với thực thể nào?",Camera AI,ent_44deb682,,MobiFone,ent_ee4a777c,"['Camera AI', 'MobiFone']"
+q_1hop_0034,1,"Thực thể ""Molly Montgomery"" có mối liên kết tri thức trực tiếp với thực thể nào?",Molly Montgomery,ent_4542c150,,Meta,ent_ea3bd73e,"['Molly Montgomery', 'Meta']"
+q_1hop_0035,1,"Thực thể ""Sam Altman"" có mối liên kết tri thức trực tiếp với thực thể nào?",Sam Altman,ent_46b09b21,,OpenAI,ent_7d3194f7,"['Sam Altman', 'OpenAI']"
+q_1hop_0036,1,"Thực thể ""Sam Altman"" có mối liên kết tri thức trực tiếp với thực thể nào?",Sam Altman,ent_46b09b21,,OpenAI,ent_7d3194f7,"['Sam Altman', 'OpenAI']"
+q_1hop_0037,1,"Thực thể ""Galaxy S25 Edge"" có mối liên kết tri thức trực tiếp với thực thể nào?",Galaxy S25 Edge,ent_4cef6bf4,,Samsung,ent_968e2d5b,"['Galaxy S25 Edge', 'Samsung']"
+q_1hop_0038,1,"Thực thể ""Musk"" có mối liên kết tri thức trực tiếp với thực thể nào?",Musk,ent_4db16eb9,,SpaceX,ent_e78bdeba,"['Musk', 'SpaceX']"
+q_1hop_0039,1,"Thực thể ""Jared Spataro"" có mối liên kết tri thức trực tiếp với thực thể nào?",Jared Spataro,ent_5ac3e44c,,Microsoft,ent_9fbf261b,"['Jared Spataro', 'Microsoft']"
+q_1hop_0040,1,"Thực thể ""Viktor Luthman"" có mối liên kết tri thức trực tiếp với thực thể nào?",Viktor Luthman,ent_5c5199f5,,IntuiCell,ent_588bc446,"['Viktor Luthman', 'IntuiCell']"
+q_1hop_0041,1,"Thực thể ""Boston Dynamics"" có mối liên kết tri thức trực tiếp với thực thể nào?",Boston Dynamics,ent_5ecc0298,,Canon,ent_7a535665,"['Boston Dynamics', 'Canon']"
+q_1hop_0042,1,"Thực thể ""Boston Dynamics"" có mối liên kết tri thức trực tiếp với thực thể nào?",Boston Dynamics,ent_5ecc0298,,Nvidia,ent_8d4321d9,"['Boston Dynamics', 'Nvidia']"
+q_1hop_0043,1,"Thực thể ""Boston Dynamics"" có mối liên kết tri thức trực tiếp với thực thể nào?",Boston Dynamics,ent_5ecc0298,,WPP,ent_cae047d3,"['Boston Dynamics', 'WPP']"
+q_1hop_0044,1,"Thực thể ""ChatGPT"" có mối liên kết tri thức trực tiếp với thực thể nào?",ChatGPT,ent_60965168,,OpenAI,ent_7d3194f7,"['ChatGPT', 'OpenAI']"
+q_1hop_0045,1,"Thực thể ""iPhone 16"" có mối liên kết tri thức trực tiếp với thực thể nào?",iPhone 16,ent_61d1260a,,iPhone 15,ent_72954355,"['iPhone 16', 'iPhone 15']"
+q_1hop_0046,1,"Thực thể ""Bình dân học vụ số"" có mối liên kết tri thức trực tiếp với thực thể nào?",Bình dân học vụ số,ent_65b131e3,,Bình dân học vụ,ent_f5fb3798,"['Bình dân học vụ số', 'Bình dân học vụ']"
+q_1hop_0047,1,"Thực thể ""Nguyễn Hoàng Hiệp"" có mối liên kết tri thức trực tiếp với thực thể nào?",Nguyễn Hoàng Hiệp,ent_6648cd21,,AI Hay,ent_46725f28,"['Nguyễn Hoàng Hiệp', 'AI Hay']"
+q_1hop_0048,1,"Thực thể ""Orochi Network"" có mối liên kết tri thức trực tiếp với thực thể nào?",Orochi Network,ent_689410a0,,FPT Online,ent_cfb7a61f,"['Orochi Network', 'FPT Online']"
+q_1hop_0049,1,"Thực thể ""Orochi Network"" có mối liên kết tri thức trực tiếp với thực thể nào?",Orochi Network,ent_689410a0,,DSAC,ent_fe9207d9,"['Orochi Network', 'DSAC']"
+q_1hop_0050,1,"Thực thể ""Nguyễn Văn Long"" có mối liên kết tri thức trực tiếp với thực thể nào?",Nguyễn Văn Long,ent_68ccdd10,,Công an,ent_a8a91f23,"['Nguyễn Văn Long', 'Công an']"
+q_1hop_0051,1,"Thực thể ""Nguyễn Trung Chính"" có mối liên kết tri thức trực tiếp với thực thể nào?",Nguyễn Trung Chính,ent_6adde04f,,CMC,ent_81e5538a,"['Nguyễn Trung Chính', 'CMC']"
+q_1hop_0052,1,"Thực thể ""Images in ChatGPT"" có mối liên kết tri thức trực tiếp với thực thể nào?",Images in ChatGPT,ent_6b0f56dd,,GPT-4o,ent_a2a69af7,"['Images in ChatGPT', 'GPT-4o']"
+q_1hop_0053,1,"Thực thể ""Images in ChatGPT"" có mối liên kết tri thức trực tiếp với thực thể nào?",Images in ChatGPT,ent_6b0f56dd,,ChatGPT,ent_60965168,"['Images in ChatGPT', 'ChatGPT']"
+q_1hop_0054,1,"Thực thể ""Images in ChatGPT"" có mối liên kết tri thức trực tiếp với thực thể nào?",Images in ChatGPT,ent_6b0f56dd,,OpenAI,ent_7d3194f7,"['Images in ChatGPT', 'OpenAI']"
+q_1hop_0055,1,"Thực thể ""iPhone 15"" có mối liên kết tri thức trực tiếp với thực thể nào?",iPhone 15,ent_72954355,,iPhone 16,ent_61d1260a,"['iPhone 15', 'iPhone 16']"
+q_1hop_0056,1,"Thực thể ""Twitter"" có mối liên kết tri thức trực tiếp với thực thể nào?",Twitter,ent_7352f353,,Musk,ent_4db16eb9,"['Twitter', 'Musk']"
+q_1hop_0057,1,"Thực thể ""GuidedDCNet"" có mối liên kết tri thức trực tiếp với thực thể nào?",GuidedDCNet,ent_76883655,,MedCapSys,ent_64089cf4,"['GuidedDCNet', 'MedCapSys']"
+q_1hop_0058,1,"Thực thể ""Công ty Cổ phần ITR VN"" có mối liên kết tri thức trực tiếp với thực thể nào?",Công ty Cổ phần ITR VN,ent_7696cf27,,Mjn-neuro,ent_bf81d148,"['Công ty Cổ phần ITR VN', 'Mjn-neuro']"
+q_1hop_0059,1,"Thực thể ""OpenAI"" có mối liên kết tri thức trực tiếp với thực thể nào?",OpenAI,ent_7d3194f7,,MIT Media Lab,ent_273d08bd,"['OpenAI', 'MIT Media Lab']"
+q_1hop_0060,1,"Thực thể ""Foxconn"" có mối liên kết tri thức trực tiếp với thực thể nào?",Foxconn,ent_81b73d52,,Nvidia,ent_8d4321d9,"['Foxconn', 'Nvidia']"
+q_1hop_0061,1,"Thực thể ""Siri"" có mối liên kết tri thức trực tiếp với thực thể nào?",Siri,ent_81ed3413,,Apple,ent_3a7bd3e2,"['Siri', 'Apple']"
+q_1hop_0062,1,"Thực thể ""Jacqueline Roy"" có mối liên kết tri thức trực tiếp với thực thể nào?",Jacqueline Roy,ent_82f209de,,Apple,ent_3a7bd3e2,"['Jacqueline Roy', 'Apple']"
+q_1hop_0063,1,"Thực thể ""R1"" có mối liên kết tri thức trực tiếp với thực thể nào?",R1,ent_82f3e9c6,,DeepSeek,ent_6f7ac182,"['R1', 'DeepSeek']"
+q_1hop_0064,1,"Thực thể ""Blackwell Ultra GB300"" có mối liên kết tri thức trực tiếp với thực thể nào?",Blackwell Ultra GB300,ent_835a28a6,,Blackwell,ent_374eebfb,"['Blackwell Ultra GB300', 'Blackwell']"
+q_1hop_0065,1,"Thực thể ""TCL BreezeIN Pro"" có mối liên kết tri thức trực tiếp với thực thể nào?",TCL BreezeIN Pro,ent_9114feb5,,TCL,ent_9daf09c8,"['TCL BreezeIN Pro', 'TCL']"
+q_1hop_0066,1,"Thực thể ""Hu Baishan"" có mối liên kết tri thức trực tiếp với thực thể nào?",Hu Baishan,ent_921d7ae5,,Vivo,ent_69337578,"['Hu Baishan', 'Vivo']"
+q_1hop_0067,1,"Thực thể ""Chris Ainsley"" có mối liên kết tri thức trực tiếp với thực thể nào?",Chris Ainsley,ent_923e0bb2,,Santander,ent_138df632,"['Chris Ainsley', 'Santander']"
+q_1hop_0068,1,"Thực thể ""Lê Quang Huy"" có mối liên kết tri thức trực tiếp với thực thể nào?",Lê Quang Huy,ent_95f17b01,,"Ủy ban Khoa học, Công nghệ và Môi trường",ent_962f047c,"['Lê Quang Huy', 'Ủy ban Khoa học, Công nghệ và Môi trường']"
+q_1hop_0069,1,"Thực thể ""GuidedSegDiff"" có mối liên kết tri thức trực tiếp với thực thể nào?",GuidedSegDiff,ent_96302e3f,,MedCapSys,ent_64089cf4,"['GuidedSegDiff', 'MedCapSys']"
+q_1hop_0070,1,"Thực thể ""Sumitomo Corporation"" có mối liên kết tri thức trực tiếp với thực thể nào?",Sumitomo Corporation,ent_9a9e4e51,,FPT,ent_976619b1,"['Sumitomo Corporation', 'FPT']"
+q_1hop_0071,1,"Thực thể ""Robert Jarolim"" có mối liên kết tri thức trực tiếp với thực thể nào?",Robert Jarolim,ent_9ac93706,,Đại học Graz,ent_549f7f7a,"['Robert Jarolim', 'Đại học Graz']"
+q_1hop_0072,1,"Thực thể ""TCL"" có mối liên kết tri thức trực tiếp với thực thể nào?",TCL,ent_9daf09c8,,Paralympic,ent_44bcab5e,"['TCL', 'Paralympic']"
+q_1hop_0073,1,"Thực thể ""TCL"" có mối liên kết tri thức trực tiếp với thực thể nào?",TCL,ent_9daf09c8,,Olympic,ent_d417a32d,"['TCL', 'Olympic']"
+q_1hop_0074,1,"Thực thể ""Microsoft"" có mối liên kết tri thức trực tiếp với thực thể nào?",Microsoft,ent_9fbf261b,,OpenAI,ent_7d3194f7,"['Microsoft', 'OpenAI']"
+q_1hop_0075,1,"Thực thể ""Microsoft"" có mối liên kết tri thức trực tiếp với thực thể nào?",Microsoft,ent_9fbf261b,,Planet Labs,ent_93849eaa,"['Microsoft', 'Planet Labs']"
+q_1hop_0076,1,"Thực thể ""Thomas Andersson"" có mối liên kết tri thức trực tiếp với thực thể nào?",Thomas Andersson,ent_a0c2284e,,STIQ,ent_fd9c867e,"['Thomas Andersson', 'STIQ']"
+q_1hop_0077,1,"Thực thể ""GPT-4o"" có mối liên kết tri thức trực tiếp với thực thể nào?",GPT-4o,ent_a2a69af7,,OpenAI,ent_7d3194f7,"['GPT-4o', 'OpenAI']"
+q_1hop_0078,1,"Thực thể ""TS Phan Hoàng Vũ"" có mối liên kết tri thức trực tiếp với thực thể nào?",TS Phan Hoàng Vũ,ent_a41bf171,,Viện Công nghệ Liên bang Thụy Sĩ ở Lausanne (EPFL),ent_6402eab9,"['TS Phan Hoàng Vũ', 'Viện Công nghệ Liên bang Thụy Sĩ ở Lausanne (EPFL)']"
+q_1hop_0079,1,"Thực thể ""TS Phan Hoàng Vũ"" có mối liên kết tri thức trực tiếp với thực thể nào?",TS Phan Hoàng Vũ,ent_a41bf171,,EPFL,ent_8758902c,"['TS Phan Hoàng Vũ', 'EPFL']"
+q_1hop_0080,1,"Thực thể ""TS Lê Bá Chung"" có mối liên kết tri thức trực tiếp với thực thể nào?",TS Lê Bá Chung,ent_a950c096,,Học viện Kỹ thuật quân sự,ent_27bf8be1,"['TS Lê Bá Chung', 'Học viện Kỹ thuật quân sự']"
+q_1hop_0081,1,"Thực thể ""TS Lê Bá Chung"" có mối liên kết tri thức trực tiếp với thực thể nào?",TS Lê Bá Chung,ent_a950c096,,Phòng thí nghiệm Bộ môn Cơ điện tử và Chế tạo máy đặc biệt,ent_7fef3cb6,"['TS Lê Bá Chung', 'Phòng thí nghiệm Bộ môn Cơ điện tử và Chế tạo máy đặc biệt']"
+q_1hop_0082,1,"Thực thể ""TS Lê Bá Chung"" có mối liên kết tri thức trực tiếp với thực thể nào?",TS Lê Bá Chung,ent_a950c096,,Khoa Hàng không vũ trụ,ent_bbfe6859,"['TS Lê Bá Chung', 'Khoa Hàng không vũ trụ']"
+q_1hop_0083,1,"Thực thể ""PitchFest 2024"" có mối liên kết tri thức trực tiếp với thực thể nào?",PitchFest 2024,ent_a98655c8,,Super Vietnam 2025 PitchFest,ent_1238ddea,"['PitchFest 2024', 'Super Vietnam 2025 PitchFest']"
+q_1hop_0084,1,"Thực thể ""Nvidia Cosmos"" có mối liên kết tri thức trực tiếp với thực thể nào?",Nvidia Cosmos,ent_aaccbdc2,,Atlas,ent_7c826025,"['Nvidia Cosmos', 'Atlas']"
+q_1hop_0085,1,"Thực thể ""Lê Viết Quốc"" có mối liên kết tri thức trực tiếp với thực thể nào?",Lê Viết Quốc,ent_abd7b650,,Google Brain,ent_c6b205e3,"['Lê Viết Quốc', 'Google Brain']"
+q_1hop_0086,1,"Thực thể ""DeepSeek-Chat"" có mối liên kết tri thức trực tiếp với thực thể nào?",DeepSeek-Chat,ent_b45bfc6e,,DeepSeek,ent_6f7ac182,"['DeepSeek-Chat', 'DeepSeek']"
+q_1hop_0087,1,"Thực thể ""Lương Tam Quang"" có mối liên kết tri thức trực tiếp với thực thể nào?",Lương Tam Quang,ent_bf65fd7a,,Bộ Công an,ent_8c1af4d4,"['Lương Tam Quang', 'Bộ Công an']"
+q_1hop_0088,1,"Thực thể ""Nguyễn Ngọc Cương"" có mối liên kết tri thức trực tiếp với thực thể nào?",Nguyễn Ngọc Cương,ent_c045022f,,Hiệp hội Dữ liệu quốc gia,ent_4179a2ac,"['Nguyễn Ngọc Cương', 'Hiệp hội Dữ liệu quốc gia']"
+q_1hop_0089,1,"Thực thể ""Nguyễn Ngọc Cương"" có mối liên kết tri thức trực tiếp với thực thể nào?",Nguyễn Ngọc Cương,ent_c045022f,,Trung tâm Dữ liệu Quốc gia,ent_f14f4937,"['Nguyễn Ngọc Cương', 'Trung tâm Dữ liệu Quốc gia']"
+q_1hop_0090,1,"Thực thể ""Gemma 3"" có mối liên kết tri thức trực tiếp với thực thể nào?",Gemma 3,ent_c6b79ebf,,Google,ent_bbdefa29,"['Gemma 3', 'Google']"
+q_1hop_0091,1,"Thực thể ""Digital Nervous System (Hệ thần kinh Kỹ thuật số)"" có mối liên kết tri thức trực tiếp với thực thể nào?",Digital Nervous System (Hệ thần kinh Kỹ thuật số),ent_c724c49f,,Luna,ent_970ec274,"['Digital Nervous System (Hệ thần kinh Kỹ thuật số)', 'Luna']"
+q_1hop_0092,1,"Thực thể ""Robert Sternberg"" có mối liên kết tri thức trực tiếp với thực thể nào?",Robert Sternberg,ent_c77977a5,,Đại học Cornell,ent_16fc06bc,"['Robert Sternberg', 'Đại học Cornell']"
+q_1hop_0093,1,"Thực thể ""Rappaport"" có mối liên kết tri thức trực tiếp với thực thể nào?",Rappaport,ent_c7ed46bf,,Wiz,ent_5b92e3c7,"['Rappaport', 'Wiz']"
+q_1hop_0094,1,"Thực thể ""Stefania Druga"" có mối liên kết tri thức trực tiếp với thực thể nào?",Stefania Druga,ent_c894b614,,Google DeepMind,ent_2b6e51be,"['Stefania Druga', 'Google DeepMind']"
+q_1hop_0095,1,"Thực thể ""Phạm Tiến Huy"" có mối liên kết tri thức trực tiếp với thực thể nào?",Phạm Tiến Huy,ent_cd6a3c17,,ADT Global,ent_0f829461,"['Phạm Tiến Huy', 'ADT Global']"
+q_1hop_0096,1,"Thực thể ""FPT Online"" có mối liên kết tri thức trực tiếp với thực thể nào?",FPT Online,ent_cfb7a61f,,DSAC,ent_fe9207d9,"['FPT Online', 'DSAC']"
+q_1hop_0097,1,"Thực thể ""TS Dương Quang Lỗi"" có mối liên kết tri thức trực tiếp với thực thể nào?",TS Dương Quang Lỗi,ent_d1279e55,,TSMC,ent_17b7a45d,"['TS Dương Quang Lỗi', 'TSMC']"
+q_1hop_0098,1,"Thực thể ""SBI Holdings"" có mối liên kết tri thức trực tiếp với thực thể nào?",SBI Holdings,ent_d3d4f3a6,,FPT,ent_976619b1,"['SBI Holdings', 'FPT']"
+q_1hop_0099,1,"Thực thể ""iPadOS 18.4"" có mối liên kết tri thức trực tiếp với thực thể nào?",iPadOS 18.4,ent_d64f0cc6,,iPadOS,ent_b33e13c3,"['iPadOS 18.4', 'iPadOS']"
+q_1hop_0100,1,"Thực thể ""Jeong Seung Moon"" có mối liên kết tri thức trực tiếp với thực thể nào?",Jeong Seung Moon,ent_d974c442,,Samsung,ent_968e2d5b,"['Jeong Seung Moon', 'Samsung']"
+q_1hop_0101,1,"Thực thể ""Play 4"" có mối liên kết tri thức trực tiếp với thực thể nào?",Play 4,ent_dd63f923,,FPT Camera,ent_2a1a9964,"['Play 4', 'FPT Camera']"
+q_1hop_0102,1,"Thực thể ""Play 4"" có mối liên kết tri thức trực tiếp với thực thể nào?",Play 4,ent_dd63f923,,FPT,ent_976619b1,"['Play 4', 'FPT']"
+q_1hop_0103,1,"Thực thể ""Arm"" có mối liên kết tri thức trực tiếp với thực thể nào?",Arm,ent_ddf7ff5e,,RISC,ent_bec252ae,"['Arm', 'RISC']"
+q_1hop_0104,1,"Thực thể ""Jeanne Davoult"" có mối liên kết tri thức trực tiếp với thực thể nào?",Jeanne Davoult,ent_de8bdc71,,Cơ quan Hàng không vũ trụ Đức DLR,ent_cfdadc89,"['Jeanne Davoult', 'Cơ quan Hàng không vũ trụ Đức DLR']"
+q_1hop_0105,1,"Thực thể ""iPhone SE 3"" có mối liên kết tri thức trực tiếp với thực thể nào?",iPhone SE 3,ent_defeb3f3,,iPhone 16e,ent_2364aee3,"['iPhone SE 3', 'iPhone 16e']"
+q_1hop_0106,1,"Thực thể ""Amazon Web Services (AWS)"" có mối liên kết tri thức trực tiếp với thực thể nào?",Amazon Web Services (AWS),ent_dfe6c6b3,,AI Hay,ent_46725f28,"['Amazon Web Services (AWS)', 'AI Hay']"
+q_1hop_0107,1,"Thực thể ""Peter Teng"" có mối liên kết tri thức trực tiếp với thực thể nào?",Peter Teng,ent_dff3ca9e,,Alchip Technologies,ent_4d6f2011,"['Peter Teng', 'Alchip Technologies']"
+q_1hop_0108,1,"Thực thể ""Gemini 2.5 Pro"" có mối liên kết tri thức trực tiếp với thực thể nào?",Gemini 2.5 Pro,ent_e2c3d029,,Google,ent_bbdefa29,"['Gemini 2.5 Pro', 'Google']"
+q_1hop_0109,1,"Thực thể ""Gemini 2.5 Pro"" có mối liên kết tri thức trực tiếp với thực thể nào?",Gemini 2.5 Pro,ent_e2c3d029,,Gemini,ent_5d724362,"['Gemini 2.5 Pro', 'Gemini']"
+q_1hop_0110,1,"Thực thể ""Apple Intelligence"" có mối liên kết tri thức trực tiếp với thực thể nào?",Apple Intelligence,ent_e7098389,,Apple,ent_3a7bd3e2,"['Apple Intelligence', 'Apple']"
+q_1hop_0111,1,"Thực thể ""Nguyễn Lạc Huy"" có mối liên kết tri thức trực tiếp với thực thể nào?",Nguyễn Lạc Huy,ent_e7118ded,,CellPhoneS,ent_554cc8a3,"['Nguyễn Lạc Huy', 'CellPhoneS']"
+q_1hop_0112,1,"Thực thể ""AI Agents"" có mối liên kết tri thức trực tiếp với thực thể nào?",AI Agents,ent_e748f875,,FPT,ent_976619b1,"['AI Agents', 'FPT']"
+q_1hop_0113,1,"Thực thể ""Erik Garcell"" có mối liên kết tri thức trực tiếp với thực thể nào?",Erik Garcell,ent_e7faa590,,Classiq Technologies,ent_442ab8ac,"['Erik Garcell', 'Classiq Technologies']"
+q_1hop_0114,1,"Thực thể ""Jensen Huang"" có mối liên kết tri thức trực tiếp với thực thể nào?",Jensen Huang,ent_ecd7b976,,Nvidia,ent_8d4321d9,"['Jensen Huang', 'Nvidia']"
+q_1hop_0115,1,"Thực thể ""BrainMedQwen"" có mối liên kết tri thức trực tiếp với thực thể nào?",BrainMedQwen,ent_ef90749e,,MedCapSys,ent_64089cf4,"['BrainMedQwen', 'MedCapSys']"
+q_1hop_0116,1,"Thực thể ""Claudio Cerasa"" có mối liên kết tri thức trực tiếp với thực thể nào?",Claudio Cerasa,ent_f1d2fbfd,,Il Foglio,ent_b9d7882f,"['Claudio Cerasa', 'Il Foglio']"
+q_1hop_0117,1,"Thực thể ""Tianmushan No. 1"" có mối liên kết tri thức trực tiếp với thực thể nào?",Tianmushan No. 1,ent_f5f3b070,,Phòng thí nghiệm Tianmushan,ent_646659f5,"['Tianmushan No. 1', 'Phòng thí nghiệm Tianmushan']"
+q_1hop_0118,1,"Thực thể ""Vivo Vision"" có mối liên kết tri thức trực tiếp với thực thể nào?",Vivo Vision,ent_fa0c55cf,,Vivo,ent_69337578,"['Vivo Vision', 'Vivo']"
+q_1hop_0119,1,"Thực thể ""Trần Thế Minh"" có mối liên kết tri thức trực tiếp với thực thể nào?",Trần Thế Minh,ent_fa543dd0,,Tmas Việt Nam,ent_98d8df69,"['Trần Thế Minh', 'Tmas Việt Nam']"
+q_1hop_0120,1,"Thực thể ""Galaxy Ring"" có mối liên kết tri thức trực tiếp với thực thể nào?",Galaxy Ring,ent_fb28118a,,Galaxy AI,ent_1ed9223e,"['Galaxy Ring', 'Galaxy AI']"
+q_2hop_0121,2,"Bắt đầu từ ""Nomi"", qua mắt xích trung gian ""GPT-4o"", thực thể đích cần suy luận tới là gì?",Nomi,ent_0f937e60,GPT-4o,OpenAI,ent_7d3194f7,"['Nomi', 'GPT-4o', 'OpenAI']"
+q_2hop_0122,2,"Bắt đầu từ ""Young Liu"", qua mắt xích trung gian ""Foxconn"", thực thể đích cần suy luận tới là gì?",Young Liu,ent_22bf461a,Foxconn,Nvidia,ent_8d4321d9,"['Young Liu', 'Foxconn', 'Nvidia']"
+q_2hop_0123,2,"Bắt đầu từ ""Young Liu"", qua mắt xích trung gian ""Foxconn"", thực thể đích cần suy luận tới là gì?",Young Liu,ent_22bf461a,Foxconn,Nvidia,ent_8d4321d9,"['Young Liu', 'Foxconn', 'Nvidia']"
+q_2hop_0124,2,"Bắt đầu từ ""iPhone 16e"", qua mắt xích trung gian ""iPhone 16"", thực thể đích cần suy luận tới là gì?",iPhone 16e,ent_2364aee3,iPhone 16,iPhone 15,ent_72954355,"['iPhone 16e', 'iPhone 16', 'iPhone 15']"
+q_2hop_0125,2,"Bắt đầu từ ""Brad Smith"", qua mắt xích trung gian ""Microsoft"", thực thể đích cần suy luận tới là gì?",Brad Smith,ent_24f6f01e,Microsoft,OpenAI,ent_7d3194f7,"['Brad Smith', 'Microsoft', 'OpenAI']"
+q_2hop_0126,2,"Bắt đầu từ ""Brad Smith"", qua mắt xích trung gian ""Microsoft"", thực thể đích cần suy luận tới là gì?",Brad Smith,ent_24f6f01e,Microsoft,Planet Labs,ent_93849eaa,"['Brad Smith', 'Microsoft', 'Planet Labs']"
+q_2hop_0127,2,"Bắt đầu từ ""o1-Pro"", qua mắt xích trung gian ""OpenAI"", thực thể đích cần suy luận tới là gì?",o1-Pro,ent_2e2bb3b4,OpenAI,MIT Media Lab,ent_273d08bd,"['o1-Pro', 'OpenAI', 'MIT Media Lab']"
+q_2hop_0128,2,"Bắt đầu từ ""Juan Lavista Ferres"", qua mắt xích trung gian ""Microsoft"", thực thể đích cần suy luận tới là gì?",Juan Lavista Ferres,ent_2e31c063,Microsoft,OpenAI,ent_7d3194f7,"['Juan Lavista Ferres', 'Microsoft', 'OpenAI']"
+q_2hop_0129,2,"Bắt đầu từ ""Juan Lavista Ferres"", qua mắt xích trung gian ""Microsoft"", thực thể đích cần suy luận tới là gì?",Juan Lavista Ferres,ent_2e31c063,Microsoft,Planet Labs,ent_93849eaa,"['Juan Lavista Ferres', 'Microsoft', 'Planet Labs']"
+q_2hop_0130,2,"Bắt đầu từ ""Vũ Quốc Huy"", qua mắt xích trung gian ""NIC"", thực thể đích cần suy luận tới là gì?",Vũ Quốc Huy,ent_330d5d63,NIC,Alchip Technologies,ent_4d6f2011,"['Vũ Quốc Huy', 'NIC', 'Alchip Technologies']"
+q_2hop_0131,2,"Bắt đầu từ ""Vũ Quốc Huy"", qua mắt xích trung gian ""NIC"", thực thể đích cần suy luận tới là gì?",Vũ Quốc Huy,ent_330d5d63,NIC,FPT,ent_976619b1,"['Vũ Quốc Huy', 'NIC', 'FPT']"
+q_2hop_0132,2,"Bắt đầu từ ""Sam Altman"", qua mắt xích trung gian ""OpenAI"", thực thể đích cần suy luận tới là gì?",Sam Altman,ent_46b09b21,OpenAI,MIT Media Lab,ent_273d08bd,"['Sam Altman', 'OpenAI', 'MIT Media Lab']"
+q_2hop_0133,2,"Bắt đầu từ ""Sam Altman"", qua mắt xích trung gian ""OpenAI"", thực thể đích cần suy luận tới là gì?",Sam Altman,ent_46b09b21,OpenAI,MIT Media Lab,ent_273d08bd,"['Sam Altman', 'OpenAI', 'MIT Media Lab']"
+q_2hop_0134,2,"Bắt đầu từ ""Jared Spataro"", qua mắt xích trung gian ""Microsoft"", thực thể đích cần suy luận tới là gì?",Jared Spataro,ent_5ac3e44c,Microsoft,OpenAI,ent_7d3194f7,"['Jared Spataro', 'Microsoft', 'OpenAI']"
+q_2hop_0135,2,"Bắt đầu từ ""Jared Spataro"", qua mắt xích trung gian ""Microsoft"", thực thể đích cần suy luận tới là gì?",Jared Spataro,ent_5ac3e44c,Microsoft,Planet Labs,ent_93849eaa,"['Jared Spataro', 'Microsoft', 'Planet Labs']"
+q_2hop_0136,2,"Bắt đầu từ ""ChatGPT"", qua mắt xích trung gian ""OpenAI"", thực thể đích cần suy luận tới là gì?",ChatGPT,ent_60965168,OpenAI,MIT Media Lab,ent_273d08bd,"['ChatGPT', 'OpenAI', 'MIT Media Lab']"
+q_2hop_0137,2,"Bắt đầu từ ""Orochi Network"", qua mắt xích trung gian ""FPT Online"", thực thể đích cần suy luận tới là gì?",Orochi Network,ent_689410a0,FPT Online,DSAC,ent_fe9207d9,"['Orochi Network', 'FPT Online', 'DSAC']"
+q_2hop_0138,2,"Bắt đầu từ ""Images in ChatGPT"", qua mắt xích trung gian ""GPT-4o"", thực thể đích cần suy luận tới là gì?",Images in ChatGPT,ent_6b0f56dd,GPT-4o,OpenAI,ent_7d3194f7,"['Images in ChatGPT', 'GPT-4o', 'OpenAI']"
+q_2hop_0139,2,"Bắt đầu từ ""Images in ChatGPT"", qua mắt xích trung gian ""ChatGPT"", thực thể đích cần suy luận tới là gì?",Images in ChatGPT,ent_6b0f56dd,ChatGPT,OpenAI,ent_7d3194f7,"['Images in ChatGPT', 'ChatGPT', 'OpenAI']"
+q_2hop_0140,2,"Bắt đầu từ ""Images in ChatGPT"", qua mắt xích trung gian ""OpenAI"", thực thể đích cần suy luận tới là gì?",Images in ChatGPT,ent_6b0f56dd,OpenAI,MIT Media Lab,ent_273d08bd,"['Images in ChatGPT', 'OpenAI', 'MIT Media Lab']"
+q_2hop_0141,2,"Bắt đầu từ ""Twitter"", qua mắt xích trung gian ""Musk"", thực thể đích cần suy luận tới là gì?",Twitter,ent_7352f353,Musk,SpaceX,ent_e78bdeba,"['Twitter', 'Musk', 'SpaceX']"
+q_2hop_0142,2,"Bắt đầu từ ""TCL BreezeIN Pro"", qua mắt xích trung gian ""TCL"", thực thể đích cần suy luận tới là gì?",TCL BreezeIN Pro,ent_9114feb5,TCL,Paralympic,ent_44bcab5e,"['TCL BreezeIN Pro', 'TCL', 'Paralympic']"
+q_2hop_0143,2,"Bắt đầu từ ""TCL BreezeIN Pro"", qua mắt xích trung gian ""TCL"", thực thể đích cần suy luận tới là gì?",TCL BreezeIN Pro,ent_9114feb5,TCL,Olympic,ent_d417a32d,"['TCL BreezeIN Pro', 'TCL', 'Olympic']"
+q_2hop_0144,2,"Bắt đầu từ ""Microsoft"", qua mắt xích trung gian ""OpenAI"", thực thể đích cần suy luận tới là gì?",Microsoft,ent_9fbf261b,OpenAI,MIT Media Lab,ent_273d08bd,"['Microsoft', 'OpenAI', 'MIT Media Lab']"
+q_2hop_0145,2,"Bắt đầu từ ""GPT-4o"", qua mắt xích trung gian ""OpenAI"", thực thể đích cần suy luận tới là gì?",GPT-4o,ent_a2a69af7,OpenAI,MIT Media Lab,ent_273d08bd,"['GPT-4o', 'OpenAI', 'MIT Media Lab']"
+q_2hop_0146,2,"Bắt đầu từ ""iPhone SE 3"", qua mắt xích trung gian ""iPhone 16e"", thực thể đích cần suy luận tới là gì?",iPhone SE 3,ent_defeb3f3,iPhone 16e,iPhone 16,ent_61d1260a,"['iPhone SE 3', 'iPhone 16e', 'iPhone 16']"
