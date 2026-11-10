@@ -14,6 +14,7 @@ from uuid import uuid4
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+from scripts.inspect_m2_inputs import block_legacy_v3_execution  # noqa: E402
 from scripts.audit_legacy_split_t01 import audit  # noqa: E402
 from scripts.run_legacy_transe_t01 import (  # noqa: E402
     EXPECTED_SHA256, INPUT, encode, read_legacy_input, sha, write_json,
@@ -72,6 +73,7 @@ def evaluate(
 
 
 def main() -> None:
+    block_legacy_v3_execution()
     original = read_legacy_input(ROOT / INPUT, EXPECTED_SHA256)
     triples = [t.to_tuple() for t in original.triples]
     split_audit = audit(triples)

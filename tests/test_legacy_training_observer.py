@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import asdict
 import sys
 
+import pytest
+
 from scripts.diagnose_legacy_t01_training import observe_training
 from kge.contract import SnapshotDataset
 from kge.model import TransEConfig
@@ -22,11 +24,9 @@ def test_observer_preserves_checkpoint_and_random_stream() -> None:
     assert sys.gettrace() is None
 
 
-def test_observer_counts_sampling_exhaustion_without_updates() -> None:
+def test_observer_rejects_sampling_exhaustion_and_restores_tracing() -> None:
     dataset = SnapshotDataset.create("saturated",[("a","r","a")])
     config = TransEConfig(dimension=32,epochs=1,seed=37)
-    _, epochs = observe_training(dataset,config,"fixture",True)
-    counts = epochs[0]["counts"]
-    assert counts["candidate_draws"] == counts["rejected_original"] == 100
-    assert counts["skipped_no_negative"] == 1
-    assert counts["valid_negatives"] == counts["active_updates"] == 0
+    with pytest.raises(ValueError, match="No usable negative"):
+        observe_training(dataset,config,"fixture",True)
+    assert sys.gettrace() is None

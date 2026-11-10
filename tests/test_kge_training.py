@@ -54,7 +54,7 @@ def test_mapping_parity_across_seeds():
     assert set(runs[13].entity_embeddings.keys()) == set(runs[101].entity_embeddings.keys())
 
 
-def test_checkpoint_save_and_reload():
+def test_checkpoint_save_and_reload(tmp_path: Path):
     """A26: Test checkpoint serialization, immutability, sidecar creation and verification."""
     fixtures = create_synthetic_snapshots()
     s1 = fixtures["S1"]
@@ -62,7 +62,7 @@ def test_checkpoint_save_and_reload():
     cfg = TransEConfig(dimension=32, norm=2, epochs=3, seed=13)
     ckpt = train_single_seed(s1, cfg)
 
-    with tempfile.TemporaryDirectory() as tmpdir:
+    with tempfile.TemporaryDirectory(dir=tmp_path) as tmpdir:
         save_path = Path(tmpdir) / "ckpt_test.json"
         sidecar_path = Path(tmpdir) / "ckpt_test.json.sha256"
 

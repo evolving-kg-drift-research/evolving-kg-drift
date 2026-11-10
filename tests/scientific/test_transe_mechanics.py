@@ -97,7 +97,9 @@ def test_saturated_corruption_side_skips_without_false_negative(head: bool) -> N
     model = fixture_model()
     before = copy.deepcopy(model)
     rng = ControlledRandom(head, [2])
-    assert model.train_epoch([positive], rng, known) == 0
+    with pytest.raises(ValueError, match="No usable negative"):
+        model.train_epoch([positive], rng, known)
+    assert model.last_train_diagnostics.usable_negatives == 0
     assert rng.calls == 100
     assert model.entity_embeddings == before.entity_embeddings
     assert model.relation_embeddings == before.relation_embeddings
@@ -123,7 +125,9 @@ def test_retry_budget_can_skip_even_when_valid_negative_exists(head: bool) -> No
     # Controlled repeated draws make the rejection budget observable. This is
     # not an estimate of its probability under the production random sampler.
     rng = ControlledRandom(head, [original])
-    assert model.train_epoch([positive], rng, {positive}) == 0
+    with pytest.raises(ValueError, match="No usable negative"):
+        model.train_epoch([positive], rng, {positive})
+    assert model.last_train_diagnostics.skipped == 1
     assert rng.calls == 100
     assert model.entity_embeddings == before.entity_embeddings
     assert model.relation_embeddings == before.relation_embeddings

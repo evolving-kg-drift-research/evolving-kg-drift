@@ -34,6 +34,18 @@ class TransEConfig:
     normalize_entities: bool = True
 
 
+@dataclass(frozen=True)
+class EpochDiagnostics:
+    """Online objective retains the legacy positive-triple denominator."""
+
+    positives: int
+    usable_negatives: int
+    skipped: int
+    margin_violations: int
+    loss_sum: float
+    loss_definition: str = "online_margin_loss_per_positive_v1"
+
+
 class TransEModel:
     """TransE-L2 model holding entity and relation embedding tables."""
 
@@ -120,6 +132,8 @@ class TransEModel:
     ) -> float:
         """Trains one epoch using stochastic gradient descent with margin-ranking loss."""
         total_loss = 0.0
+        usable = 0
+        violations = 0
         shuffled = list(indexed_triples)
         rng.shuffle(shuffled)
 
@@ -157,6 +171,8 @@ class TransEModel:
             if corrupt_h == h_idx and corrupt_o == o_idx:
                 continue
 
+            usable += 1
+
             pos_diff = [
                 self.entity_embeddings[h_idx][i] + self.relation_embeddings[r_idx][i] - self.entity_embeddings[o_idx][i]
                 for i in range(d)
@@ -171,6 +187,7 @@ class TransEModel:
 
             loss = margin + pos_dist - neg_dist
             if loss > 0.0:
+                violations += 1
                 total_loss += loss
 
                 # Gradient step: d(dist)/dx = diff / dist
@@ -209,7 +226,12 @@ class TransEModel:
                     else:
                         self.entity_embeddings[corrupt_o] = normalize_vector(self.entity_embeddings[corrupt_o])
 
-        return total_loss / max(1, len(shuffled))
+        self.last_train_diagnostics = EpochDiagnostics(
+            len(shuffled), usable, len(shuffled) - usable, violations, total_loss
+        )
+        if not usable:
+            raise ValueError("No usable negative samples in training epoch")
+        return total_loss / len(shuffled)
 
     def evaluate_loss(
         self,
@@ -219,7 +241,7 @@ class TransEModel:
     ) -> float:
         """Evaluates margin-ranking loss on validation triples without performing gradient updates."""
         if not indexed_triples:
-            return 0.0
+            raise ValueError("No validation triples to evaluate")
 
         if positive_triples_set is None:
             positive_triples_set = set(indexed_triples)
@@ -268,4 +290,8 @@ class TransEModel:
             total_loss += loss
             eval_count += 1
 
-        return total_loss / max(1, eval_count)
+        self.last_validation_counts = {"positives": len(indexed_triples), "usable_negatives": eval_count,
+                                       "skipped": len(indexed_triples) - eval_count}
+        if not eval_count:
+            raise ValueError("No usable negative samples in validation")
+        return total_loss / eval_count

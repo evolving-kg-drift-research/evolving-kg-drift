@@ -24,8 +24,23 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from kge.contract import SnapshotDataset  # noqa: E402
+from kg_pipeline.experiment_manifest import validate_manifest as validate_experiment_manifest  # noqa: E402
 
+# The historical verifiers use this path when checking their original receipts.
 PACKAGE = Path("data/KG_lan2/evolving_kg_downstream_v3")
+ACTIVE_PACKAGE = Path("data/evolving_kg_downstream_v3_1")
+RELEASE_ID = "evolving_kg_downstream_v3.1"
+
+
+def require_current_package(root: Path, relative: Path) -> Path:
+    package = root.resolve() / ACTIVE_PACKAGE
+    if relative != ACTIVE_PACKAGE or package.resolve() != package:
+        raise ValueError("Chỉ gói canonical V3.1 được dùng cho lần chạy mới")
+    return package
+
+
+def block_legacy_v3_execution() -> None:
+    raise PermissionError("Đường chạy V3 đã ngừng sử dụng. Lần chạy mới cần thiết kế V3.1 được đăng ký.")
 
 
 def encode(value: Any) -> bytes:
@@ -172,28 +187,33 @@ def provenance() -> dict[str, Any]:
 
 
 def validate_manifest(manifest: dict[str, Any]) -> None:
-    schema = yaml.safe_load((ROOT / "configs/schemas/experiment_manifest.schema.yaml").read_bytes())
-    if any(k not in manifest for k in schema["required"]):
-        raise ValueError("Experiment manifest missing required fields")
-    for field, rules in schema["fields"].items():
-        if any(k not in manifest.get(field, {}) for k in rules.get("required", [])):
-            raise ValueError(f"Manifest missing nested fields: {field}")
-    if manifest["access"]["state"] not in schema["fields"]["access"]["allowed_state"]:
-        raise ValueError("Invalid access state")
+    # Historical fixture runners retain schema-v1 compatibility. New writers use strict=True.
+    validate_experiment_manifest(manifest, strict=False)
 
 
 def main() -> None:
-    package = ROOT / PACKAGE
+    package = require_current_package(ROOT, ACTIVE_PACKAGE)
+    release_path = safe_file(package, "release_manifest.json")
+    release_payload = release_path.read_bytes()
+    release = json.loads(release_payload)
     datasets, report = inspect_package(package)
+    release_hashes = {item["path"]: item["sha256"] for item in release["artifacts"]}
+    if (release["release_id"] != RELEASE_ID or release["snapshot_count"] != len(datasets)
+            or any(release_hashes.get(path) != digest for path, digest in report["input_hashes"].items())):
+        raise ValueError("Đầu vào không khớp bản kê phát hành V3.1")
     now = datetime.now(timezone.utc)
     out = ROOT / "outputs/m2_preflight" / (now.strftime("%Y%m%dT%H%M%SZ") + "_" + uuid4().hex[:8])
-    out.mkdir(parents=True, exist_ok=False)
-    hashes = {f"{PACKAGE.as_posix()}/{p}": h for p, h in report["input_hashes"].items()}
+    hashes = {f"{ACTIVE_PACKAGE.as_posix()}/{p}": h for p, h in report["input_hashes"].items()}
+    hashes[f"{ACTIVE_PACKAGE.as_posix()}/release_manifest.json"] = sha(release_payload)
+    report["release_id"] = RELEASE_ID
     supplemental = []
     for name in ("body_variants", "extracted_claims", "fact_versions", "kg_events"):
-        relative = Path("data/transe_fact_check_package") / f"{name}.parquet"
+        package_relative = f"tables/{name}.parquet"
+        relative = ACTIVE_PACKAGE / package_relative
         path = safe_file(ROOT, relative)
         hashes[relative.as_posix()] = sha(path.read_bytes())
+        if hashes[relative.as_posix()] != release_hashes.get(package_relative):
+            raise ValueError(f"Bảng bổ trợ không khớp bản kê V3.1: {relative}")
         metadata = pq.ParquetFile(path)
         supplemental.append({"path": relative.as_posix(), "sha256": hashes[relative.as_posix()],
                              "rows": metadata.metadata.num_rows, "columns": metadata.schema_arrow.names,
@@ -203,13 +223,14 @@ def main() -> None:
     report["unresolved_m2_protocol_fields"] = [
         "kge.dimension", "alignment.fit_count", "alignment.holdout_count",
         "drift.bucket_merge_policy", "drift.mad_epsilon"]
+    for relative, digest in hashes.items():
+        if sha(safe_file(ROOT, relative).read_bytes()) != digest:
+            raise ValueError("Input changed during inspection")
+    out.mkdir(parents=True, exist_ok=False)
     write_json(out / "report.json", report)
     write_json(out / "mappings.json", {s: {"entities": d.get_entity_mapping(),
                                           "relations": d.get_relation_mapping()}
                                         for s, d in datasets.items()})
-    for relative, digest in hashes.items():
-        if sha(safe_file(ROOT, relative).read_bytes()) != digest:
-            raise ValueError("Input changed during inspection")
     manifest = {"experiment_id": out.name, "protocol_version": "v1-draft",
                 "mode": "m2_external_input_inspection", "scientific_certification": False,
                 "git": provenance(), "seed": None,
@@ -218,7 +239,7 @@ def main() -> None:
                            "query_hash": None,
                            "entity_map_hash": sha(encode({s: d.compute_mapping_hash() for s, d in datasets.items()})),
                            "relation_map_hash": sha(encode({s: d.get_relation_mapping() for s, d in datasets.items()})),
-                           "config_hash": hashes[f"{PACKAGE.as_posix()}/config/downstream_transe_config.yaml"],
+                           "config_hash": hashes[f"{ACTIVE_PACKAGE.as_posix()}/config/downstream_transe_config.yaml"],
                            "hashes": hashes, "code_hash": sha(Path(__file__).read_bytes())},
                 "environment": {"python": platform.python_version(), "os": platform.platform(),
                                 "pyarrow": pa.__version__},

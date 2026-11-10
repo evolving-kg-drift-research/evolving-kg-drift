@@ -20,7 +20,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "src"))
 from scripts.inspect_m2_inputs import (  # noqa: E402
-    PACKAGE, encode, inspect_package, provenance, safe_file, sha, validate_manifest, write_json,
+    PACKAGE, block_legacy_v3_execution, encode, inspect_package, provenance, safe_file, sha,
+    validate_manifest, write_json,
 )
 from scripts.run_m2_pilot import train_replayed  # noqa: E402
 from scripts.verify_m2_pilot import verify as verify_pilot  # noqa: E402
@@ -101,6 +102,7 @@ def load_registered_inputs(design: dict[str, Any]) -> tuple[dict[str, Any], dict
 
 
 def run() -> Path:
+    block_legacy_v3_execution()
     config_path = safe_file(ROOT, CONFIG_PATH)
     design = yaml.safe_load(config_path.read_bytes())
     proposal_path = safe_file(ROOT, design["approval"]["proposal_path"])

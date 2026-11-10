@@ -16,6 +16,11 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
+try:
+    from ..kg_pipeline.storage import exclusive_artifact_lock
+except ImportError:
+    from kg_pipeline.storage import exclusive_artifact_lock
+
 
 @dataclass(frozen=True)
 class CheckpointProvenance:
@@ -67,6 +72,11 @@ class KGECheckpoint:
 
     def verify_finite(self) -> None:
         """Asserts that all embedding vectors contain finite, non-NaN numbers."""
+        if self.provenance.dimension <= 0:
+            raise ValueError("Checkpoint dimension must be positive")
+        if any(len(v) != self.provenance.dimension for v in
+               [*self.entity_embeddings.values(), *self.relation_embeddings.values()]):
+            raise ValueError("Checkpoint vector dimension mismatch")
         for e, vec in self.entity_embeddings.items():
             for idx, x in enumerate(vec):
                 if math.isnan(x) or math.isinf(x):
@@ -88,11 +98,20 @@ class KGECheckpoint:
 
     def save(self, path: Path | str, immutable: bool = True) -> str:
         """Saves checkpoint to JSON file atomically with SHA-256 sidecar (A26)."""
+        self.verify_finite()
+        if self.artifact_hash != self.compute_artifact_hash():
+            raise ValueError("Checkpoint semantic hash mismatch")
+        with exclusive_artifact_lock(Path(path)):
+            return self._save_locked(path, immutable)
+
+    def _save_locked(self, path: Path | str, immutable: bool) -> str:
         p = Path(path)
         p.parent.mkdir(parents=True, exist_ok=True)
 
         if immutable and p.exists():
             raise RuntimeError(f"Refusing to overwrite immutable checkpoint artifact: {p}")
+        if immutable and p.with_name(p.name + ".sha256").exists():
+            raise RuntimeError(f"Refusing to overwrite orphan checkpoint sidecar: {p}")
 
         data = {
             "provenance": asdict(self.provenance),
@@ -129,8 +148,13 @@ class KGECheckpoint:
         actual_hash = hashlib.sha256(raw_bytes).hexdigest()
 
         sidecar_path = p.with_name(p.name + ".sha256")
-        if verify_sidecar and sidecar_path.is_file():
-            expected_hash = sidecar_path.read_text(encoding="utf-8").strip().split()[0]
+        if verify_sidecar:
+            if not sidecar_path.is_file():
+                raise ValueError(f"Checkpoint sidecar is missing: {p}")
+            parts = sidecar_path.read_text(encoding="utf-8").strip().split(maxsplit=1)
+            if len(parts) != 2 or parts[1] != p.name:
+                raise ValueError(f"Checkpoint sidecar is malformed: {p}")
+            expected_hash = parts[0]
             if actual_hash != expected_hash:
                 raise ValueError(
                     f"Checkpoint sidecar SHA-256 mismatch for {p}: "
@@ -147,4 +171,6 @@ class KGECheckpoint:
             artifact_hash=data["artifact_hash"],
         )
         ckpt.verify_finite()
+        if ckpt.artifact_hash != ckpt.compute_artifact_hash():
+            raise ValueError(f"Checkpoint semantic hash mismatch: {p}")
         return ckpt

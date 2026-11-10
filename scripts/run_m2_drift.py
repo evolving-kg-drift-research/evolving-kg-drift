@@ -18,7 +18,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "src"))
 from scripts.inspect_m2_inputs import (  # noqa: E402
-    PACKAGE, encode, inspect_package, provenance, safe_file, sha, validate_manifest, write_json,
+    PACKAGE, block_legacy_v3_execution, encode, inspect_package, provenance, safe_file, sha,
+    validate_manifest, write_json,
 )
 from scripts.run_m2_null import LTO_SCHEMA_V2, parquet_bytes  # noqa: E402
 from drift.artifact_drift import ARTIFACT_DRIFT_VERSION, calibrated_metrics, saved_temporal_observations  # noqa: E402
@@ -51,6 +52,7 @@ DRIFT_SCHEMA_V2 = pa.schema([
 
 
 def run() -> Path:
+    block_legacy_v3_execution()
     stage_path = safe_file(ROOT, CONFIG_PATH)
     stage = yaml.safe_load(stage_path.read_bytes())
     approved_path = safe_file(ROOT, stage["approved_config_path"])

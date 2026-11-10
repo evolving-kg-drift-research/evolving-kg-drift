@@ -22,7 +22,8 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "src"))
 from scripts.evaluate_legacy_t01 import evaluate, metrics  # noqa: E402
 from scripts.inspect_m2_inputs import (  # noqa: E402
-    PACKAGE, encode, inspect_package, provenance, safe_file, sha, validate_manifest, write_json,
+    PACKAGE, block_legacy_v3_execution, encode, inspect_package, provenance, safe_file, sha,
+    validate_manifest, write_json,
 )
 from drift.anchors import AnchorSplit, compute_anchor_hash, deterministic_hash_split  # noqa: E402
 from drift.procrustes import align_embeddings_procrustes  # noqa: E402
@@ -119,6 +120,7 @@ def train_replayed(
 
 
 def run(preflight: Path) -> Path:
+    block_legacy_v3_execution()
     if not preflight.resolve().is_relative_to((ROOT / "outputs/m2_preflight").resolve()):
         raise ValueError("Pilot requires a recorded preflight under outputs/m2_preflight")
     preflight_report = json.loads((preflight / "report.json").read_bytes())

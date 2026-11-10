@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import random
 from dataclasses import asdict
 from pathlib import Path
@@ -15,6 +16,7 @@ from typing import Sequence
 from .checkpoint import CheckpointProvenance, KGECheckpoint
 from .contract import SnapshotDataset
 from .model import TransEConfig, TransEModel
+from .splits import coverage_split
 
 
 def train_single_seed(
@@ -29,6 +31,9 @@ def train_single_seed(
     relation_to_id = dataset.get_relation_mapping()
 
     model = TransEModel(entity_to_id, relation_to_id, config)
+    if (not math.isfinite(dev_split_ratio) or not 0 <= dev_split_ratio < 1
+            or config.epochs <= 0):
+        raise ValueError("Invalid validation ratio or nonpositive epoch budget")
 
     # Convert triples to integer indices
     indexed_triples = [
@@ -37,16 +42,13 @@ def train_single_seed(
     ]
 
     # Deterministic train/dev split based on triple hash (A18)
-    if dev_split_ratio > 0.0 and len(indexed_triples) > 1:
-        def triple_hash(t: tuple[int, int, int]) -> int:
-            return int(hashlib.sha256(f"{t[0]}_{t[1]}_{t[2]}".encode("utf-8")).hexdigest()[:8], 16)
-
-        threshold = int(dev_split_ratio * 0xFFFFFFFF)
-        dev_triples = [t for t in indexed_triples if triple_hash(t) < threshold]
-        train_triples = [t for t in indexed_triples if triple_hash(t) >= threshold]
-        if not train_triples or not dev_triples:
-            train_triples = indexed_triples
-            dev_triples = []
+    split = None
+    if dev_split_ratio > 0.0:
+        split = coverage_split(dataset, dev_split_ratio, "kge-dev-v2")
+        def index(rows):
+            return [(entity_to_id[h], relation_to_id[r], entity_to_id[t]) for h, r, t in rows]
+        train_triples = index(split.train)
+        dev_triples = index(split.validation)
     else:
         train_triples = indexed_triples
         dev_triples = []
@@ -54,17 +56,28 @@ def train_single_seed(
     rng = random.Random(config.seed)
     epoch_losses: list[float] = []
     dev_losses: list[float] = []
+    diagnostics: list[dict] = []
+    validation_counts: list[dict] = []
     positive_set = set(indexed_triples)
 
     for epoch in range(config.epochs):
         loss = model.train_epoch(train_triples, rng, positive_triples_set=positive_set)
         epoch_losses.append(loss)
+        diagnostics.append(asdict(model.last_train_diagnostics))
         if dev_triples:
-            dev_loss = model.evaluate_loss(dev_triples, rng, positive_triples_set=positive_set)
+            # Reset an independent stream: fixed negative draws at every epoch.
+            eval_seed = hashlib.sha256(f"validation-v2:{config.seed}".encode()).hexdigest()
+            dev_loss = model.evaluate_loss(dev_triples, random.Random(eval_seed), positive_triples_set=positive_set)
             dev_losses.append(dev_loss)
+            validation_counts.append(dict(model.last_validation_counts))
 
     # Compute config hash
     config_dict = asdict(config)
+    if split is not None:
+        config_dict = {"model": config_dict, "split": split.descriptor(),
+                       "requested_validation_ratio": dev_split_ratio,
+                       "evaluation": "independent_fixed_negative_stream_v2",
+                       "positive_filter_scope": "snapshot"}
     config_hash = hashlib.sha256(json.dumps(config_dict, sort_keys=True).encode("utf-8")).hexdigest()
 
     # Resolve git provenance if not explicitly provided
@@ -108,6 +121,11 @@ def train_single_seed(
             "final_dev_loss": dev_losses[-1] if dev_losses else None,
             "dev_split_ratio": dev_split_ratio,
             "num_epochs": config.epochs,
+            "epoch_diagnostics": diagnostics,
+            "validation_counts": validation_counts,
+            "split": split.descriptor() if split is not None else None,
+            "split_hash": split.sha256 if split is not None else None,
+            "validation_status": "AVAILABLE" if split is not None else "NOT_APPLICABLE_FULL_SNAPSHOT",
         },
     )
 
@@ -205,7 +223,9 @@ def select_best_dimension(
             git_dirty=git_dirty,
         )
         final_dev = ckpt.training_metrics.get("final_dev_loss")
-        metric = final_dev if final_dev is not None else ckpt.training_metrics["final_loss"]
+        if final_dev is None:
+            raise ValueError("Dimension selection requires available validation loss")
+        metric = final_dev
         dim_losses[d] = metric
         checkpoints[d] = ckpt
 

@@ -19,7 +19,9 @@ import pyarrow.parquet as pq
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "src"))
+from scripts.inspect_m2_inputs import block_legacy_v3_execution  # noqa: E402
 from kge.checkpoint import KGECheckpoint  # noqa: E402
 from kge.contract import SnapshotDataset, Triple  # noqa: E402
 from kge.model import TransEConfig  # noqa: E402
@@ -76,6 +78,7 @@ def read_legacy_input(path: Path, expected_hash: str) -> SnapshotDataset:
 
 
 def main() -> None:
+    block_legacy_v3_execution()
     source = ROOT / INPUT
     dataset = read_legacy_input(source, EXPECTED_SHA256)
     if (len(dataset.triples), len(dataset.entities), len(dataset.relations)) != (121, 167, 10):

@@ -17,6 +17,7 @@ from uuid import uuid4
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+from scripts.inspect_m2_inputs import block_legacy_v3_execution  # noqa: E402
 from scripts.run_legacy_transe_t01 import (  # noqa: E402
     EXPECTED_SHA256, INPUT, encode, read_legacy_input, sha, write_json,
 )
@@ -128,6 +129,7 @@ def observe_training(dataset: SnapshotDataset, config: TransEConfig, commit: str
 
 
 def main() -> None:
+    block_legacy_v3_execution()
     reference_inventory = json.loads((REFERENCE/"artifact_hashes.json").read_bytes())
     if any(sha((REFERENCE/p).read_bytes()) != h for p,h in reference_inventory.items()):
         raise ValueError("Reference artifacts changed")

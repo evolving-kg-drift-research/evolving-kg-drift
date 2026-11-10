@@ -20,7 +20,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "src"))
 from scripts.inspect_m2_inputs import (  # noqa: E402
-    PACKAGE, encode, inspect_package, provenance, safe_file, sha, validate_manifest, write_json,
+    PACKAGE, block_legacy_v3_execution, encode, inspect_package, provenance, safe_file, sha,
+    validate_manifest, write_json,
 )
 from drift.artifact_null import (  # noqa: E402
     ARTIFACT_NULL_VERSION, SEED_PAIRS, build_artifact_null, saved_noise_observations, validate_entity_reference,
@@ -95,6 +96,7 @@ def parquet_bytes(rows: list[dict[str, Any]], schema: pa.Schema) -> bytes:
 
 
 def run() -> Path:
+    block_legacy_v3_execution()
     stage_path = safe_file(ROOT, CONFIG_PATH)
     stage = yaml.safe_load(stage_path.read_bytes())
     approved_path = safe_file(ROOT, stage["approved_config_path"])
