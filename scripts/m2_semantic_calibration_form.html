@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phiếu hiệu chuẩn M2 V3.1</title>
+  <style>
+    body { max-width: 64rem; margin: auto; padding: 1.25rem; color: #162a35; background: #f1f5f6;
+      font: 1rem/1.5 system-ui, sans-serif; }
+    h1, h2 { line-height: 1.25; }
+    fieldset { margin: 1.25rem 0; padding: 1rem; border: 1px solid #8ba6b3; background: white; }
+    legend { font-weight: 700; padding: 0 .4rem; }
+    label, details, .row { display: block; margin: .7rem 0; }
+    textarea { display: block; box-sizing: border-box; width: 100%; min-height: 3.6rem; }
+    textarea[readonly] { min-height: 14rem; white-space: pre-wrap; }
+    textarea, input, select, button { font: inherit; }
+    button { margin: .25rem .4rem .25rem 0; padding: .2rem .55rem; }
+    blockquote { white-space: pre-wrap; margin: .5rem 0; padding: .35rem .6rem; border-left: 3px solid #7497a6; }
+    summary { cursor: pointer; font-weight: 600; }
+    #status { min-height: 1.5em; }
+  </style>
+</head>
+<body>
+<h1>Hiệu chuẩn tiêu chí thẩm định M2 V3.1</h1>
+<p>Hướng dẫn v2.0-hiệu-chuẩn · 10 ca đã đối chiếu A/B · Chờ người phân xử xác nhận</p>
+<p><a href="huong_dan_cham_v2.md" target="_blank" rel="noopener">Mở hướng dẫn chấm</a></p>
+<ol>
+  <li>Chọn mức hỗ trợ cho đúng bộ ba. Với quan hệ phát hành, tìm căn cứ về sự kiện gắn đúng sản phẩm và tổ chức.</li>
+  <li>Chọn kiểu của hai thực thể theo nội dung bài, rồi giải thích căn cứ về kiểu.</li>
+  <li>Nếu hỗ trợ hoặc có căn cứ bác bỏ, bôi đen đoạn đủ để dẫn chứng trong thân bài rồi bấm <strong>Ghi đoạn đã bôi đen</strong>. Nếu chưa đủ căn cứ, ghi điều còn thiếu.</li>
+</ol>
+<p>Có thể tải và nạp lại bản nháp trong khi làm. Sau khi hoàn tất, tải tệp kết quả và gửi riêng cho người phụ trách.</p>
+<form id="form">
+  <label>Mã người phân xử <input id="reviewer" required autocomplete="off"></label>
+  <div id="cases"></div>
+  <fieldset>
+    <legend>Kết luận về hướng dẫn</legend>
+    <label>Khả năng áp dụng
+      <select id="verdict" required>
+        <option value="">Chọn kết luận</option>
+        <option value="DONG_Y_TIEU_CHI">Đồng ý với hướng dẫn</option>
+        <option value="CAN_SUA_TIEU_CHI">Cần sửa hướng dẫn</option>
+      </select>
+    </label>
+    <label>Lý do và mã ca liên quan <textarea id="notes" required></textarea></label>
+  </fieldset>
+  <button type="button" id="save-draft">Tải bản nháp</button>
+  <label>Nạp bản nháp <input type="file" id="load-draft" accept=".json,application/json"></label>
+  <button type="submit">Tải kết quả hiệu chuẩn</button>
+  <p id="status" role="status" aria-live="polite"></p>
+</form>
+<script id="case-data" type="application/json">__CALIBRATION_DATA__</script>
+<script>
+"use strict";
+const get = id => document.getElementById(id);
+const data = JSON.parse(get("case-data").textContent);
+const groups = {
+  CAN_CU_SU_KIEN_PHAT_HANH: "Căn cứ cho sự kiện phát hành",
+  KIEU_THUC_THE_ONTOLOGY: "Kiểu thực thể theo ontology",
+  VI_TRI_DOAN_TRICH: "Vị trí đoạn trích"
+};
+const labels = {
+  HO_TRO: "Hỗ trợ", KHONG_HO_TRO: "Không hỗ trợ", CHUA_DU_CAN_CU: "Chưa đủ căn cứ"
+};
+const types = Object.fromEntries(data.kieu_thuc_the.map(kind => [kind, kind]));
+types.NGOAI_ONTOLOGY = "Ngoài danh mục kiểu";
+types.CHUA_XAC_MINH = "Chưa xác minh";
+
+function add(parent, tag, text = "") {
+  const node = document.createElement(tag);
+  node.textContent = text;
+  parent.append(node);
+  return node;
+}
+
+function choices(parent, title, values) {
+  const select = add(add(parent, "label", title + " "), "select");
+  select.required = true;
+  for (const [key, label] of [["", "Chọn"], ...Object.entries(values)]) {
+    add(select, "option", label).value = key;
+  }
+  return select;
+}
+
+function reason(parent, title) {
+  const field = add(add(parent, "label", title), "textarea");
+  field.required = true;
+  return field;
+}
+
+function classifySpan(item, start, end) {
+  if (item.vi_tri.some(v => start >= v.bat_dau && end <= v.ket_thuc)) return "DOAN_GOC";
+  if (item.vi_tri.some(v => start >= v.bat_dau - Array.from(v.truoc).length &&
+    end <= v.ket_thuc + Array.from(v.sau).length)) return "NGU_CANH_LIEN_KE";
+  return "DOAN_KHAC_CUNG_BAN_LUU";
+}
+
+function classifyType(item, head, tail) {
+  if (!head || !tail) return null;
+  const invalid = (value, allowed) => value !== "CHUA_XAC_MINH" && !allowed.includes(value);
+  if (invalid(head, item.kieu_dau_cho_phep) || invalid(tail, item.kieu_cuoi_cho_phep)) return "SAI_KIEU";
+  if ([head, tail].includes("CHUA_XAC_MINH")) return "CHUA_XAC_MINH_KIEU";
+  return "DUNG_KIEU";
+}
+
+const cards = data.ca.map((item, index) => {
+  const card = add(get("cases"), "fieldset");
+  add(card, "legend", (index + 1) + "/10 · " + item.ma_phieu + " · " + groups[item.nhom_hieu_chuan]);
+  add(card, "h2", item.bo_ba.join(" → "));
+  add(card, "p", "Kiểu đầu cho phép — " + item.kieu_dau_cho_phep.join(", ") +
+    " · Kiểu cuối cho phép — " + item.kieu_cuoi_cho_phep.join(", "));
+  const archive = add(card, "a", "Bản lưu · " + item.moc_ban_luu);
+  archive.href = item.url_ban_luu;
+  archive.target = "_blank";
+  archive.rel = "noopener";
+  const history = add(card, "details");
+  add(history, "summary", "Xem nhãn và lý do A/B đã nộp");
+  for (const [slot, answer] of Object.entries(item.doc_ab)) {
+    add(history, "blockquote", slot + " · " + labels[answer.nhan] + " — " + answer.ly_do);
+  }
+
+  const snippets = add(card, "details");
+  add(snippets, "summary", "Xem đoạn gốc và ngữ cảnh đã đưa cho A/B");
+  for (const span of item.vi_tri) {
+    add(snippets, "p", "Đoạn gốc [" + span.bat_dau + ", " + span.ket_thuc + ")");
+    const quote = add(snippets, "blockquote", span.truoc);
+    add(quote, "mark", span.doan_trich);
+    quote.append(document.createTextNode(span.sau));
+  }
+  if (item.goi_y) {
+    add(card, "p", "Đoạn tìm lại để kiểm tra [" + item.goi_y.bat_dau + ", " + item.goi_y.ket_thuc + ")");
+    add(card, "blockquote", item.goi_y.doan_trich);
+  }
+  const article = add(card, "details");
+  add(article, "summary", "Mở toàn bộ thân bài để chọn đoạn quyết định");
+  const text = add(add(article, "label", "Bôi đen đoạn trong thân bài"), "textarea");
+  text.value = item.than_bai;
+  text.readOnly = true;
+  const codePoints = Array.from(item.than_bai);
+  const pick = add(article, "button", "Ghi đoạn đã bôi đen");
+  const clear = add(article, "button", "Bỏ đoạn đã ghi");
+  pick.type = clear.type = "button";
+  const preview = add(card, "blockquote");
+  let span = null;
+  function showSpan(value) {
+    span = value;
+    preview.hidden = !span;
+    preview.textContent = span ? "[" + span.bat_dau + ", " + span.ket_thuc + ") " + span.doan_trich : "";
+  }
+  showSpan(null);
+  pick.addEventListener("click", () => {
+    const start = Array.from(text.value.slice(0, text.selectionStart)).length;
+    const end = Array.from(text.value.slice(0, text.selectionEnd)).length;
+    const quote = text.value.slice(text.selectionStart, text.selectionEnd);
+    if (!quote.trim() || codePoints.slice(start, end).join("") !== quote) {
+      alert("Hãy bôi đen đoạn văn cần ghi trong thân bài.");
+      return;
+    }
+    showSpan({bat_dau: start, ket_thuc: end, doan_trich: quote});
+  });
+  clear.addEventListener("click", () => showSpan(null));
+
+  const relation = choices(card, "Căn cứ trong bài", labels);
+  const relationReason = reason(card, "Lý do về quan hệ");
+  const head = choices(card, "Kiểu của thực thể đầu", types);
+  const tail = choices(card, "Kiểu của thực thể cuối", types);
+  const typeReason = reason(card, "Căn cứ về kiểu của cả hai thực thể");
+
+  return {
+    key: item.ma_phieu,
+    read() {
+      return {
+        ma_phieu: item.ma_phieu, nhan_quan_he: relation.value, ly_do_quan_he: relationReason.value.trim(),
+        kieu_dau: head.value, kieu_cuoi: tail.value, ly_do_kieu: typeReason.value.trim(),
+        trang_thai_kieu: classifyType(item, head.value, tail.value),
+        vi_tri_doan: span ? classifySpan(item, span.bat_dau, span.ket_thuc) :
+          relation.value === "CHUA_DU_CAN_CU" ? "CHUA_CO_DOAN_DU" : null,
+        doan_quyet_dinh: span, body_variant_id: item.body_variant_id, body_sha256: item.body_sha256,
+        ma_ban_luu: item.ma_ban_luu, moc_ban_luu: item.moc_ban_luu
+      };
+    },
+    checkDraft(answer) {
+      if (!answer || typeof answer.ly_do_quan_he !== "string" || typeof answer.ly_do_kieu !== "string" ||
+        ![...Object.keys(labels), ""].includes(answer.nhan_quan_he) ||
+        ![...Object.keys(types), ""].includes(answer.kieu_dau) ||
+        ![...Object.keys(types), ""].includes(answer.kieu_cuoi)) return false;
+      if (answer.doan_quyet_dinh === null) return true;
+      const {bat_dau: start, ket_thuc: end, doan_trich: quote} = answer.doan_quyet_dinh || {};
+      return Number.isInteger(start) && Number.isInteger(end) && start >= 0 && start < end &&
+        end <= codePoints.length && typeof quote === "string" && !!quote.trim() &&
+        codePoints.slice(start, end).join("") === quote;
+    },
+    restore(answer) {
+      relation.value = answer.nhan_quan_he;
+      relationReason.value = answer.ly_do_quan_he;
+      head.value = answer.kieu_dau;
+      tail.value = answer.kieu_cuoi;
+      typeReason.value = answer.ly_do_kieu;
+      showSpan(answer.doan_quyet_dinh);
+    }
+  };
+});
+
+function collect(draft) {
+  return {
+    phien_ban: data.phien_ban, ma_bo_hieu_chuan: data.ma_bo_hieu_chuan,
+    ma_bo_phieu_goc: data.ma_bo_phieu_goc, sha256_huong_dan: data.sha256_huong_dan,
+    trang_thai: draft ? "BAN_NHAP" : "DA_GUI_HIEU_CHUAN",
+    nguoi_phan_xu: get("reviewer").value.trim(),
+    ket_luan_huong_dan: get("verdict").value, ly_do_ket_luan: get("notes").value.trim(),
+    quyet_dinh: cards.map(card => card.read())
+  };
+}
+
+function save(file, name) {
+  const url = URL.createObjectURL(new Blob([JSON.stringify(file, null, 2)], {type: "application/json"}));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = name;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+get("save-draft").addEventListener("click", () => {
+  save(collect(true), "m2_hieu_chuan_v2_ban_nhap.json");
+  get("status").textContent = "Đã tạo tệp bản nháp.";
+});
+
+get("load-draft").addEventListener("change", async event => {
+  const selected = event.target.files[0];
+  if (!selected) return;
+  try {
+    const draft = JSON.parse(await selected.text());
+    if (draft.trang_thai !== "BAN_NHAP" || draft.ma_bo_hieu_chuan !== data.ma_bo_hieu_chuan ||
+      typeof draft.nguoi_phan_xu !== "string" || typeof draft.ly_do_ket_luan !== "string" ||
+      !["", "DONG_Y_TIEU_CHI", "CAN_SUA_TIEU_CHI"].includes(draft.ket_luan_huong_dan) ||
+      !Array.isArray(draft.quyet_dinh) || draft.quyet_dinh.length !== cards.length) throw Error();
+    const answers = new Map(draft.quyet_dinh.map(answer => [answer.ma_phieu, answer]));
+    if (!cards.every(card => card.checkDraft(answers.get(card.key)))) throw Error();
+    cards.forEach(card => card.restore(answers.get(card.key)));
+    get("reviewer").value = draft.nguoi_phan_xu;
+    get("verdict").value = draft.ket_luan_huong_dan;
+    get("notes").value = draft.ly_do_ket_luan;
+    get("status").textContent = "Đã nạp bản nháp.";
+  } catch {
+    get("status").textContent = "Tệp bản nháp không khớp bộ phiếu hoặc có đoạn trích sai vị trí.";
+  }
+  event.target.value = "";
+});
+
+get("form").addEventListener("submit", event => {
+  event.preventDefault();
+  const result = collect(false);
+  const bad = result.quyet_dinh.find(r => !r.nhan_quan_he || !r.ly_do_quan_he || !r.trang_thai_kieu ||
+    !r.ly_do_kieu || Boolean(r.doan_quyet_dinh) === (r.nhan_quan_he === "CHUA_DU_CAN_CU"));
+  if (bad) {
+    get("status").textContent = bad.ma_phieu +
+      " cần đủ hai lý do và lựa chọn. Hãy ghi đoạn quyết định cho nhãn hỗ trợ hoặc không hỗ trợ.";
+    return;
+  }
+  if (!result.nguoi_phan_xu || !result.ket_luan_huong_dan || !result.ly_do_ket_luan) {
+    get("status").textContent = "Cần mã người phân xử, kết luận về hướng dẫn và lý do.";
+    return;
+  }
+  save(result, "m2_hieu_chuan_v2.json");
+  get("status").textContent = "Đã tạo tệp kết quả. Gửi tệp này cho người phụ trách.";
+});
+</script>
+</body>
+</html>

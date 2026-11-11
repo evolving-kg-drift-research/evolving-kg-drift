@@ -1,5 +1,424 @@
 # Tiến độ pipeline
 
+## Lập hồ sơ ánh xạ và rà tên hệ điều hành trước T01 — 2026-11-11
+
+Đã lập tám hồ sơ ánh xạ và rà 302 thân bài lưu trước cutoff. Xác minh
+tên iOS và macOS xuất hiện độc lập. iPadOS còn chờ đoạn dẫn xác lập
+tên dòng. Cả tám ánh xạ vẫn thiếu mốc hiệu lực đủ căn cứ. Xem
+[mục 41 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Duyệt phương án tái lập ánh xạ T01→T02 — 2026-11-11
+
+Đã ghi quyết định duyệt phiên bản 1 để lập và kiểm chứng hồ sơ T01.
+Tên iOS, iPadOS và macOS cần tên độc lập hoặc câu xác lập rõ phiên bản
+thuộc dòng. Tần suất nghiên cứu chính cần mốc hiệu lực ánh xạ có căn
+cứ. Xem [mục 40 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Thử tái lập ánh xạ cho 167 thực thể chung T01→T02 — 2026-11-11
+
+Đã đối chiếu 342 lượt tên. Tính lại mã từ tên trong hồ sơ khớp 167/167.
+Tìm được tên nguyên văn độc lập trước cutoff cho 163/167 thực thể từ
+FactVersion T01 và 164/167 khi tính bản lưu bổ sung. Ba tên hệ điều hành
+còn thiếu căn cứ độc lập. Mốc hiệu lực ánh xạ lịch sử vẫn chờ xác minh.
+Xem [mục 39 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Kiểm tra phương án tái lập ánh xạ cho T01 — 2026-11-11
+
+Đã tái lập đúng 8/8 mã từ tên xuất hiện trong bốn đoạn trước cutoff
+T01. Kiểm tra kho M1 và lịch sử Git cho thấy danh mục ánh xạ rỗng.
+Hiện có 0/8 mã có mốc hiệu lực ánh xạ đã xác minh. Xem
+[mục 38 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Đo độ phủ tần suất bài nguồn cho bộ neo M2 V3.1 — 2026-11-11
+
+Đã lập bảng 6.897 dòng thực thể trên chín chuyển tiếp. Có 8–26 thực
+thể mỗi cặp với bài đã đạt nội dung và mốc quan sát, đang chờ xác minh
+ánh xạ. T01→T02 có 8/167. Cả chín cặp chờ hồ sơ tần suất đủ điều kiện.
+Xem [mục 37 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Chốt biên bản phân xử bộ 24 phiếu V2 — 2026-11-11
+
+Người dùng xác nhận cả 9 mục. Kết quả đã chốt gồm 18 phiếu hỗ trợ
+và 6 phiếu chưa đủ căn cứ. Có 15 phiếu vừa hỗ trợ vừa đúng kiểu.
+Đã lưu xác nhận, biên bản và JSON kết quả. Xem
+[mục 36 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Đề xuất phân xử bốn bất đồng của lượt V2 — 2026-11-11
+
+Đã đọc lại thân bài và đối chiếu V2. Đề xuất chưa đủ căn cứ cho Optimus,
+Fengdeng và Alpha 7 IV–V. Với Android–Linux, đề xuất hỗ trợ quan hệ và
+chưa xác minh kiểu Android. Đã rà thêm năm ca chỉ khác đoạn dẫn. Hồ sơ
+đề xuất chờ người phân xử xác nhận theo
+[dự thảo biên bản](audit/BIEN_BAN_PHAN_XU_M2_V2_20261111.md). Xem
+[mục 35 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Đối chiếu hai lượt chấm độc lập V2 — 2026-11-11
+
+Đã nhận đủ hai tệp và kiểm chứng 24 phiếu mỗi lượt. Nhãn quan hệ
+trùng 21/24, trạng thái kiểu trùng 23/24, nhóm vị trí đoạn dẫn trùng
+19/24. Ba bất đồng về nhãn quan hệ và một bất đồng về kiểu thực thể
+đã được ghi để phân xử. Xem [mục 34 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Bàn giao bộ 24 phiếu chấm độc lập V2 — 2026-11-11
+
+Theo yêu cầu nhận bộ V2, đã tạo hai tệp A và B cho cùng 24 phiếu mới.
+Đã kiểm chứng độ phủ 10 quan hệ, hai nhóm 12 ca, chống trùng với lượt
+cũ và khả năng xuất tệp riêng. Chờ hai người chấm nộp kết quả. Xem
+[mục 33 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Bỏ qua bộ phiếu chấm độc lập theo V2 — 2026-11-11
+
+Người dùng chọn bỏ qua bộ 24 phiếu chấm độc lập theo V2. Kết quả
+thẩm định hiện có được ghi trong biên nhận 10 ca hiệu chuẩn. Xem
+[mục 32 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Dừng rà soát bổ sung sau 10 ca hiệu chuẩn — 2026-11-11
+
+Người dùng chọn bỏ qua lượt rà lại bốn ca vì hồ sơ hiện có đã đủ cho
+mục đích hiệu chuẩn. Biên nhận 10 ca là hồ sơ kết quả. V2.1 được lưu
+dưới dạng bản rà soát. Xem
+[mục 31 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Rà soát hướng dẫn chấm M2 V3.1 V2.1 — 2026-11-11
+
+Đã soạn hướng dẫn cho 10 quan hệ, quy tắc chọn đoạn lặp và hai ví dụ
+giả định cho các nhánh chưa xuất hiện. Đã đối chiếu ba cách diễn giải
+cần chốt với bốn ca có thể bị ảnh hưởng. Bộ phiếu mới đang chờ xác
+nhận các cách diễn giải này. Xem
+[mục 30 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Tiếp nhận kết quả hiệu chuẩn M2 V3.1 — 2026-11-11
+
+Đã nhận đủ 10 quyết định và kiểm chứng truy vết cho 7 đoạn dẫn. Có
+5/10 nhãn quan hệ khác nhãn A/B ban đầu. Người phân xử yêu cầu làm rõ
+hướng dẫn trước khi phát phiếu mới. Ghi riêng các điểm về quan hệ, kiểu
+Product, đoạn lặp và hai nhánh chưa có ca minh họa. Xem
+[mục 29 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Chuẩn bị tiếp nhận kết quả hiệu chuẩn M2 V3.1 — 2026-11-11
+
+Đã triển khai và kiểm thử trình đối chiếu tệp nộp với gói hiệu chuẩn đã
+phát. Khi có tệp, trình kiểm tra sẽ đối chiếu đủ 10 mã phiếu, lý do,
+trạng thái kiểu, bản lưu và vị trí đoạn dẫn. Vẫn chờ tệp thật trước khi
+khóa bộ 24 phiếu mới. Xem
+[mục 28 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Phân tích lượt chấm độc lập theo hướng dẫn V2 — 2026-11-11
+
+Người dùng đã đọc và đồng ý với hướng dẫn. Hồ sơ quyết định theo từng
+ca hiệu chuẩn vẫn chờ nộp. Đã kiểm tra hàng chờ và xác nhận thiết kế
+24 phiếu mới theo hai nhóm nguồn bằng chứng khả thi sau khi loại giao
+với 24 phiếu cũ. Đề xuất lưu kết quả hiệu chuẩn, khóa hướng dẫn và quy
+tắc chọn mẫu trước khi phát hai lượt đọc độc lập. Xem
+[mục 27 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Chuẩn bị hiệu chuẩn hướng dẫn chấm M2 V3.1 — 2026-11-11
+
+Đã đóng gói hướng dẫn v2.0-hiệu-chuẩn và phiếu cho 10 ca đã đối chiếu A/B.
+Kiểm chứng mã băm, nhãn A/B, vị trí của 11 đoạn gốc và 2 đoạn gợi ý.
+Kiểm thử lưu, nạp bản nháp và xuất tệp kết quả. Chờ người phân xử nộp
+10 quyết định và xác nhận hướng dẫn. Xem
+[mục 26 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md#26-chuẩn-bị-hiệu-chuẩn-hướng-dẫn-chấm-m2-v31--2026-11-11).
+
+## Phân tích hiệu chuẩn tiêu chí thẩm định — 2026-11-11
+
+Đề xuất tách căn cứ quan hệ, kiểu thực thể và vị trí đoạn trích. Dùng
+8 ca đồng thuận đã gắn cờ và 2 ca cần tìm lại đoạn để minh họa quy tắc.
+Chờ chốt hướng dẫn trước khi hai người đọc thử trên nhóm phiếu mới.
+Xem [mục 25 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Đối chiếu hai lượt chấm thật A và B — 2026-11-11
+
+Hai tệp hợp lệ và trùng nhãn ở 24/24 phiếu. Có 22 phiếu hỗ trợ, 2
+chưa đủ căn cứ và 0 bất đồng. Đã ghi riêng 8 phiếu đồng thuận cần
+làm rõ kiểu thực thể hoặc căn cứ sự kiện phát hành, cùng hai vị trí
+đoạn trích ứng viên. Chờ chốt tiêu chí trước khi mở rộng. Xem
+[mục 24 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Chuẩn bị bàn giao hai lượt đọc A và B — 2026-11-10
+
+Đã tạo hai tệp HTML gán sẵn lượt A và B cho cùng bộ 24 phiếu. Kiểm thử
+giả lập xác nhận hai tệp xuất đúng mã lượt, mã bộ phiếu và tên tệp JSON.
+Sẵn sàng bàn giao và chờ hai người đọc nộp phiếu. Xem
+[mục 23 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Chấm thử tham khảo 24 phiếu quan hệ M2 V3.1 — 2026-11-10
+
+Đã đọc thử 24 phiếu và lưu riêng nhãn tham khảo do trợ lý AI chấm. Có
+14 hỗ trợ, 4 không hỗ trợ và 6 chưa đủ căn cứ. Đối chiếu 33 vị trí
+câu dẫn với thân bài; hai phiếu có câu liên quan ở đoạn khác. Số nhãn
+khoa học A/B hiện là 0. Xem [mục 22 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Chuẩn bị phiếu thử thẩm định quan hệ M2 V3.1 — 2026-11-10
+
+Đã lập 1.425 phiếu từ các bản lưu có căn cứ thời gian, kiểm lại 1.434 vị trí
+đoạn trích và chọn 24 phiếu thử, 12 phiếu cho mỗi nhóm bản lưu. Đã thử kỹ
+thuật nhập và đối chiếu hai lượt bằng dữ liệu giả lập. Chờ hai phiếu đọc
+độc lập để chốt tiêu chí; hiện có 0 nhãn khoa học. Xem
+[mục 21 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Kiểm tra căn cứ thời gian độc lập theo cutoff M2 V3.1 — 2026-11-10
+
+Đã ghi lựa chọn yêu cầu căn cứ thời gian độc lập. Đối chiếu 578 bản thu
+trực tiếp với HTML và hồ sơ Stage 4.3/4.4. Tìm thêm nguyên văn đoạn trích
+trong bản lưu khác thân bài cho 545 FactVersion. Độ phủ thời gian T10
+tăng từ 986 lên 1.207/1.389 thực thể. Còn thẩm định quan hệ, hiệu lực
+ánh xạ và phần thiếu thời gian trước khi tính tần suất neo. Xem
+[mục 20 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Khôi phục bảng truy vết bài nguồn từ kho M1 gốc — 2026-11-10
+
+Đã xác minh 17 tệp Parquet trùng V3.1, 1.074 HTML và 1.094 bản ghi thu,
+trong đó 516 bản Wayback khớp mốc giữa URL, header và nhật ký. Đã lưu
+1.958 dòng truy vết cho 1.803 FactVersion và tính lại mã băm đoạn trích.
+Cần chuẩn hóa thời điểm quan sát cấp bài và kiểm chứng hiệu lực ánh xạ
+trước khi tính tần suất neo. Xem [mục 19 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Chốt thiết kế và kiểm tra bài nguồn cho bộ neo M2 V3.1 — 2026-11-10
+
+Đã ghi nhận ngưỡng trực giao chuẩn hóa 10⁻⁶ và phân tầng theo bậc cùng số bài
+nguồn phân biệt có bằng chứng đến cutoff nguồn. Kiểm tra gói V3.1 nối được
+994 phiên bản thân bài với 683 khóa bài ứng viên, nhưng chỉ 15/1.803 phiên bản
+dữ kiện khớp hash đoạn trích và thiếu truy vết thời điểm quan sát cấp bài.
+Chưa đủ điều kiện đăng ký bộ neo. Xem [mục 18 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Rà soát trước căn chỉnh M2 V3.1 — 2026-11-10
+
+Đã đối chiếu 30 checkpoint chính, tái lập 9/9 bộ neo lịch sử từ cấu trúc
+Parquet và kiểm kê 81 phép so sánh dự kiến. Dữ liệu đủ cho thiết kế 101 neo
+khớp và 66 neo giữ riêng. Cần hòa giải ngưỡng trực giao giữa đề cương và
+quyết định 28/10, chốt định nghĩa tần suất và đăng ký phép căn chỉnh cho
+checkpoint 85 vòng. Rà soát chỉ dùng cấu trúc và số liệu pilot cũ.
+Xem [mục 17 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Huấn luyện mô hình nền M2 toàn snapshot V3.1 — 2026-11-10
+
+Đã đăng ký cấu hình theo bằng chứng xác thực và huấn luyện TransE-L2
+64 chiều, 85 epoch, trên 10 snapshot với seed 13, 37 và 101. Đã kiểm
+6.638 dòng thời điểm quan sát và 30/30 cặp checkpoint lặp trùng từng byte.
+Loss trung bình giảm từ 0,99811 xuống 0,20296, với 0 mẫu âm bỏ qua.
+Đạt kiểm chứng mô hình nền trong phạm vi phát triển. Căn chỉnh Procrustes
+là công đoạn riêng sau khi chốt đăng ký phép đo. Xem cơ sở chọn, biểu đồ
+và kết quả kiểm chứng ở [mục 16 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Tìm số chiều và số epoch TransE-L2 trên V3.1 — 2026-11-04
+
+Đã chạy 60 lần huấn luyện 32 và 64 chiều, chấm tại epoch 1 và mỗi 5 epoch
+đến 250. Kiểm chứng 3.060 checkpoint và 774.180 dòng thứ hạng. Cấu hình
+cao nhất trong lưới là 64 chiều, 85 epoch, MRR 0,11846. 32 chiều đạt
+cao nhất 0,10040 tại epoch 115. Đề xuất dùng mốc 85 cho backbone sau khi
+đăng ký. Xem [mục 15 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Kiểm tra trước khi chốt backbone toàn snapshot — 2026-11-04
+
+Đã kiểm lại mã băm 5.130 tệp của lượt xác thực và tính lại 26.100 thứ hạng
+từ vector ở T01 và T10 cho seed 13. MRR trung bình vòng 40→50 tăng từ
+0,0880 lên 0,1009. Đã lưu dự thảo dùng TransE-L2 d64 và 50 epoch chung
+cho 30 tổ hợp toàn snapshot V3.1. Chưa đăng ký thực thi hoặc huấn luyện
+backbone. Xem [mục 14 của báo cáo](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Cách 1, lượt xác thực TransE-L2 V3.1 đã huấn luyện và kiểm chứng — 2026-11-04
+
+Đã chạy 10 snapshot × 3 seed × 50 epoch. Kiểm chứng 1.500 checkpoint và
+379.500 dòng thứ hạng xác thực. MRR trung bình đều qua các snapshot tăng
+từ 0,0124 lên 0,1009, so với 0,0878 của đối chứng tần suất. Có 6/10
+snapshot cao hơn đối chứng theo trung bình ba seed. Lượt tạo backbone toàn
+snapshot là công đoạn tiếp theo. Xem số liệu và biểu đồ tiếng Việt tại
+[mục 13 của báo cáo tổng hợp](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Chuẩn bị huấn luyện lại M2 có xác thực — 2026-11-04
+
+Đã kiểm tra khả thi giữ riêng trên cả 10 snapshot V3.1. Quy tắc bao phủ
+từ pilot tạo 20–241 bộ ba xác thực mỗi snapshot và tạo đủ cặp âm thử.
+Đề xuất tách lượt xác thực khỏi lượt huấn luyện toàn snapshot để đo độ
+trôi. Đã ghi các chỉ số cần lưu, kiểm tra độc lập và ước tính khối lượng.
+Chờ chốt vai trò checkpoint và thiết kế. Xem
+[mục 12 của báo cáo tổng hợp](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Chọn V3.1 làm đầu vào M2 và ngừng thực thi V3 — 2026-11-04
+
+Kiểm tra đầu vào chỉ dùng V3.1, khớp 10 snapshot, 9 chuyển tiếp và 37 mã băm.
+So với bản kê V3 cũ, 31/32 tệp khớp và tệp cấu hình downstream có mã băm
+khác. Tám đường chạy V3 đã được chặn, hồ sơ lịch sử được giữ để truy vết.
+Validation T01 V3.1 đã kiểm tra ở chế độ chỉ đọc. Bộ kiểm thử 689 đạt,
+10 bỏ qua. Xem [mục 7 của báo cáo trạng thái](audit/TRANG_THAI_TOAN_DU_AN_20261104.md).
+
+## Kiểm tra trạng thái toàn dự án — 2026-11-04
+
+Đã đối chiếu 4.871 tệp phát hành V3.1, backbone, căn chỉnh, kết quả hỏi đáp
+và các cổng kiểm tra hiện hành. Bàn giao Stage 4.18 đạt trong phạm vi gói.
+Backbone còn nguyên, khả năng tái sử dụng có điều kiện. Bản kê căn chỉnh
+cũ còn nguyên, kiểm tra đầy đủ dừng do khác mã băm giao thức. G1/G2 và
+W7 khoa học chưa đạt điều kiện. Toàn bộ kiểm thử trên Python 3.11.9 có
+688 đạt và 10 bỏ qua. Xem [báo cáo trạng thái](audit/TRANG_THAI_TOAN_DU_AN_20261104.md).
+
+## Dự thảo đăng ký và diễn tập kiểm thử tiến cứu — 2026-11-04
+
+Đã lưu dự thảo gắn với ba checkpoint T01, đối chứng tần suất, lịch và phạm
+vi dự kiến. Diễn tập bằng RSS và vai trò mô phỏng đã kiểm tra lịch, biên
+thời gian, trùng lặp, phiên bản, trần URL và bàn giao theo vai trò. Khớp
+18 mã băm đầu vào và hai tệp đầu ra. Chờ chỉ định người quản lý, kiểm tra
+quyền trên kho thật, điều kiện M1 và đăng ký thiết kế. Xem
+[mục 11 của báo cáo tổng hợp](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Phân tích trước đợt kiểm thử tiến cứu — 2026-11-04
+
+Đối chiếu nguồn theo bằng chứng đại diện V3.1. Cả 121 bộ ba T01 gắn với
+VnExpress. Trong 1.038 bộ ba VnExpress xuất hiện sau T01 chỉ 26 bộ ba đủ
+định danh trong tập huấn luyện. Phân tích cỡ mẫu cho thấy 28 ngày và trần
+200 URL phù hợp làm giới hạn đánh giá khả thi. Hợp đồng M1 vẫn bị chặn
+với 9/17 bảng lệch trường và chưa thấy bản kê W7 chính thức. Xem quyết
+định dự thảo, kịch bản cỡ mẫu và điều kiện triển khai tại
+[mục 10 của báo cáo tổng hợp](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Đề xuất nguồn kiểm thử KGE độc lập — 2026-11-04
+
+Ưu tiên VnExpress Số Hóa qua RSS đã có trong danh mục, với cửa sổ tiến cứu
+dự thảo 28 ngày sau khi đăng ký. Đã so sánh nguồn giữ riêng do bên quản lý
+cung cấp và phương án tiến cứu Tuổi Trẻ. Đã lưu tiêu chí tiếp nhận, giới hạn
+thu, cách giữ riêng và 16 mã băm đầu vào. Trạng thái đề xuất để xem xét.
+Xem [mục 9 của báo cáo tổng hợp](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Rà soát nguồn cục bộ cho kiểm thử KGE độc lập — 2026-11-04
+
+Chưa xác lập được nguồn đủ điều kiện trong các gói đã kiểm kê. Bảng lịch sử
+dữ kiện V3.1 có 1.803 phiên bản nhưng tập bộ ba phân biệt bằng đúng 1.205
+bộ ba của T01–T10. Bảng sự kiện có cùng tập bộ ba. Bốn bảng trong gói kiểm
+tra dữ kiện trùng SHA-256 với V3.1. Đã đối chiếu 36 mã băm đầu vào và một
+tệp kết quả. Điều kiện còn mở là nguồn giữ riêng có bản kê và lịch sử sử
+dụng kiểm chứng được. Xem mục 8 trong
+[báo cáo tổng hợp](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Rà soát tập hồi cứu và bộ truy vấn đã kiểm chứng — 2026-11-04
+
+52 dòng khớp đáp án và bộ lọc theo snapshot. Có 49 khóa kèm snapshot, 42 khóa
+khi bỏ snapshot, 12 dòng trùng khóa huấn luyện và 2 dòng trùng khóa xác thực,
+trong đó một dòng trùng cả hai. Trong 1.084 bộ ba xuất hiện lần đầu sau T01,
+1.058 bộ ba có ít nhất một thực thể ngoài tập huấn luyện. Phạm vi sử dụng là
+đối chứng hồi cứu cho nhóm đủ định danh. Điều kiện kiểm thử độc lập vẫn mở.
+Xem [mục 7 của báo cáo tổng hợp](audit/KGE_EVALUATION_REPORT_20261104.md#7-rà-soát-tập-hồi-cứu-và-bộ-truy-vấn-trước-khi-chuyển-bước).
+
+## Đối chứng KGE hồi cứu đã chấm và kiểm chứng — 2026-11-04
+
+Trên cùng 52 truy vấn của 26 bộ ba, TransE-L2 trung bình ba lần khởi tạo đạt
+MRR 0,0664 và Hits@10 19,23%. Đối chứng tần suất đạt MRR 0,1180 và Hits@10
+44,23%. Hits@1 bằng 0% ở cả hai phương pháp. Đã tính lại 208 dòng thứ hạng
+và 34.600 điểm ứng viên. Phạm vi kết luận là nhóm hồi cứu đủ định danh đã thấy.
+
+Kết quả lưu tại `outputs/kge_retrospective_t01_scoring/20261104_t01_v2/`.
+Xem bảng, biểu đồ và lệnh tái lập trong
+[báo cáo tổng hợp](audit/KGE_EVALUATION_REPORT_20261104.md).
+
+## Thiết kế đối chứng KGE hồi cứu PREPARED / VERIFIED kỹ thuật — 2026-11-04
+
+Gói Dev `outputs/kge_retrospective_t01_candidate/20261104_t01_v2/` chứa
+26 triple, 52 truy vấn, 167 ứng viên T01, bộ lọc theo snapshot và ba checkpoint
+epoch 50. So sánh dự kiến với baseline tần suất từ đúng 101 triple train.
+Khớp phép đọc Parquet độc lập, 61 hash đầu vào và bốn tệp kết quả. Giữ cả hai
+triple có khóa truy vấn trùng validation cũ và ghi cờ để diễn giải.
+
+Gói thiết kế giữ trạng thái `CANDIDATE_NOT_ACTIVE` tại thời điểm lưu.
+Lần chấm riêng sau đó dùng đúng mã băm của gói này.
+
+## Rà soát tập test KGE độc lập EXECUTED/VERIFIED (feasibility) — 2026-11-04
+
+Khớp30 jobs full-backbone với canonical T01–T10 và exact train/validation của
+pilot T01. Toàn bộ1.205 triple phân biệt đã xuất hiện trong huấn luyện backbone.
+Trong1.084 triple xuất hiện lần đầu sau T01,26 đủ ID trong train pilot T01 và
+1.058 có ID ngoài train. Chưa xác lập được tập test độc lập trong gói đã rà soát.
+
+Đếm lại bằng PyArrow và xác nhận74 input/3 artifact hashes. Bước chấm điểm
+đang chờ nguồn test và thiết kế đối chứng D02–D04. Xem
+[báo cáo rà soát](audit/KGE_INDEPENDENT_TEST_FEASIBILITY_20261104.md).
+
+## T01 three-seed quality-validation pilot EXECUTED/VERIFIED (Dev) — 2026-11-03
+
+Chạy đúng candidate đã bind, TransE-L2 d64,101 train/20 validation,50 epochs,
+seeds13/37/101. Mean epoch1→50: train loss1.0034→0.4087, validation loss
+0.9835→0.8680, validation MRR0.0300→0.1229. Hits@1 cuối0% cả3 seeds,
+mean Hits@10=32.5%. Chưa thấy plateau rõ; final MRR khớp pilot d64 trước.
+
+Run `outputs/kge_validation_dev/20261103_t01_three_seed_v1/`. Independent verifier
+đối chiếu150 epochs/6000 ranking rows; post-run kiểm513 artifact/7 input hashes,
+57 candidate inputs/13 artifacts không đổi. Biểu đồ/CSV và summary trong
+`outputs/kge_validation_pilot_report/20261103_t01_three_seed_v1/`.
+
+Split cũ đã dùng validation/model selection, không independent test. Không đổi
+scientific backbone, schema/protocol/source lock hoặc certify gates. Dừng sau
+[Stage Report](audit/KGE_VALIDATION_PILOT_T01_20261103.md), không chạy alignment,
+null, drift hay M4.
+
+## Candidate pilot T01 PREPARED; read-only technical checks VERIFIED — 2026-11-03
+
+Package `outputs/kge_validation_candidate/20261103_t01_v1/`: canonical T01,
+exact prior pilot memberships101/20, d64/lr0.01/margin1/fixed50 epochs và seeds
+13/37/101. Tạo20 fixed negative validation pairs với proposed seed13, pool recipe
+và hashes ghi rõ NOT_SCIENTIFICALLY_REGISTERED; không tạo approval thật.
+
+Canonical counts/hash/cutoff và coverage167 entities/10 relations khớp; independent
+pair replay +57 input/13 artifact hashes PASS,42 protected inputs không đổi.
+CLI check-only exit2 đúng thiết kế, chỉ blockers CANDIDATE_NOT_ACTIVE và
+EXPLICIT_DEV_APPROVAL_MISSING. Model initialization được trap:0 initialized/trained.
+Source không đổi, Ruff PASS; không rerun full tests (baseline688 passed/10 skipped).
+
+Split cũ đã dùng validation/selection nên không là independent test. Dừng ở
+candidate review/preflight, chưa training hoặc scientific certification.
+[Thiết kế cụ thể, evidence và điều kiện chuyển bước](audit/KGE_VALIDATION_CANDIDATE_T01_20261103.md).
+
+## Quality-validation runner/preflight IMPLEMENTED/TESTED — 2026-11-03
+
+Thêm `scripts/run_kge_validation.py`: default check-only không train/ghi run;
+canonical snapshot/manifest/split/negative pool có hash bindings; execution cần
+approved Dev design/approval khớp hash và output mới. Persist3 jobs/input/code
+copies trước train; verify mỗi seed13/37/101 và parent manifest; không auto-advance.
+Tách pure input validator dùng chung với engine, chặn locked paths trước reads.
+
+Full suite **688 passed, 10 skipped**, Python3.11.9; Ruff/diff PASS. Chỉ train
+synthetic Parquet fixtures, chưa real pilot hoặc production certification.
+Chưa tạo active config/approval/pool cho T01. Bước tới: candidate pilot package
+để review rồi check-only; scientific decisions và full-rerun blockers giữ nguyên.
+
+[Contract, CLI, tests và giới hạn](audit/KGE_VALIDATION_RUNNER_20261103.md).
+
+## Rerun recheck — verifier identity/accounting follow-up TESTED — 2026-11-03
+
+Kiểm tra đối kháng trên copied fixtures phát hiện verifier validation còn nhận
+query/mapping hashes sai và unbound epoch logs. Đã thêm7 regression cases rồi sửa
+identity/mandatory artifact bindings, code/checkpoint provenance và sample/loss
+accounting. Full suite **681 passed, 10 skipped**, Python3.11.9; Ruff/diff PASS.
+Không đổi scientific inputs/thresholds, không train dữ liệu thật.
+
+Fresh readiness: sources ready, M2 registration còn12 blockers; M1 schema vẫn9/17
+field mismatches. Existing pilot split101/20 disjoint và khớp T01 data3.1, nhưng
+đã dùng làm validation nên không là independent test. Bước kế tiếp: runner +
+check-only preflight cho quality-validation pilot và CORE contract coverage;
+chưa chạy toàn bộ30 backbones hoặc M4.
+
+[Finding mới, tests và next-step package](audit/RERUN_RECHECK_AND_NEXT_STEP_20261103.md).
+
+## Rerun remediation — engineering batch 1 IMPLEMENTED/TESTED — 2026-11-03
+
+Nhánh `codex/validation-remediation`: chặn legacy global-delete, combined M4
+synthetic-pseudo/auto-advance và hai v2 wrappers trỏ old runs. Strict checkpoint
+hash/dimension checks, canonical coverage splits, independent validation RNG,
+sample/loss diagnostics và Dev per-epoch validation/ranking engine đã có tests.
+Thêm shared manifest/bound-input contract, complete-support helper và verifier
+NumPy độc lập cho saved validation losses/ranks.
+
+Full suite **674 passed, 10 skipped** trên Python3.11.9; Ruff/diff PASS; G1 code
+checks4 passed (không scientific G1). 42 protected input hashes/176 backbone
+artifact hashes không đổi; strict-load60 historical checkpoint files PASS.
+Chỉ fixtures, không train dữ liệu thật, acquisition, DB write hoặc locked-test access.
+
+Source lock/protocol/schema/decision log không đổi. P5 schema/registration, threshold
+conflict, empirical pseudo design, H2 populations, new M4 production runners,
+independent final-test design và P7 CORE scaffold coverage vẫn còn. Không cấp gate
+PASS hoặc gọi old Gaussian pseudo p-values là empirical falsification evidence.
+Các kết quả 28/10 bên dưới được giữ là lịch sử, không tự recertify bằng batch này.
+
+[Files/tests/diff/tiers và blockers](audit/RERUN_REMEDIATION_ENGINEERING_20261103.md).
+Chưa commit/push, chưa production rerun.
+
 ## M4 Evaluation & Statistics (Stage 8 & Stage 9) EXECUTED/VERIFIED - 2026-10-28
 
 Đã hoàn thành Stage 8 (Recurring QA Panel Evaluation) và Stage 9 (Two-Way Fixed Effects Estimation):

@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phiếu thử thẩm định quan hệ M2 V3.1</title>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; background: #f5f7fa; color: #182530; }
+    body { margin: 0; }
+    main { max-width: 52rem; margin: auto; padding: 2rem 1.25rem; }
+    h1 { margin: 0 0 .5rem; font-size: clamp(1.65rem, 5vw, 2.5rem); }
+    h2 { font-size: 1.2rem; }
+    p, li { line-height: 1.55; }
+    .muted { color: #445565; }
+    .card { border: 1px solid #c5d2da; padding: 1.25rem; border-radius: .8rem; background: white; }
+    .controls { display: flex; flex-wrap: wrap; gap: .8rem; margin-block: 1rem; align-items: center; }
+    .context { line-height: 1.65; margin-block: .75rem; }
+    mark { background: #fff1b3; color: #17222d; }
+    input, select, textarea, button { font: inherit; }
+    input, select, textarea { box-sizing: border-box; border: 1px solid #81939f; border-radius: .35rem; padding: .4rem; }
+    textarea { width: 100%; min-height: 5.5rem; }
+    label { display: block; margin-block: .35rem; }
+    button { border: 1px solid #3b6378; border-radius: .35rem; padding: .5rem .7rem; cursor: pointer; background: white; }
+    button:disabled { cursor: default; opacity: .5; }
+    #export { background: #174963; color: white; }
+    a { color: #185b7a; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Phiếu thử thẩm định quan hệ</h1>
+    <p class="muted">M2 V3.1 · Đọc đoạn trích trong ngữ cảnh của bản lưu và ghi lý do cho từng nhãn.</p>
+  </header>
+  <details class="card">
+    <summary>Tiêu chí chọn nhãn</summary>
+    <ul>
+      <li><strong>Hỗ trợ</strong> nếu đoạn trích và ngữ cảnh khẳng định đúng hai thực thể, quan hệ và chiều đã nêu. Quan hệ <code>partners_with</code> là đối xứng theo ontology.</li>
+      <li><strong>Không hỗ trợ</strong> nếu bằng chứng chỉ rõ thực thể hoặc quan hệ khác, ngược chiều với quan hệ có hướng, hoặc phủ định bộ ba.</li>
+      <li><strong>Chưa đủ căn cứ</strong> nếu chỉ có nhắc tên, thông tin còn là giả định hoặc ngữ cảnh chưa đủ để kết luận. Có thể mở bản lưu để kiểm tra phần văn bản xung quanh.</li>
+    </ul>
+    <p>Lý do nên nêu câu hoặc dấu hiệu quyết định. Nếu có nhiều vị trí trích, ghi vị trí làm căn cứ. Mỗi người đọc riêng, rồi tải phiếu JSON để đối chiếu.</p>
+  </details>
+  <div class="controls">
+    <label>Mã người thẩm định <input id="reviewer" autocomplete="off" maxlength="80"></label>
+    <label>Lượt <select id="slot"><option value="">Chọn lượt</option><option>A</option><option>B</option></select></label>
+    <label><input type="checkbox" id="independent"> Tôi tự đọc và ghi nhãn độc lập</label>
+  </div>
+  <article class="card">
+    <div class="controls">
+      <button id="prev" type="button">Phiếu trước</button>
+      <label>Chọn phiếu <select id="question"></select></label>
+      <button id="next" type="button">Phiếu sau</button>
+      <span id="progress" class="muted" aria-live="polite"></span>
+    </div>
+    <h2 id="proposition"></h2>
+    <p id="symmetry" class="muted"></p>
+    <div id="contexts"></div>
+    <p><a id="archive" target="_blank" rel="noopener noreferrer">Mở bản lưu của bài</a></p>
+    <label for="label">Nhãn</label>
+    <select id="label">
+      <option value="">Chọn nhãn</option>
+      <option value="HO_TRO">Hỗ trợ</option>
+      <option value="KHONG_HO_TRO">Không hỗ trợ</option>
+      <option value="CHUA_DU_CAN_CU">Chưa đủ căn cứ</option>
+    </select>
+    <label for="reason">Lý do và căn cứ trong ngữ cảnh</label>
+    <textarea id="reason" maxlength="2500"></textarea>
+  </article>
+  <div class="controls">
+    <button id="export" type="button">Tải phiếu JSON</button>
+    <p id="status" class="muted" aria-live="polite">Tải phiếu trước khi đóng cửa sổ.</p>
+  </div>
+</main>
+<script id="review-data" type="application/json">__REVIEW_DATA__</script>
+<script>
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const data = JSON.parse($("review-data").textContent);
+  const answers = new Map();
+  let current = 0;
+
+  function progress() {
+    const count = [...answers.values()].filter(r => r.nhan && r.ly_do.trim()).length;
+    $("progress").textContent = `Đã điền ${count}/${data.phieu.length}`;
+  }
+
+  function saveAnswer() {
+    const ma_phieu = data.phieu[current].ma_phieu;
+    answers.set(ma_phieu, {ma_phieu, nhan: $("label").value, ly_do: $("reason").value});
+    progress();
+  }
+
+  function show(index) {
+    current = index;
+    const row = data.phieu[index];
+    const answer = answers.get(row.ma_phieu) || {nhan: "", ly_do: ""};
+    $("question").value = String(index);
+    $("proposition").textContent = `${row.ten_dau} → ${row.quan_he} → ${row.ten_cuoi}`;
+    $("symmetry").textContent = data.quan_he_doi_xung.includes(row.quan_he) ? "Quan hệ đối xứng." : "Kiểm tra chiều từ thực thể đầu đến thực thể cuối.";
+    const contexts = row.vi_tri.map((context, n) => {
+      const p = document.createElement("p");
+      const marker = document.createElement("strong");
+      const excerpt = document.createElement("mark");
+      p.className = "context";
+      marker.textContent = `Vị trí ${n + 1}. `;
+      excerpt.textContent = context.doan_trich;
+      p.append(marker, document.createTextNode(context.truoc), excerpt, document.createTextNode(context.sau));
+      return p;
+    });
+    $("contexts").replaceChildren(...contexts);
+    $("archive").href = row.url_ban_luu;
+    $("label").value = answer.nhan;
+    $("reason").value = answer.ly_do;
+    $("prev").disabled = index === 0;
+    $("next").disabled = index === data.phieu.length - 1;
+    progress();
+  }
+
+  for (const [index, row] of data.phieu.entries()) {
+    $("question").add(new Option(`${index + 1} · ${row.ma_phieu}`, String(index)));
+  }
+  $("prev").onclick = () => show(current - 1);
+  $("next").onclick = () => show(current + 1);
+  $("question").onchange = event => show(Number(event.target.value));
+  $("label").onchange = saveAnswer;
+  $("reason").oninput = saveAnswer;
+  $("export").onclick = () => {
+    const reviewer = $("reviewer").value.trim();
+    const slot = $("slot").value;
+    const independent = $("independent").checked;
+    if (!reviewer || !slot || !independent) {
+      $("status").textContent = "Điền mã người thẩm định, chọn lượt và xác nhận đọc độc lập.";
+      return;
+    }
+    const responses = data.phieu.map(row => answers.get(row.ma_phieu));
+    if (responses.some(answer => !answer || !data.nhan.includes(answer.nhan) || !answer.ly_do.trim())) {
+      $("status").textContent = "Hãy điền đủ nhãn và lý do trước khi tải.";
+      return;
+    }
+    const result = {
+      ma_bo_phieu: data.ma_bo_phieu, luot: slot, nguoi_tham_dinh: reviewer,
+      xac_nhan_doc_lap: independent, cau_tra_loi: responses
+    };
+    const url = URL.createObjectURL(new Blob([JSON.stringify(result, null, 2)], {type: "application/json"}));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `m2_tham_dinh_luot_${slot}.json`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 500);
+    $("status").textContent = "Đã tạo tệp phiếu để tải xuống.";
+  };
+  show(0);
+</script>
+</body>
+</html>

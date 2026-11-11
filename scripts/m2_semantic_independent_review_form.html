@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phiếu chấm độc lập V2 · M2 V3.1</title>
+  <style>
+    body { max-width: 64rem; margin: auto; padding: 1.25rem; color: #162a35; background: #f1f5f6;
+      font: 1rem/1.5 system-ui, sans-serif; }
+    h1, h2 { line-height: 1.25; }
+    fieldset { margin: 1.25rem 0; padding: 1rem; border: 1px solid #8ba6b3; background: white; }
+    legend { font-weight: 700; padding: 0 .4rem; }
+    label, details, .row { display: block; margin: .7rem 0; }
+    textarea { display: block; box-sizing: border-box; width: 100%; min-height: 3.6rem; }
+    textarea[readonly] { min-height: 14rem; white-space: pre-wrap; }
+    textarea, input, select, button { font: inherit; }
+    button { margin: .25rem .4rem .25rem 0; padding: .2rem .55rem; }
+    blockquote { white-space: pre-wrap; margin: .5rem 0; padding: .35rem .6rem; border-left: 3px solid #7497a6; }
+    summary { cursor: pointer; font-weight: 600; }
+    #status { min-height: 1.5em; }
+  </style>
+</head>
+<body>
+<h1>Chấm độc lập V2 · M2 V3.1</h1>
+<p id="round"></p>
+<details open>
+  <summary>Hướng dẫn chấm V2</summary>
+  <ol>
+    <li>Đọc đúng hai thực thể, vai trò, chiều quan hệ và sự kiện hoặc trạng thái trong bộ ba. Chọn <strong>Hỗ trợ</strong> nếu bài xác lập mệnh đề. Chọn <strong>Không hỗ trợ</strong> nếu bài có căn cứ bác bỏ. Chọn <strong>Chưa đủ căn cứ</strong> nếu thông tin thiếu, mơ hồ, chỉ nêu quan hệ khác hoặc dự kiến.</li>
+    <li>Với <code>released_by</code>, tìm căn cứ đúng tổ chức đã phát hành, ra mắt hoặc đưa đúng sản phẩm ra cung cấp. Sở hữu, phát triển, nghiên cứu, thử nghiệm, giá hay ra mắt sản phẩm khác tự thân chưa đủ căn cứ.</li>
+    <li>Chọn kiểu của từng thực thể theo cách bài mô tả và ghi lý do. Dùng <strong>Ngoài danh mục kiểu</strong> khi có căn cứ về loại đối tượng ngoài ontology. Dùng <strong>Chưa xác minh</strong> khi thiếu căn cứ để chọn kiểu. Giữ đánh giá về quan hệ ngay cả khi kiểu sai hoặc chưa xác minh.</li>
+    <li>Với nhãn hỗ trợ hoặc không hỗ trợ, chọn đoạn liên tục ngắn nhất đủ căn cứ trong thân bài và bấm <strong>Ghi đoạn đã bôi đen</strong>. Giữ thêm câu nếu cần làm rõ tên hoặc vai trò. Với nhãn chưa đủ căn cứ, ghi điều còn thiếu và để trống đoạn quyết định.</li>
+  </ol>
+</details>
+<p>Chấm trên bản lưu của phiếu và gửi kết quả riêng cho người phụ trách. Bạn có thể tải và nạp lại bản nháp bằng đúng phiếu của lượt mình.</p>
+<form id="form">
+  <label>Mã người chấm <input id="reviewer" required autocomplete="off" maxlength="80"></label>
+  <div id="cases"></div>
+  <label><input type="checkbox" id="independent" required> Tôi đã chấm độc lập và giữ riêng kết quả của lượt này.</label>
+  <button type="button" id="save-draft">Tải bản nháp</button>
+  <label>Nạp bản nháp <input type="file" id="load-draft" accept=".json,application/json"></label>
+  <button type="submit">Tải kết quả chấm</button>
+  <p id="status" role="status" aria-live="polite"></p>
+</form>
+<script id="case-data" type="application/json">__REVIEW_DATA__</script>
+<script>
+"use strict";
+const get = id => document.getElementById(id);
+const data = JSON.parse(get("case-data").textContent);
+get("round").textContent = "Lượt " + data.luot + " · " + data.ca.length + " phiếu";
+const labels = {
+  HO_TRO: "Hỗ trợ", KHONG_HO_TRO: "Không hỗ trợ", CHUA_DU_CAN_CU: "Chưa đủ căn cứ"
+};
+const types = Object.fromEntries(data.kieu_thuc_the.map(kind => [kind, kind]));
+types.NGOAI_ONTOLOGY = "Ngoài danh mục kiểu";
+types.CHUA_XAC_MINH = "Chưa xác minh";
+
+function add(parent, tag, text = "") {
+  const node = document.createElement(tag);
+  node.textContent = text;
+  parent.append(node);
+  return node;
+}
+
+function choices(parent, title, values) {
+  const select = add(add(parent, "label", title + " "), "select");
+  select.required = true;
+  for (const [key, label] of [["", "Chọn"], ...Object.entries(values)]) {
+    add(select, "option", label).value = key;
+  }
+  return select;
+}
+
+function reason(parent, title) {
+  const field = add(add(parent, "label", title), "textarea");
+  field.required = true;
+  return field;
+}
+
+function classifySpan(item, start, end) {
+  if (item.vi_tri.some(v => start >= v.bat_dau && end <= v.ket_thuc)) return "DOAN_GOC";
+  if (item.vi_tri.some(v => start >= v.bat_dau - Array.from(v.truoc).length &&
+    end <= v.ket_thuc + Array.from(v.sau).length)) return "NGU_CANH_LIEN_KE";
+  return "DOAN_KHAC_CUNG_BAN_LUU";
+}
+
+function classifyType(item, head, tail) {
+  if (!head || !tail) return null;
+  const invalid = (value, allowed) => value !== "CHUA_XAC_MINH" && !allowed.includes(value);
+  if (invalid(head, item.kieu_dau_cho_phep) || invalid(tail, item.kieu_cuoi_cho_phep)) return "SAI_KIEU";
+  if ([head, tail].includes("CHUA_XAC_MINH")) return "CHUA_XAC_MINH_KIEU";
+  return "DUNG_KIEU";
+}
+
+const cards = data.ca.map((item, index) => {
+  const card = add(get("cases"), "fieldset");
+  add(card, "legend", (index + 1) + "/" + data.ca.length + " · " + item.ma_phieu);
+  add(card, "h2", item.bo_ba.join(" → "));
+  add(card, "p", "Kiểu đầu cho phép — " + item.kieu_dau_cho_phep.join(", ") +
+    " · Kiểu cuối cho phép — " + item.kieu_cuoi_cho_phep.join(", "));
+  const archive = add(card, "a", "Bản lưu · " + item.moc_ban_luu);
+  archive.href = item.url_ban_luu;
+  archive.target = "_blank";
+  archive.rel = "noopener";
+  const snippets = add(card, "details");
+  snippets.open = true;
+  add(snippets, "summary", "Đoạn gốc và ngữ cảnh");
+  for (const span of item.vi_tri) {
+    add(snippets, "p", "Đoạn gốc [" + span.bat_dau + ", " + span.ket_thuc + ")");
+    const quote = add(snippets, "blockquote", span.truoc);
+    add(quote, "mark", span.doan_trich);
+    quote.append(document.createTextNode(span.sau));
+  }
+  const article = add(card, "details");
+  add(article, "summary", "Mở toàn bộ thân bài để chọn đoạn quyết định");
+  const text = add(add(article, "label", "Bôi đen đoạn trong thân bài"), "textarea");
+  text.value = item.than_bai;
+  text.readOnly = true;
+  const codePoints = Array.from(item.than_bai);
+  const pick = add(article, "button", "Ghi đoạn đã bôi đen");
+  const clear = add(article, "button", "Bỏ đoạn đã ghi");
+  pick.type = clear.type = "button";
+  const preview = add(card, "blockquote");
+  let span = null;
+  function showSpan(value) {
+    span = value;
+    preview.hidden = !span;
+    preview.textContent = span ? "[" + span.bat_dau + ", " + span.ket_thuc + ") " + span.doan_trich : "";
+  }
+  showSpan(null);
+  pick.addEventListener("click", () => {
+    const start = Array.from(text.value.slice(0, text.selectionStart)).length;
+    const end = Array.from(text.value.slice(0, text.selectionEnd)).length;
+    const quote = text.value.slice(text.selectionStart, text.selectionEnd);
+    if (!quote.trim() || codePoints.slice(start, end).join("") !== quote) {
+      alert("Hãy bôi đen đoạn văn cần ghi trong thân bài.");
+      return;
+    }
+    showSpan({bat_dau: start, ket_thuc: end, doan_trich: quote});
+  });
+  clear.addEventListener("click", () => showSpan(null));
+
+  const relation = choices(card, "Căn cứ trong bài", labels);
+  const relationReason = reason(card, "Lý do về quan hệ");
+  const head = choices(card, "Kiểu của thực thể đầu", types);
+  const tail = choices(card, "Kiểu của thực thể cuối", types);
+  const typeReason = reason(card, "Căn cứ về kiểu của cả hai thực thể");
+
+  return {
+    key: item.ma_phieu,
+    read() {
+      return {
+        ma_phieu: item.ma_phieu, nhan_quan_he: relation.value, ly_do_quan_he: relationReason.value.trim(),
+        kieu_dau: head.value, kieu_cuoi: tail.value, ly_do_kieu: typeReason.value.trim(),
+        trang_thai_kieu: classifyType(item, head.value, tail.value),
+        vi_tri_doan: span ? classifySpan(item, span.bat_dau, span.ket_thuc) :
+          relation.value === "CHUA_DU_CAN_CU" ? "CHUA_CO_DOAN_DU" : null,
+        doan_quyet_dinh: span, body_variant_id: item.body_variant_id, body_sha256: item.body_sha256,
+        ma_ban_luu: item.ma_ban_luu, moc_ban_luu: item.moc_ban_luu
+      };
+    },
+    checkDraft(answer) {
+      if (!answer || typeof answer.ly_do_quan_he !== "string" || typeof answer.ly_do_kieu !== "string" ||
+        ![...Object.keys(labels), ""].includes(answer.nhan_quan_he) ||
+        ![...Object.keys(types), ""].includes(answer.kieu_dau) ||
+        ![...Object.keys(types), ""].includes(answer.kieu_cuoi)) return false;
+      if (answer.doan_quyet_dinh === null) return true;
+      const {bat_dau: start, ket_thuc: end, doan_trich: quote} = answer.doan_quyet_dinh || {};
+      return Number.isInteger(start) && Number.isInteger(end) && start >= 0 && start < end &&
+        end <= codePoints.length && typeof quote === "string" && !!quote.trim() &&
+        codePoints.slice(start, end).join("") === quote;
+    },
+    restore(answer) {
+      relation.value = answer.nhan_quan_he;
+      relationReason.value = answer.ly_do_quan_he;
+      head.value = answer.kieu_dau;
+      tail.value = answer.kieu_cuoi;
+      typeReason.value = answer.ly_do_kieu;
+      showSpan(answer.doan_quyet_dinh);
+    }
+  };
+});
+
+function collect(draft) {
+  return {
+    phien_ban: data.phien_ban, ma_bo_phieu: data.ma_bo_phieu, luot: data.luot,
+    sha256_huong_dan: data.sha256_huong_dan, trang_thai: draft ? "BAN_NHAP" : "DA_GUI",
+    nguoi_tham_dinh: get("reviewer").value.trim(), xac_nhan_doc_lap: get("independent").checked,
+    cau_tra_loi: cards.map(card => card.read())
+  };
+}
+
+function save(file, name) {
+  const url = URL.createObjectURL(new Blob([JSON.stringify(file, null, 2)], {type: "application/json"}));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = name;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+const filename = "m2_tham_dinh_v2_luot_" + data.luot;
+get("save-draft").addEventListener("click", () => {
+  save(collect(true), filename + "_ban_nhap.json");
+  get("status").textContent = "Đã tạo tệp bản nháp.";
+});
+
+get("load-draft").addEventListener("change", async event => {
+  const selected = event.target.files[0];
+  if (!selected) return;
+  try {
+    const draft = JSON.parse(await selected.text());
+    if (draft.trang_thai !== "BAN_NHAP" || draft.ma_bo_phieu !== data.ma_bo_phieu || draft.luot !== data.luot ||
+      draft.sha256_huong_dan !== data.sha256_huong_dan || draft.phien_ban !== data.phien_ban ||
+      typeof draft.nguoi_tham_dinh !== "string" || !Array.isArray(draft.cau_tra_loi) ||
+      draft.cau_tra_loi.length !== cards.length) throw Error();
+    const answers = new Map(draft.cau_tra_loi.map(answer => [answer.ma_phieu, answer]));
+    if (!cards.every(card => card.checkDraft(answers.get(card.key)))) throw Error();
+    cards.forEach(card => card.restore(answers.get(card.key)));
+    get("reviewer").value = draft.nguoi_tham_dinh;
+    get("independent").checked = false;
+    get("status").textContent = "Đã nạp bản nháp.";
+  } catch {
+    get("status").textContent = "Tệp bản nháp không khớp bộ phiếu hoặc có đoạn trích sai vị trí.";
+  }
+  event.target.value = "";
+});
+
+get("form").addEventListener("submit", event => {
+  event.preventDefault();
+  const result = collect(false);
+  const bad = result.cau_tra_loi.find(r => !r.nhan_quan_he || !r.ly_do_quan_he || !r.trang_thai_kieu ||
+    !r.ly_do_kieu || Boolean(r.doan_quyet_dinh) === (r.nhan_quan_he === "CHUA_DU_CAN_CU"));
+  if (bad) {
+    get("status").textContent = bad.ma_phieu +
+      " cần đủ hai lý do và lựa chọn. Hãy ghi đoạn quyết định cho nhãn hỗ trợ hoặc không hỗ trợ.";
+    return;
+  }
+  if (!result.nguoi_tham_dinh || !result.xac_nhan_doc_lap) {
+    get("status").textContent = "Cần mã người chấm và xác nhận đã chấm độc lập.";
+    return;
+  }
+  save(result, filename + ".json");
+  get("status").textContent = "Đã tạo tệp kết quả. Gửi tệp này cho người phụ trách.";
+});
+</script>
+</body>
+</html>
