@@ -1,0 +1,57 @@
+# S4-S6 drift measurement on the v3.3 candidate backbone. Values fixed BEFORE any S4-S6 measurement.
+# Disclosure: no drift, null, QA or H1 number had been computed on v3.3 when this file was written. The
+# support minimum (50) and mad_epsilon (1e-4) are the earlier M2 candidate values (configs/m2_external_dev_v1.yaml
+# and PROGRESS 28/10) carried over, not re-derived. The old pilot thresholds were not carried over.
+version: s5_drift_v33_candidate_1
+status: CANDIDATE_FIXED_BEFORE_RUN
+package: data/evolving_kg_downstream_v3_3
+backbone: {trainer: producer_sgd, dimension: 64, learning_rate: 0.01, margin: 2.0, seeds: [13, 37, 101],
+           main_epochs: 400, sensitivity_epochs: [300, 400, 500]}   # decision s3_r1_fixed_training_budget_20261118
+transitions: consecutive snapshots T01->T02 ... T09->T10 (9)
+
+alignment:                         # S4
+  anchors: all persistent entities of the earlier snapshot (snapshots are append-only)
+  method: centred orthogonal Procrustes, cross-fitted
+  cross_fit_folds: 5               # every entity is measured out of sample: fit on 4 folds, evaluate the 5th
+  fold_assignment: within each pre-transition degree bucket sort by sha256("s5-fold|<transition>|<entity>"), fold = rank mod 5
+  degree_buckets: [[0, 2], [3, 5], [6, 1000000]]     # decision s2_bucket_policy_keep_all_buckets_20261118
+  distance: 1 - cosine of fit-centred vectors
+  diagnostics_gate:                # a fold failing any check makes its entities unavailable (reason recorded)
+    max_orthogonality_error: 1.0e-6
+    min_rank_fraction: 0.90        # numerical rank / min(d, n_fit - 1)
+    max_fit_holdout_gap: 0.65      # median held-out distance - median fit distance
+
+same_snapshot_null:               # S5, same-snapshot cross-seed
+  pairs: [[13, 37], [13, 101], [37, 101]]
+  observations_per_entity: 6       # 3 pairs at the earlier snapshot + 3 pairs at the later snapshot (persistent entities)
+  per_entity_reducer: median
+  conditioning: pre-transition degree bucket
+  leave_target_out: true           # the target entity is removed from its own reference
+  support_minimum: 50              # reference entities after leave-target-out
+  sparse_bucket_merge: merge with the adjacent bucket that has more entities, tie -> left, until support is met
+  unavailable_if_still_below_support: true
+
+drift:                             # S6
+  delta_time: median over the 3 seeds of the cross-time distance (same seed at both snapshots)
+  signed_excess: delta_time - median(reference)
+  sed_plus: max(0, signed_excess) / (1.4826 * MAD(reference) + mad_epsilon)
+  mad_epsilon: 1.0e-4
+  detection_call: sed_plus >= 2.0
+
+controls:
+  negative:                        # pseudo drift: zero true drift by construction
+    pseudo_temporal: median of the 3 seed pairs at the earlier snapshot
+    reference: the 3 seed pairs at the later snapshot (independent trainings)
+    expect: share of signed_excess > 0 within [0.40, 0.60] and share of detection_call <= 0.10 (pooled)
+  positive:                        # injected drift with known entities
+    transitions: [[T05, T06], [T09, T10]]
+    injected_fraction: 0.10        # of persistent entities per bucket, order by sha256("s5-inject|<transition>|<entity>")
+    rewire_strengths: [0.5, 1.0]   # share of each injected entity's incident edges whose other endpoint is replaced
+    new_endpoint: entity picked by sha256("s5-rewire|<transition>|<strength>|<triple>") order among entities that avoid duplicates
+    retrain: later snapshot copy, 3 seeds, E=400, same hyper-parameters
+    report: sensitivity (share of injected entities with detection_call) and false-positive rate (non-injected entities not
+            touched by a rewired edge), per bucket and pooled
+    detectable_if: pooled sensitivity at strength 1.0 >= 0.50 and pooled false-positive rate <= 0.10 on both transitions
+    if_not_detectable: H1 is reported as NOT_TESTABLE on this data; the pipeline still runs
+
+sensitivity: repeat S4-S6 for E in {300, 400, 500}; a conclusion is reported only if it holds for all three

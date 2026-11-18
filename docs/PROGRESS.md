@@ -1,5 +1,96 @@
 # Tiến độ pipeline
 
+## Trạng thái hiện hành — baseline môi trường và rà soát — 2026-11-17
+
+Mục này là trạng thái hiện hành; các mục bên dưới giữ nguyên làm lịch sử.
+
+**Môi trường:** `.venv` Python 3.11.9 dựng bằng `uv` từ `requirements.lock.txt`
+(+ `pip install --no-deps -e .`). Ruff toàn repo PASS. Pytest **651 passed,
+1 failed, 10 skipped**; test fail
+`test_m2_measurement_v2.py::test_current_candidate_reports_remaining_registration_without_execution`
+do thiếu `outputs/m2_backbone/20261014T034042Z_65c464ba/` (fail-closed đúng, giữ nguyên).
+`verify_w1 --ci` PASS (chỉ scaffold); `verify_g1 --ci --code-checks` CODE_CONFORMANCE_PASS
+(không phải scientific G1); W7 chưa active.
+
+**Phân loại lại trạng thái (theo AGENTS.md §5.1):**
+- M2 null/drift v2 và M4 (28/10): chỉ **EXECUTED (Dev)**, không VERIFIED — M1 chưa
+  PASS (mục 14/10 bên dưới) và các run dir được dẫn chiếu (`outputs/m2_*_v2/`,
+  `outputs/m4_*/20261028T065503Z_740d4fcc/`) không có trong checkout này.
+- M1 Gate A/G1/G2: **BLOCKED** (không có remediation sau 14/10). M3: chưa triển khai.
+
+**Cập nhật cùng ngày — data v3.1 đã nạp:** ZIP khớp SHA-256; giải nén vào
+`data/evolving_kg_downstream_v3_1/` (4.871/4.871 file khớp release manifest;
+`inspect_package` = `PACKAGE_TECHNICAL_CHECKS_PASS`). W1 strict **PASS**: nguyên
+nhân lệch là `.gitattributes` chuẩn hóa LF; đã thêm `sources/*.md -text` và khôi
+phục byte CRLF từ gói (khớp lock, nội dung không đổi). Outputs cũ không còn — sẽ
+chạy lại theo [kế hoạch](RESEARCH_REEXECUTION_PLAN_20261117.md).
+
+**S1 — snapshot v3.2 CANDIDATE: IMPLEMENTED/TESTED/EXECUTED (Dev), chưa certified — 2026-11-18.**
+Raw HTML (từ `evolving-kg-drift.zip`) đã đưa vào `data/raw/stage_4_4/` (5.168/5.168 blob khớp
+manifest, gitignored). `scripts/build_snapshots_v3_2.py` + `src/temporal/evidence_time.py`
+dựng `data/evolving_kg_downstream_v3_2/` (gitignored; v3.1 không đổi): thời điểm bằng chứng =
+Wayback `archive_datetime` (880 fact) hoặc ngày đăng JSON-LD của nhà xuất bản (871 fact), mỗi
+dòng có basis/confidence/flags; 52 fact (45 event) là tiêu đề tin liên quan của Tuổi Trẻ → quarantine.
+Kết quả: 10 snapshot dài 37–76 ngày (v3.1: 0,01 ngày ở T09–T10), cutoff 2025-04-27 → 2026-08-15,
+1.160 triple ở T10 (v3.1: 1.205), 0/9 ranh giới cắt nhóm timestamp. Kiểm: 13 test mới; kiểm tra
+độc lập `scripts/verify_snapshots_v3_2.py` PASS (thử giả mạo → FAIL đúng); dựng 2 lần cho 14 Parquet
+trùng từng byte. Entity map vẫn `v1_mock` (S2). Chi tiết: [kế hoạch §6](RESEARCH_REEXECUTION_PLAN_20261117.md).
+Q1–Q3 đã duyệt và ghi `decisions/decision_log.jsonl` (2026-11-18).
+
+**S2 — entity map v2 + gói v3.3 CANDIDATE: IMPLEMENTED/TESTED/EXECUTED (Dev), chưa certified — 2026-11-18.**
+`src/kg_pipeline/entity_map_v2.py` (quy tắc thuần theo từng mention, INV-02), `scripts/build_entity_map_v2.py`,
+`scripts/report_graph_sufficiency.py`; `scripts/build_snapshots_v3_2.py` nhận `--entity-map`. Kết quả:
+1.389 → 1.334 entity (22 chặn, 33 gộp); v3.3 có 1.098 triple ở T10. 702 test pass (1 fail cũ), verifier độc lập
+PASS và FAIL đúng khi giả mạo, tái lập từng byte, v3.2 tương thích ngược. **Gate quarantine ≤ 5% FAIL: 7,1%**
+(ngưỡng ứng viên, không đổi). **F11:** bucket bậc ≥ 6 chỉ 3–28 anchor/transition. Mapping `PROPOSED_UNREVIEWED`.
+Chi tiết: [kế hoạch §7](RESEARCH_REEXECUTION_PLAN_20261117.md). Q4–Q6 đã duyệt (decision log).
+
+**S3 — backbone TransE: IMPLEMENTED/TESTED, `search` EXECUTED (Dev), `train` CHƯA CHẠY — 2026-11-18.**
+Đăng ký `configs/s3_backbone_v33.yaml` trước khi chạy; `search` chọn d=64, lr=0,01, margin=2,0 (MRR lọc 0,3495).
+**Quy tắc chọn số epoch không thỏa**: cổng hội tụ do mình đăng ký có hai khiếm khuyết (ngưỡng giảm 75% mâu thuẫn
+margin 2,0; dung sai plateau 0,002 nhỏ hơn nhiễu SGD). Người dùng duyệt A: gate v2 (plateau có xét nhiễu), ghi decision log
+(sửa hậu nghiệm) + điều kiện kích hoạt C. **Gate v2 cũng không đạt** (E=400: 8/9; lr=0,01 hội tụ chậm hơn ngân sách 400 epoch)
+→ T1 kích hoạt. Người dùng duyệt C1–C3; đã **đăng ký trước** rồi chạy: **C1, C2, C3 đều không chọn được** (C3 mini-batch Adam
+còn kém SGD: MRR 0,330 vs 0,3495) → **S3 dừng theo quy tắc dừng, `train` chưa chạy**. Nhiễu giữa seed cao (0,44–0,67) chủ yếu do
+dữ liệu thưa. Người dùng duyệt R1 (ngân sách cố định E=400, độ nhạy E ∈ {300,400,500}).
+
+**R1 train + S4–S6: EXECUTED (Dev), chưa certified — 2026-11-18.** Train PASS 3 cổng ràng buộc (chất lượng 10/10, ổn định, tái lập).
+S4–S6 (đăng ký trước `configs/s5_drift_v33.yaml`): drift **không khác đối chứng âm** (excess>0 0,509 vs 0,518; SED⁺≥2 1,1% vs 1,1%);
+**đối chứng dương không đạt** (độ nhạy 0,10–0,15 ở strength 1,0, cả 3 mức E) → **H1 = NOT_TESTABLE** theo quy tắc đăng ký. Thăm dò: nhóm bậc ≥ 3
+phát hiện được drift bơm (độ nhạy ~0,95, n=21), nhóm bậc < 3 (90%) thì không (0,01–0,04). Chi tiết: [kế hoạch §9](RESEARCH_REEXECUTION_PLAN_20261117.md).
+
+**N1 (H1 trên nhóm bậc ≥ 3): EXECUTED (Dev), chưa certified — 2026-11-18.** Người dùng duyệt N1; đăng ký trước (`configs/n1_h1_deg3_v33.yaml`, decision
+`n1_h1_degree3_stratum_preregistration_20261118`), Codex viết `src/evaluation/n1_panel.py` + test. Đối chứng dương nhóm bậc ≥ 3: độ nhạy 0,81 / 0,99 / 0,99 ở strength 1,0
+(E=300/400/500) nhưng FPR 0,043 / 0,090 / **0,170** → `testable_large` trượt ở E=500. Panel: 590 dòng, 259 query (404 dòng thông tin, 127 query, 7 cụm). β (RR_B ~ median SED⁺) =
++0,025 / −0,242 / −0,329 (p_WCB 0,86 / 0,13 / 0,062), MDE₈₀ 0,36–0,57 → **H1 = NOT_TESTABLE** (không E-robust). Kết luận chính là phương pháp: nhiễu lấn át drift trên KG thưa.
+Chi tiết: [kế hoạch §10](RESEARCH_REEXECUTION_PLAN_20261117.md). 769 test pass (1 fail cũ). Chưa chạy H2/Arm A/OOV/H3a.
+
+**K1 — báo cáo LaTeX viết lại (2026-11-18).** Tóm tắt và chương 4–6 viết lại thành kết luận phương pháp; chương 1–3 sửa các mô tả/số liệu cũ (kể cả lỗi mô tả
+"Adam, 50 epoch"); bảng và hình sinh tự động từ artifact (`scripts/make_report_assets.py`, nguồn ở `generated/SOURCES.txt`). **Kết quả 28/10/2026 đã rút lại**:
+hình cũ ở `figures/superseded_20261028/`, PDF cũ đổi tên `main_SUPERSEDED_20261028.pdf`. **PDF mới chưa biên dịch** (máy không có LaTeX); kiểm tra tĩnh không lỗi.
+Chi tiết: [kế hoạch §11](RESEARCH_REEXECUTION_PLAN_20261117.md).
+Cập nhật cùng ngày: tóm tắt và chương 4–6 viết lại hoàn toàn bằng tiếng Việt dễ hiểu (mỗi bước có khung "Nói đơn giản"), chỉ giữ tên gọi khoa học
+(TransE-L2, SED⁺, MRR, RR, TWFE, Procrustes, MDE₈₀…); nhãn bảng/hình đổi sang tiếng Việt; thêm 2 hình trực quan (`fig_evidence_chain.png`,
+`fig_detect_by_degree.png`) sinh từ kết quả. Chương 1–3 cũng được viết lại bằng tiếng Việt dễ hiểu (Codex viết lại lời văn; đối chiếu độc lập xác nhận 378 vùng công thức, nhãn, tham chiếu,
+trích dẫn, cấu trúc và con số được giữ nguyên); sửa hai giá trị cũ trong chương 2 ($\gamma = 1{,}0 	o 2{,}0$, $B = 999 	o 9999$). PDF vẫn chưa biên dịch.
+
+**Blockers mở:**
+- ~~F1 CRITICAL, F2 HIGH~~ → giải quyết trong **candidate** v3.2; còn thiếu decision/amendment ghi
+  nhận quy tắc basis thời gian (spec §8.4/Stage 4.10 đòi basis + confidence + cờ fallback).
+- **F10 HIGH (mới):** 48 tài liệu Tuổi Trẻ là tiêu đề tin liên quan (khung trang), không có căn cứ
+  thời điểm công khai → quarantine 52 fact/45 event trong v3.2.
+- **F6/F7 HIGH (phân tích lần 2):** embedding run cũ (50 epoch) chưa hội tụ — val MRR
+  0,18 ≈ baseline 0,16; nhiễu giữa seed ≈ 88–94% mốc ngẫu nhiên. Kết quả M2/M4 28/10
+  không dùng làm kết luận.
+- **F4 HIGH:** entity_id = hash chuỗi viết thường; ≥ 31 nhóm alias; "ông" là hub bậc 17.
+- Chi tiết F1–F9 và quyết định D1–D9: xem kế hoạch (bản 2).
+- `scripts/update_entity_names.py` ghi trực tiếp `SET e.name` vào Neo4j không qua
+  Parquet canonical — trái nguyên tắc Parquet-as-truth/INV-05; chưa xử lý.
+
+**Dọn dẹp:** không di chuyển script. Các script `legacy_t01` đang được
+`run_m2_backbone.py`/`run_m2_pilot.py` import và là producer source có hash trong
+audit M2; di chuyển sẽ phá import và chuỗi hash.
+
 ## M4 Evaluation & Statistics (Stage 8 & Stage 9) EXECUTED/VERIFIED - 2026-10-28
 
 Đã hoàn thành Stage 8 (Recurring QA Panel Evaluation) và Stage 9 (Two-Way Fixed Effects Estimation):

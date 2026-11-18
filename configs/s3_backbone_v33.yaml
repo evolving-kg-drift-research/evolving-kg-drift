@@ -1,0 +1,101 @@
+# S3 TransE-L2 backbone on the v3.3 candidate package. Values below are fixed BEFORE any S3 run.
+# Disclosure: ranges for learning rate / epochs were informed by a Dev probe on the v3.1 T10 snapshot
+# (loss and held-out MRR only). No drift, QA, RR or H1 result was used (INV-06).
+version: s3_backbone_v33_candidate_3
+status: CANDIDATE_GATE_AMENDED_POST_HOC_PLUS_CONTINGENCY_C_PREREGISTERED   # decision s3_convergence_gate_amendment_option_a_20261118
+package: data/evolving_kg_downstream_v3_3
+model: TransE
+norm: 2
+seeds: [13, 37, 101]
+negative_sampling: filtered_uniform_head_tail_50_50   # producer TransEModel; Bernoulli not tested
+negative_filter_set: training_triples_only            # held-out triples never act as known positives
+
+validation:
+  folds: 5
+  fold_salt: s3-valfold-v1
+  eligibility: held-out triple keeps both endpoints with train degree >= 1 and its relation present in train
+  metric: filtered_MRR_head_and_tail
+  bias_note: degree-1 entities cannot be held out, so validation covers only entities of degree >= 2
+
+search:
+  dev_snapshots: [T05, T10]
+  seeds: [13, 37]                 # seed 101 is kept out of selection
+  grid:
+    dimension: [32, 64]
+    learning_rate: [0.01, 0.05]
+    margin: [0.5, 1.0, 2.0]
+  eval_epochs: [25, 50, 100, 150, 200, 300, 400]
+  selection_score: mean over dev snapshots of pooled filtered MRR (folds x seeds), at the best eval epoch of each config
+  tie_rule: scores within 0.005 -> smaller dimension, then smaller learning rate, then smaller margin
+
+epochs:
+  convergence_snapshots: [T01, T05, T10]     # full-snapshot runs, seeds 13/37/101, up to 400 epochs
+  rule: smallest eval epoch E such that (a) validation MRR of the selected config at E >= 0.98 x its best MRR and (b) convergence gate v2 passes at E on every convergence snapshot x seed
+  same_E_for_all_snapshots: true
+
+gates:
+  convergence:                    # gate v2 (post-hoc amendment of v1, see decision log); per run, on training loss history
+    method: noise_aware_plateau
+    block: 20
+    z: 2.0
+    max_last_to_first: 0.5        # mean loss of last block <= 0.5 x first-epoch loss
+    finite_embeddings: true
+  convergence_v1_superseded:      # kept for the record: 0/9 runs passed at any epoch (plan section 8)
+    block: 10
+    relative_tolerance: 0.01
+    absolute_tolerance: 0.002
+    min_loss_reduction: 0.75
+  quality:                        # per snapshot
+    folds: 5
+    seed: 13
+    pass_if: lower 95% bootstrap bound of model filtered MRR > MRR of the relation-frequency baseline
+    bootstrap_draws: 2000
+    bootstrap_seed: 20261118
+  stability:                      # cross-seed noise floor, per pre-degree bucket with >= 10 holdout anchors
+    pass_if: median holdout (1 - cosine) after centred orthogonal Procrustes < median of a random-Gaussian reference
+    anchor_split: hash_disjoint_60_40
+    degree_buckets: [[0, 2], [3, 5], [6, 1000000]]
+  determinism:
+    pass_if: retraining one (snapshot, seed) gives the same checkpoint artifact_hash
+
+# ---------------------------------------------------------------------------------------------
+# Contingency C, pre-registered 2026-11-18 BEFORE running any C step
+# (decision s3_contingency_c_preregistration_20261118). Order: C1 -> C2 -> C3 -> STOP.
+# Escalate only when the epoch rule of the current step selects nothing. If a selected config then
+# fails a train-stage gate (T2 quality, T3 stability) S3 STOPS: no automatic escalation.
+# Seen before registering: search MRR per config/epoch for the existing grid, and loss curves of
+# (64, 0.01, 2.0) only. Loss curves and noise floors of every other config were NOT seen.
+contingency_c:
+  tied_set_rule: configs whose best-epoch score >= top - 0.005 (existing tie threshold)
+  c1:
+    name: convergence_within_budget
+    rule: for every tied config apply the existing epoch rule (MRR at E >= 0.98 x own best AND gate v2 on
+          all convergence snapshot x seed runs at E); choose the config with the smallest qualifying E;
+          ties on E -> smaller dimension, then smaller learning rate, then smaller margin
+    report_noise_floor: true      # diagnostic: higher lr may raise the cross-seed noise floor
+    train_convergence_gate: v2_binding
+  c2:
+    name: stability_epoch_rule
+    candidate_epochs: [100, 150, 200, 300, 400]
+    lookahead_epochs: [150, 200, 300, 400, 500]   # next(E); 500 is trained only as a lookahead
+    noise_metric: median over 3 seed pairs and holdout entities of (1 - cosine) after centred orthogonal
+                  Procrustes on fit entities (hash split 60/40, key s3-anchor|snapshot|entity), full-snapshot models
+    rule: for every tied config choose the smallest candidate E with MRR at E >= 0.98 x own best AND, on every
+          convergence snapshot, noise(E) - noise(next(E)) <= 0.01; then smallest E across configs; ties as in C1
+    train_convergence_gate: v2_diagnostic_only    # binding gates become T2, T3, T4
+  c3:
+    name: minibatch_adam
+    model: TransE-L2, entities projected to unit L2 norm after each update, relations unconstrained
+    optimizer: {name: adam, beta1: 0.9, beta2: 0.999, eps: 1.0e-8, batch_size: 128}
+    negatives_per_positive: 1
+    negative_filter_set: training_triples_only
+    grid:
+      dimension: [32, 64]
+      learning_rate: [0.001, 0.005]
+      margin: [1.0, 2.0]
+      negative_sampling: [uniform, bernoulli]
+    search: same dev snapshots, folds, seeds, eval epochs and selection score as the registered search
+    epoch_rule: C2 stability rule (gate v2 reported as diagnostic)
+    implementation: new module src/kge/minibatch.py; src/kge/model.py is not modified
+  stop_rule: if C3 selects nothing, or any selected config fails T2/T3, S3 stops and is reported; any further
+             change needs a new user decision

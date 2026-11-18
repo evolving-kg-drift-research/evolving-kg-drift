@@ -10,3 +10,5 @@
 
 # Review-package approvals bind exact bytes, including line endings.
 docs/audit/m1_acceptance_design_v2/** -text
+# Locked sources (sources.lock.json) are hashed over exact CRLF bytes.
+sources/*.md -text

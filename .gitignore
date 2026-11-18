@@ -56,14 +56,20 @@ htmlcov/
 /data/stage_4_4_runs/
 /data/stage_4_4/
 /data/evolving_kg_downstream_v3_1/
+/data/evolving_kg_downstream_v3_2/
+/data/evolving_kg_downstream_v3_3/
+/data/entity_map_v2/
 /data/m1_audit_and_gates_bundle/
 /data/**/*.parquet
 /data/**/*.jsonl
 /data/**/*.tar
 /data/**/*.zst
 /data/*.zip
+/*.zip
+/*.crdownload
 /data/*.docx
 /data/KG_lan2/
+/data/KG3.1/
 /data/**/*.csv
 
 # Preserved audit backup; keep it on disk without staging it by accident.

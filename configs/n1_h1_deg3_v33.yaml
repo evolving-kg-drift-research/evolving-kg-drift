@@ -1,0 +1,84 @@
+# N1: H1 on the degree>=3 stratum of the v3.3 candidate (S4-S9 restricted). Fixed BEFORE any N1 measurement.
+# Disclosure (seen before registering): S5-S6 population results (drift == negative control; positive control fails pooled,
+# exploratory sensitivity ~0.95 for degree>=3 on 21 injected entities); STRUCTURAL counts only of the stratum:
+# deg>=3 anchors per transition 14/30/40/50/66/81/97/119/129 and 330 (2-hop) + 217 (3-hop) complete-support (query,transition)
+# observations. No N1 drift, RR, H1 coefficient or p-value had been computed. support_minimum 30 (was 50) was chosen AFTER
+# seeing the anchor counts, to keep 7 usable transitions instead of 5.
+version: n1_h1_deg3_v33_candidate_1
+status: CANDIDATE_FIXED_BEFORE_RUN
+package: data/evolving_kg_downstream_v3_3
+backbone:
+  trainer: producer_sgd
+  dimension: 64
+  learning_rate: 0.01
+  margin: 2.0
+  seeds:
+  - 13
+  - 37
+  - 101
+  main_epochs: 400
+  sensitivity_epochs:
+  - 300
+  - 400
+  - 500
+alignment: unchanged from configs/s5_drift_v33.yaml (5-fold cross-fit, same diagnostics gate)
+stratum:
+  name: S3
+  definition: entity with pre-transition degree >= 3 (buckets [3,5] and [6,inf] merged; bucket [0,2] excluded)
+  null_reference: S3 entities of the same transition only (no merging with bucket [0,2]); same 6 same-snapshot observations
+  leave_target_out: true
+  support_minimum: 30
+  usable_transitions: those whose S3 entity count is >= 31 (expected T03->T04 ... T09->T10, 7 transitions)
+  mad_epsilon: 0.0001
+  detection_call: sed_plus >= 2.0
+  detection_threshold: 2.0
+positive_control:
+  transitions: all usable
+  injected_fraction: 0.25
+  injected_minimum: 3
+  injection_order: sha256('n1-inject|<transition>|<entity>')
+  rewire_strengths:
+  - 0.25
+  - 0.5
+  - 1.0
+  retrain: later snapshot copy, 3 seeds, same hyper-parameters, for each E in sensitivity_epochs
+  report: pooled sensitivity and false-positive rate (non-injected, not touched by a rewired edge) per strength and E
+  testable_large: sensitivity at 1.0 >= 0.80 and false-positive rate <= 0.10, at every E
+  testable_moderate: sensitivity at 0.5 >= 0.50 and false-positive rate <= 0.10, at every E
+  detectable_strength: smallest strength with pooled sensitivity >= 0.50 (reported per E)
+queries:
+  hops:
+  - 2
+  - 3
+  hop_note: 1-hop is the trained fact and is excluded from H1
+  candidate_paths: directed paths in the earlier snapshot a, relation sequence kept, no repeated node, no direct edge between head and
+    gold (either direction) at a
+  complete_support: head, every bridge and gold have pre-degree >= 3 at a (S3 entities with available SED+)
+  panel_unit: (query, transition a->b) for every usable transition where the path is eligible at a (paths persist because snapshots
+    are append-only)
+  per_head_cap: 3
+  cap_rule: primary; paths ordered by sha256('n1-cap|<head>|<path>'); cap applied per head and per hop
+  uncapped: secondary
+  question_text: Vietnamese template from src/evaluation/qa_questions.py, bridge not named; 35 sampled for manual review (non-gating)
+outcome:
+  rr_b: reciprocal rank of gold under the model trained at the later snapshot b, score -||h + sum(r) - c||_2, candidates = all entities
+    of b, other true answers of the same (head, relation path) at b filtered out
+  seed_aggregate: median over the 3 seeds
+  arm_a_and_h2: NOT RUN in N1 (frozen arm, Seen-at-T1 and OOV analyses need a separate registration)
+h1:
+  exposure_primary: median over the unique support entities of sed_plus (S3 null) at transition a->b
+  exposure_secondary:
+  - median signed_excess over the support
+  - mean over queries of the maximum sed_plus of the support
+  model_primary: 'RR_B = beta * exposure + query FE + transition FE (no controls: restricted WCB is valid only then)'
+  model_control: same after Frisch-Waugh projection on control = mean log(1 + post-transition degree) of the support (secondary)
+  inference: analytic transition-clustered SE and restricted wild cluster bootstrap-t, Webb 6-point weights, 9999 draws, seed 20261118
+  bootstrap_draws: 9999
+  bootstrap_seed: 20261118
+  informative_observations: observations of queries with >= 2 panel observations
+  mde_80: 2.8 x standard error of beta (ex post, descriptive, never fed back upstream)
+  falsification: replace the exposure by the same aggregator over the negative-control (pseudo drift) sed_plus; expect beta near 0
+  sensitivities: leave-one-transition-out, per hop, uncapped heads, E in {300, 400, 500}
+  e_robustness: a conclusion is reported only if the sign and the class (WCB p < 0.05 or not) agree at all three E
+  testable_if: positive control testable_large holds at every E AND informative observations >= 100 AND clusters >= 5
+  if_not_testable: results are reported as descriptive only, labelled NOT_TESTABLE
