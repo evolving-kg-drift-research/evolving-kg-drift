@@ -2,18 +2,18 @@
 % CHƯƠNG 3: KIẾN TRÚC HỆ THỐNG VÀ QUY CHUẨN THỰC THI
 % ==============================================================================
 
-\chapter{Kiến trúc hệ thống và Quy chuẩn thực thi}
+\chapter{Kiến trúc hệ thống và quy tắc thực hiện}
 \label{chap:system_architecture}
 \label{chap:architecture}
 
-Chương này mô tả chi tiết kiến trúc phần mềm hướng mô-đun 4 phân hệ, luồng pipeline thực thi 9 giai đoạn liên tục từ thu nhận dữ liệu đến ước lượng kinh tế lượng, hệ thống sáu bất biến khoa học bất khả xâm phạm (INV-01 đến INV-06), các cổng kiểm định chất lượng (Stage Gates), và quy trình quản lý thay đổi có kiểm soát thông qua văn bản sửa đổi (Amendment) và sổ nhật ký quyết định (Decision Log).
+Chương này giới thiệu kiến trúc gồm 4 phân hệ và quy trình 9 giai đoạn, từ thu thập dữ liệu đến ước lượng kinh tế lượng. Chương cũng trình bày sáu nguyên tắc không được vi phạm (INV-01 đến INV-06), các cổng kiểm tra chất lượng và cách quản lý thay đổi bằng văn bản sửa đổi cùng nhật ký quyết định.
 
 % ==============================================================================
-\section{Bốn Phân hệ Chuyên trách (M1 -- M4)}
+\section{Bốn phân hệ chuyên trách (M1 -- M4)}
 \label{sec:system_modules}
 
-Hệ thống được thiết kế theo nguyên lý phân rã chức năng rõ ràng, ghép lỏng và giao tiếp qua các hợp đồng dữ liệu bất biến (Apache Parquet) kèm mã băm SHA-256 định danh (Hình~\ref{fig:architecture_pipeline}):
-
+Mỗi phân hệ đảm nhiệm một nhóm công việc riêng và ít phụ thuộc trực tiếp vào các phân hệ khác. Chúng trao đổi qua tệp Parquet bất biến, có quy định rõ về dữ liệu và mã băm SHA-256 để nhận diện (Hình~\ref{fig:architecture_pipeline}):
+Nói đơn giản, hệ thống giống một dây chuyền: mỗi khâu nhận dữ liệu đã được quy định rõ từ khâu trước và giao lại kết quả có thể kiểm tra.
 \begin{figure}[htbp]
 \centering
 \begin{minipage}{0.95\textwidth}
@@ -21,152 +21,153 @@ Hệ thống được thiết kế theo nguyên lý phân rã chức năng rõ r
 \fbox{
     \parbox{0.9\textwidth}{\small
         \vspace{0.1cm}
-        \textbf{\large 1. Phân hệ Dữ liệu \& KG (Module M1 - Data/KG Engine)}
+        \textbf{\large 1. Phân hệ dữ liệu và đồ thị tri thức M1}
         \begin{itemize}\setlength{\itemsep}{1pt}\setlength{\parskip}{0pt}
-            \item Thu thập tin tức công khai không dùng API riêng tư $\to$ Kho lưu trữ bất biến (Append-Only CAS).
-            \item Trích xuất chứng cứ văn bản \& bản ghi \texttt{FactVersion} $\to$ Phân tách 3 trục thời gian.
-            \item Xây dựng 10 Snapshot chuẩn tắc $T_{01} \dots T_{10}$ $\to$ Kiểm định đối chiếu Parquet--Neo4j Parity.
+            \item Thu thập tin công khai không dùng giao diện lập trình riêng tư $\to$ Kho theo mã băm chỉ ghi thêm, không sửa xóa.
+            \item Trích xuất đoạn bằng chứng và bản ghi \texttt{FactVersion} $\to$ Tách 3 trục thời gian.
+            \item Dựng 10 lát cắt thời gian chuẩn $T_{01} \dots T_{10}$ $\to$ Đối chiếu dữ liệu Parquet và Neo4j.
         \end{itemize}
         \vspace{0.05cm}
-        \centering $\boldsymbol{\Downarrow}$ \textit{(Hợp đồng Parquet Canonical + Snapshot Manifest SHA-256)} \\[0.15cm]
-        \textbf{\large 2. Phân hệ Đo lường Trôi dạt (Module M2 - Drift Engine)}
+        \centering $\boldsymbol{\Downarrow}$ \textit{(Dữ liệu Parquet chuẩn + bản kê lát cắt thời gian SHA-256)} \\[0.15cm]
+        \textbf{\large 2. Phân hệ đo độ trôi M2}
         \begin{itemize}\setlength{\itemsep}{1pt}\setlength{\parskip}{0pt}
-            \item Huấn luyện TransE-$L_2$ đa seed có kiểm soát ($S=\{13, 37, 101\}$, $d=64$).
-            \item Căn chỉnh hình học Centered Orthogonal Procrustes SVD trên thực thể neo bền vững.
-            \item Ước lượng phân phối giả định không cùng snapshot (Empirical Null) với Leave-Target-Out (LTO).
-            \item Đo lường trôi dạt thời gian $\delta_{\text{time}}$, Signed Excess $r$, và chuẩn hóa $SED^+$.
+            \item Huấn luyện TransE-$L_2$ có kiểm soát với nhiều hạt giống ngẫu nhiên ($S=\{13, 37, 101\}$, $d=64$).
+            \item Căn chỉnh Procrustes trực giao có dịch tâm, giải bằng SVD, trên các thực thể neo bền vững.
+            \item Ước lượng nhiễu nền trên cùng lát cắt thời gian, loại chính thực thể đang xét khỏi phần tham chiếu.
+            \item Đo độ dịch chuyển theo thời gian $\delta_{\text{time}}$, phần dư có dấu $r$ và chỉ số chuẩn hóa $SED^+$.
         \end{itemize}
         \vspace{0.05cm}
-        \centering $\boldsymbol{\Downarrow}$ \textit{(Hợp đồng Drift Artifacts + Chẩn đoán căn chỉnh Gate G3)} \\[0.15cm]
-        \textbf{\large 3. Phân hệ Hỗ trợ Đường đi \& Kiểm toán (Module M3 - Auditor/Paths)}
+        \centering $\boldsymbol{\Downarrow}$ \textit{(Kết quả đo độ trôi + chẩn đoán căn chỉnh tại cổng kiểm tra G3)} \\[0.15cm]
+        \textbf{\large 3. Phân hệ đường đi và kiểm tra ngữ nghĩa M3}
         \begin{itemize}\setlength{\itemsep}{1pt}\setlength{\parskip}{0pt}
-            \item Khai thác đường đi đơn có chặn độ dài cho Arm C $\to$ Kích hoạt Exact-B Fallback an toàn.
-            \item Kiểm toán ngữ nghĩa biến động tri thức (\texttt{RETAIN}, \texttt{REPLACE}, \texttt{DECAY}).
+            \item Tìm đường đi đơn có giới hạn độ dài cho Arm C (nhánh dùng đường đi) $\to$ Dự phòng bằng đúng kết quả Arm B (nhánh cập nhật mô hình).
+            \item Kiểm tra ý nghĩa của thay đổi tri thức (\texttt{RETAIN}, \texttt{REPLACE}, \texttt{DECAY}).
         \end{itemize}
         \vspace{0.05cm}
-        \centering $\boldsymbol{\Downarrow}$ \textit{(Hợp đồng Bảng câu hỏi QA + Không gian ứng viên)} \\[0.15cm]
-        \textbf{\large 4. Phân hệ Đánh giá \& Kinh tế lượng (Module M4 - Eval/Stats)}
+        \centering $\boldsymbol{\Downarrow}$ \textit{(Bảng theo dõi câu hỏi + tập đáp án ứng viên)} \\[0.15cm]
+        \textbf{\large 4. Phân hệ đánh giá và kinh tế lượng M4}
         \begin{itemize}\setlength{\itemsep}{1pt}\setlength{\parskip}{0pt}
-            \item Đánh giá Hội đồng QA định kỳ (147 câu hỏi $\times$ 9 chuyển đổi = 1.323 quan sát).
-            \item So sánh đối chứng Arm A (Frozen $T_{01}$) vs Arm B (Updated $T_t$) trên Seen-at-T1 và Open-World.
-            \item Ước lượng mô hình Two-Way Fixed Effects (TWFE) $\to$ Wild Cluster Bootstrap (WCB 999 draws).
-            \item Thực thi kiểm định phủ định (Falsification Test) với trôi dạt giả định $D^{\text{pseudo}}$.
+            \item Bảng câu hỏi nhiều chặng 2--3 chặng, đủ hỗ trợ trên nhóm bậc $\geq 3$ (590 dòng câu hỏi $\times$ chuyển tiếp).
+            \item Arm A (nhánh giữ nguyên mô hình) và tập thực thể có tại T1/tập mở ($H_2$): chưa thực hiện lại trong phiên bản này.
+            \item Ước lượng mô hình hiệu ứng cố định hai chiều TWFE $\to$ bootstrap theo cụm (9.999 lần, trọng số Webb).
+            \item Kiểm chứng bằng độ trôi giả $D^{\text{pseudo}}$.
         \end{itemize}
         \vspace{0.1cm}
     }
 }
-\caption{Sơ đồ phân tầng kiến trúc 4 phân hệ và luồng dữ liệu thực nghiệm khép kín.}
+\caption{Kiến trúc 4 phân hệ và luồng dữ liệu của quy trình thực nghiệm.}
 \label{fig:architecture_pipeline}
 \end{minipage}
 \end{figure}
 
-\subsection{Module M1: Kỹ thuật Dữ liệu và Đồ thị Tri thức Thời gian}
-Module M1 chịu trách nhiệm thiết lập nền tảng dữ liệu cho toàn bộ chu trình nghiên cứu. Toàn bộ quá trình thu thập tuân thủ nguyên tắc không sử dụng giao diện lập trình riêng tư (No-API constraint), chỉ khai thác các nguồn tin tức đại chúng thông qua giao thức HTTP công khai, sitemap XML và lưu trữ lịch sử Wayback Machine. M1 phân tách tuyệt đối ba trục thời gian, trích xuất các bản ghi \texttt{FactVersion} theo cơ chế chỉ ghi thêm (append-only), và tổng hợp các snapshot tri thức đóng băng tại 10 mốc thời gian $T_{01}, \dots, T_{10}$. Dữ liệu Parquet canonical được định danh bằng mã băm SHA-256 là chân lý duy nhất (single source of truth); hệ thống cơ sở dữ liệu đồ thị Neo4j chỉ đóng vai trò lớp vật chất hóa phục vụ truy vấn và bắt buộc phải đạt độ khớp chính xác $100\%$ (node/edge set equality).
+\subsection{M1: Dữ liệu và đồ thị tri thức theo thời gian}
+M1 chuẩn bị dữ liệu cho toàn bộ nghiên cứu. Dữ liệu được thu thập từ tin công khai qua HTTP, sơ đồ trang XML và kho lịch sử Wayback, không dùng giao diện lập trình riêng tư. M1 tách rõ ba trục thời gian và trích xuất bản ghi \texttt{FactVersion} theo cách chỉ ghi thêm, không sửa xóa. Từ đó dựng các lát cắt tri thức đã khóa tại 10 mốc $T_{01}, \dots, T_{10}$. Tệp Parquet chuẩn, được nhận diện bằng mã băm SHA-256, là nguồn dữ liệu đúng duy nhất. Neo4j chỉ lưu bản biểu diễn để truy vấn và phải khớp $100\%$ về tập nút lẫn tập cạnh.
 
-\subsection{Module M2: Đo lường và Hiệu chuẩn Trôi dạt Biểu diễn}
-Module M2 thực hiện huấn luyện các mô hình nhúng đồ thị tri thức TransE-$L_2$ trên không gian $\mathbb{R}^{64}$ với 3 hạt ngẫu nhiên cố định ($S = \{13, 37, 101\}$) trên từng snapshot độc lập. M2 triển khai thuật toán căn chỉnh ma trận trực giao Procrustes tịnh tiến trọng tâm (Centered Orthogonal Procrustes SVD) dựa trên tập thực thể neo ổn định (anchor entities). Để bóc tách chuyển dịch biểu diễn thực tế khỏi nhiễu huấn luyện ngẫu nhiên, M2 thiết lập phân phối giả định không (empirical null distribution) từ 6 cặp mô hình cùng snapshot với kỹ thuật loại trừ mục tiêu (Leave-Target-Out -- LTO), từ đó tính toán độ trôi dạt thặng dư đã chuẩn hóa ($SED^+$).
+\subsection{M2: Đo và hiệu chuẩn độ trôi biểu diễn}
+M2 huấn luyện TransE-$L_2$ trong không gian $\mathbb{R}^{64}$ trên từng lát cắt thời gian độc lập, với 3 hạt giống ngẫu nhiên cố định ($S = \{13, 37, 101\}$). M2 căn chỉnh Procrustes trực giao có dịch tâm, giải bằng SVD, trên toàn bộ thực thể bền vững của chuyển tiếp. Việc khớp chéo chia thành 5 phần, để phép căn chỉnh dùng đo mỗi thực thể không sử dụng chính thực thể đó. Để tách độ trôi thật khỏi nhiễu do học lại, M2 ước lượng nhiễu nền từ 6 quan sát trên cùng lát cắt thời gian: 3 cặp hạt giống ngẫu nhiên ở mỗi đầu chuyển tiếp. Phần tham chiếu cũng loại chính thực thể đang xét. Từ đó tính chỉ số độ trôi vượt nhiễu đã chuẩn hóa ($SED^+$).
 
-\subsection{Module M3: Khai thác Đường dẫn Tri thức và Kiểm toán Ngữ nghĩa}
-Module M3 phục vụ nhánh suy diễn Arm C, trích xuất các đường dẫn tri thức đơn giản có chặn độ dài phục vụ suy luận đa bước. Trong trường hợp không tồn tại đường dẫn khả thi trong đồ thị tri thức đóng băng, M3 kích hoạt cơ chế dự phòng tất định (Exact-B fallback) nhằm đảm bảo quy trình kiểm định không bị gián đoạn. Đồng thời, M3 cung cấp cơ chế phân loại trạng thái bằng chứng ngữ nghĩa (\texttt{RETAIN}, \texttt{REPLACE}, \texttt{DECAY}) phục vụ công tác giám sát tiến hóa dữ liệu.
+\subsection{M3: Tìm đường đi tri thức và kiểm tra ngữ nghĩa}
+M3 hỗ trợ Arm C bằng các đường đi đơn có giới hạn độ dài để suy luận nhiều bước. Nếu không có đường đi phù hợp trong đồ thị đã khóa, M3 dùng cơ chế dự phòng trả về đúng kết quả Arm B. Cơ chế này chạy lại cho kết quả giống hệt và giúp việc kiểm định không bị gián đoạn. M3 cũng phân loại trạng thái bằng chứng ngữ nghĩa bằng các nhãn \texttt{RETAIN} (giữ lại), \texttt{REPLACE} (thay thế), \texttt{DECAY} (suy giảm), để theo dõi thay đổi dữ liệu.
 
-\subsection{Module M4: Đánh giá Hội đồng Suy luận và Ước lượng Kinh tế lượng}
-Module M4 đóng vai trò kiểm định giả thuyết khoa học cuối cùng. M4 xây dựng hội đồng câu hỏi QA lặp lại (Recurring QA Panel) gồm 147 câu hỏi bền vững được theo dõi xuyên suốt 9 bước chuyển tiếp tiến hóa. M4 thực thi đánh giá hiệu năng xếp hạng câu trả lời trên hai không gian ứng viên tách biệt: không gian đóng băng tại $T_{01}$ (Seen-at-T1 Universe) và không gian mở rộng tiến hóa (Open-World Universe). Cuối cùng, M4 áp dụng mô hình kinh tế lượng Two-Way Fixed Effects (TWFE) kết hợp suy diễn thống kê bằng phương pháp Wild Cluster Bootstrap (WCB) để kiểm tra các giả thuyết $H_1$, $H_2$ và tiến hành kiểm định phủ định (falsification test) nhằm khẳng định tính chuẩn xác của hiện tượng trôi dạt.
+\subsection{M4: Đánh giá câu hỏi và ước lượng kinh tế lượng}
+M4 thực hiện bước kiểm định giả thuyết khoa học cuối cùng. Trong phiên bản thực hiện lại, M4 xây dựng bảng câu hỏi nhiều chặng (2--3 chặng, ẩn mắt xích, loại cạnh tạo đường tắt, đủ hỗ trợ) trên nhóm thực thể bậc $\geq 3$. Phân hệ đo thứ hạng nghịch đảo của mô hình cập nhật (RR$_B$, xếp hạng có lọc, trung vị qua ba hạt giống ngẫu nhiên). Sau đó, phân hệ ước lượng mô hình hiệu ứng cố định hai chiều TWFE, kết hợp bootstrap theo cụm (trọng số Webb), kèm phép kiểm bằng độ trôi giả và phân tích độ nhạy. Các phân tích Arm A, tập thực thể có tại T1/tập mở và thực thể mới chưa từng gặp (OOV) ($H_2$) chưa được thực hiện lại.
 
 % ==============================================================================
-\section{Luồng Pipeline Nghiên cứu 9 Giai đoạn}
+\section{Quy trình nghiên cứu 9 giai đoạn}
 \label{sec:nine_stage_pipeline}
 
-Chu trình nghiên cứu vận hành theo quy trình khép kín 9 giai đoạn tất định (Deterministic 9-Stage Pipeline) được chuẩn hóa như sau:
+Chu trình nghiên cứu gồm 9 giai đoạn khép kín. Cả 9 giai đoạn đều được quy định rõ để chạy lại cho kết quả giống hệt:
 
 \begin{enumerate}
-    \item \textbf{Giai đoạn 1: Tiếp nhận bằng chứng thời gian và truy vết nguồn gốc (Evidence Ingestion \& Provenance):} Thu thập văn bản thô từ các cơ quan báo chí hợp thức, gắn nhãn định danh SHA-256 cho từng tệp dữ liệu gốc (blob CAS), lưu vết mốc thời gian thu nhận thực tế.
-    \item \textbf{Giai đoạn 2: Lưu trữ FactVersion bất biến chỉ ghi thêm (Append-Only FactStore):} Trích xuất các thực thể và quan hệ cùng đoạn bằng chứng văn bản. Các bản ghi chân lý lịch sử không bao giờ bị chỉnh sửa hoặc ghi đè, mọi cập nhật trạng thái đều tạo ra một phiên bản quan sát mới kèm dấu thời gian $t_{\text{obs}}$.
-    \item \textbf{Giai đoạn 3: Xây dựng Snapshot canonical tất định (Deterministic As-Of Snapshot Construction):} Áp dụng quy tắc lọc thời gian nghiêm ngặt $t_{\text{obs}} \le t_{\text{cutoff}}$ để xây dựng 10 snapshot tri thức độc lập $T_{01} \to T_{10}$. Đối chiếu tính khớp nối hoàn toàn giữa Parquet và Neo4j.
-    \item \textbf{Giai đoạn 4: Huấn luyện khung TransE-$L_2$ có kiểm soát (Backbone Training):} Huấn luyện độc lập 30 mô hình TransE-$L_2$ (10 snapshot $\times$ 3 seed ngẫu nhiên $\{13, 37, 101\}$) với các siêu tham số đóng băng theo giao thức khoa học.
-    \item \textbf{Giai đoạn 5: Căn chỉnh hình học Centered Orthogonal Procrustes SVD (Geometric Alignment):} Xác định tập thực thể neo persistent $A_{\text{persist}} = V_s \cap V_t$, tịnh tiến trọng tâm không gian và giải bài toán Procrustes trực giao thông qua phân tích suy biến SVD để tìm ma trận xoay tối ưu $Q^* \in \mathcal{O}(d)$.
-    \item \textbf{Giai đoạn 6: Ước lượng phân phối giả định không cùng snapshot (Empirical Null Modeling):} Với mỗi chuyển tiếp $T_{t-1} \to T_t$, đo lường khoảng cách dịch chuyển thuần túy do nhiễu huấn luyện trên 6 cặp seed chéo trong cùng snapshot. Áp dụng kỹ thuật Leave-Target-Out (LTO) để loại bỏ hoàn toàn tương quan tự thân khi tính trung vị và độ phân tán tuyệt đối (MAD).
-    \item \textbf{Giai đoạn 7: Lượng hóa độ trôi dạt biểu diễn hiệu chuẩn ($SED^+$ Quantification):} Đo lường dịch chuyển tọa độ qua thời gian $\delta_{\text{time}}$, trừ đi ngưỡng nhiễu cơ bản của phân phối không để thu được thặng dư có dấu (signed excess $r$), và chuẩn hóa thành độ lệch chuẩn thặng dư không âm $SED^+ = \max(0, r / (1.4826 \cdot \text{MAD}))$.
-    \item \textbf{Giai đoạn 8: Đánh giá Hội đồng QA đa bước định kỳ (Recurring QA Panel Evaluation):} Đo lường độ biến thiên thứ hạng tương hỗ (Reciprocal Rank -- RR) của mô hình cập nhật (Arm B) so với mô hình đóng băng (Arm A) trên 147 câu hỏi truy vấn cố định qua 9 bước chuyển đổi thời gian.
-    \item \textbf{Giai đoạn 9: Ước lượng kinh tế lượng Two-Way Fixed Effects và Kiểm định phủ định (Econometric Inference):} Ước lượng hệ số hồi quy bảng hai chiều $\beta_d$, kiểm tra giả thuyết suy giảm năng lực suy luận $H_1$, tính toán $p$-value vững cụm thông qua Wild Cluster Bootstrap (999 phân bổ), và thực thi kiểm định phủ định với nhiễu giả định ($D^{\text{pseudo}}$).
+    \item \textbf{Giai đoạn 1: Thu nhận bằng chứng thời gian và ghi nguồn gốc:} Thu thập văn bản thô từ các cơ quan báo chí hợp thức. Gắn mã băm SHA-256 cho từng tệp gốc để lưu trong kho theo mã băm và ghi lại thời điểm thu nhận thực tế.
+    \item \textbf{Giai đoạn 2: Lưu phiên bản sự thật chỉ ghi thêm, không sửa xóa:} Trích xuất thực thể, quan hệ và đoạn văn bản làm bằng chứng. Không sửa hoặc ghi đè bản ghi lịch sử. Mọi cập nhật đều tạo một phiên bản quan sát mới có dấu thời gian $t_{\text{obs}}$.
+    \item \textbf{Giai đoạn 3: Dựng lát cắt thời gian chuẩn, chạy lại cho kết quả giống hệt:} Lọc theo điều kiện $t_{\text{obs}} \le t_{\text{cutoff}}$ để dựng 10 lát cắt thời gian độc lập $T_{01} \to T_{10}$. Đối chiếu để bảo đảm Parquet và Neo4j khớp hoàn toàn.
+    \item \textbf{Giai đoạn 4: Huấn luyện có kiểm soát mô hình nền TransE-$L_2$:} Huấn luyện độc lập 30 mô hình TransE-$L_2$ (10 lát cắt thời gian $\times$ 3 hạt giống ngẫu nhiên $\{13, 37, 101\}$). Dùng SGD, $d=64$, tốc độ học $0{,}01$, biên $2{,}0$ và ngân sách cố định 400 vòng huấn luyện. Kiểm tra chất lượng bằng MRR có lọc so với mức cơ sở, độ ổn định giữa các hạt giống ngẫu nhiên và khả năng tái lập.
+    \item \textbf{Giai đoạn 5: Căn chỉnh Procrustes trực giao có dịch tâm bằng SVD:} Chọn các thực thể neo bền vững $A_{\text{persist}} = V_s \cap V_t$, tức thực thể có ở cả hai đầu chuyển tiếp. Dịch tâm không gian rồi giải bài toán Procrustes trực giao bằng phân tích giá trị kỳ dị SVD để tìm ma trận xoay tối ưu $Q^* \in \mathcal{O}(d)$.
+    \item \textbf{Giai đoạn 6: Ước lượng nhiễu nền trên cùng lát cắt thời gian:} Với mỗi chuyển tiếp $T_{t-1} \to T_t$, đo khoảng cách chỉ do nhiễu học lại từ 6 quan sát trên cùng lát cắt thời gian (3 cặp hạt giống ngẫu nhiên $\times$ 2 đầu chuyển tiếp). Khi tính trung vị và độ lệch tuyệt đối trung vị MAD, loại chính thực thể đang xét khỏi phần tham chiếu để loại bỏ hoàn toàn sự tự phụ thuộc.
+    \item \textbf{Giai đoạn 7: Định lượng độ trôi đã hiệu chuẩn $SED^+$:} Đo dịch chuyển theo thời gian $\delta_{\text{time}}$, trừ mức nhiễu nền để được phần dư có dấu $r$, rồi chuẩn hóa thành chỉ số vượt nhiễu không âm $SED^+ = \max(0, r / (1.4826 \cdot \text{MAD}))$.
+    \item \textbf{Giai đoạn 8: Đánh giá bảng theo dõi câu hỏi nhiều chặng:} Đo thứ hạng nghịch đảo RR của mô hình cập nhật theo từng chuyển tiếp. Các câu hỏi có 2--3 chặng và đủ hỗ trợ; phiên bản thực hiện lại gồm 590 dòng, 259 câu hỏi.
+    \item \textbf{Giai đoạn 9: Ước lượng hiệu ứng cố định hai chiều và kiểm chứng bằng độ trôi giả:} Ước lượng hệ số hồi quy bảng hai chiều $\beta_d$ để kiểm tra giả thuyết $H_1$ về suy giảm khả năng suy luận. Tính giá trị $p$ có xét phụ thuộc trong cụm bằng bootstrap theo cụm (9.999 lần, trọng số Webb), rồi kiểm chứng bằng độ trôi giả ($D^{\text{pseudo}}$).
 \end{enumerate}
 
 % ==============================================================================
-\section{Sáu Bất biến Khoa học Cốt lõi (INV-01 đến INV-06)}
+\section{Sáu bất biến khoa học cốt lõi (INV-01 đến INV-06)}
 \label{sec:scientific_invariants}
 
-Để đảm bảo tính nghiêm cẩn tuyệt đối của công trình nghiên cứu và ngăn chặn hiện tượng rò rỉ thông tin tương lai, hệ thống thiết lập sáu bất biến khoa học bắt buộc (Hard Scientific Invariants):
+Hệ thống đặt ra sáu bất biến, tức nguyên tắc không được vi phạm, để bảo đảm tính chặt chẽ khoa học và ngăn dùng thông tin từ tương lai:
 
 \begin{table}[htbp]
 \centering
-\caption{Sáu bất biến khoa học cốt lõi chi phối toàn bộ quy trình thực nghiệm.}
+\caption{Sáu bất biến khoa học cốt lõi của quy trình thực nghiệm.}
 \label{tab:invariants}
 \small
 \begin{tabularx}{\textwidth}{@{}llX@{}}
 \toprule
-\textbf{Ký hiệu} & \textbf{Tên bất biến} & \textbf{Đặc tả kỹ thuật và Ý nghĩa khoa học} \\
+\textbf{Ký hiệu} & \textbf{Tên bất biến} & \textbf{Quy định và ý nghĩa} \\
 \midrule
-\textbf{INV-01} & No Future Evidence & Mọi bằng chứng đưa vào snapshot phải thỏa mãn:
+\textbf{INV-01} & Không dùng bằng chứng tương lai & Bằng chứng trong lát cắt thời gian phải thỏa mãn:
 $$t_{\text{evidence\_observed\_at}} \le t_{\text{snapshot\_cutoff}}$$
-Nghiêm cấm tuyệt đối việc sử dụng tin tức, tuyên bố hoặc chỉnh sửa xuất hiện sau mốc đóng băng thời gian. \\
+Không dùng tin, tuyên bố hoặc bản sửa đổi xuất hiện sau mốc chốt. \\
 \addlinespace
-\textbf{INV-02} & No Future Mapping & Mọi quy tắc phân giải thực thể (entity resolution) phải tuân thủ:
+\textbf{INV-02} & Không dùng ánh xạ tương lai & Quy tắc xác định danh tính thực thể phải thỏa mãn:
 $$t_{\text{mapping\_available\_at}} \le t_{\text{snapshot\_cutoff}}$$
-Nghiêm cấm sáp nhập thực thể dựa trên thông tin định danh tương lai. \\
+Không gộp thực thể bằng thông tin danh tính chỉ có trong tương lai. \\
 \addlinespace
-\textbf{INV-03} & Append-Only Provenance & Kho dữ liệu \texttt{FactVersion} và tệp nguồn thô chỉ ghi thêm. Không bao giờ thực hiện thao tác xóa (\texttt{DELETE}), cắt ngắn (\texttt{TRUNCATE}), hoặc ghi đè tại chỗ (\texttt{IN-PLACE UPDATE}). \\
+\textbf{INV-03} & Nguồn gốc chỉ ghi thêm & Kho \texttt{FactVersion} và tệp nguồn thô chỉ ghi thêm, không sửa xóa. Cấm xóa (\texttt{DELETE}), cắt bỏ (\texttt{TRUNCATE}) hoặc ghi đè tại chỗ (\texttt{IN-PLACE UPDATE}). \\
 \addlinespace
-\textbf{INV-04} & Deterministic Rebuild & Tính tất định hoàn toàn của quy trình:
+\textbf{INV-04} & Chạy lại cho kết quả giống hệt & Cùng đầu vào, cấu hình và hạt giống ngẫu nhiên phải cho đầu ra giống hệt:
 \begin{center}\small $\text{Hash}(\text{Inputs}) + \text{Hash}(\text{Configs}) + \text{Seed} \implies \text{Bit-identical Output}$\end{center}
-Đảm bảo khả năng tái lập độc lập $100\%$ với mã băm SHA-256 khớp từng byte. \\
+Phải tái lập độc lập $100\%$, với mã băm SHA-256 khớp từng byte. \\
 \addlinespace
-\textbf{INV-05} & Parquet--Neo4j Parity & Sự bình đẳng tập hợp tuyệt đối giữa bảng Parquet canonical và đồ thị cơ sở dữ liệu Neo4j tại mọi snapshot:
+\textbf{INV-05} & Parquet và Neo4j khớp nhau & Tập nút và tập cạnh của tệp Parquet chuẩn phải bằng đúng các tập tương ứng trong Neo4j ở mọi lát cắt thời gian:
 $$V_{\text{Parquet}} = V_{\text{Neo4j}} \quad \text{và} \quad E_{\text{Parquet}} = E_{\text{Neo4j}}$$ \\
 \addlinespace
-\textbf{INV-06} & Outcome Blindness & Tính mù kết quả xuôi dòng. Các kết quả downstream (độ lớn trôi dạt, điểm QA, hệ số $\beta_d$) không bao giờ được phép tác động ngược lên các quyết định upstream (chọn thực thể neo, ngưỡng phân hoạch degree, mốc snapshot). \\
+\textbf{INV-06} & Không nhìn kết quả để chọn cách làm & Không dùng kết quả phía sau, như độ lớn độ trôi, điểm trả lời câu hỏi hay hệ số $\beta_d$, để đổi quyết định phía trước, như chọn thực thể neo, ngưỡng chia nhóm bậc hay mốc lát cắt thời gian. \\
 \bottomrule
 \end{tabularx}
 \end{table}
-
-\subsection{Phân tách ba trục thời gian độc lập}
-Một đóng góp lý thuyết then chốt của quy trình là sự phân tách mạch lạc ba trục thời gian độc lập, giải quyết dứt điểm các lỗi ngụy tạo thời gian thường gặp trong đồ thị tri thức tiến hóa:
+Các bất đẳng thức về thời gian yêu cầu bằng chứng và ánh xạ phải có sẵn trước hoặc đúng mốc chốt. Các đẳng thức tập hợp yêu cầu hai kho dữ liệu chứa đúng cùng các nút và cạnh.
+\subsection{Phân biệt ba trục thời gian độc lập}
+Một đóng góp lý thuyết quan trọng của quy trình là tách rõ ba trục thời gian. Cách này giải quyết triệt để những lỗi dùng sai thời gian thường gặp khi nghiên cứu đồ thị tri thức tiến hóa:
 \begin{itemize}
-    \item \textbf{Trục thời gian thực tế thế giới (World Validity Axis):} Biểu diễn bằng khoảng $[\tau_{\text{valid\_from}}, \tau_{\text{valid\_to}}]$, phản ánh giai đoạn sự kiện thực sự diễn ra trong thực tế khách quan.
-    \item \textbf{Trục quan sát bằng chứng (Evidence Observation Axis):} Biểu diễn bằng $t_{\text{evidence\_observed\_at}}$, là thời điểm thông tin được cơ quan ngôn luận công bố đại chúng. Đây là trục thời gian chuẩn dùng để cắt snapshot as-of.
-    \item \textbf{Trục tiếp nhận kỹ thuật (Acquisition Axis):} Biểu diễn bằng $t_{\text{retrieved\_at\_real}}$, là thời điểm trình thu thập tải nội dung về hệ thống nghiên cứu.
+    \item \textbf{Thời gian có hiệu lực trong thực tế:} Khoảng $[\tau_{\text{valid\_from}}, \tau_{\text{valid\_to}}]$ cho biết sự kiện thực sự diễn ra trong giai đoạn nào.
+    \item \textbf{Thời gian quan sát bằng chứng:} Mốc $t_{\text{evidence\_observed\_at}}$ cho biết lúc thông tin được cơ quan báo chí công bố. Đây là trục thời gian dùng để dựng lát cắt theo mốc chốt.
+    \item \textbf{Thời gian thu nhận dữ liệu:} Mốc $t_{\text{retrieved\_at\_real}}$ là lúc trình thu thập tải nội dung về hệ thống nghiên cứu.
 \end{itemize}
-
+Nói đơn giản, lát cắt được chốt theo lúc bằng chứng được công bố, không phải lúc sự kiện xảy ra hay lúc máy tải bài về.
 % ==============================================================================
-\section{Hệ thống Cổng Kiểm định Chất lượng (Stage Gates)}
+\section{Các cổng kiểm tra chất lượng}
 \label{sec:stage_gates}
 
-Mỗi giai đoạn chuyển tiếp trong pipeline chỉ được phép kích hoạt khi thỏa mãn điều kiện thông qua (PASS) tại các cổng kiểm định độc lập được mã hóa cứng:
+Mỗi bước tiếp theo trong quy trình chỉ được chạy khi vượt qua các cổng kiểm tra độc lập, với điều kiện đạt đã được quy định sẵn trong mã:
 
 \begin{itemize}
-    \item \textbf{Gate W1 (Source Lock Verification):} Kiểm định tính toàn vẹn của tệp nguồn văn bản có thẩm quyền và kế hoạch nghiên cứu thông qua đối chiếu mã băm khóa nguồn \texttt{sources.lock.json}. Ngăn chặn sai lệch phiên bản tài liệu nền tảng.
-    \item \textbf{Gate G1 / G2 (Temporal Integrity \& Entity Quality Gate):} Kiểm định tự động $100\%$ các bản ghi tri thức trước khi đưa vào snapshot; xác nhận không có bất kỳ bộ ba nào vi phạm giới hạn thời gian $t_{\text{cutoff}}$ và kiểm tra tính nhất quán định danh thực thể.
-    \item \textbf{Gate G3 (Backbone \& Alignment Diagnostics Gate):} Đánh giá chất lượng hình học của phép căn chỉnh Procrustes trên không gian nhúng:
+    \item \textbf{Cổng kiểm tra W1 -- Kiểm tra nguồn đã khóa:} Đối chiếu mã băm trong \texttt{sources.lock.json} để kiểm tra tính toàn vẹn của tài liệu nguồn có thẩm quyền và kế hoạch nghiên cứu. Bước này ngăn dùng sai phiên bản tài liệu nền tảng.
+    \item \textbf{Cổng kiểm tra G1 / G2 -- Thời gian và chất lượng thực thể:} Tự động kiểm tra $100\%$ bản ghi trước khi đưa vào lát cắt thời gian. Không bộ ba nào được vi phạm mốc chốt $t_{\text{cutoff}}$; danh tính thực thể phải nhất quán.
+    \item \textbf{Cổng kiểm tra G3 -- Mô hình nền và phép căn chỉnh:} Đánh giá chất lượng hình học của phép căn chỉnh Procrustes trong không gian vector:
     \begin{align}
         \text{Rank Fraction} &\ge 0.90 \quad (\text{đạt } 1.00 \text{ trên toàn bộ } 81 \text{ cặp so sánh}), \\
         \text{Normalized Orthogonality Error} &\le 1.0 \times 10^{-5} \quad (\text{đạt } 0.00), \\
         \text{Relative Holdout Residual} &\le 1.50 \quad (\text{thực tế } \approx 1.36), \\
         \text{Relative Fit-Holdout Gap} &\le 0.65 \quad (\text{thực tế } \approx 0.53).
     \end{align}
-    \item \textbf{Gate G4 / W7 (QA Panel \& Protocol Freeze Gate):} Khóa toàn diện giao thức thực nghiệm, danh sách câu hỏi QA định kỳ và kích thước mẫu phân tích trước khi chạy suy diễn kinh tế lượng, ngăn chặn hoàn toàn việc can thiệp chọn lọc dữ liệu (p-hacking).
+    Các chỉ số lần lượt kiểm tra tỷ lệ hạng ma trận, sai số trực giao đã chuẩn hóa, sai lệch tương đối trên phần giữ lại để kiểm tra và chênh lệch sai lệch giữa phần khớp với phần giữ lại.
+    \item \textbf{Cổng kiểm tra G4 / W7 -- Bảng câu hỏi và khóa quy trình:} Khóa quy trình thực nghiệm, danh sách câu hỏi theo dõi định kỳ và cỡ mẫu trước khi ước lượng kinh tế lượng, để ngăn hoàn toàn việc chọn lọc dữ liệu nhằm có kết quả mong muốn.
 \end{itemize}
-
+Nói đơn giản, cổng kiểm tra là điểm dừng bắt buộc: chưa đạt điều kiện của bước trước thì chưa chạy bước sau.
 % ==============================================================================
-\section{Quy trình Quản lý Thay đổi có Kiểm soát}
+\section{Quản lý thay đổi có kiểm soát}
 \label{sec:change_management}
 
-Mọi điều chỉnh về cấu hình kỹ thuật hoặc sửa đổi dữ liệu phát sinh trong quá trình vận hành thực nghiệm đều phải tuân thủ quy trình quản trị minh bạch, cấm tuyệt đối việc chỉnh sửa ngầm mã nguồn hoặc làm sai lệch lịch sử nghiên cứu.
+Mọi thay đổi cấu hình kỹ thuật hoặc sửa dữ liệu trong quá trình thực nghiệm đều phải được ghi nhận minh bạch. Không được âm thầm sửa mã nguồn hoặc làm sai lệch lịch sử nghiên cứu.
 
-\subsection{Cơ chế sửa đổi hình thức (Amendment Protocol)}
-Khi phát hiện sai khác vật lý giữa môi trường tính toán (ví dụ: sự khác biệt ký tự kết thúc dòng CRLF trên Windows và LF trên POSIX dẫn đến lệch mã băm SHA-256 của tài liệu kế hoạch nghiên cứu), hệ thống áp dụng cơ chế Amendment chính thức thay vì sửa đổi tùy tiện. Văn bản sửa đổi \texttt{AMEND-2026-001} đã ghi nhận nguyên nhân gốc rễ, đối chiếu mã băm xác thực, lưu trữ kết quả kiểm định cũ và cập nhật khóa nguồn \texttt{sources.lock.json} dưới sự phê chuẩn tường minh của hội đồng kiểm định.
+\subsection{Văn bản sửa đổi chính thức}
+Khi môi trường tính toán làm thay đổi dữ liệu ở mức byte, hệ thống phải lập văn bản sửa đổi chính thức. Ví dụ, ký tự xuống dòng CRLF trên Windows khác LF trên POSIX có thể làm lệch mã băm SHA-256 của tài liệu kế hoạch nghiên cứu. Văn bản \texttt{AMEND-2026-001} đã ghi nguyên nhân gốc, đối chiếu mã băm, giữ lại kết quả kiểm định cũ và cập nhật tệp khóa nguồn \texttt{sources.lock.json} sau khi được hội đồng kiểm định phê chuẩn rõ ràng.
 
-\subsection{Sổ nhật ký quyết định chỉ ghi thêm (Append-Only Decision Log)}
-Toàn bộ các quyết định khoa học mang tính chuyển đổi đều được lưu vết vĩnh viễn trong tệp \texttt{decisions/decision\_log.jsonl}. Mỗi bản ghi quyết định bắt buộc phải ghi rõ định danh (\texttt{decision\_id}), căn cứ lý thuyết (\texttt{basis}), phạm vi ảnh hưởng (\texttt{affected\_stages}), và bằng chứng kiểm tra tính mù kết quả (\texttt{forbidden\_downstream\_evidence\_checked}). Điển hình là các quyết định:
+\subsection{Nhật ký quyết định chỉ ghi thêm, không sửa xóa}
+Các quyết định làm thay đổi nội dung khoa học được lưu vĩnh viễn trong \url{decisions/decision_log.jsonl}. Mỗi bản ghi phải có mã quyết định (\texttt{decision\_id}), căn cứ lý thuyết (\texttt{basis}), phạm vi ảnh hưởng (\texttt{affected\_stages}) và bằng chứng đã kiểm tra việc không nhìn kết quả để chọn cách làm (\texttt{forbidden\_downstream\_evidence\_checked}). Một số quyết định tiêu biểu gồm:
 \begin{itemize}
-    \item \textbf{D-SOURCE (2026-10-28):} Phê chuẩn văn bản \texttt{AMEND-2026-001}, tái lập tính toàn vẹn nguồn cho Giai đoạn M2 và Gate W1.
-    \item \textbf{D-COS (2026-10-28):} Đăng ký hàm mục tiêu khoảng cách Cosine tịnh tiến trọng tâm (Affine Cosine) làm phép đo khoảng cách chuẩn theo đúng định thức toán học của đề cương nghiên cứu.
-    \item \textbf{D-DIAG (2026-10-28):} Khóa dải hoạt động khách quan cho cổng kiểm định Gate G3 dựa trên phân tích thử nghiệm Pilot 81 phép so sánh, đảm bảo tiêu chuẩn hình học không bị điều chỉnh phụ thuộc vào kết quả trôi dạt.
+    \item \textbf{D-SOURCE (2026-10-28):} Phê chuẩn văn bản \texttt{AMEND-2026-001}, khôi phục tính toàn vẹn nguồn cho giai đoạn M2 và cổng kiểm tra W1.
+    \item \textbf{D-COS (2026-10-28):} Đăng ký cô-sin sau biến đổi afin, gồm dịch tâm và biến đổi trực giao, làm phép đo khoảng cách chuẩn theo đúng công thức toán học của đề cương.
+    \item \textbf{D-DIAG (2026-10-28):} Khóa khoảng giá trị chấp nhận của cổng kiểm tra G3 dựa trên thử nghiệm 81 phép so sánh. Nhờ đó, tiêu chuẩn hình học không bị điều chỉnh theo kết quả độ trôi.
 \end{itemize}

@@ -1,103 +1,100 @@
-\chapter{Giới thiệu và Tổng quan nghiên cứu}
+\chapter{Giới thiệu và tổng quan nghiên cứu}
 \label{chap:introduction}
 
-\section{Bối cảnh nghiên cứu: Đồ thị tri thức tiến hóa và mô hình nhúng}
+\section{Bối cảnh: Đồ thị tri thức thay đổi theo thời gian}
 \label{sec:background}
 
-Trong kỷ nguyên bùng nổ thông tin và trí tuệ nhân tạo, Đồ thị tri thức (Knowledge Graph - KG) đã khẳng định vị thế là hạ tầng biểu diễn tri thức cốt lõi cho hàng loạt hệ thống thông minh, từ công cụ tìm kiếm ngữ nghĩa, hệ khuyến nghị cho đến các kiến trúc suy luận đa bước (Multi-Hop Reasoning) và mô hình ngôn ngữ lớn (Retrieval-Augmented Generation - RAG)~\cite{ji2021survey,nickel2016review}. Một đồ thị tri thức chuẩn tắc được mô hình hóa dưới dạng tập hợp các bộ ba quan hệ $\mathcal{G} = \{(h, r, t) \subseteq \mathcal{E} \times \mathcal{R} \times \mathcal{E}\}$, trong đó $\mathcal{E}$ đại diện cho tập thực thể (entities), $\mathcal{R}$ đại diện cho tập quan hệ ngữ nghĩa (relations), biểu thị rằng quan hệ $r$ tồn tại giữa thực thể đầu $h$ (head) và thực thể cuối $t$ (tail).
+Đồ thị tri thức là cách lưu kiến thức bằng các thực thể và quan hệ giữa chúng. Nó làm nền tảng cho công cụ tìm kiếm theo ý nghĩa, hệ gợi ý, hệ suy luận nhiều bước và mô hình ngôn ngữ lớn có bổ sung thông tin truy xuất được~\cite{ji2021survey,nickel2016review}. Đồ thị được viết thành tập các bộ ba (chủ thể, quan hệ, đối tượng) $\mathcal{G} = \{(h, r, t) \subseteq \mathcal{E} \times \mathcal{R} \times \mathcal{E}\}$. Trong đó, $\mathcal{E}$ là tập thực thể, $\mathcal{R}$ là tập quan hệ. Mỗi bộ ba cho biết quan hệ $r$ nối chủ thể $h$ với đối tượng $t$.
 
-Tuy nhiên, trong thực tiễn đời sống xã hội, chính trị, kinh tế và khoa học, tri thức không bao giờ là một thực thể tĩnh tại. Tri thức nhân loại luôn vận động và biến đổi không ngừng theo thời gian: các sự kiện mới liên tục phát sinh, các nhân sự lãnh đạo thay đổi nhiệm kỳ, các quy định pháp luật được ban hành mới, bổ sung hoặc bãi bỏ, và các quan hệ đối ngoại giữa các quốc gia hay tổ chức tài chính tái cấu trúc liên tục~\cite{snodgrass1986temporal,jensen1999bitemporal}. Khái niệm \textbf{Đồ thị tri thức tiến hóa (Evolving Knowledge Graph - EKG)} ra đời nhằm phản ánh bản chất động này, trong đó đồ thị không còn là một snapshot đơn lẻ mà là một chuỗi các trạng thái quan sát theo trục thời gian thực nghiệm:
+Tri thức thay đổi theo thời gian. Sự kiện mới xuất hiện, lãnh đạo đổi nhiệm kỳ, quy định pháp luật được ban hành, bổ sung hoặc bãi bỏ. Quan hệ đối ngoại giữa các quốc gia và cơ cấu của các tổ chức tài chính cũng thay đổi~\cite{snodgrass1986temporal,jensen1999bitemporal}. \textbf{Đồ thị tri thức tiến hóa} mô tả những thay đổi đó bằng một chuỗi lát cắt thời gian, thay vì chỉ một trạng thái:
 \begin{equation}
     \mathcal{G}_1 \subset \mathcal{G}_2 \subset \dots \subset \mathcal{G}_T
 \end{equation}
-hoặc tổng quát hơn là sự biến thiên liên tục bao gồm cả phép bổ sung bộ ba tri thức mới ($\Delta^+$), cập nhật thuộc tính ($\Delta^*$), và thu hồi tri thức lỗi thời ($\Delta^-$).
+Nói đơn giản, công thức trên mô tả trường hợp đồ thị lớn dần khi có thêm tri thức. Trường hợp tổng quát còn gồm bổ sung bộ ba mới ($\Delta^+$), cập nhật thuộc tính ($\Delta^*$) và thu hồi tri thức lỗi thời ($\Delta^-$).
 
-Để thực hiện các tác vụ tính toán phức tạp như dự đoán liên kết (Link Prediction), căn chỉnh thực thể (Entity Alignment) hay trả lời câu hỏi phức tạp (Complex Question Answering), các mô hình Nhúng đồ thị tri thức (Knowledge Graph Embeddings - KGE) đóng vai trò then chốt~\cite{bordes2013translating,sun2019rotate,trouillon2016complex}. Các kiến trúc KGE điển hình như TransE~\cite{bordes2013translating}, RotatE~\cite{sun2019rotate}, hay DistMult chuyển đổi các thực thể rời rạc $e \in \mathcal{E}$ và quan hệ $r \in \mathcal{R}$ thành các vector hoặc ma trận liên tục trong không gian vector đa chiều thấp $\mathbb{R}^d$:
+Để dự đoán liên kết, nhận diện các tên cùng chỉ một thực thể hoặc trả lời câu hỏi phức tạp, hệ thống dùng các mô hình biểu diễn vector (mô hình nhúng)~\cite{bordes2013translating,sun2019rotate,trouillon2016complex}. Các mô hình như TransE~\cite{bordes2013translating}, RotatE~\cite{sun2019rotate} hay DistMult chuyển thực thể $e \in \mathcal{E}$ và quan hệ $r \in \mathcal{R}$ thành vector hoặc ma trận trong không gian có số chiều thấp $\mathbb{R}^d$:
 \begin{equation}
     \mathbf{e} \in \mathbb{R}^d, \quad \mathbf{r} \in \mathbb{R}^d
 \end{equation}
-sao cho các quy luật tô-pô và ngữ nghĩa của đồ thị được bảo toàn dưới một hàm tính điểm khoảng cách hoặc tương đồng hình học cụ thể (ví dụ trong TransE, điều kiện chuyển dịch hình học đòi hỏi $\mathbf{h} + \mathbf{r} \approx \mathbf{t}$).
+Các vector này giữ lại thông tin về liên kết và ý nghĩa của đồ thị thông qua khoảng cách hoặc mức tương đồng. Chẳng hạn, TransE yêu cầu $\mathbf{h} + \mathbf{r} \approx \mathbf{t}$. Nói đơn giản, quan hệ được xem như một mũi tên đưa vị trí của chủ thể đến gần vị trí của đối tượng.
 
-Khi đồ thị tri thức tiến hóa sang trạng thái mới $\mathcal{G}_{t+1}$, phương pháp chuẩn tắc trong kỹ nghệ công nghệ thông tin là tiến hành \textbf{tái huấn luyện định kỳ (Retraining)} mô hình KGE trên dữ liệu mới nhằm cập nhật biểu diễn vector cho các thực thể và mối quan hệ mới xuất hiện. Quá trình tái huấn luyện này là điều kiện tiên quyết để hệ sinh thái ứng dụng downstream (chẳng hạn như hệ thống QA) có thể tiếp cận được tri thức cập nhật nhất.
+Khi đồ thị chuyển sang trạng thái mới $\mathcal{G}_{t+1}$, cách làm thông thường là \textbf{huấn luyện lại định kỳ} trên dữ liệu mới. Việc này cập nhật vector cho các thực thể và quan hệ mới xuất hiện. Đây là bước cần thiết để các ứng dụng phía sau, như hệ trả lời câu hỏi, sử dụng được tri thức mới nhất.
 
-\section{Thách thức cốt lõi: Sự đan xen giữa Trôi dạt thực chất và Nhiễu tái huấn luyện}
+\section{Thách thức: Phân biệt độ trôi thật với nhiễu do học lại}
 \label{sec:core_challenge}
 
-Mặc dù việc tái huấn luyện KGE theo thời gian là một nhu cầu bức thiết, cộng đồng khoa học máy tính đang đối mặt với một vấn đề nền tảng chưa được giải quyết thấu đáo: \textbf{Hiện tượng trôi dạt biểu diễn vector (Representation Drift) và sự đan xen không thể phân tách ngây thơ giữa tín hiệu và nhiễu ngẫu nhiên}~\cite{hamilton2016diachronic,kutuzov2018diachronic}.
+Huấn luyện lại giúp cập nhật tri thức, nhưng cũng làm thay đổi vector. Vấn đề chưa được giải quyết đầy đủ là \textbf{phân biệt độ trôi biểu diễn thật với nhiễu ngẫu nhiên do học lại}~\cite{hamilton2016diachronic,kutuzov2018diachronic}.
 
-Cụ thể, khi một mô hình KGE được huấn luyện lại trên snapshot mới $\mathcal{G}_{t+1}$, không gian vector biểu diễn tại thời điểm $t+1$ (ký hiệu là $\mathbf{E}^{(t+1)}$) sẽ không còn đồng nhất về hệ tọa độ hình học với không gian vector tại thời điểm $t$ (ký hiệu là $\mathbf{E}^{(t)}$). Sự sai khác vị trí vector của một thực thể $e$ giữa hai thời điểm, đo bằng khoảng cách hình học (như khoảng cách Cosine hoặc Euclid), bị chi phối bởi hai thành phần cơ bản:
+Khi mô hình được học lại trên lát cắt thời gian mới $\mathcal{G}_{t+1}$, hệ tọa độ tại thời điểm $t+1$ (ký hiệu $\mathbf{E}^{(t+1)}$) khác hệ tọa độ tại thời điểm $t$ (ký hiệu $\mathbf{E}^{(t)}$). Vì vậy, khoảng cách giữa các vector của thực thể $e$ ở hai thời điểm, dù đo bằng khoảng cách cô-sin hay Euclid, đều chịu ảnh hưởng của hai thành phần:
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.92\textwidth]{figures/fig1_m2_representation_drift_sed_plus.png}
-    \caption{Phân phối độ trôi biểu diễn có hiệu chỉnh nhiễu ($SED^+$) qua 9 bước chuyển đổi thời gian của đồ thị tri thức: (A) Biểu đồ hộp phản ánh độ trôi phân tán quanh 0; (B) Tỷ lệ thực thể có độ trôi vượt ngưỡng nhiễu nền dao động từ $42{,}1\%$ đến $53{,}6\%$.}
-    \label{fig:intro_drift_distribution}
-\end{figure}
 
 \begin{enumerate}
-    \item \textbf{Trôi dạt biểu diễn thực chất (Genuine Representation Drift):} Đây là sự dịch chuyển tọa độ thực tế bắt nguồn từ sự biến đổi tô-pô của đồ thị tri thức. Một thực thể tiếp nhận các cạnh mới, thay đổi vị trí trung tâm trong mạng lưới, hoặc quan hệ ngữ nghĩa của nó với các thực thể xung quanh bị tái cấu trúc. Đây chính là tín hiệu khoa học phản ánh sự tiến hóa của tri thức trong thế giới thực mà hệ thống cần nhận diện và khai thác.
-    \item \textbf{Nhiễu ngẫu nhiên do tái huấn luyện (Retraining Stochastic Noise):} Kể cả khi cấu trúc đồ thị hoàn toàn không thay đổi ($\mathcal{G}_{t+1} \equiv \mathcal{G}_t$), nếu ta huấn luyện lại mô hình KGE bằng một hạt giống ngẫu nhiên (random seed) khác hoặc tráo đổi thứ tự mini-batch ngẫu nhiên, không gian vector nhúng thu được vẫn sẽ dịch chuyển mạnh mẽ. Nguyên nhân cốt lõi là do:
+    \item \textbf{Độ trôi biểu diễn thật:} Vector dịch chuyển vì cấu trúc đồ thị thay đổi. Thực thể có thể nhận thêm cạnh, thay đổi vị trí trung tâm hoặc thay đổi quan hệ với các thực thể xung quanh. Đây là tín hiệu về sự thay đổi tri thức trong thực tế mà hệ thống cần nhận biết và sử dụng.
+    \item \textbf{Nhiễu do học lại:} Ngay cả khi đồ thị không đổi ($\mathcal{G}_{t+1} \equiv \mathcal{G}_t$), vector vẫn có thể dịch chuyển mạnh nếu đổi hạt giống ngẫu nhiên hoặc thứ tự các lô dữ liệu nhỏ. Những nguyên nhân chính gồm:
     \begin{itemize}
-        \item Khởi tạo trọng số ngẫu nhiên ban đầu trong không gian đa chiều $\mathbb{R}^d$.
-        \item Quá trình tối ưu hóa phi lồi (non-convex optimization) bằng Stochastic Gradient Descent (SGD) hoặc Adam hội tụ về các điểm cực tiểu cục bộ (local minima) hoàn toàn khác nhau.
-        \item Tính bất biến quay và phản xạ (Rotational and Reflectional Invariance) của các hàm mất mát trong không gian Euclid (ví dụ: xoay toàn bộ không gian vector bằng một ma trận trực giao bất kỳ không làm thay đổi giá trị khoảng cách Euclid hay thứ hạng dự đoán nội bộ).
+        \item Trọng số ban đầu được chọn ngẫu nhiên trong không gian $\mathbb{R}^d$.
+        \item Bài toán tối ưu không lồi có nhiều điểm cực tiểu cục bộ. SGD hoặc Adam có thể hội tụ về các điểm khác nhau.
+        \item Hàm mất mát không đổi khi xoay hoặc phản xạ không gian Euclid. Chẳng hạn, xoay toàn bộ các vector bằng một ma trận trực giao không làm đổi khoảng cách Euclid hay thứ hạng dự đoán bên trong mô hình.
     \end{itemize}
 \end{enumerate}
 
-\paragraph{Hệ quả nghiêm trọng:}
-Nếu một hệ thống phân tích dữ liệu trực tiếp đo khoảng cách vector thô giữa hai thời điểm $\delta(e) = \|\mathbf{e}^{(t+1)} - \mathbf{e}^{(t)}\|$ mà không thực hiện căn chỉnh không gian và hiệu chỉnh nhiễu ngẫu nhiên, hệ thống sẽ rơi vào tình trạng \textbf{ngộ nhận sai lầm (False Alarm)}: phần lớn độ dịch chuyển đo được thực chất chỉ là nhiễu ngẫu nhiên của bộ tối ưu hóa, chứ không phản ánh bất kỳ sự thay đổi tri thức nào. Điều này dẫn đến các suy luận sai lệch nghiêm trọng về chất lượng mô hình, gây bất ổn định cho hệ thống suy luận đa bước, và khiến các quyết định downstream trở nên không đáng tin cậy.
+\paragraph{Hệ quả:}
+Nếu đo trực tiếp $\delta(e) = \|\mathbf{e}^{(t+1)} - \mathbf{e}^{(t)}\|$ mà chưa căn chỉnh và hiệu chuẩn nhiễu, hệ thống sẽ \textbf{báo động nhầm}. Phần lớn khoảng cách đo được thực chất chỉ đến từ tính ngẫu nhiên của quá trình tối ưu, không phản ánh thay đổi tri thức. Điều này làm sai lệch đánh giá chất lượng mô hình, gây bất ổn cho suy luận nhiều bước và làm giảm độ tin cậy của các quyết định phía sau. Nói đơn giản, phải đưa các điểm về cùng hệ tọa độ và biết mức dao động thông thường trước khi kết luận chúng đã dịch chuyển thật.
 
-\section{Ba câu hỏi nghiên cứu cốt lõi (Research Questions)}
+\section{Ba câu hỏi nghiên cứu}
 \label{sec:research_questions}
 
-Xuất phát từ thách thức thực tiễn và lý thuyết nêu trên, đề tài tập trung giải quyết ba câu hỏi nghiên cứu tường minh (Core Research Questions):
+Từ vấn đề trên, đề tài đặt ra ba câu hỏi:
 
 \begin{quote}
-    \textbf{Câu hỏi nghiên cứu 1 (RQ1 - Tách biệt tín hiệu khỏi nhiễu):} \\
-    \textit{Liệu có thể xây dựng một khung đo lường hình học có khả năng chuẩn hóa và tách biệt một cách nhất quán độ trôi biểu diễn thực chất (Genuine Representation Drift) ra khỏi nhiễu ngẫu nhiên của quá trình tái huấn luyện KGE (Retraining Stochastic Noise) mà không vi phạm tính toàn vẹn thời gian hay không?}
+    \textbf{Câu hỏi nghiên cứu 1 (RQ1 -- Tách tín hiệu khỏi nhiễu):} \\
+    \textit{Có thể xây dựng một cách đo hình học để chuẩn hóa và tách nhất quán độ trôi biểu diễn thật khỏi nhiễu do học lại, đồng thời giữ đúng các nguyên tắc về thời gian hay không?}
 \end{quote}
 
 \begin{quote}
-    \textbf{Câu hỏi nghiên cứu 2 (RQ2 - Tác động thống kê lên suy luận đa bước):} \\
-    \textit{Sau khi đã hiệu chuẩn nhiễu nền và kiểm soát triệt để các biến cố định (Fixed Effects) cùng hiện tượng xáo trộn thực thể ngoài từ điển (OOV churn), độ trôi biểu diễn có mối quan hệ nhân quả hoặc tương quan thống kê có ý nghĩa với độ chính xác của các truy vấn suy luận đa bước (MRR/RR) hay không?}
+    \textbf{Câu hỏi nghiên cứu 2 (RQ2 -- Mối liên hệ với suy luận nhiều bước):} \\
+    \textit{Sau khi hiệu chuẩn nhiễu nền, kiểm soát các hiệu ứng cố định và sự thay đổi của nhóm thực thể mới chưa từng gặp (OOV), độ trôi biểu diễn có quan hệ nhân quả hoặc tương quan thống kê có ý nghĩa với độ chính xác trả lời câu hỏi nhiều bước, đo bằng MRR/RR, hay không?}
 \end{quote}
+Arm A là nhánh đối chiếu giữ nguyên mô hình ban đầu.
 
 \begin{quote}
-    \textbf{Câu hỏi nghiên cứu 3 (RQ3 - Cơ chế nâng cao năng lực của mô hình cập nhật):} \\
-    \textit{Sự vượt trội về mặt hiệu năng của mô hình KGE được tái huấn luyện trong môi trường thế giới mở (Open-World) thực chất bắt nguồn từ việc tinh chỉnh tọa độ biểu diễn vector của các thực thể đã biết, hay chủ yếu xuất phát từ việc mở rộng độ bao phủ thực thể (Entity Coverage Expansion) giúp triệt tiêu hình phạt OOV?}
+    \textbf{Câu hỏi nghiên cứu 3 (RQ3 -- Vì sao mô hình cập nhật tốt hơn):} \\
+    \textit{Trong môi trường có thêm thực thể mới, mô hình học lại tốt hơn vì vector của các thực thể đã biết được điều chỉnh, hay chủ yếu vì mô hình nhận biết được nhiều thực thể hơn và không còn bị phạt do OOV?}
 \end{quote}
+
+\noindent\textit{Ghi chú: RQ3 (Arm A, Seen-at-T1, OOV) không được trả lời trong phiên bản này vì giả thuyết $H_2$ chưa được thực hiện lại sau khi sửa dữ liệu (xem Chương~\ref{chap:conclusion}).}
 
 \section{Mục tiêu và các đóng góp kỳ vọng của đề tài}
 \label{sec:contributions}
 
-Đề tài đặt mục tiêu nghiên cứu và đạt được ba đóng góp khoa học chính (Contributions):
+Đề tài đặt ra ba đóng góp khoa học. Mức độ hoàn thành từng đóng góp được đánh giá ở Chương~\ref{chap:conclusion}:
 
 \begin{enumerate}
-    \item[\textbf{C1.}] \textbf{Khung đo lường hình học hiệu chuẩn nhiễu (Noise-Calibrated Geometric Drift Framework):}
-    Xây dựng thuật toán căn chỉnh không gian tối ưu Centered Orthogonal Procrustes SVD trên tập mỏ neo bền vững (persistent anchors), kết hợp mô hình hóa phân phối giả thuyết không thực nghiệm (Same-Snapshot Empirical Null) thông qua việc huấn luyện mô hình đa seed cố định (13, 37, 101) và kỹ thuật loại trừ mục tiêu Leave-Target-Out (LTO). Đóng góp này mang lại chỉ số $SED^+$ (Standardized Excess Drift), cho phép định lượng chính xác phần trôi dạt vượt trên phương sai nhiễu ngẫu nhiên.
+    \item[\textbf{C1.}] \textbf{Cách đo độ trôi có hiệu chuẩn nhiễu:}
+    Dùng Procrustes trực giao có dịch tâm, giải bằng SVD, để căn chỉnh không gian trên các thực thể neo bền vững. Ước lượng phân phối nhiễu nền bằng cách học lại trên cùng lát cắt thời gian với các hạt giống ngẫu nhiên cố định (13, 37, 101). Khi lập phần tham chiếu, loại chính thực thể đang xét ra ngoài. Từ đó xây dựng chỉ số $SED^+$ để định lượng chính xác phần độ trôi vượt mức biến động của nhiễu ngẫu nhiên.
 
-    \item[\textbf{C2.}] \textbf{Thiết kế thực nghiệm kinh tế lượng bảng lặp lại (Recurring Longitudinal QA Panel):}
-    Thiết lập bộ dữ liệu đánh giá suy luận đa bước gồm 147 câu hỏi phức tạp theo dõi cố định qua 10 snapshot (9 bước chuyển đổi thời gian, tổng cộng 1.323 quan sát). Áp dụng mô hình hồi quy Two-Way Fixed Effects (TWFE) kết hợp suy diễn thống kê bằng Wild Cluster Bootstrap (WCB) với cụm bước chuyển đổi thời gian, nhằm kiểm định giả thuyết $H_1$ về tác động của độ trôi biểu diễn lên chất lượng suy luận mà không bị ảnh hưởng bởi các yếu tố gây nhiễu bất biến theo thời gian hoặc theo câu hỏi.
+    \item[\textbf{C2.}] \textbf{Bảng theo dõi câu hỏi lặp lại theo thời gian:}
+    Xây dựng câu hỏi nhiều chặng (2--3 chặng), ẩn mắt xích trung gian, loại cạnh tạo đường tắt và xếp hạng có lọc. Theo dõi các câu hỏi qua từng chuyển tiếp thời gian. Ước lượng tác động của độ trôi bằng mô hình hiệu ứng cố định hai chiều TWFE và bootstrap theo cụm (trọng số Webb). Đăng ký trước quy tắc xác định khi nào giả thuyết $H_1$ có thể được kiểm định.
 
-    \item[\textbf{C3.}] \textbf{Phân tích phân rã thiên lệch OOV và kiểm định ngụy tạo (Falsification Testing):}
-    Thực hiện kiểm định ngụy tạo thông qua biến trôi dạt giả cùng thời điểm ($D^{pseudo}$), chứng minh phương pháp đo lường không sinh ra hiệu ứng giả mạo dưới tác động của nhiễu tái huấn luyện thuần túy. Đồng thời, giải mã cơ chế tác động thông qua phân tích đối chiếu giữa không gian kín (Seen-at-T1) và không gian mở (Open-World), phân rã định lượng khoảng cách thiên lệch OOV (OOV Churn Penalty Gap).
+    \item[\textbf{C3.}] \textbf{Kiểm tra phép đo có hợp lệ hay không:}
+    Dùng phép thử đối chứng âm bằng độ trôi giả trên cùng lát cắt thời gian và phép thử đối chứng dương bằng cách bơm độ trôi có chủ đích vào thực thể đã biết. Đồng thời kiểm tra độ nhạy khi thay đổi số vòng huấn luyện. Các bước này giúp phân biệt “không có hiệu ứng” với “phép đo không đủ nhạy”.
 \end{enumerate}
 
-\section{Phạm vi nghiên cứu MVR (Minimum Defensible Research)}
+\section{Phạm vi nghiên cứu tối thiểu có thể bảo vệ}
 \label{sec:mvr_scope}
 
-Để đảm bảo tính khả thi, tính chặt chẽ học thuật và khả năng bảo vệ thành công của một công trình nghiên cứu khoa học cấp trường/cấp bộ môn, đề tài tuân thủ nghiêm ngặt nguyên tắc \textbf{Phạm vi nghiên cứu tối thiểu có thể bảo vệ (Minimum Defensible Research - MVR)}:
+Đề tài chọn \textbf{phạm vi nghiên cứu tối thiểu có thể bảo vệ}: đủ khả thi, đủ chặt chẽ và có căn cứ để bảo vệ ở cấp trường/cấp bộ môn. Phạm vi cụ thể gồm:
 
 \begin{itemize}
-    \item \textbf{Mô hình KGE cơ sở:} Sử dụng kiến trúc TransE chuẩn tắc với khoảng cách $L_2$ (TransE-L2) trong không gian $d=64$ chiều, được huấn luyện tối ưu hóa có kiểm soát bằng thuật toán Adam qua 50 epochs, learning rate $0{,}01$, margin $\gamma = 1{,}0$. Đề tài không sáng tạo thêm kiến trúc KGE mới mà tập trung toàn bộ vào độ tin cậy của phép đo lường trôi dạt.
-    \item \textbf{Các hạt giống ngẫu nhiên cố định:} Khóa cứng ba seed tiêu chuẩn đại diện cho tính ngẫu nhiên của quá trình huấn luyện: $\{13, 37, 101\}$. Mọi phép ước lượng nhiễu nền đều được tính toán trên 6 cặp cross-seed có đối chứng tại cùng một snapshot.
-    \item \textbf{Chuỗi 10 Snapshot thời gian:} Chuỗi tiến hóa gồm 10 snapshot $T_{01}, T_{02}, \dots, T_{10}$ trích xuất từ dữ liệu thời gian thực (báo chí chính thống, xác thực chứng cứ không rò rỉ tương lai - No Future Evidence). Quy mô tăng trưởng từ 121 quan hệ (167 thực thể) tại $T_{01}$ lên 1.205 quan hệ (1.389 thực thể) tại $T_{10}$.
-    \item \textbf{Các bất biến khoa học cốt lõi (Hard Scientific Invariants):}
+    \item \textbf{Mô hình biểu diễn vector cơ sở:} Dùng TransE với khoảng cách $L_2$ (TransE-L2), $d=64$. Huấn luyện bằng SGD theo từng bộ ba, lấy mẫu âm có lọc, tốc độ học $0{,}01$ và biên $\gamma = 2{,}0$. Vector thực thể được chuẩn hóa về độ dài 1. Mọi lát cắt thời gian và hạt giống ngẫu nhiên đều có ngân sách cố định 400 vòng huấn luyện; kiểm tra độ nhạy ở 300 và 500 vòng huấn luyện. Cấu hình được chọn bằng tìm kiếm lưới đã đăng ký trước, dựa trên MRR có lọc của các bộ ba giữ lại để kiểm tra. Đề tài tập trung vào độ tin cậy của phép đo độ trôi, không xây dựng kiến trúc mô hình nhúng mới.
+    \item \textbf{Hạt giống ngẫu nhiên cố định:} Dùng ba giá trị $\{13, 37, 101\}$. Nhiễu nền của mỗi thực thể được ước lượng từ 6 quan sát trên cùng lát cắt thời gian: 3 cặp hạt giống ngẫu nhiên ở lát cắt trước và 3 cặp ở lát cắt sau của mỗi chuyển tiếp.
+    \item \textbf{Chuỗi 10 lát cắt thời gian:} Gồm 10 lát cắt $T_{01}, \dots, T_{10}$ từ tin công nghệ của VnExpress và Tuổi Trẻ. Sau khi sửa trục thời gian, chuỗi trải từ 27/04/2025 đến 15/08/2026 trong gói ứng viên v3.3. Đồ thị tăng từ 113 bộ ba (151 thực thể) tại $T_{01}$ lên 1.098 bộ ba (1.286 thực thể) tại $T_{10}$.
+    \item \textbf{Các bất biến khoa học cốt lõi, tức nguyên tắc không được vi phạm:}
     \begin{itemize}
-        \item \textit{INV-01 (Không rò rỉ tương lai):} Không có bất kỳ sự kiện nào xảy ra sau mốc cutoff của snapshot được phép đưa vào dữ liệu huấn luyện.
-        \item \textit{INV-02 (Tách biệt trục thời gian):} Phân biệt tuyệt đối giữa thời gian thế giới thực (`valid\_from`, `valid\_to`), thời gian quan sát chứng cứ (`evidence\_observed\_at`), và thời gian thu thập dữ liệu kỹ thuật (`ingested\_at\_real`).
-        \item \textit{INV-04 (Tái lập tất định):} Mọi kết quả từ tiền xử lý, huấn luyện đến phân tích kinh tế lượng đều có khả năng tái lập bit-to-bit (exact SHA-256 match).
+        \item \textit{INV-01 (Không rò rỉ tương lai):} Không đưa sự kiện xảy ra sau mốc chốt của lát cắt thời gian vào dữ liệu huấn luyện.
+        \item \textit{INV-02 (Tách biệt trục thời gian):} Phân biệt thời gian sự kiện đúng trong thực tế (\texttt{valid\_from}, \texttt{valid\_to}), thời gian quan sát bằng chứng (\texttt{evidence\_\allowbreak observed\_\allowbreak at}) và thời gian hệ thống thu thập dữ liệu (\texttt{ingested\_\allowbreak at\_\allowbreak real}).
+        \item \textit{INV-04 (Chạy lại cho kết quả giống hệt):} Các bước tiền xử lý, huấn luyện và phân tích kinh tế lượng phải tái lập được từng byte, với mã băm SHA-256 trùng khớp.
     \end{itemize}
 \end{itemize}
 
-Bố cục các chương còn lại của báo cáo được tổ chức như sau: Chương~\ref{chap:theoretical_foundations} trình bày cơ sở lý thuyết toán học và kinh tế lượng; Chương~\ref{chap:system_architecture} mô tả kiến trúc hệ thống và quy trình thực nghiệm khép kín; Chương~\ref{chap:empirical_results} công bố toàn bộ kết quả thực nghiệm định lượng; Chương~\ref{chap:discussion} thảo luận chuyên sâu về ý nghĩa học thuật và bảo vệ kết quả; và Chương~\ref{chap:conclusion} đúc kết đóng góp, nêu rõ hạn chế và mở ra hướng nghiên cứu tiếp theo.
+Các chương tiếp theo được sắp xếp như sau. Chương~\ref{chap:theoretical_foundations} trình bày cơ sở toán học và kinh tế lượng. Chương~\ref{chap:system_architecture} mô tả kiến trúc hệ thống và quy trình thực nghiệm. Chương~\ref{chap:empirical_results} trình bày toàn bộ kết quả thực nghiệm định lượng. Chương~\ref{chap:discussion} giải thích ý nghĩa học thuật và các căn cứ bảo vệ kết quả. Chương~\ref{chap:conclusion} nêu đóng góp, hạn chế và hướng nghiên cứu tiếp theo.

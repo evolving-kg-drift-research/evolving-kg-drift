@@ -1,268 +1,233 @@
 % ==============================================================================
-% CHƯƠNG 4: KẾT QUẢ THỰC NGHIỆM CHI TIẾT
+% CHƯƠNG 4: KẾT QUẢ THỰC NGHIỆM (phiên bản tái thực hiện 2026-11-18, viết lối dễ hiểu)
+% Mọi bảng \input từ generated/ do scripts/make_report_assets.py sinh trực tiếp từ các
+% tệp kết quả (nguồn và mã băm: generated/SOURCES.txt). Không có số nào được chép tay.
 % ==============================================================================
-
-\chapter{Kết quả thực nghiệm chi tiết}
+\chapter{Kết quả thực nghiệm}
 \label{chap:empirical_results}
-\label{chap:results}
 
-Chương này trình bày toàn bộ kết quả thực nghiệm chi tiết và phân tích định lượng thu được từ chu trình 9 giai đoạn của hệ thống nghiên cứu, bao gồm:
+Chương này trả lời từng câu hỏi theo đúng thứ tự của quy trình: dữ liệu có đúng không, mô hình có học tốt không, phép đo độ trôi có nhạy không, và cuối cùng độ trôi có ảnh hưởng tới khả năng suy luận không. Hình~\ref{fig:evidence_chain} tóm tắt câu trả lời cho cả năm bước. Toàn bộ kết quả thuộc giai đoạn thử nghiệm, chưa được nghiệm thu chính thức; mọi lựa chọn đều được ghi vào nhật ký quyết định \textit{trước} khi chạy.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_evidence_chain.png}
+\caption{Chuỗi kiểm chứng của đề tài. Hai bước đầu đạt; từ bước đo độ trôi trở đi thì không đạt theo tiêu chí đã đặt trước, nên không thể kết luận về giả thuyết $H_1$.}
+\label{fig:evidence_chain}
+\end{figure}
+
+\begin{remark}[Vì sao kết quả ngày 28/10/2026 bị rút lại]
+Kết luận trước đây ($\beta_d = -0{,}00366$, $p = 0{,}574$, bộ 147 câu hỏi, so sánh mô hình cố định và mô hình cập nhật) không còn giá trị vì năm lỗi độc lập: (i) khoảng một nửa dữ liệu dùng ngày máy tải trang thay cho ngày đăng bài; (ii) mô hình chỉ học 50 vòng nên chưa học xong (báo cáo cũ còn ghi nhầm thuật toán là Adam trong khi chương trình thực tế dùng SGD); (iii) thực thể được nhận diện bằng cách so khớp chuỗi chữ, nên ``FPT'' và ``tập đoàn FPT'' là hai thực thể, còn chữ ``ông'' lại thành một thực thể nối với 17 thực thể khác; (iv) 121/147 câu hỏi chính là những quan hệ mô hình đã được học, nên chỉ kiểm tra trí nhớ; (v) đồ thị quá thưa để đo độ trôi của từng thực thể.
+\end{remark}
+
+% ------------------------------------------------------------------------------
+\section{Bước 1 --- Dữ liệu có đúng thời gian không?}
+\label{sec:m1_repair}
+
+\subsection{Những gì sai trong dữ liệu cũ}
+Gói dữ liệu cũ không bị hỏng tệp (mọi mã băm đều khớp) nhưng \textbf{sai về thời gian}:
+\begin{itemize}
+    \item \textbf{Ngày bị ghi nhầm:} 923/1.803 bản ghi lấy ngày máy tải trang (06--07/09/2026) làm ngày ``biết được tin''. Vì vậy ba lát cắt cuối chỉ dài $0{,}33$; $0{,}01$ và $0{,}01$ ngày --- chúng xếp theo thứ tự máy tải trang, không theo thời gian thật. Kiểm tra bằng mã số bài báo (mã bài VnExpress tăng dần theo thời gian, khớp gần tuyệt đối với ngày lưu trữ, hệ số tương quan hạng $0{,}999$) cho thấy các bài ``muộn'' thực ra được đăng rải rác từ 03/2025 đến 08/2026.
+    \item \textbf{Ranh giới cắt sai:} 5/9 ranh giới giữa các lát cắt chia đôi những sự kiện cùng một thời điểm.
+    \item \textbf{Nhận diện thực thể sai:} ít nhất 31 nhóm tên gọi khác nhau của cùng một thực thể; các từ chung chung như ``ông'', ``công ty'' bị coi là thực thể.
+    \item \textbf{Tiêu đề tin liên quan:} 48 trang Tuổi Trẻ có phần nội dung chỉ là dòng tiêu đề tin liên quan ở rìa trang; ngày đăng của trang không cho biết khi nào dòng tiêu đề đó xuất hiện.
+\end{itemize}
+
+\subsection{Cách sửa}
+Các quy tắc sau được duyệt và ghi lại trước khi áp dụng:
 \begin{enumerate}
-    \item Thống kê mô tả 10 snapshot canonical và kiểm định Parquet--Neo4j Parity (Bảng~\ref{tab:snapshots_statistics});
-    \item Chẩn đoán hình học căn chỉnh Procrustes và kiểm định cổng Gate G3 qua 81 phép so sánh (Bảng~\ref{tab:gate_g3_diagnostics});
-    \item Kết quả đo lường trôi dạt biểu diễn M2 trên 6.897 quan sát thực thể (Bảng~\ref{tab:m2_drift_summary});
-    \item Động thái suy luận đa bước của Hội đồng QA định kỳ trên hai không gian ứng viên (Bảng~\ref{tab:qa_panel_dynamics}) kèm cấu trúc chuẩn hóa ẩn mắt xích (Bảng~\ref{tab:sample_latent_bridge_qa});
-    \item Kết quả ước lượng kinh tế lượng Two-Way Fixed Effects cho Giả thuyết $H_1$, $H_2$ và kiểm định phủ định (Bảng~\ref{tab:twfe_econometric_results}).
+    \item \textbf{Ngày biết được tin} = ngày bản lưu trữ Wayback nếu có (880 bản ghi); nếu không có thì lấy ngày đăng mà tờ báo tự ghi trong trang (871 bản ghi, đọc từ phần dữ liệu cấu trúc JSON-LD). Ngày máy tải trang không bao giờ được dùng. Hai cách lấy ngày lệch nhau rất ít (trung vị $1{,}22$ ngày).
+    \item Dòng tiêu đề tin liên quan không có bản lưu trữ bị loại riêng ra (45 sự kiện, $3{,}7\%$).
+    \item Ranh giới lát cắt chia đều số sự kiện nhưng không bao giờ cắt ngang những sự kiện cùng thời điểm.
+    \item \textbf{Nhận diện thực thể:} chuẩn hóa tên theo những quy tắc chỉ nhìn vào chính tên đó (bỏ ``tập đoàn'', ``công ty'', ``ông'', ``bà'' ở đầu; bỏ ``Corporation'', ``Inc'' ở cuối\ldots), nên không cần biết trước thông tin tương lai. Loại 22 từ chung chung và gộp 33 cách viết trùng; 1.389 còn 1.334 thực thể. Loại 40 sự kiện chứa từ chung chung ($3{,}3\%$).
 \end{enumerate}
-
-% ==============================================================================
-\section{Thống kê 10 Snapshot Canonical T01--T10 và Kiểm định Parity (M1)}
-\label{sec:canonical_snapshots_results}
-
-Chuỗi 10 snapshot tri thức chuẩn tắc ($T_{01} \to T_{10}$) được đóng gói trong tập dữ liệu \texttt{evolving\_kg\_downstream\_v3.1}, được lọc thời gian đơn điệu nghiêm ngặt với $10$ nhãn quan hệ ngữ nghĩa cố định. Toàn bộ các snapshot được kiểm tra tính bình đẳng tập hợp (node/edge set equality) giữa tệp Parquet chuẩn tắc và cơ sở dữ liệu đồ thị Neo4j.
+Bảng~\ref{tab:snapshots_v33} là 10 lát cắt thời gian sau khi sửa. Kết quả đã được kiểm tra chéo bằng một chương trình độc lập và dựng lại hai lần cho tệp giống hệt nhau từng byte. \textbf{Còn thiếu:} bộ dữ liệu mới chưa được nạp lại vào Neo4j để đối chiếu.
 
 \begin{table}[htbp]
 \centering
-\caption{Bảng 1: Thống kê 10 snapshot canonical T01--T10 và kiểm định Parquet--Neo4j Parity.}
-\label{tab:snapshots_statistics}
-\small
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}lrrrrcc@{}}
-\toprule
-\textbf{Snapshot} & \textbf{Số Triples ($|E|$)} & \textbf{Số Thực thể ($|V|$)} & \textbf{Số Quan hệ ($|\mathcal{R}|$)} & \textbf{Tăng trưởng Triples} & \textbf{Neo4j Parity} & \textbf{Gate G1/G2} \\
-\midrule
-$T_{01}$ & 121 & 167 & 10 & -- & $100\%$ (Khớp hoàn toàn) & PASS \\
-$T_{02}$ & 247 & 343 & 10 & $+104.1\%$ & $100\%$ (Khớp hoàn toàn) & PASS \\
-$T_{03}$ & 362 & 503 & 10 & $+46.6\%$ & $100\%$ (Khớp hoàn toàn) & PASS \\
-$T_{04}$ & 483 & 646 & 10 & $+33.4\%$ & $100\%$ (Khớp hoàn toàn) & PASS \\
-$T_{05}$ & 604 & 787 & 10 & $+25.1\%$ & $100\%$ (Khớp hoàn toàn) & PASS \\
-$T_{06}$ & 724 & 936 & 10 & $+19.9\%$ & $100\%$ (Khớp hoàn toàn) & PASS \\
-$T_{07}$ & 844 & 1.057 & 10 & $+16.6\%$ & $100\%$ (Khớp hoàn toàn) & PASS \\
-$T_{08}$ & 964 & 1.176 & 10 & $+14.2\%$ & $100\%$ (Khớp hoàn toàn) & PASS \\
-$T_{09}$ & 1.084 & 1.282 & 10 & $+12.4\%$ & $100\%$ (Khớp hoàn toàn) & PASS \\
-$T_{10}$ & 1.205 & 1.389 & 10 & $+11.2\%$ & $100\%$ (Khớp hoàn toàn) & PASS \\
-\bottomrule
-\end{tabular}%
-}
+\caption{Mười lát cắt thời gian sau khi sửa dữ liệu.}
+\label{tab:snapshots_v33}
+\input{generated/tab_snapshots}
 \end{table}
 
-Bảng~\ref{tab:snapshots_statistics} khẳng định:
-\begin{itemize}
-    \item Quy mô dữ liệu tăng trưởng liên tục từ 121 triples ($T_{01}$) lên 1.205 triples ($T_{10}$), và từ 167 thực thể lên 1.389 thực thể, phản ánh đúng chu trình mở rộng của tin tức thực tế.
-    \item Hệ thống quan hệ giữ vững tính chuẩn tắc với đúng 10 loại quan hệ.
-    \item Kiểm định Parquet--Neo4j Parity đạt chính xác $100\%$ ở toàn bộ 10 snapshot (0 sai lệch đỉnh, 0 sai lệch cạnh), bảo toàn toàn vẹn bất biến INV-05.
-\end{itemize}
+\begin{remark}[Nói đơn giản]
+Dữ liệu cũ giống một cuốn nhật ký mà một nửa số trang ghi ngày ``hôm nay'' thay vì ngày thật. Sau khi sửa, 10 lát cắt trải đều từ tháng 4/2025 đến tháng 8/2026, mỗi lát dài khoảng 1--3 tháng (37--86 ngày).
+\end{remark}
 
-% ==============================================================================
-\section{Kiểm định Căn chỉnh Hình học Gate G3 qua 81 Phép so sánh (M2)}
-\label{sec:gate_g3_diagnostics}
+% ------------------------------------------------------------------------------
+\section{Bước 2 --- Mô hình có học tốt không?}
+\label{sec:backbone}
 
-Để đảm bảo các phép đo trôi dạt biểu diễn phản ánh bản chất hình học thực thể mà không bị suy biến do sụp đổ chiều hoặc biến dạng phi tuyến, Gate G3 kiểm tra chẩn đoán căn chỉnh trên toàn bộ 81 phép so sánh độc lập (gồm 27 phép so sánh liên thời gian và 54 phép so sánh cùng thời điểm khác seed).
+\subsection{Chọn cấu hình}
+Mô hình TransE-L2 được thử với 12 cấu hình (kích thước biểu diễn 32 hoặc 64; tốc độ học $0{,}01$ hoặc $0{,}05$; ngưỡng phân tách $0{,}5$; $1{,}0$ hoặc $2{,}0$). Mỗi cấu hình được chấm điểm bằng cách giấu bớt một phần quan hệ rồi xem mô hình có đoán lại được không (chỉ số MRR, càng gần 1 càng tốt). Cấu hình tốt nhất: kích thước 64, tốc độ học $0{,}01$, ngưỡng phân tách $2{,}0$, MRR $0{,}35$.
+
+\subsection{Học bao nhiêu vòng là đủ?}
+Tiêu chí ``học xong'' đặt ra ban đầu có lỗi: một ngưỡng không thể đạt được với cấu hình đã chọn, một ngưỡng khác nhỏ hơn cả độ dao động tự nhiên của quá trình học. Năm cách khác được ghi lại trước rồi thử lần lượt, kể cả đổi sang thuật toán Adam (kết quả kém hơn). Không cách nào thỏa đúng tiêu chí đã đặt. Quyết định cuối cùng là \textbf{học cố định 400 vòng} cho mọi lát cắt, và bắt buộc mọi kết luận phải giữ nguyên khi đổi sang 300 hoặc 500 vòng (ký hiệu $E$ là số vòng huấn luyện).
+
+\subsection{Chất lượng và độ ổn định}
+Bảng~\ref{tab:quality}: ở cả 10 lát cắt, mô hình đoán tốt hơn hẳn cách đoán đơn giản ``chọn thực thể hay xuất hiện nhất với quan hệ đó'' (MRR $0{,}31$--$0{,}44$ so với $0{,}09$--$0{,}13$).
+
+Bảng~\ref{tab:stability} và Hình~\ref{fig:noise_degree} đo \textbf{độ ổn định}: học lại ba lần trên cùng dữ liệu rồi xem vị trí của cùng một thực thể lệch nhau bao nhiêu (0 = trùng khít; khoảng 1 = lệch như hai điểm ngẫu nhiên). Thực thể càng có nhiều quan hệ thì càng ổn định: nhóm có 1--2 quan hệ lệch $0{,}21$--$0{,}55$, nhóm 3--5 quan hệ lệch $0{,}17$--$0{,}33$, nhóm từ 6 quan hệ lệch $0{,}12$--$0{,}15$.
 
 \begin{table}[htbp]
 \centering
-\caption{Bảng 2: Kiểm định Gate G3 qua 81 phép so sánh căn chỉnh Centered Procrustes SVD.}
-\label{tab:gate_g3_diagnostics}
-\small
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}lrrrrrc@{}}
-\toprule
-\textbf{Chỉ số Hình học} & \textbf{Ngưỡng Giao thức} & \textbf{Min} & \textbf{Trung vị} & \textbf{Trung bình} & \textbf{Max} & \textbf{Kết luận G3} \\
-\midrule
-Rank Fraction ($r_{\text{SVD}} / 64$) & $\ge 0.90$ & $1.0000$ & $1.0000$ & $1.0000$ & $1.0000$ & PASS ($64/64$ dims) \\
-Orthogonality Error ($\|Q^T Q - I\|_F$) & $\le 1.0 \times 10^{-5}$ & $0.0000$ & $0.0000$ & $0.0000$ & $0.0000$ & PASS (Trực giao tuyệt đối) \\
-Relative Fit Residual ($\mathcal{R}_{\text{fit}}$) & Quan sát & $0.7871$ & $0.8342$ & $0.8303$ & $0.8576$ & Quanh $0.83$ \\
-Relative Holdout Residual ($\mathcal{R}_{\text{holdout}}$) & $\le 1.50$ & $1.2533$ & $1.3680$ & $1.3584$ & $1.3940$ & PASS (Quanh $1.36$) \\
-Fit-Holdout Gap ($|\mathcal{R}_{\text{holdout}} - \mathcal{R}_{\text{fit}}|$) & $\le 0.65$ & $0.4558$ & $0.5325$ & $0.5281$ & $0.5651$ & PASS (Quanh $0.53$) \\
-\bottomrule
-\end{tabular}%
-}
+\caption{Mô hình đoán lại các quan hệ bị giấu (400 vòng huấn luyện).}
+\label{tab:quality}
+\resizebox{\textwidth}{!}{\input{generated/tab_quality}}
 \end{table}
 
-Các số liệu Bảng~\ref{tab:gate_g3_diagnostics} xác thực:
-\begin{itemize}
-    \item \textbf{Rank fraction = 1.0 (64/64):} Phép phân tích SVD bảo toàn toàn bộ 64 chiều không gian nhúng trên tất cả 81 cặp so sánh, không có hiện tượng sụp đổ chiều.
-    \item \textbf{Orthogonality error = 0.0:} Ma trận xoay tối ưu $Q^*$ thỏa mãn tính chất trực giao hoàn hảo, không gây co giãn hoặc biến dạng khoảng cách Euclidean.
-    \item \textbf{Khả năng kiểm soát sai số tổng quát:} Relative Fit Residual hội tụ quanh mức $0.83$, Relative Holdout Residual ổn định quanh mức $1.36$ (dưới ngưỡng tối đa $1.50$), và Fit-Holdout gap dao động quanh $0.53$ (dưới ngưỡng $0.65$). Cổng Gate G3 đạt trạng thái PASS tuyệt đối $81/81$ phép so sánh.
-\end{itemize}
-
-% ==============================================================================
-\section{Kết quả Đo lường Trôi dạt Biểu diễn M2 trên 6.897 Quan sát Thực thể}
-\label{sec:m2_drift_results}
-
-Quá trình lượng hóa độ trôi dạt biểu diễn đã hiệu chuẩn nhiễu ($SED^+$) được thực thi trên tổng thể 6.897 quan sát thực thể (entity observations) xuyên suốt 9 bước chuyển đổi thời gian liên tiếp.
-
 \begin{table}[htbp]
 \centering
-\caption{Bảng 3: Kết quả đo lường trôi dạt biểu diễn M2 trên 6.897 quan sát thực thể.}
-\label{tab:m2_drift_summary}
-\small
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}lrrrrrr@{}}
-\toprule
-\textbf{Chuyển tiếp} & \textbf{Số Thực thể ($N$)} & \textbf{Tỷ lệ Khả dụng} & \textbf{Tỷ lệ Trôi dạt Dương} & \textbf{Max $SED^+$} & \textbf{Trung vị $SED^+$} & \textbf{Trung vị $\delta_{\text{time}}$} \\
-\midrule
-$T_{01} \to T_{02}$ & 167 & $100\%$ & $50.30\%$ & $7.3186$ & $0.0426$ & $0.3554$ \\
-$T_{02} \to T_{03}$ & 343 & $100\%$ & $44.02\%$ & $1.6386$ & $0.0000$ & $0.8371$ \\
-$T_{03} \to T_{04}$ & 503 & $100\%$ & $48.31\%$ & $1.8353$ & $0.0000$ & $0.8985$ \\
-$T_{04} \to T_{05}$ & 646 & $100\%$ & $47.37\%$ & $2.2482$ & $0.0000$ & $0.9280$ \\
-$T_{05} \to T_{06}$ & 787 & $100\%$ & $44.85\%$ & $2.4330$ & $0.0000$ & $0.9261$ \\
-$T_{06} \to T_{07}$ & 936 & $100\%$ & $45.19\%$ & $3.7672$ & $0.0000$ & $0.9382$ \\
-$T_{07} \to T_{08}$ & 1.057 & $100\%$ & $46.17\%$ & $3.5871$ & $0.0000$ & $0.9369$ \\
-$T_{08} \to T_{09}$ & 1.176 & $100\%$ & $50.77\%$ & $3.7202$ & $0.0224$ & $0.9499$ \\
-$T_{09} \to T_{10}$ & 1.282 & $100\%$ & $49.14\%$ & $4.3663$ & $0.0000$ & $0.9483$ \\
-\midrule
-\textbf{Toàn bộ} & \textbf{6.897} & \textbf{100\% (LTO $\ge$ 50)} & \textbf{47.60\% (Trung vị)} & \textbf{7.3186} & \textbf{0.0000} & \textbf{0.9261} \\
-\bottomrule
-\end{tabular}%
-}
+\caption{Độ lệch giữa các lần học lại trên cùng dữ liệu (trong ngoặc: số thực thể; ``--'' khi ít hơn 10).}
+\label{tab:stability}
+\input{generated/tab_stability}
 \end{table}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.9\textwidth]{figures/fig1_m2_representation_drift_sed_plus.png}
-\caption{Hình 1: Phân phối độ trôi dạt biểu diễn đã hiệu chuẩn nhiễu ($SED^+$) và tỷ lệ thực thể trôi dạt thực chất vượt trên phương sai nhiễu ngẫu nhiên.}
-\label{fig:m2_drift_distribution}
+\includegraphics[width=0.85\textwidth]{fig_noise_by_degree.png}
+\caption{Thực thể có ít quan hệ (chiếm 89--91\% đồ thị) lệch rất nhiều giữa các lần học lại --- gần một nửa mức ngẫu nhiên hoàn toàn.}
+\label{fig:noise_degree}
 \end{figure}
 
-Phân tích Bảng~\ref{tab:m2_drift_summary} và Hình~\ref{fig:m2_drift_distribution} chỉ ra:
+\begin{remark}[Nói đơn giản]
+Mô hình học được thật (đoán tốt gấp ba lần cách đoán đơn giản). Nhưng với một thực thể chỉ xuất hiện trong một hai tin, mỗi lần học lại mô hình đặt nó ở một chỗ khác nhau. Đây chính là ``nhiễu'' sẽ che lấp độ trôi ở bước sau. Hai lưu ý kỹ thuật: gần như mọi cặp dữ liệu luôn vi phạm ngưỡng phân tách $2{,}0$ (giới hạn hình học của cấu hình này), và 24/30 lần học đạt tiêu chí ``học xong''.
+\end{remark}
+
+% ------------------------------------------------------------------------------
+\section{Bước 3 --- Phép đo độ trôi có nhạy không?}
+\label{sec:population_drift}
+Muốn biết một thước đo có dùng được không, cần hai phép thử:
 \begin{itemize}
-    \item \textbf{Độ khả dụng 100\% sau LTO:} Tất cả 6.897 thực thể đều đạt điều kiện hỗ trợ mẫu tối thiểu $N_{\text{ref}} \ge 50$ sau phép Leave-Target-Out, loại bỏ hoàn toàn việc gán giá trị giả định.
-    \item \textbf{Tỷ lệ trôi dạt dương trung vị = 47.6\%:} Tỷ lệ thực thể có độ trôi dạt vượt trên phương sai nhiễu nền phân bố đối xứng quanh mốc $50\%$ (dao động từ $44.02\%$ đến $50.77\%$), minh chứng quy trình phân phối không đã triệt tiêu chính xác phần nhiễu đối xứng.
-    \item \textbf{Max $SED^+ = 7.32$ tại $T_{01} \to T_{02}$:} Giai đoạn mở rộng đồ thị đầu tiên ghi nhận biến động hình học mạnh mẽ nhất do quy mô cạnh tăng gấp đôi ($+104.1\%$).
+    \item \textbf{Phép thử đối chứng âm:} đo ở nơi \textit{chắc chắn không có} độ trôi (so hai lần học trên cùng dữ liệu). Thước đo tốt phải báo ``không có gì''.
+    \item \textbf{Phép thử đối chứng dương:} cố ý thay đổi quan hệ của một số thực thể đã biết trước, học lại, rồi xem thước đo có nhận ra chính những thực thể đó không.
 \end{itemize}
+Trước khi đo, các không gian biểu diễn được xoay về cùng hệ trục bằng phép Procrustes; mỗi thực thể được đo bằng một phép xoay \textit{không dùng chính nó} (chia 5 phần, căn chỉnh chéo), để tránh tự so với chính mình. Mức nhiễu của mỗi thực thể lấy từ 6 lần so sánh giữa các lần học lại.
 
-% ==============================================================================
-\section{Kết quả Hội đồng QA Panel trên Hai Không gian Ứng viên (M4)}
-\label{sec:qa_panel_dynamics}
-
-Hội đồng QA định kỳ gồm 147 câu hỏi bền vững (121 câu hỏi 1-hop và 26 câu hỏi 2-hop) được trích xuất từ $T_{01}$ và theo dõi liên tục qua 9 bước chuyển đổi (1.323 quan sát). Đánh giá so sánh trực tiếp nhánh đông băng (Arm A - Frozen $T_{01}$) và nhánh cập nhật (Arm B - Updated $T_t$) trên hai không gian: Seen-at-T1 Universe (167 thực thể mỏ neo gốc) và Open-World Universe (toàn bộ thực thể tại thời điểm $T_t$).
+Bảng~\ref{tab:population}: độ trôi đo được trên toàn bộ thực thể \textbf{gần như giống hệt} kết quả ở nơi không có độ trôi. Bảng~\ref{tab:poscontrol_population}: khi cố ý thay toàn bộ quan hệ của 10\% thực thể, thước đo chỉ nhận ra $10$--$15\%$ trường hợp (tiêu chí đặt trước là ít nhất 50\%). Hình~\ref{fig:detect_degree} cho thấy lý do: với thực thể có 1--2 quan hệ, thước đo gần như mù; với thực thể từ 3 quan hệ, nó nhận ra phần lớn thay đổi.
 
 \begin{table}[htbp]
 \centering
-\caption{Bảng 4: Kết quả QA Panel (147 queries bền vững, 1.323 quan sát): So sánh MRR Arm B vs Arm A trên hai không gian ứng viên.}
-\label{tab:qa_panel_dynamics}
-\small
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}lrrrrcc@{}}
-\toprule
-\textbf{Bước chuyển} & \multicolumn{2}{c}{\textbf{Seen-at-T1 Universe}} & \multicolumn{2}{c}{\textbf{Open-World Universe}} & \textbf{Hiệu ứng Cập nhật} & \textbf{Khoảng lệch OOV} \\
-\cmidrule(lr){2-3} \cmidrule(lr){4-5}
-($T_{t-1} \to T_t$) & \textbf{Arm A (Frozen)} & \textbf{Arm B (Updated)} & \textbf{Arm A (Frozen)} & \textbf{Arm B (Updated)} & ($\Delta \text{MRR}_{\text{T1}}$) & ($\text{Bias Gap}$) \\
-\midrule
-$T_{01} \to T_{02}$ & $0.6609$ & $0.6128$ & $0.6609$ & $0.6023$ & $-0.0481$ & $-0.0105$ \\
-$T_{02} \to T_{03}$ & $0.6609$ & $0.6041$ & $0.6609$ & $0.5946$ & $-0.0568$ & $-0.0095$ \\
-$T_{03} \to T_{04}$ & $0.6609$ & $0.5764$ & $0.6609$ & $0.5550$ & $-0.0845$ & $-0.0214$ \\
-$T_{04} \to T_{05}$ & $0.6609$ & $0.5325$ & $0.6609$ & $0.5037$ & $-0.1284$ & $-0.0288$ \\
-$T_{05} \to T_{06}$ & $0.6609$ & $0.5009$ & $0.6609$ & $0.4742$ & $-0.1600$ & $-0.0267$ \\
-$T_{06} \to T_{07}$ & $0.6609$ & $0.4786$ & $0.6609$ & $0.4487$ & $-0.1823$ & $-0.0299$ \\
-$T_{07} \to T_{08}$ & $0.6609$ & $0.4770$ & $0.6609$ & $0.4456$ & $-0.1839$ & $-0.0314$ \\
-$T_{08} \to T_{09}$ & $0.6609$ & $0.4545$ & $0.6609$ & $0.4184$ & $-0.2064$ & $-0.0361$ \\
-$T_{09} \to T_{10}$ & $0.6609$ & $0.4658$ & $0.6609$ & $0.4171$ & $-0.1951$ & $-0.0487$ \\
-\midrule
-\textbf{Trung bình} & \textbf{0.6609} & \textbf{0.5225} & \textbf{0.6609} & \textbf{0.4955} & \textbf{-0.1384} & \textbf{-0.0270} \\
-\bottomrule
-\end{tabular}%
-}
+\caption{Độ trôi đo được so với phép thử đối chứng âm (6.040 lượt đo).}
+\label{tab:population}
+\resizebox{\textwidth}{!}{\input{generated/tab_population}}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Phép thử đối chứng dương trên toàn bộ thực thể (400 vòng; hai cột cuối là phân tích thêm theo số quan hệ).}
+\label{tab:poscontrol_population}
+\resizebox{\textwidth}{!}{\input{generated/tab_poscontrol_population}}
 \end{table}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.85\textwidth]{figures/fig2_m4_longitudinal_qa_mrr_dynamics.png}
-\caption{Hình 2: Quỹ đạo suy giảm Mean Reciprocal Rank (MRR) của mô hình cập nhật Arm B so với mô hình đóng băng Arm A trên hai không gian ứng viên.}
-\label{fig:longitudinal_qa_mrr}
+\includegraphics[width=0.85\textwidth]{fig_detect_by_degree.png}
+\caption{Thay toàn bộ quan hệ của một thực thể: tỷ lệ thay đổi được thước đo nhận ra. Cột bên trái lấy từ phép thử trên toàn bộ thực thể (10\% thực thể bị thay đổi, 2 chuyển tiếp); cột bên phải lấy từ phép thử riêng cho nhóm từ 3 quan hệ (25\% thực thể, 7 chuyển tiếp, mức nhiễu tính riêng cho nhóm). Hai phép thử có thiết kế khác nhau nên chỉ so sánh được về xu hướng.}
+\label{fig:detect_degree}
 \end{figure}
 
-Từ Bảng~\ref{tab:qa_panel_dynamics} và Hình~\ref{fig:longitudinal_qa_mrr}, các quan sát then chốt bao gồm:
-\begin{itemize}
-    \item \textbf{Suy thoái thứ hạng của Arm B trên Seen-at-T1:} Hiệu năng của mô hình tái huấn luyện liên tục Arm B suy giảm đơn điệu từ $0.6128$ ở bước đầu xuống mức $0.4658$ ở bước cuối cùng, trong khi mô hình đóng băng Arm A duy trì chuẩn xác mức nền $0.6609$. Mức sụt giảm trung bình là $\Delta \text{MRR} = -0.1384$.
-    \item \textbf{Suy giảm sâu hơn trên Open-World:} Trên không gian mở, Arm B giảm từ $0.6023$ xuống $0.4171$. Mức chênh lệch trung bình $-0.0270$ phản ánh chi phí phạt OOV do thực thể mới gây nhiễu không gian xếp hạng.
-\end{itemize}
+\begin{remark}[Nói đơn giản]
+Giống như dùng một cái cân luôn dao động $\pm 5$ kg để cân một vật nặng 1 kg: con số cân ra không nói được gì. Với 90\% thực thể, mức dao động do học lại lớn hơn mọi thay đổi thật có thể xảy ra.
+\end{remark}
 
-\subsection{Chuẩn Ẩn Mắt xích (Latent Bridge Entity) và Hội đồng Đa chặng}
-\label{subsec:latent_bridge_qa}
+% ------------------------------------------------------------------------------
+\section{Bước 4 --- Thu hẹp vào nhóm thực thể có từ 3 quan hệ}
+\label{sec:n1}
+Vì thước đo chỉ có tác dụng với thực thể có nhiều quan hệ, nhóm này (khoảng 10\% thực thể) được chọn làm đối tượng chính, kèm tiêu chí riêng được ghi trước: thước đo phải nhận ra ít nhất 80\% thay đổi lớn và báo động giả không quá 10\%, \textbf{ở cả ba mức} 300, 400, 500 vòng. Mức nhiễu được tính riêng trong nhóm, với ít nhất 30 thực thể tham chiếu (con số này được chọn sau khi đã biết số thực thể của từng chuyển tiếp, để giữ được 7 chuyển tiếp thay vì 5).
 
-Để lượng hóa chuẩn xác tác động của trôi dạt biểu diễn KGE lên năng lực suy luận đa bước (multi-hop reasoning), cấu trúc hội đồng 147 câu hỏi được chuẩn hóa nghiêm ngặt theo các tiêu chuẩn benchmark quốc tế (tiêu biểu như HotpotQA~\cite{yang2018hotpotqa} và MetaQA~\cite{zhang2018variational}):
-\begin{enumerate}
-    \item \textbf{Cơ cấu câu hỏi và phân tầng ngữ nghĩa:} Hội đồng bao gồm 121 câu hỏi 1-hop phủ đều 10 loại quan hệ chính tắc và 26 câu hỏi hợp thành 2-hop. Đối với toàn bộ 121 câu hỏi 1-hop, hệ thống áp dụng prompt câu hỏi dữ kiện chuyên biệt theo loại thực thể (chuyên gia/nhà khoa học, thiết bị phần cứng, hệ điều hành, mô hình AI, tổ chức doanh nghiệp) nhằm phản ánh tự nhiên văn phong tiếng Việt chuyên ngành.
-    \item \textbf{Chuẩn Ẩn Mắt xích (Latent Bridge Entity):} Trong các câu hỏi suy luận 2-hop, tên của thực thể trung gian ($e_{\text{bridge}}$) tuyệt đối \textbf{không} được xuất hiện trong câu hỏi ngôn ngữ tự nhiên. Nếu câu hỏi để lộ thực thể trung gian (ví dụ dạng ngây thơ: \textit{``Từ A, qua thực thể B, thực thể đích là gì?''}), bài toán suy luận đa chặng sẽ bị suy biến hoàn toàn (collapse) thành phép tra cứu 1-hop tầm thường từ $B \to C$, làm mất đi giá trị đo lường năng lực suy luận hợp thành của vector nhúng.
-    \item \textbf{Cơ chế suy luận vector tiềm ẩn:} Bằng cách ẩn hoàn toàn $e_{\text{bridge}}$ và hợp nhất ngữ nghĩa hai quan hệ $(r_1 \circ r_2)$ bắt đầu từ thực thể đầu $e_{\text{head}}$, câu hỏi đòi hỏi hàm chấm điểm KGE (như TransE-L2) phải xâu chuỗi vector dịch chuyển trong không gian nhúng liên tục $\mathbb{R}^d$:
-    \begin{equation}
-        \mathbf{e}_{\text{head}} + \mathbf{r}_1 + \mathbf{r}_2 \approx \mathbf{e}_{\text{gold}}
-    \end{equation}
-    thông qua tọa độ tiềm ẩn của mắt xích trung gian $e_{\text{bridge}}$ mà không nhận bất kỳ gợi ý tường minh nào từ văn bản truy vấn.
-\end{enumerate}
-
-Bảng~\ref{tab:sample_latent_bridge_qa} trình bày 6 câu hỏi suy luận 2-hop tiêu biểu được trích xuất từ tập benchmark 147 câu hỏi, minh chứng tính chất ẩn mắt xích hoàn toàn và tính đa dạng ngữ nghĩa công nghệ thực tế.
+Bảng~\ref{tab:poscontrol_s3} và Hình~\ref{fig:poscontrol}: với 149 thực thể bị thay đổi có chủ đích, thước đo nhận ra $81\%$, $99\%$, $99\%$ thay đổi lớn ở 300, 400, 500 vòng. Nhưng \textbf{tỷ lệ báo động giả tăng theo số vòng học} ($4{,}3\% \to 9{,}0\% \to 17{,}0\%$), nên tiêu chí không đạt ở 500 vòng. Ngay ở nơi không có độ trôi, tỷ lệ bị đánh dấu ``trôi mạnh'' cũng tăng từ $2{,}7\%$ lên $10{,}3\%$, trong khi lẽ ra chỉ khoảng $2{,}3\%$: \textit{thang đo bị lệch dần khi học lâu hơn}.
 
 \begin{table}[htbp]
 \centering
-\caption{Bảng 5: Minh họa các câu hỏi suy luận đa chặng 2-hop theo chuẩn Ẩn Mắt xích (Latent Bridge Entity).}
-\label{tab:sample_latent_bridge_qa}
-\small
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}lllp{4.2cm}lp{7.5cm}@{}}
-\toprule
-\textbf{Mã Query} & \textbf{Thực thể Đầu ($h$)} & \textbf{Mắt xích Ẩn ($e_{\text{bridge}}$)} & \textbf{Chuỗi Quan hệ ($r_1 \to r_2$)} & \textbf{Đích ($g$)} & \textbf{Câu hỏi Ngôn ngữ Tự nhiên (Ẩn Mắt xích)} \\
-\midrule
-\texttt{q\_2hop\_0121} & Nomi & \textit{[GPT-4o]} & \texttt{integrated\_into} $\to$ \texttt{released\_by} & OpenAI & Sản phẩm/hệ thống tích hợp thành phần công nghệ ``Nomi'' do đơn vị hoặc tổ chức nào nghiên cứu và phát hành? \\
-\addlinespace
-\texttt{q\_2hop\_0122} & Young Liu & \textit{[Foxconn]} & \texttt{is\_CEO\_of} $\to$ \texttt{partners\_with} & Nvidia & Tổ chức/doanh nghiệp do nhân vật ``Young Liu'' giữ cương vị CEO đã thiết lập quan hệ hợp tác chiến lược với đơn vị nào? \\
-\addlinespace
-\texttt{q\_2hop\_0125} & Brad Smith & \textit{[Microsoft]} & \texttt{works\_at} $\to$ \texttt{invested\_in} & OpenAI & Cơ quan/tổ chức nơi chuyên gia/nhân sự ``Brad Smith'' đang công tác đã thực hiện khoản rót vốn đầu tư chiến lược vào đơn vị nào? \\
-\addlinespace
-\texttt{q\_2hop\_0138} & Images in ChatGPT & \textit{[GPT-4o]} & \texttt{based\_on} $\to$ \texttt{released\_by} & OpenAI & Đơn vị nào nghiên cứu và phát hành nền tảng kỹ thuật làm cơ sở phát triển của sản phẩm/công nghệ ``Images in ChatGPT''? \\
-\addlinespace
-\texttt{q\_2hop\_0141} & Twitter & \textit{[Musk]} & \texttt{acquired\_by} $\to$ \texttt{works\_at} & SpaceX & Nhân vật/thực thể đã mua lại doanh nghiệp ``Twitter'' hiện đang làm việc hoặc công tác tại cơ quan/tổ chức nào? \\
-\addlinespace
-\texttt{q\_2hop\_0146} & iPhone SE 3 & \textit{[iPhone 16e]} & \texttt{succeeded\_by} $\to$ \texttt{version\_of} & iPhone 16 & Thiết bị kế nhiệm dòng sản phẩm ``iPhone SE 3'' là một biến thể cấu hình trực thuộc dòng sản phẩm nào? \\
-\bottomrule
-\end{tabular}%
-}
-\end{table}
-
-% ==============================================================================
-\section{Kết quả Kinh tế lượng Two-Way Fixed Effects (H1, H2, Falsification)}
-\label{sec:econometric_estimations}
-
-Mô hình hồi quy bảng cố định hai chiều kiểm soát đặc trưng cố định câu hỏi ($\alpha_i$) và thời điểm ($\gamma_t$):
-\begin{equation}
-    RR_{it} = \alpha_i + \gamma_t + \beta_d \cdot SED^+_{it} + \varepsilon_{it}
-\end{equation}
-Kiểm định suy diễn thống kê áp dụng phương pháp Wild Cluster Bootstrap (WCB) với 999 lần tái lấy mẫu cụm theo bước chuyển tiếp thời gian.
-
-\begin{table}[htbp]
-\centering
-\caption{Bảng 6: Bảng kết quả kinh tế lượng Two-Way Fixed Effects (H1, H2, Falsification).}
-\label{tab:twfe_econometric_results}
-\small
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}lccccc@{}}
-\toprule
-\textbf{Mô hình Ước lượng} & \textbf{Hệ số Hồi quy} & \textbf{Sai số Cụm (SE)} & \textbf{Thống kê $t$} & \textbf{$p$-value WCB} & \textbf{Kết luận Khoa học} \\
-\midrule
-\textbf{Model $H_1$ (Chính)} & $\beta_d = -0.00366$ & $0.00717$ & $-0.5113$ & $0.5740$ & Inconclusive ($p > 0.05$) \\
-\addlinespace
-\textbf{Model Falsification} & $\beta_{\text{pseudo}} = -0.01144$ & $0.01263$ & $-0.9054$ & $0.3810$ & PASS (Không spurious) \\
-\addlinespace
-\textbf{Model $H_2$ (Đối chiếu)} & $\Delta \text{MRR}_{\text{T1}} = -0.1384$ & -- & -- & -- & Suy thoái cấu trúc nội tại \\
-& $\Delta \text{MRR}_{\text{Open}} = -0.1654$ & -- & -- & -- & Khuếch đại bởi OOV \\
-& $\text{OOV Bias Gap} = -0.0270$ & -- & -- & -- & Thiên lệch thực thể mới \\
-\bottomrule
-\end{tabular}%
-}
+\caption{Phép thử đối chứng dương cho nhóm có từ 3 quan hệ (gộp 7 chuyển tiếp; trong ngoặc: số thực thể bị thay đổi).}
+\label{tab:poscontrol_s3}
+\resizebox{\textwidth}{!}{\input{generated/tab_poscontrol_s3}}
 \end{table}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.85\textwidth]{figures/fig3_m4_twfe_h1_falsification_forest_plot.png}
-\caption{Hình 3: Biểu đồ Forest Plot ước lượng hệ số tác động trôi dạt ($\beta_d$) và hệ số nhiễu giả định ($\beta_{\text{pseudo}}$) kèm khoảng tin cậy $95\%$.}
-\label{fig:forest_plot_twfe}
+\includegraphics[width=0.95\textwidth]{fig_positive_control.png}
+\caption{Trái: tỷ lệ thay đổi được nhận ra theo mức độ thay đổi (thay 25\%, 50\% hay 100\% quan hệ). Phải: tỷ lệ báo động giả. Đường đứt là ngưỡng đặt trước.}
+\label{fig:poscontrol}
 \end{figure}
 
-Ba kết luận khoa học cốt lõi rút ra từ Bảng~\ref{tab:twfe_econometric_results} và Hình~\ref{fig:forest_plot_twfe}:
-\begin{enumerate}
-    \item \textbf{Giả thuyết $H_1$ (Inconclusive):} Hệ số ước lượng mang dấu âm $\beta_d = -0.00366$ phù hợp với trực giác rằng trôi dạt biểu diễn làm giảm chất lượng suy luận. Tuy nhiên, với $SE = 0.00717$ và $p_{\text{WCB}} = 0.5740 > 0.05$, tác động này chưa đạt mức ý nghĩa thống kê $5\%$. Hệ thống kết luận trung thực là \textbf{INCONCLUSIVE}.
-    \item \textbf{Kiểm định Phủ định Falsification (PASS):} Hệ số nhiễu thuần $\beta_{\text{pseudo}} = -0.01144$ với $p_{\text{WCB}} = 0.3810 \gg 0.05$. Điều này chứng minh quy trình đo lường không sinh ra tương quan giả tạo từ nhiễu ngẫu nhiên.
-    \item \textbf{Phân tích Tương phản $H_2$:} Mức sụt giảm hiệu năng nội tại ($\Delta \text{MRR}_{\text{Seen-at-T1}} = -0.1384$) chiếm tới $83.7\%$ tổng mức sụt giảm trong thế giới mở ($-0.1654$), với khoảng lệch OOV bias gap đạt $-0.0270$.
-\end{enumerate}
+\begin{remark}[Nói đơn giản]
+Với nhóm thực thể có nhiều quan hệ, thước đo nhận ra được thay đổi lớn, nhưng chỉ khoảng một nửa thay đổi vừa (thay 50\% quan hệ), và càng học lâu càng hay ``báo nhầm''. Thước đo có ích nhưng chưa đủ tin cậy.
+\end{remark}
+
+% ------------------------------------------------------------------------------
+\section{Bước 5 --- Độ trôi có làm mô hình trả lời kém đi không?}
+\label{sec:h1}
+
+\subsection{Bộ câu hỏi}
+Mỗi câu hỏi đi qua 2 hoặc 3 bước quan hệ, và thực thể ở giữa được giấu đi. Ví dụ: \textit{``Bắt đầu từ Tim Cook, đi theo chuỗi quan hệ: là giám đốc điều hành của $\to$ hợp tác với $\to$ đầu tư vào --- thực thể cuối là gì?''} (mắt xích bị giấu: Apple, Google; đáp án: Anthropic). Câu hỏi bị loại nếu đáp án nối thẳng với điểm xuất phát (câu hỏi quá dễ) hoặc nếu có thực thể nào trên đường đi có ít hơn 3 quan hệ. Mô hình trả lời bằng cách cộng các vector quan hệ rồi tìm thực thể gần nhất; điểm RR bằng 1 nếu đáp án đứng đầu, bằng $1/2$ nếu đứng thứ hai, và cứ thế. Phần chữ tiếng Việt của câu hỏi chỉ để con người đọc; 35 câu mẫu đang chờ duyệt tay.
+
+Bảng~\ref{tab:panel} và Hình~\ref{fig:panel}: có 590 lượt đo (câu hỏi $\times$ chuyển tiếp) từ 259 câu hỏi, nhưng dồn gần hết vào các chuyển tiếp cuối. Chỉ những câu hỏi xuất hiện ở ít nhất hai chuyển tiếp mới giúp ích cho phép so sánh: còn \textbf{404 lượt đo, 127 câu hỏi, 7 chuyển tiếp}. Điểm RR trung bình chỉ khoảng $0{,}09$, nghĩa là mô hình hiếm khi đưa đúng đáp án lên đầu danh sách.
+
+\begin{table}[htbp]
+\centering
+\caption{Số thực thể có từ 3 quan hệ, chuyển tiếp dùng được và số lượt đo theo chuyển tiếp.}
+\label{tab:panel}
+\input{generated/tab_panel}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.8\textwidth]{fig_panel_transitions.png}
+\caption{Số lượt đo theo chuyển tiếp: phần lớn nằm ở các chuyển tiếp cuối, khi đồ thị đã đủ dày.}
+\label{fig:panel}
+\end{figure}
+
+\subsection{Kết quả}
+Mô hình TWFE so sánh \textit{cùng một câu hỏi} qua các chuyển tiếp: nếu ở chuyển tiếp nào các thực thể trên đường đi trôi nhiều hơn, thì điểm RR có thấp hơn không? Hệ số $\beta$ âm nghĩa là ``trôi nhiều thì trả lời kém đi''. Mức chắc chắn được tính bằng bootstrap theo cụm (9.999 lần lấy mẫu lại, trọng số Webb). Bảng~\ref{tab:h1} và Hình~\ref{fig:h1_forest}:
+\begin{itemize}
+    \item $\beta = +0{,}025$; $-0{,}242$; $-0{,}329$ ở 300, 400, 500 vòng (giá trị $p$ lần lượt $0{,}86$; $0{,}13$; $0{,}06$). \textbf{Dấu đổi theo số vòng học} và không kết quả nào đạt mức chắc chắn thường dùng ($p < 0{,}05$).
+    \item \textbf{Dữ liệu chỉ phát hiện được tác động rất lớn:} để có 80\% cơ hội nhận ra một tác động, tác động đó phải làm điểm RR giảm khoảng $0{,}015$--$0{,}062$ cho mỗi mức trôi điển hình, tức $15$--$65\%$ điểm RR trung bình (chỉ số MDE$_{80}$).
+    \item \textbf{Phép kiểm chứng bằng độ trôi giả} (thay độ trôi thật bằng độ trôi đo ở nơi không có thay đổi) ở 300 vòng lại cho $\beta = +0{,}49$, $p = 0{,}067$ --- gần như ``có kết quả'' dù biết chắc là không có, thêm một dấu hiệu thang đo chưa chuẩn.
+    \item Một cách đo phụ (phần dư có dấu) cho hệ số âm ở cả ba mức ($p = 0{,}049$; $0{,}050$; $0{,}016$). Kết quả này \textbf{không được coi là phát hiện}: đã thử tới 24 mô hình nên dễ gặp may, chưa có phép kiểm chứng giả cho riêng cách đo này, và nó có thể chỉ phản ánh ``thực thể nào kém ổn định thì vừa lệch nhiều vừa bị trả lời sai'', chứ không phải độ trôi thật.
+\end{itemize}
+Theo quy tắc đã ghi trước --- phép thử đối chứng dương phải đạt ở cả ba mức số vòng, có ít nhất 100 lượt đo hữu ích, ít nhất 5 chuyển tiếp, và kết luận không đổi theo số vòng học --- \textbf{giả thuyết $H_1$ được xếp loại không kiểm định được}. Các hệ số ở trên chỉ để mô tả.
+
+\begin{table}[htbp]
+\centering
+\caption{Kết quả hồi quy TWFE cho giả thuyết $H_1$ trên nhóm thực thể có từ 3 quan hệ.}
+\label{tab:h1}
+\resizebox{\textwidth}{!}{\input{generated/tab_h1}}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_h1_forest.png}
+\caption{Hệ số $\beta$ của mô hình chính và phép kiểm chứng bằng độ trôi giả theo số vòng học. Thanh ngang là khoảng sai số ($\pm 1{,}96$ sai số chuẩn); khi thanh cắt qua đường 0, chưa thể nói hệ số khác 0.}
+\label{fig:h1_forest}
+\end{figure}
+
+\begin{remark}[Nói đơn giản]
+Kết quả không cho biết độ trôi có hại hay vô hại. Mọi thanh sai số đều cắt qua 0, hệ số còn đổi dấu khi học lâu hơn. Muốn trả lời được câu hỏi này, cần nhiều dữ liệu hơn nhiều --- không phải phân tích khéo hơn.
+\end{remark}
+
+% ------------------------------------------------------------------------------
+\section{Những cách phân tích đã thử}
+\label{sec:variants}
+Để người đọc tự đánh giá mức độ ``thử nhiều cách cho đến khi ra kết quả'', Bảng~\ref{tab:variants} liệt kê mọi cách đã thử, kể cả những cách không được dùng.
+
+\begin{table}[htbp]
+\centering
+\caption[Các cách đã thử và kết cục]{Các cách đã thử và kết cục (chi tiết trong \url{docs/RESEARCH_REEXECUTION_PLAN_20261117.md}).}
+\label{tab:variants}
+\small
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Cách đã thử} & \textbf{Kết cục} \\
+\midrule
+Tiêu chí ``học xong'' ban đầu & Không lần học nào đạt; tiêu chí có lỗi thiết kế \\
+Xem thử ngưỡng phân tách nhỏ hơn & Chỉ để tìm nguyên nhân, không dùng \\
+Tiêu chí ``học xong'' sửa lại & 8/9 lần học đạt ở 400 vòng; vẫn chưa đủ \\
+Ba phương án dự phòng (ghi trước) & Không chọn được số vòng; thuật toán Adam kém hơn SGD \\
+Học cố định 400 vòng & Được dùng; kiểm tra lại ở 300 và 500 vòng \\
+Mức tham chiếu nhiễu 50 thực thể & Giữ từ thiết kế cũ, không tính lại \\
+Mức tham chiếu nhiễu 30 thực thể & Chọn sau khi biết số thực thể mỗi chuyển tiếp \\
+24 mô hình hồi quy & Một mô hình chính ghi trước; còn lại là phân tích thêm \\
+\bottomrule
+\end{tabularx}
+\end{table}

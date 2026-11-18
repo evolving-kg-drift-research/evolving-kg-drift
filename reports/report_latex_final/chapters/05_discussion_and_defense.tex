@@ -1,85 +1,65 @@
-\chapter{Thảo luận chuyên sâu và Biện hộ học thuật}
+% ==============================================================================
+% CHƯƠNG 5: THẢO LUẬN (phiên bản 2026-11-18, viết lối dễ hiểu)
+% ==============================================================================
+\chapter{Thảo luận}
 \label{chap:discussion}
 
-Chương này đi sâu vào việc diễn giải ý nghĩa khoa học của các phát hiện thực nghiệm, phân tích các cơ chế tiềm ẩn giải thích cho hành vi của hệ thống, và trình bày các luận điểm bảo vệ tính hợp thức của nghiên cứu trước Hội đồng nghiệm thu đề tài khoa học công nghệ.
+\section{Vì sao không trả lời được câu hỏi chính}
+\label{sec:why_not_testable}
+Mọi kết quả ở Chương~\ref{chap:empirical_results} chỉ về một hướng: \textbf{tiếng ồn to hơn tín hiệu}. Có bốn lý do, xếp từ gốc rễ đến hệ quả.
 
-\section{Diễn giải bản chất của kết quả giả thuyết \texorpdfstring{$H_1$}{H1} và Năng lực thống kê}
-\label{sec:interpret_h1}
+\begin{enumerate}
+    \item \textbf{Dữ liệu quá thưa.} Mỗi lát cắt chỉ có khoảng 120 sự kiện mới, và khoảng 90\% thực thể chỉ xuất hiện trong 1--2 quan hệ. Một thực thể như vậy giống một điểm chỉ được buộc bằng một sợi dây: mỗi lần học lại, nó có thể quay về bất kỳ hướng nào quanh sợi dây đó. Đổi thuật toán học không giải quyết được (thử Adam còn tệ hơn), vì vấn đề nằm ở dữ liệu.
+    \item \textbf{Thước đo chỉ nhạy với thay đổi lớn, và chỉ ở thực thể có nhiều quan hệ.} Thay toàn bộ quan hệ của một thực thể ít quan hệ thì thước đo gần như không nhận ra; với thực thể từ 3 quan hệ thì nhận ra $81$--$99\%$. Trong thực tế, thay đổi tự nhiên của một thực thể thường nhỏ hơn nhiều mức ``thay toàn bộ'' này.
+    \item \textbf{Thang đo bị lệch khi học lâu hơn.} Ở nơi không có độ trôi, tỷ lệ bị đánh dấu ``trôi mạnh'' tăng từ $2{,}7\%$ lên $10{,}3\%$ khi tăng từ 300 lên 500 vòng học. Một giải thích có thể (chưa kiểm chứng): độ trôi của mỗi thực thể lấy trung vị của 3 lần đo, còn mức nhiễu lấy trung vị của 6 lần đo, nên độ trôi tự nhiên dao động mạnh hơn mức nhiễu ngay cả khi không có thay đổi nào.
+    \item \textbf{Quá ít dữ liệu để so sánh.} Chỉ có 404 lượt đo hữu ích từ 127 câu hỏi và 7 chuyển tiếp. Với cỡ mẫu này, chỉ những tác động làm điểm RR giảm $15$--$65\%$ mới có cơ hội tốt để được nhận ra. Ước lượng thô: muốn phát hiện được tác động nhỏ bằng một nửa, cần khoảng gấp bốn lần số lượt đo hữu ích.
+\end{enumerate}
 
-Kết quả ước lượng mô hình Two-Way Fixed Effects cho giả thuyết khoa học chính $H_1$ ghi nhận:
-\begin{equation*}
-    \hat{\beta}_d = -0{,}00366 \quad (SE = 0{,}00717, \; t = -0{,}5113, \; p_{\text{WCB}} = 0{,}574)
-\end{equation*}
-(ở giai đoạn tiền trạm trước đó ghi nhận $\hat{\beta}_d = -0{,}00466$, $p_{\text{WCB}} = 0{,}299$). Dưới góc độ thống kê học cổ điển, kết quả này được xếp vào loại \textbf{Không đủ bằng chứng để kết luận (Inconclusive / Null Effect)}. Tuy nhiên, trong nghiên cứu khoa học thực nghiệm và khoa học máy tính nghiêm ngặt, một kết quả "Null Effect" được thiết kế kiểm soát chặt chẽ mang lại giá trị học thuật to lớn~\cite{angrist2009mostly}.
+\begin{remark}[Điều quan trọng nhất của chương]
+``Không tìm thấy tác động'' \textbf{khác hoàn toàn} với ``đã chứng minh không có tác động''. Muốn nói ``không có'', phải chứng minh được rằng nếu có thì phép đo đã nhận ra --- điều mà dữ liệu hiện tại không làm được. Kết luận phiên bản 28/10/2026 (``độ trôi độc lập với khả năng suy luận'', $p = 0{,}574$) mắc đúng lỗi này, cộng thêm lỗi ngày tháng và mô hình chưa học xong.
+\end{remark}
 
-\subsection{Sự biến mất của tương quan ngây thơ dưới cơ chế Fixed Effects}
-Trong các nghiên cứu trước đây hoặc khi thực hiện phân tích tương quan đơn biến thông thường (OLS không có biến kiểm soát), các nhà nghiên cứu thường quan sát thấy rằng các thực thể có độ dịch chuyển vector lớn thường đi kèm với độ chính xác suy luận kém hơn. Tuy nhiên, đó chỉ là một \textbf{mối tương quan ngụy tạo (Spurious Correlation)} do hiện tượng biến nội sinh bỏ sót (Omitted Variable Bias):
+\section{Vì sao chọn cách làm ở từng bước}
+\label{sec:design_rationale}
+Bảng~\ref{tab:design_rationale} trả lời câu hỏi ``tại sao làm thế này mà không làm khác'' cho từng bước, theo thứ tự ưu tiên: đúng thời gian trước, rồi phép đo phải đáng tin, sau cùng mới đến kiểm định giả thuyết.
+
+\begin{table}[htbp]
+\centering
+\caption{Lựa chọn ở từng bước, lý do, và cách kiểm tra lựa chọn đó.}
+\label{tab:design_rationale}
+\footnotesize
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2.1cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Bước} & \textbf{Đã chọn} & \textbf{Vì sao} & \textbf{Kiểm tra bằng cách nào} \\
+\midrule
+Ngày của tin & Ngày lưu trữ Wayback, nếu không có thì ngày tờ báo tự ghi; không bao giờ dùng ngày máy tải trang & Không được để mô hình ``biết trước tương lai'' & So với mã số bài báo; đọc lại 80 bài bằng cách khác; dựng lại độc lập \\
+Ranh giới lát cắt & Chia đều số sự kiện, không cắt ngang các sự kiện cùng thời điểm & Mỗi lát cắt phải là ``những gì đã biết tới mốc đó'' & Không ranh giới nào cắt ngang; dựng lại trùng từng byte \\
+Nhận diện thực thể & Chỉ chuẩn hóa dựa trên chính cái tên; loại đại từ, từ chung chung & Không dùng thông tin tương lai; bỏ các ``nút trung tâm giả'' như ``ông'' & 38 bài kiểm tra quy tắc, gồm các ca không được gộp nhầm (``Bà Rịa'', ``Ngân hàng Nhà nước'') \\
+Mô hình & TransE-L2, học bằng SGD, học lại 3 lần mỗi lát, cùng một cấu hình & Đề cương chốt TransE; cùng cấu hình để độ trôi không lẫn với thay đổi cấu hình & Đoán tốt hơn cách đơn giản ở 10/10 lát cắt; đo độ ổn định; chạy lại giống hệt \\
+Xoay về cùng hệ trục & Procrustes, chia 5 phần, mỗi thực thể đo bằng phép xoay không dùng chính nó & Mỗi lần học cho một hệ trục tùy ý; phải xoay về chung mới so được & Kiểm tra phép xoay hợp lệ; so sai số trên phần được dùng và phần không được dùng \\
+Mức nhiễu & So các lần học lại trên cùng dữ liệu, chia theo số quan hệ & Cùng dữ liệu thì mọi khác biệt chỉ là nhiễu; nhiễu phụ thuộc số quan hệ & Phép thử đối chứng âm \\
+Độ trôi chuẩn hóa $SED^+$ & Lấy trung vị và độ phân tán trung vị & Chỉ có 3 lần học; trung vị ít bị ảnh hưởng bởi giá trị bất thường & Phép thử đối chứng dương \\
+Câu hỏi & 2--3 bước, giấu mắt xích giữa, bỏ câu quá dễ, chấm điểm có lọc đáp án đúng khác & Câu 1 bước chính là dữ liệu đã học; câu có đường tắt thì không cần suy luận & Kiểm tra từng hàm; 35 câu mẫu chờ duyệt tay \\
+Thống kê & TWFE, bootstrap theo cụm, phép kiểm chứng giả, thử lại với số vòng học khác & So sánh cùng câu hỏi qua thời gian; ít cụm nên cần cách tính mức chắc chắn phù hợp & Mô phỏng: phương pháp tìm lại đúng hệ số đã biết và không báo nhầm quá mức \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Những điểm có thể làm kết quả sai lệch}
+\label{sec:threats}
 \begin{itemize}
-    \item Những câu hỏi suy luận đa bước phức tạp (nhiều bước nhảy, thực thể hiếm, cấu trúc tô-pô thưa thớt) vốn dĩ đã có độ chính xác $RR$ thấp do bản chất độ khó của câu hỏi.
-    \item Đồng thời, các thực thể trong các câu hỏi khó này cũng thường có bậc đồ thị thấp, dẫn đến việc ước lượng vector nhúng kém ổn định và dễ bị biến động vị trí hơn.
-\end{itemize}
-Khi mô hình Two-Way Fixed Effects đưa vào các biến tác động cố định câu hỏi $\alpha_i$ (triệt tiêu hoàn toàn sự khác biệt về độ khó nội tại giữa các câu hỏi) và tác động cố định thời gian $\gamma_t$ (triệt tiêu các cú sốc vĩ mô toàn hệ thống tại mỗi snapshot), mối quan hệ tương quan giả mạo này lập tức biến mất. Điều này khẳng định: \textit{Bản thân sự trôi dạt tọa độ vector của thực thể sau khi đã hiệu chuẩn nhiễu không phải là nguyên nhân trực tiếp gây ra sự sụt giảm thứ hạng của câu trả lời suy luận}.
-
-\subsection{Phân tích năng lực thống kê (Statistical Power Analysis)}
-Một khía cạnh then chốt giải thích vì sao hệ số $\hat{\beta}_d < 0$ nhưng không đạt mức ý nghĩa thống kê $p < 0{,}05$ nằm ở \textbf{năng lực thống kê (statistical power)} của phép thử.
-Trong thiết kế bảng thời gian hiện tại, số cụm thời gian chuyển tiếp là $G = 9$ cụm (tương ứng 9 bước chuyển đổi từ $T_{01} \to T_{10}$). Với số lượng cụm ít ($G = 9$), quy trình suy diễn chuẩn xác Wild Cluster Bootstrap (WCB) với phân phối trọng số Webb tạo ra khoảng tin cậy tương đối rộng để bảo vệ chống lại hiện tượng bác bỏ nhầm giả thuyết không (Type I error inflation).
-Do đó, với độ lớn hiệu ứng nhỏ $\beta_d = -0{,}00466$ ($p_{\text{WCB}} = 0{,}299$) hay $\beta_d = -0{,}00366$ ($p_{\text{WCB}} = 0{,}574$), phép thử thực nghiệm hiện tại bị rơi vào trạng thái \textbf{thiếu năng lực thống kê (underpowered test)}. Để đạt năng lực phát hiện thống kê $\ge 80\%$ cho kích thước hiệu ứng tinh tế này dưới cơ chế suy diễn cụm khắt khe, số lượng mốc thời gian cần được mở rộng lên quy mô $20$--$30$ snapshot trong các nghiên cứu mở rộng tiếp theo.
-
-\section{Giải mã cơ chế qua Giả thuyết \texorpdfstring{$H_2$}{H2}: Đánh giá trên Không gian Thế giới Mở (Open-World)}
-\label{sec:interpret_h2}
-
-Để làm sáng tỏ toàn diện tác động của tiến hóa đồ thị tri thức, phân tích Giả thuyết $H_2$ so sánh đối đầu giữa nhánh mô hình đóng băng (Arm A -- Frozen $T_{01}$) và nhánh mô hình cập nhật liên tục (Arm B -- Updated $T_t$) trên hai không gian ứng viên: Seen-at-T1 Universe và Open-World Universe.
-
-\subsection{Thiết kế Hội đồng QA: Tập câu hỏi Seen-at-T1 cố định}
-Trong thiết kế Hội đồng QA định kỳ (Recurring QA Panel), toàn bộ $147$ câu hỏi (gồm 121 câu 1-hop và 26 câu 2-hop) đều được xây dựng neo cố định trên các thực thể xuất hiện ngay từ thời điểm ban đầu $T_{01}$ (\textit{Seen-at-T1 queries}). Cụ thể, cả thực thể đầu ($h$) và thực thể đích chuẩn xác ($t^*$) của mọi câu hỏi đều đã tồn tại trong không gian $V_1$ ($|V_1| = 167$ thực thể). Thiết kế này đảm bảo tính bất biến của tập câu hỏi kiểm định, triệt tiêu thiên lệch chọn mẫu qua thời gian.
-
-\subsection{Hiện tượng suy thoái nội tại của Arm B trên không gian Seen-at-T1}
-Trên không gian kín Seen-at-T1 ($167$ ứng viên):
-\begin{itemize}
-    \item Mô hình đóng băng Arm A duy trì mức chuẩn xác cơ sở $\text{MRR} = 0{,}6609$ xuyên suốt toàn bộ các mốc thời gian.
-    \item Mô hình tái huấn luyện liên tục Arm B suy thoái hiệu năng rõ rệt, giảm đơn điệu từ $0{,}6128$ ở bước $T_{01} \to T_{02}$ xuống còn $0{,}4658$ ở bước $T_{09} \to T_{10}$, với mức giảm trung bình:
-    \begin{equation}
-        \Delta \text{MRR}_{\text{Seen-at-T1}} = \text{MRR}_{\text{Arm B}} - \text{MRR}_{\text{Arm A}} = 0{,}5225 - 0{,}6609 = -0{,}1384
-    \end{equation}
-\end{itemize}
-Điều này chứng minh rằng việc tái huấn luyện liên tục khi đồ thị mở rộng làm xáo trộn không gian nhúng của các thực thể cũ, gây suy giảm năng lực định vị câu trả lời đúng ngay cả khi chỉ xét trong phạm vi các thực thể đã biết từ $T_{01}$.
-
-\subsection{Cơ chế Distractor trên Không gian Mở (Open-World Universe)}
-Khi mở rộng không gian ứng viên từ tập kín Seen-at-T1 ($167$ thực thể) sang tập Thế giới Mở mở rộng liên tục theo thời gian (từ $167$ thực thể tại $T_{01}$ lên đến $1{,}389$ thực thể tại $T_{10}$):
-\begin{itemize}
-    \item \textbf{Đối với mô hình đóng băng Arm A:} Vì Arm A chỉ có trọng số nhúng của $167$ thực thể ban đầu, theo quy tắc giao thức, toàn bộ các thực thể mới xuất hiện sau $T_{01}$ đều nhận điểm số phạt $-\infty$. Do đó, các thực thể mới luôn xếp sau toàn bộ các thực thể ban đầu trong danh sách sắp hạng. Vì thực thể đích $t^*$ của 147 câu hỏi đều thuộc $T_{01}$, thứ hạng tương đối của $t^*$ trong Arm A hoàn toàn không bị ảnh hưởng bởi các thực thể mới, duy trì $\text{MRR} = 0{,}6609$.
-    \item \textbf{Đối với mô hình cập nhật Arm B:} Vì Arm B được tái huấn luyện trên toàn bộ đồ thị tại $T_t$, toàn bộ $1{,}389$ thực thể đều sở hữu vector nhúng hoàn chỉnh và nhận điểm khoảng cách TransE hữu hạn. Lúc này, hơn $1{,}200$ thực thể mới xuất hiện đóng vai trò như các \textbf{phần tử gây nhiễu ngữ nghĩa (semantic distractors)} trong không gian vector. Do mật độ thực thể trong không gian nhúng tăng vọt, nhiều thực thể mới ngẫu nhiên có vector nằm gần vị trí $\mathbf{e}_h + \sum \mathbf{e}_r$ hơn thực thể đích $t^*$, chen chân vào các vị trí xếp hạng cao và đẩy thực thể đích tụt sâu xuống danh sách.
-\end{itemize}
-Hậu quả là hiệu năng của Arm B trên không gian mở sụt giảm sâu hơn nữa, từ $0{,}5225$ xuống còn $0{,}4955$, nới rộng mức chênh lệch:
-\begin{equation}
-    \Delta \text{MRR}_{\text{Open-World}} = -0{,}1654
-\end{equation}
-Khoảng lệch OOV Bias Gap:
-\begin{equation}
-    \text{Bias Gap}_{\text{OOV}} = \Delta \text{MRR}_{\text{Open-World}} - \Delta \text{MRR}_{\text{Seen-at-T1}} = -0{,}1654 - (-0{,}1384) = -0{,}0270
-\end{equation}
-phản ánh chính xác cái giá phải trả (distractor penalty) khi không gian nhúng bị pha loãng bởi các thực thể mới mà không có cơ chế ràng buộc biên cách ly thích hợp.
-
-\section{Luận điểm biện hộ trước Hội đồng nghiệm thu (Academic Defense)}
-\label{sec:defense_arguments}
-
-Khi bảo vệ báo cáo tổng kết nghiệm thu trước Hội đồng khoa học, nhóm nghiên cứu chuẩn bị 3 luận điểm khoa học vững chắc:
-
-\subsection{1. Tính liêm chính khoa học và Đạo đức nghiên cứu (Scientific Integrity)}
-Trong nghiên cứu khoa học máy tính và kinh tế lượng, một hiện tượng tiêu cực phổ biến là việc "săn lùng $p$-value" ($p$-hacking) hoặc chỉnh sửa tham số hậu nghiệm (post-hoc tuning) nhằm ép buộc các hệ số phải đạt mức ý nghĩa thống kê $p < 0{,}05$. Đề tài kiên quyết nói không với hành vi này:
-\begin{itemize}
-    \item Toàn bộ các tham số khoa học, ngưỡng mốc, và biến kiểm định đều được đăng ký và đóng băng trước khi chạy thực nghiệm (Pre-registered Protocol).
-    \item Kết quả $\hat{\beta}_d = -0{,}00366$ (với $p_{\text{WCB}} = 0{,}574$) và $\hat{\beta}_d = -0{,}00466$ ($p_{\text{WCB}} = 0{,}299$) được công bố trung thực, minh bạch và đầy đủ bằng chứng tái lập.
-    \item Việc chỉ ra một giả thuyết không được ủng hộ bởi dữ liệu thực nghiệm kiểm soát là một đóng góp quan trọng, giúp cộng đồng nhận thức đúng về vai trò của biến kiểm soát Fixed Effects và tránh lãng phí nguồn lực vào các giải pháp can thiệp trôi dạt vector cục bộ không cần thiết.
+    \item \textbf{Từ bên trong nghiên cứu:} ngày đăng do tờ báo tự ghi có thể đã bị sửa; nhận diện thực thể chỉ dựa trên tên, không hiểu ngữ cảnh (không biết ``ông'' là ai); độ chính xác khi trích quan hệ từ bài báo chưa được đo --- một vài câu hỏi mẫu có quan hệ đáng ngờ; nhiều lựa chọn khi huấn luyện được sửa sau khi đã thấy kết quả (đã liệt kê đủ ở Bảng~\ref{tab:variants}).
+    \item \textbf{Từ chính thước đo:} thang đo $SED^+$ lệch dần theo số vòng học; cách tạo thay đổi có chủ đích (thay quan hệ) chỉ là một kiểu và mạnh hơn thay đổi tự nhiên; mô hình chưa học xong hoàn toàn ở 400 vòng.
+    \item \textbf{Khi áp dụng ra ngoài:} chỉ một lĩnh vực (tin công nghệ tiếng Việt từ hai tờ báo), 10 lát cắt, đồ thị nhỏ; không suy ra được cho đồ thị lớn và dày.
+    \item \textbf{Về nghiệm thu:} bộ dữ liệu mới là bản ứng viên, chưa qua các cổng kiểm định chính thức của phần dữ liệu và chưa đối chiếu lại với Neo4j; giả thuyết $H_2$, $H_{3a}$ chưa làm lại.
 \end{itemize}
 
-\subsection{2. Độ tin cậy tối cao từ Kiểm định ngụy tạo (Falsification Success)}
-Mô hình nghiên cứu chứng minh độ tin cậy vượt bậc thông qua việc vượt qua kiểm định ngụy tạo với $p_{\text{WCB}} = 0{,}381$ (và $0{,}495$ ở lần chạy trước), với hệ số $\hat{\beta}_{\text{pseudo}} = -0{,}01144$ ($t = -0{,}9054$). Nếu khung đo lường hoặc mô hình kinh tế lượng có khiếm khuyết nội tại sinh ra kết quả giả mạo, kiểm định ngụy tạo với nhiễu tái huấn luyện $D^{\text{pseudo}}$ chắc chắn sẽ phát hiện ra sai số chuẩn lệch hoặc hệ số có ý nghĩa giả tạo. Việc $D^{\text{pseudo}}$ hoàn toàn không có ý nghĩa thống kê ($p \gg 0{,}05$) là bằng chứng đanh thép bảo vệ tính khách quan của toàn bộ hệ thống.
-
-\subsection{3. Tính tái lập tất định và Bằng chứng chuỗi cung ứng dữ liệu}
-Hệ thống nghiên cứu không phải là một tập hợp các tệp lệnh rời rạc mà là một chuỗi cung ứng dữ liệu phần mềm khép kín:
-\begin{itemize}
-    \item 10 snapshot Parquet canonical khớp mã băm và đạt bình đẳng $100\%$ với cơ sở dữ liệu đồ thị Neo4j.
-    \item Toàn bộ quá trình tính toán đều lưu vết siêu dữ liệu (metadata manifest) gồm mã \texttt{git\_commit}, mã băm cấu hình \texttt{config\_hash}, hạt giống ngẫu nhiên, và chữ ký SHA-256 của từng tệp kết quả.
-    \item Bất kỳ thành viên nào trong Hội đồng nghiệm thu đều có thể tái lập chính xác từng bảng số liệu và biểu đồ trong báo cáo chỉ bằng một lệnh duy nhất.
-\end{itemize}
+\section{Đề tài được phép nói gì, không được nói gì}
+\label{sec:defense}
+\textbf{Được phép nói:}
+\begin{enumerate}
+    \item Đã phát hiện và sửa các lỗi về ngày tháng, nhận diện thực thể và bộ câu hỏi; mọi bước đều kiểm tra độc lập và chạy lại cho kết quả giống hệt.
+    \item Với đồ thị tri thức thưa cỡ này, \textbf{nhiễu do học lại lớn hơn độ trôi} ở phần lớn thực thể; khả năng phát hiện độ trôi phụ thuộc mạnh vào số quan hệ của thực thể.
+    \item Muốn kiểm định được $H_1$ cần: nhiều thực thể có từ 3 quan hệ trở lên, nhiều chuyển tiếp hơn, và một thang đo $SED^+$ không bị lệch theo số vòng học.
+\end{enumerate}
+\textbf{Không được phép nói:} độ trôi có làm hại hay không làm hại khả năng suy luận nhiều bước; và mọi kết luận về mô hình cố định so với mô hình cập nhật của phiên bản trước.
