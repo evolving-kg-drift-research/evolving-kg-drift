@@ -260,7 +260,7 @@ fact, 45/1.205 event chỉ có loại bằng chứng này (3,7%, dưới ngưỡ
 | | v3.1 | v3.2 candidate |
 |---|---|---|
 | fact version / event có thời gian hợp lệ | 1.803 / 1.205 | 1.751 / 1.160 |
-| basis | crawl-time 923 (51%) | Wayback 880, publisher 871 |
+| basis | crawl-time 952 (53%; 923 không có Wayback + 29 có Wayback nhưng v3.1 bỏ qua) | Wayback 880, publisher 871 |
 | độ dài snapshot (ngày) | T08–T10: 0,33 / 0,01 / 0,01 | 36,7 – 76,4 (min ≥ 14 ✔) |
 | cutoff T01 → T10 | 2025-06-01 → 2026-09-07 | 2025-04-27 → 2026-08-15 |
 | triple T01 / T05 / T10 | 121 / 604 / 1.205 | 117 / 580 / 1.160 |
@@ -599,6 +599,31 @@ Người dùng chọn K1: dừng đo, viết kết quả như kết luận phư�
 - **Viết lại:** tóm tắt (`main.tex`), chương 4 (kết quả), chương 5 (thảo luận: vì sao H1 không kiểm định được, lý do thiết kế từng bước, mối đe dọa tính hợp lệ,
   điều được và không được khẳng định), chương 6 (kết luận). **Sửa** chương 1 (đóng góp C2/C3, mô tả mô hình — bản cũ ghi sai "Adam, 50 epoch, margin 1,0",
   snapshot, ghi chú RQ3 chưa trả lời), chương 2 (gỡ 3 hình kết quả cũ, sửa câu khẳng định quá mức về kiểm định giả), chương 3 (M2/M4, giai đoạn 4/6/8/9).
+
+## 12. X1 — Phân tích trích xuất và đăng ký pilot trích xuất lại (2026-11-18) — DRAFT, chưa gửi request nào
+
+Phân tích trên bảng v3.1 (chỉ đọc), sau khi đã biết kết quả N1:
+- **F12 (HIGH):** thân bài Tuổi Trẻ chưa bao giờ được tách: 761 trang raw (~460 KB HTML) → thân bài 45–85 ký tự (selector
+  `article` bắt khung tin liên quan); raw có đủ bài trong `div.detail-cmain` (mẫu: 8.717 ký tự). F10 là hệ quả của lỗi này.
+  323 thân bài Tuổi Trẻ được lọc "include" dựa trên đoạn khung đó.
+- **F13 (HIGH):** recall trích xuất thấp: 1.621 bài VnExpress đủ dài trong miền → 41% không có claim, trung vị 1 claim/bài,
+  không tăng theo độ dài (1,25 ở 1,5–3 nghìn ký tự; 1,19 ở 8–25 nghìn), chủ thể nằm ở trung vị 3% đầu bài. Extractor `v1_local`
+  không rõ mô hình, chưa đo P/R. Entity lớn được nhắc ở 3–10× số bài có claim (Nvidia 219/32, ChatGPT 275/26).
+- Bộ lọc miền đã chạy dùng mã lý do không có trong `config/filter_policy_v1.yaml` (`MATCH_AI`, `TECH_INNOVATION`, …).
+- Precision ước lượng (một người chấm 40 claim, không phải gold): ~70–90%.
+
+Người dùng chọn Gemini. Đăng ký: `configs/x1_reextraction_pilot_v34.yaml` (sha256 `c4f94cf0…`) +
+`docs/x1_gold_annotation_guideline_v1.md`; decision `x1_pilot_registration_approved_20261118` (O1, O2, trần 10 USD).
+Còn chờ: O3 (người gán nhãn) chặn việc gán; API key chặn capture.
+
+**Lấy mẫu đã chạy (không API):** `outputs/x1_reextraction_pilot/20261118T054022Z_c4f94cf0/` (dirty tree, ghi trong manifest).
+- Tuổi Trẻ parser v2 (`src/kg_pipeline/tuoitre_parser_v2.py`): 1.520/1.529 trang tách được (9 thiếu trường → loại có lý do),
+  trung vị 3.119 ký tự. Khung Tuổi Trẻ sau lọc thời gian + từ khóa: 883 bài (636 loại vì không có từ khóa).
+- Mẫu gold 50 (VnExpress 40: 14/13/13 theo tam phân độ dài; Tuổi Trẻ 10: 4/3/3, ngày đăng 07/2025–08/2026), dev 10 tách rời.
+  Văn bản cho người gán: `gold/G01–G50.txt`; mẫu bảng gán `gold_template.csv`.
+- Chẩn đoán: quy tắc từ khóa so với bộ lọc v3.1 trên 3.388 thân bài VnExpress: đồng ý 85% (208 bài v3.1 giữ nhưng không có từ khóa,
+  295 có từ khóa nhưng bị loại) → khung Tuổi Trẻ và VnExpress không được định nghĩa cùng cách; báo cáo kết quả theo nguồn.
+- Kiểm tra: `tests/test_x1_pilot.py` 6 pass; toàn repo 775 pass, 1 fail cũ, 10 skip; ruff sạch.
 - **Kết quả cũ:** hình cũ chuyển vào `figures/superseded_20261028/` (kèm README); PDF cũ đổi tên `main_SUPERSEDED_20261028.pdf`.
 - **Kiểm tra:** máy không có trình biên dịch LaTeX nên **PDF mới chưa được biên dịch**. Đã chạy kiểm tra tĩnh (môi trường, ngoặc, tệp `\input`/hình,
   `\ref`/nhãn, khóa trích dẫn): không lỗi. matplotlib 3.10.9 được cài vào `.venv` chỉ để vẽ hình (không thuộc `requirements.lock.txt`).

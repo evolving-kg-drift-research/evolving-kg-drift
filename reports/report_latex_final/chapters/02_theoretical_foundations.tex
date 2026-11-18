@@ -120,7 +120,7 @@ Hàm mất mát phạt khi mẫu dương chưa có năng lượng thấp hơn m�
 \label{alg:negative_sampling}
 \begin{algorithmic}[1]
 \Require Bộ ba dương $(h, r, t) \in \mathcal{T}^+$, danh mục thực thể $\mathcal{E}$, tập sự thật $\mathcal{T}^+$, số lần thử tối đa $K=100$.
-\State Tung đồng xu ngẫu nhiên Bernoulli $p \sim \text{Bernoulli}(0.5)$.
+\State Tung đồng xu ngẫu nhiên Bernoulli $p \sim \text{Bernoulli}(0{,}5)$.
 \For{$k = 1 \to K$}
     \If{$p == 1$} \Comment{Thay thế thực thể đầu}
         \State Chọn ngẫu nhiên $h' \sim \text{Uniform}(\mathcal{E})$.
@@ -130,11 +130,11 @@ Hàm mất mát phạt khi mẫu dương chưa có năng lượng thấp hơn m�
         \If{$(h, r, t') \notin \mathcal{T}^+$} \Return $(h, r, t')$ \EndIf
     \EndIf
 \EndFor
-\State \Return Bỏ qua mẫu nếu vượt quá $K$ lần thử (Fail-closed / Skip sample).
+\State \Return Bỏ qua mẫu nếu vượt quá $K$ lần thử (không tạo mẫu sai, ghi nhận và bỏ qua).
 \end{algorithmic}
 \end{algorithm}
 
-Mô hình được tối ưu bằng SGD theo từng bộ ba, với kích thước lô nhỏ danh nghĩa $B = 32$, tốc độ học $\eta = 0.01$ và $E = 50$ vòng huấn luyện. Sau mỗi lần cập nhật trọng số, vector thực thể được chiếu về mặt cầu đơn vị để ngăn mô hình giảm mất mát chỉ bằng cách tăng độ dài vector lên vô hạn:
+Mô hình được tối ưu bằng SGD, cập nhật sau từng bộ ba (không gộp lô), với số chiều $d = 64$, tốc độ học $\eta = 0{,}01$, biên $\gamma = 2{,}0$ và $E = 400$ vòng huấn luyện cố định (kiểm tra độ nhạy thêm ở $E = 300$ và $E = 500$). Sau mỗi lần cập nhật trọng số, vector thực thể được chiếu về mặt cầu đơn vị để ngăn mô hình giảm mất mát chỉ bằng cách tăng độ dài vector lên vô hạn:
 \begin{equation}
 \mathbf{e} \leftarrow \frac{\mathbf{e}}{\max\left(1, \|\mathbf{e}\|_2\right)}, \quad \forall e \in \mathcal{E}
 \end{equation}
@@ -205,11 +205,11 @@ Công thức nghiệm ghép hai ma trận trực giao lấy từ SVD để tạo
 \begin{remark}[Cho phép cả phép phản xạ]
 Trong không gian $d = 64$, nghiệm $Q^* = U V^T$ thuộc nhóm trực giao $\mathcal{O}(d)$, với $\det(Q^*) \in \{+1, -1\}$. Như vậy, nghiệm cho phép cả xoay và phản xạ. Hệ thống kiểm tra tính trực giao và hạng của ma trận bằng:
 \begin{equation}
-E_{\text{orth}} = \frac{1}{d} \| Q^T Q - I_d \|_F \le 10^{-4}, \quad \text{rank}(Q) = d = 64
+E_{\text{orth}} = \frac{1}{d} \| Q^T Q - I_d \|_F \le 10^{-6}, \qquad \frac{\text{rank}(\widetilde{X}_{\text{fit}})}{\min(d,\, m_{\text{fit}} - 1)} \ge 0{,}90
 \end{equation}
-Đồng thời, hệ thống kiểm tra sai lệch còn lại trên phần thực thể neo giữ lại để kiểm tra $m_{\text{holdout}}$:
+Đồng thời, hệ thống so khoảng cách sau căn chỉnh trên phần thực thể neo giữ lại (không dùng để tìm nghiệm) với phần dùng để khớp:
 \begin{equation}
-\text{RMSE}_{\text{holdout}} = \sqrt{\frac{1}{m_{\text{holdout}}} \left\| \widetilde{X}_{\text{holdout}} Q^* - \widetilde{Y}_{\text{holdout}} \right\|_F^2} \le 2.0
+\text{Gap} = \operatorname{median}_{\text{holdout}} \left\| \tilde{\mathbf{x}}_e Q^* - \tilde{\mathbf{y}}_e \right\|_2 - \operatorname{median}_{\text{fit}} \left\| \tilde{\mathbf{x}}_e Q^* - \tilde{\mathbf{y}}_e \right\|_2 \le 0{,}65
 \end{equation}
 \end{remark}
 Sai số trực giao cho biết phép biến đổi có giữ được hình học hay không. Sai số trên phần giữ lại cho biết phép căn chỉnh có phù hợp cả với những thực thể neo không dùng để tìm nghiệm hay không.
@@ -256,15 +256,15 @@ Ta tính được:
     \item Với cô-sin sau dịch tâm: $\mathbf{x}_c = (1, 0)^T$, $\mathbf{y}_c = (10-10, 11-10)^T = (0, 1)^T$.
     Khoảng cách sau dịch tâm là:
     \begin{equation}
-    d_{\text{cent}}(\mathbf{x}, \mathbf{y}) = 1 - \frac{1 \cdot 0 + 0 \cdot 1}{1 \cdot 1} = 1 - 0 = 1.0000
+    d_{\text{cent}}(\mathbf{x}, \mathbf{y}) = 1 - \frac{1 \cdot 0 + 0 \cdot 1}{1 \cdot 1} = 1 - 0 = 1{,}0000
     \end{equation}
     \item Với cô-sin sau biến đổi afin: $\mathbf{x}' = (1-0, 0-0)^T I_2 + (10, 10)^T = (11, 10)^T$.
     Khoảng cách sau biến đổi afin là:
     \begin{equation}
-    d_{\text{aff}}(\mathbf{x}, \mathbf{y}) = 1 - \frac{11 \cdot 10 + 10 \cdot 11}{\sqrt{11^2 + 10^2} \sqrt{10^2 + 11^2}} = 1 - \frac{220}{221} \approx 0.004525
+    d_{\text{aff}}(\mathbf{x}, \mathbf{y}) = 1 - \frac{11 \cdot 10 + 10 \cdot 11}{\sqrt{11^2 + 10^2} \sqrt{10^2 + 11^2}} = 1 - \frac{220}{221} \approx 0{,}004525
     \end{equation}
 \end{itemize}
-Ví dụ cho thấy hai cách đo cho kết quả rất khác. Cụm điểm cùng dịch chuyển với tâm, nên thay đổi thật nhìn trên toàn không gian là rất nhỏ. Cô-sin sau dịch tâm lại báo sai lệch cực đại ($1.0$), còn cô-sin sau biến đổi afin phản ánh đúng sự tương đồng cấu trúc ($0.0045$).
+Ví dụ cho thấy hai cách đo cho kết quả rất khác. Cụm điểm cùng dịch chuyển với tâm, nên thay đổi thật nhìn trên toàn không gian là rất nhỏ. Cô-sin sau dịch tâm lại báo sai lệch cực đại ($1{,}0$), còn cô-sin sau biến đổi afin phản ánh đúng sự tương đồng cấu trúc ($0{,}0045$).
 \end{example}
 
 % ==============================================================================
@@ -385,12 +385,12 @@ Phân phối nhiễu thực nghiệm thường lệch và có giá trị ngoại
 \end{equation}
 Với phân phối gần chuẩn, nhân MAD với hệ số hiệu chỉnh sẽ cho ước lượng độ phân tán ít bị ảnh hưởng bởi ngoại lai, tương đương độ lệch chuẩn:
 \begin{equation}
-\widehat{\sigma}_{\text{robust}} = 1.4826 \cdot \text{MAD}(\mathcal{R}_{-e})
+\widehat{\sigma}_{\text{robust}} = 1{,}4826 \cdot \text{MAD}(\mathcal{R}_{-e})
 \end{equation}
 
 Chỉ số độ trôi chuẩn hóa một phía $\text{SED}^+$ được tính như sau:
 \begin{equation}
-\text{SED}^+(e, t) = \frac{\max\left(0, r(e, t)\right)}{1.4826 \cdot \text{MAD}\left(\mathcal{R}_{-e}\right) + \epsilon}
+\text{SED}^+(e, t) = \frac{\max\left(0, r(e, t)\right)}{1{,}4826 \cdot \text{MAD}\left(\mathcal{R}_{-e}\right) + \epsilon}
 \label{eq:sed_plus}
 \end{equation}
 Trong đó, $\epsilon = 10^{-4}$ bảo vệ phép chia khi mẫu số gần 0, kết hợp với ngưỡng sàn $\text{MAD}_{\text{floor}} = 10^{-12}$.
@@ -597,13 +597,13 @@ Trong kinh tế lượng và suy luận nhân quả, tương quan giữa biến 
 \subsection{Biến độ trôi giả (\texorpdfstring{$D_{\text{pseudo}}$}{D\_pseudo})}
 Nghiên cứu tạo biến ngẫu nhiên \textbf{độ trôi giả} ($D_{\text{pseudo}}$) hoàn toàn từ nhiễu trắng Gauss độc lập. Biến này được chuẩn hóa theo đúng quy trình và có cùng khoảng giá trị hình học với độ trôi thật $\text{SED}^+$:
 \begin{equation}
-D_{\text{pseudo}}(i, t) = \frac{\max\left(0, \eta_{it}\right)}{1.4826 \cdot \overline{\text{MAD}}_{\text{null}} + \epsilon}
+D_{\text{pseudo}}(i, t) = \frac{\max\left(0, \eta_{it}\right)}{1{,}4826 \cdot \overline{\text{MAD}}_{\text{null}} + \epsilon}
 \label{eq:pseudo_drift_def}
 \end{equation}
 trong đó:
 \begin{itemize}
     \item $\eta_{it} \sim \mathcal{N}(0, \sigma^2)$ là biến Gauss độc lập, có mức biến thiên tương đương phương sai nền của đồ thị: $\sigma = \text{median}_{e \in \mathcal{S}_i}(\text{MAD}(\mathcal{R}_{-e}))$.
-    \item Mẫu số $1.4826 \cdot \overline{\text{MAD}}_{\text{null}} + \epsilon$ dùng đúng cách chuẩn hóa ít bị ảnh hưởng bởi ngoại lai trong \eqref{eq:sed_plus}.
+    \item Mẫu số $1{,}4826 \cdot \overline{\text{MAD}}_{\text{null}} + \epsilon$ dùng đúng cách chuẩn hóa ít bị ảnh hưởng bởi ngoại lai trong \eqref{eq:sed_plus}.
 \end{itemize}
 
 Biến $D_{\text{pseudo}}$ có cùng miền giá trị $[0, +\infty)$, cùng tập trung xác suất tại 0 do phép $\max(0, \cdot)$ và cùng bậc phương sai với $\text{SED}^+$. Tuy nhiên, $D_{\text{pseudo}}$ không chứa thông tin nào về sự dịch chuyển thật của vector thực thể trong đồ thị tri thức.
@@ -627,9 +627,9 @@ Khung lý thuyết và mô hình kinh tế lượng đặt ra hai điều kiện
     Ước lượng $\widehat{\beta}_d < 0$ thể hiện quan hệ ngược chiều mà lý thuyết dự đoán giữa độ trôi và khả năng suy luận nhiều bước. Khi chỉ có ít cụm thời gian ($G = 9$ cụm), giá trị $p$ từ bootstrap theo cụm nhỏ ($p_{\text{WCB}}$) cho phép kiểm định chính xác liệu quan hệ này có khác 0 sau khi đã xét biến động chung của từng cụm thời gian hay không.
     \item \textbf{Phép kiểm chứng bằng độ trôi giả:}
     \begin{equation}
-    \widehat{\beta}_{\text{pseudo}} \approx 0 \quad \text{và} \quad p_{\text{WCB}}(\widehat{\beta}_{\text{pseudo}}) > 0.05
+    \widehat{\beta}_{\text{pseudo}} \approx 0 \quad \text{và} \quad p_{\text{WCB}}(\widehat{\beta}_{\text{pseudo}}) > 0{,}05
     \end{equation}
-    Phép kiểm bằng độ trôi giả đạt khi $p_{\text{WCB}}(\widehat{\beta}_{\text{pseudo}}) > 0.05$. Đây là điều kiện \textit{cần}, không phải \textit{đủ}. Nó cho thấy riêng nhiễu do học lại không tạo liên hệ giả với kết quả. Muốn biết phép đo có đủ nhạy để phát hiện độ trôi thật hay không, vẫn cần phép thử đối chứng dương.
+    Phép kiểm bằng độ trôi giả đạt khi $p_{\text{WCB}}(\widehat{\beta}_{\text{pseudo}}) > 0{,}05$. Đây là điều kiện \textit{cần}, không phải \textit{đủ}. Nó cho thấy riêng nhiễu do học lại không tạo liên hệ giả với kết quả. Muốn biết phép đo có đủ nhạy để phát hiện độ trôi thật hay không, vẫn cần phép thử đối chứng dương.
 \end{enumerate}
 \end{criterion}
 Nói đơn giản, phép kiểm bằng độ trôi giả giúp xem quy trình có nhầm nhiễu thành một mối liên hệ có ý nghĩa hay không.

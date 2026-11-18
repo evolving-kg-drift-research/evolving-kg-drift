@@ -85,7 +85,7 @@ Chu trình nghiên cứu gồm 9 giai đoạn khép kín. Cả 9 giai đoạn đ
     \item \textbf{Giai đoạn 4: Huấn luyện có kiểm soát mô hình nền TransE-$L_2$:} Huấn luyện độc lập 30 mô hình TransE-$L_2$ (10 lát cắt thời gian $\times$ 3 hạt giống ngẫu nhiên $\{13, 37, 101\}$). Dùng SGD, $d=64$, tốc độ học $0{,}01$, biên $2{,}0$ và ngân sách cố định 400 vòng huấn luyện. Kiểm tra chất lượng bằng MRR có lọc so với mức cơ sở, độ ổn định giữa các hạt giống ngẫu nhiên và khả năng tái lập.
     \item \textbf{Giai đoạn 5: Căn chỉnh Procrustes trực giao có dịch tâm bằng SVD:} Chọn các thực thể neo bền vững $A_{\text{persist}} = V_s \cap V_t$, tức thực thể có ở cả hai đầu chuyển tiếp. Dịch tâm không gian rồi giải bài toán Procrustes trực giao bằng phân tích giá trị kỳ dị SVD để tìm ma trận xoay tối ưu $Q^* \in \mathcal{O}(d)$.
     \item \textbf{Giai đoạn 6: Ước lượng nhiễu nền trên cùng lát cắt thời gian:} Với mỗi chuyển tiếp $T_{t-1} \to T_t$, đo khoảng cách chỉ do nhiễu học lại từ 6 quan sát trên cùng lát cắt thời gian (3 cặp hạt giống ngẫu nhiên $\times$ 2 đầu chuyển tiếp). Khi tính trung vị và độ lệch tuyệt đối trung vị MAD, loại chính thực thể đang xét khỏi phần tham chiếu để loại bỏ hoàn toàn sự tự phụ thuộc.
-    \item \textbf{Giai đoạn 7: Định lượng độ trôi đã hiệu chuẩn $SED^+$:} Đo dịch chuyển theo thời gian $\delta_{\text{time}}$, trừ mức nhiễu nền để được phần dư có dấu $r$, rồi chuẩn hóa thành chỉ số vượt nhiễu không âm $SED^+ = \max(0, r / (1.4826 \cdot \text{MAD}))$.
+    \item \textbf{Giai đoạn 7: Định lượng độ trôi đã hiệu chuẩn $SED^+$:} Đo dịch chuyển theo thời gian $\delta_{\text{time}}$, trừ mức nhiễu nền để được phần dư có dấu $r$, rồi chuẩn hóa thành chỉ số vượt nhiễu không âm $SED^+ = \max(0, r / (1{,}4826 \cdot \text{MAD}))$.
     \item \textbf{Giai đoạn 8: Đánh giá bảng theo dõi câu hỏi nhiều chặng:} Đo thứ hạng nghịch đảo RR của mô hình cập nhật theo từng chuyển tiếp. Các câu hỏi có 2--3 chặng và đủ hỗ trợ; phiên bản thực hiện lại gồm 590 dòng, 259 câu hỏi.
     \item \textbf{Giai đoạn 9: Ước lượng hiệu ứng cố định hai chiều và kiểm chứng bằng độ trôi giả:} Ước lượng hệ số hồi quy bảng hai chiều $\beta_d$ để kiểm tra giả thuyết $H_1$ về suy giảm khả năng suy luận. Tính giá trị $p$ có xét phụ thuộc trong cụm bằng bootstrap theo cụm (9.999 lần, trọng số Webb), rồi kiểm chứng bằng độ trôi giả ($D^{\text{pseudo}}$).
 \end{enumerate}
@@ -116,7 +116,7 @@ Không gộp thực thể bằng thông tin danh tính chỉ có trong tương l
 \textbf{INV-03} & Nguồn gốc chỉ ghi thêm & Kho \texttt{FactVersion} và tệp nguồn thô chỉ ghi thêm, không sửa xóa. Cấm xóa (\texttt{DELETE}), cắt bỏ (\texttt{TRUNCATE}) hoặc ghi đè tại chỗ (\texttt{IN-PLACE UPDATE}). \\
 \addlinespace
 \textbf{INV-04} & Chạy lại cho kết quả giống hệt & Cùng đầu vào, cấu hình và hạt giống ngẫu nhiên phải cho đầu ra giống hệt:
-\begin{center}\small $\text{Hash}(\text{Inputs}) + \text{Hash}(\text{Configs}) + \text{Seed} \implies \text{Bit-identical Output}$\end{center}
+\begin{center}\small $\text{Hash}(\text{Inputs}) + \text{Hash}(\text{Configs}) + \text{Seed} \implies \text{Kết quả giống hệt từng bit}$\end{center}
 Phải tái lập độc lập $100\%$, với mã băm SHA-256 khớp từng byte. \\
 \addlinespace
 \textbf{INV-05} & Parquet và Neo4j khớp nhau & Tập nút và tập cạnh của tệp Parquet chuẩn phải bằng đúng các tập tương ứng trong Neo4j ở mọi lát cắt thời gian:
@@ -146,12 +146,11 @@ Mỗi bước tiếp theo trong quy trình chỉ được chạy khi vượt qua
     \item \textbf{Cổng kiểm tra G1 / G2 -- Thời gian và chất lượng thực thể:} Tự động kiểm tra $100\%$ bản ghi trước khi đưa vào lát cắt thời gian. Không bộ ba nào được vi phạm mốc chốt $t_{\text{cutoff}}$; danh tính thực thể phải nhất quán.
     \item \textbf{Cổng kiểm tra G3 -- Mô hình nền và phép căn chỉnh:} Đánh giá chất lượng hình học của phép căn chỉnh Procrustes trong không gian vector:
     \begin{align}
-        \text{Rank Fraction} &\ge 0.90 \quad (\text{đạt } 1.00 \text{ trên toàn bộ } 81 \text{ cặp so sánh}), \\
-        \text{Normalized Orthogonality Error} &\le 1.0 \times 10^{-5} \quad (\text{đạt } 0.00), \\
-        \text{Relative Holdout Residual} &\le 1.50 \quad (\text{thực tế } \approx 1.36), \\
-        \text{Relative Fit-Holdout Gap} &\le 0.65 \quad (\text{thực tế } \approx 0.53).
+        \text{Tỷ lệ hạng} &\ge 0{,}90 \quad (\text{đạt ở } 239/243 \text{ lần căn chỉnh}), \\
+        \text{Sai số trực giao chuẩn hóa} &\le 1{,}0 \times 10^{-6} \quad (\text{đạt ở mọi lần}), \\
+        \text{Chênh lệch giữ lại} - \text{khớp} &\le 0{,}65 \quad (\text{trung vị thực tế} \approx 0{,}085).
     \end{align}
-    Các chỉ số lần lượt kiểm tra tỷ lệ hạng ma trận, sai số trực giao đã chuẩn hóa, sai lệch tương đối trên phần giữ lại để kiểm tra và chênh lệch sai lệch giữa phần khớp với phần giữ lại.
+    Các chỉ số lần lượt kiểm tra tỷ lệ hạng ma trận, sai số trực giao đã chuẩn hóa, và chênh lệch khoảng cách trung vị giữa phần thực thể giữ lại với phần dùng để khớp (căn chỉnh chéo 5 phần). Bốn lần không đạt đều ở lát cắt $T_{01}$ với $E = 500$ (quá ít thực thể neo, tỷ lệ hạng 0,86--0,89); thực thể trong các lần đó được ghi là không đo được thay vì bị ép tính.
     \item \textbf{Cổng kiểm tra G4 / W7 -- Bảng câu hỏi và khóa quy trình:} Khóa quy trình thực nghiệm, danh sách câu hỏi theo dõi định kỳ và cỡ mẫu trước khi ước lượng kinh tế lượng, để ngăn hoàn toàn việc chọn lọc dữ liệu nhằm có kết quả mong muốn.
 \end{itemize}
 Nói đơn giản, cổng kiểm tra là điểm dừng bắt buộc: chưa đạt điều kiện của bước trước thì chưa chạy bước sau.
