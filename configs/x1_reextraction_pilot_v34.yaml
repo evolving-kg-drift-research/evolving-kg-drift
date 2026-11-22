@@ -1,0 +1,136 @@
+# X1: pilot re-extraction (Gemini) on 50 gold-annotated articles. Decides GO/NO-GO for a full re-extraction (v3.4).
+# Status: O1, O2, O4-budget approved by the user on 2026-11-18 (decision x1_pilot_registration_approved_20261118, which
+# records this file's sha256). O3 (annotators) and the API-key confirmation are still pending; they gate ONLY annotation
+# start and Gemini capture. Sampling and text preparation (no API, no annotation) are allowed now.
+# Disclosure (INV-06): registered on 2026-11-18 AFTER N1 (H1 = NOT_TESTABLE on v3.3) was known. The motivation is the
+# extraction-recall analysis of the same day (docs/RESEARCH_REEXECUTION_PLAN_20261117.md section 12): 41% of 1,621
+# full in-scope VnExpress articles yielded 0 claims, median 1 claim/article independent of length, subjects taken from
+# the first ~3% of the text; Tuoi Tre bodies were never parsed (F12). Every gate below is about extraction quality
+# against human gold; no drift, SED+, RR/MRR, QA or H1 quantity may be used for any choice here or in the main run.
+version: x1_reextraction_pilot_v34_1
+status: APPROVED_PARTIAL_O3_AND_API_KEY_PENDING
+scope: candidate_extraction_quality_only   # not M1 certification; M1/G1/G2 remain BLOCKED
+
+inputs:
+  package: data/evolving_kg_downstream_v3_1          # read-only; raw blobs hash-verified 5,168/5,168
+  body_variants: tables/body_variants.parquet
+  filter_decisions: tables/filter_decisions.parquet
+  ontology: config/ontology.yaml                     # ontology_version 1.1, 10 relations, unchanged
+  entity_normalizer: src/kg_pipeline/entity_map_v2.py   # canonical_key, is_generic_mention (approved S2 rules)
+
+sampling_frame:
+  vnexpress: filter decision == include AND text_char_count >= 200 (1,621 bodies; all are vnexpress_sohoa)
+  tuoitre: >-
+    distinct tuoitre_congnghe raw pages (source_versions, one row per raw_blob_sha256) parsed with
+    tuoitre_parser_v2 (title + sapo + paragraphs of div[data-role=content], photo/related boxes removed);
+    JSON-LD datePublished date (Asia/Ho_Chi_Minh) within config/filter_policy_v1.yaml time_window;
+    text >= 200 chars; domain_keywords of filter_policy_v1 matched on the parsed text ("AI"/"LLM" case-sensitive
+    whole word, others case-insensitive whole phrase); duplicate parsed texts keep the smallest raw_blob_sha256.
+    Unparseable / missing date -> excluded with a reason in frame_report.json, never defaulted.
+  vnexpress_keyword_agreement: the same keyword rule is applied to the VnExpress frame as a diagnostic only
+  forbidden_selection_features: [v1_local claim counts, entity degree, anchor status, drift, SED_plus, RR, MRR, QA, H1]
+
+sampling:
+  order_key: sha256('x1_pilot_v1|' + body_variant_id), ascending
+  strata: source x length tertile within source (VnExpress cut points 2,993 / 4,569 chars, computed on the frame)
+  allocation: largest remainder over tertiles, proportional within source (src/drift/fixed_anchors.py)
+  gold_set_size: 50                # vnexpress 40, tuoitre 10 (O1)
+  prompt_dev_set_size: 10          # vnexpress 8, tuoitre 2; same allocation, next ids in each tertile; never scored
+  lock: gold ids + dev ids written to a manifest with sha256 BEFORE any Gemini call and BEFORE annotation starts
+
+extractor:
+  provider: google_gemini
+  model: gemini-3.8-flash
+  api_version: v1beta
+  phase: pilot
+  payload_policy: approved_public_clean_text_only   # title + body text only; no URL, no metadata
+  temperature: 0
+  candidate_count: 1
+  max_input_chars: 30000          # whole article; over-limit -> WHOLE_ARTICLE_OVER_INPUT_LIMIT, never truncated/chunked
+  max_output_tokens: 8192         # includes thinking tokens
+  max_attempts_per_article: 3     # retry only on transport error, HTTP 5xx/429, or truncated response
+  capture: dev wrapper reusing request_payload/validate_response of src/kg_pipeline/gemini_capture.py with a
+           durable request/response cache; capture_or_replay itself cannot run (requires Gate A + scientific_locked run)
+  response_schema_change: add required string field `evidence_text` (verbatim sentence from the article).
+           Offsets are recomputed deterministically by exact substring search; model offsets are stored but not trusted.
+           Not found verbatim -> claim kept for P/R, flagged SPAN_UNVERIFIED.
+  prompt_template_version: x1_prompt_v1
+  prompt_revision_policy: at most 2 revisions, judged ONLY on the 10 dev articles with mechanical checks
+           (valid JSON, 0 pronoun/generic mentions, evidence_text found verbatim); then frozen and hashed.
+           The gold set is extracted exactly once with the frozen prompt.
+  prompt_template: |
+    Bạn là hệ thống trích xuất tri thức. Đọc TOÀN BỘ bài báo tiếng Việt dưới đây và liệt kê MỌI quan hệ giữa hai
+    thực thể có tên được bài báo khẳng định, chỉ dùng các quan hệ trong danh sách: {relations}
+
+    Định nghĩa (chủ thể -> khách thể):
+    - is_CEO_of: Người -> Tổ chức; người đó là CEO/tổng giám đốc điều hành. Khi đã có is_CEO_of thì không thêm works_at.
+    - works_at: Người -> Tổ chức; người đó giữ chức vụ hoặc làm việc cho tổ chức (kể cả "cựu ..." nếu bài nêu rõ).
+    - acquired_by: Tổ chức/Sản phẩm -> Tổ chức mua lại.
+    - released_by: Mô hình AI/Sản phẩm/Phần mềm -> Tổ chức phát triển hoặc ra mắt nó.
+    - version_of: X -> Y; X là một phiên bản hoặc biến thể thuộc dòng Y.
+    - succeeded_by: X -> Y; Y là bản kế nhiệm của X.
+    - partners_with: Tổ chức <-> Tổ chức; hợp tác, ký kết, đồng tổ chức.
+    - invested_in: Tổ chức/Người -> Tổ chức nhận vốn đầu tư (không tính tài trợ nghiên cứu).
+    - integrated_into: Mô hình AI/Sản phẩm/Phần mềm -> Sản phẩm/Phần mềm/Nền tảng chứa nó.
+    - based_on: Mô hình AI/Sản phẩm/Phần mềm -> Mô hình AI/Phần mềm nền tảng của nó.
+
+    Quy tắc:
+    1. subject_mention và object_mention phải là TÊN RIÊNG chép nguyên văn từ bài. Không dùng đại từ ("ông", "bà",
+       "công ty này") hay danh từ chung ("chatbot", "laptop mới"); nếu bài có nêu tên người/tổ chức được nhắc tới thì
+       dùng tên đó, nếu không thì bỏ quan hệ.
+    2. evidence_text: chép nguyên văn MỘT câu trong bài làm bằng chứng.
+    3. is_speculative = true nếu là kế hoạch, tin đồn, dự kiến; is_negative = true nếu bài phủ nhận quan hệ.
+    4. valid_from_extracted / valid_to_extracted: ngày ISO chỉ khi bài nêu rõ; nếu không thì null.
+    5. evidence_span_start / evidence_span_end: vị trí ký tự (0-based) của evidence_text trong bài.
+    6. Không suy luận từ kiến thức ngoài bài. Không lặp lại cùng một quan hệ.
+    Trả về JSON đúng schema, khóa "claims" là danh sách (có thể rỗng).
+
+    BÀI BÁO:
+    {text}
+
+budget:
+  pricing_basis: USD 0.75 input / 3.75 output per 1M tokens (docs/audit/M1_GEMINI_BUDGET_DRAFT_20261014.md);
+                 re-verified on the provider page and recorded in the run manifest immediately before capture
+  worst_case_per_attempt_usd: "0.041"   # (30,000/3 + 2,500) input tokens + 8,192 output tokens
+  planned_attempts_max: 190             # (50 gold + 10 dev) x 3 + 10 repeat runs
+  hard_cap_usd: "10.00"                 # see open_decisions.O4; every started attempt reserves its worst case
+  expected_usd: "1-2"
+
+gold:
+  guideline: docs/x1_gold_annotation_guideline_v1.md
+  annotators: 2 independent (see O3); blind to Gemini output and to v1_local claims
+  unit: asserted fact (subject, relation, object) per article, with is_speculative / is_negative flags
+  adjudication: disagreements resolved by discussion, a third person decides if unresolved; raw labels kept
+  agreement_check: inter-annotator fact-level F1 before adjudication; < 0.70 -> guideline defect, stop, no scoring
+  lock: adjudicated gold sha256 recorded before scoring
+
+scoring:
+  matching: per article, one-to-one; mentions compared by entity_map_v2.canonical_key; partners_with symmetric;
+            predicted generic mentions (is_generic_mention) count as false positives
+  primary_population: asserted facts (is_negative == false and is_speculative == false) on both sides
+  metrics: precision, recall, F1 (micro); 95% CI by article bootstrap, 10,000 resamples, seed 20261118;
+           per relation, per source; facts/article; zero-fact article rate; SPAN_UNVERIFIED rate; terminal failures
+  baseline: v1_local claims on the same VnExpress gold articles, scored with the identical rule
+  determinism: 10 gold articles re-requested once; report fact-set Jaccard (diagnostic, not a gate)
+
+decision_rule:   # proposed values, see O2; GO requires ALL
+  precision_point_min: 0.85
+  precision_ci_lower_min: 0.75
+  recall_point_min: 0.60
+  correct_asserted_facts_per_article_min: 2.5    # true positives / article (v1_local baseline ~1.1 claims/article)
+  terminal_failure_articles_max: 2               # of 50, after 3 attempts
+  span_verified_rate_min: 0.95
+  on_no_go: report all numbers; any prompt/model change needs a NEW registration and a NEW gold sample
+            (this gold set is never reused for tuning)
+
+outputs: outputs/x1_reextraction_pilot/<run_id>/ (sample manifest, cache, claims, gold, scores, run manifest with
+         git_commit, dirty_state, config sha256, input hashes, pricing snapshot)
+
+out_of_scope: main re-extraction, evidence-time assignment for newly covered articles, entity map changes,
+              snapshot rebuild, any training/drift/QA
+
+open_decisions:
+  O1: APPROVED 2026-11-18 - 40 VnExpress + 10 Tuoi Tre with tuoitre_parser_v2 and the keyword domain rule.
+  O2: APPROVED 2026-11-18 - decision_rule values unchanged.
+  O3: PENDING - names/roles of the two annotators and the adjudicator (gates annotation start).
+  O4: budget APPROVED 2026-11-18 (hard cap USD 10); PENDING - GEMINI_API_KEY with access to gemini-3.8-flash (gates capture).
